@@ -1,11 +1,11 @@
-#ptap
+# **ptap**
 
-ptap (pronounced pee-tap) is a psychophysics platform that can run in-lab and Amazon Mechanical Turk experiments. It is a former branch of mkturk (built originally by E. Issa while at MIT). 
+**ptap** (pee-tap) is a free, browser-based psychophysics platform that runs **in-lab** and **Amazon Mechanical Turk** experiments. It is a former branch of mkturk (built originally by E. Issa while at MIT). 
 
-It is designed to be an easy-to-install, one-stop shop for writing screen-based behavioral tasks and collecting data from in-lab machines and Amazon Mechanical Turk. 
+## What you need to get started...
 
-The guiding principles are: 
-
-* Modularity  
-* Task expressivity 
-* Use of static content 
+* A device with Google Chrome
+* Something to serve static web content:
+    * For messing around on your own computer, you can use **localhost**: python [SimpleHTTPServer](https://docs.python.org/2/library/simplehttpserver.html)
+    * For running Amazon Mechanical Turk, you need to be able to create URLs that **the general public can access**: (s3)[aws.amazon.com/s3] (5GB of storage/month is free and enough for the base **ptap** code and a reasonable number of stimulus images), (Apache)[https://httpd.apache.org/], ...
+* Optional: a Dropbox account (for saving in-lab data)
