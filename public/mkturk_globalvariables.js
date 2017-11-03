@@ -4,6 +4,7 @@
 
 PLAYSPACE = {}
 
+REWARDSTRING = "nreward,unix_timestamp_delta_from_"+window.performance.timing.navigationStart+"\n"
 TOUCHSTRING = ""
 TOUCHSTRING_UDPATECOUNTER = 0
 

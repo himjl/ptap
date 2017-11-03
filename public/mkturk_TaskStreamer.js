@@ -375,6 +375,7 @@ class TaskStreamer{
         dataobj['SESSION'] = SESSION
         dataobj['PLAYSPACE'] = PLAYSPACE
         dataobj['TOUCHSTRING'] = TOUCHSTRING
+        dataobj['REWARDSTRING'] = REWARDSTRING
         dataobj['SUBJECT'] = SUBJECT
         dataobj['SESSION'] = SESSION
 

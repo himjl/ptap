@@ -3,9 +3,17 @@ class UX_poller{
         this.DIO = DIO
         this.min_poll_period = 10*1000 // at least 10 seconds in between polling
         this.last_poll = performance.now()
+        this.calledAutoJuice = false 
     }
 
     async poll(){
+        
+        if (this.calledAutoJuice == false){
+            console.log('Called auto juicer')
+            window.setInterval(function(){R.deliver_reinforcement(1, false)}, 120000)
+            this.calledAutoJuice = true
+        } 
+
         return
         console.log("Called UX_poller.poll()")
         if(performance.now() - this.last_poll < this.min_poll_period){
@@ -38,6 +46,9 @@ class UX_poller{
             // if 1, no change has since been requested by liveplot
         }
 
+
+
+
     }
 
     async _diskread(fpath){
@@ -59,6 +70,8 @@ class UX_poller{
         return "/MonkeyTurk_upstairs/UserUX/"+SESSION.SubjectID+'_juicerequest.txt'
     }
 
+
+
 }
 
 class MechanicalTurk_UX_poller{
@@ -67,9 +80,6 @@ class MechanicalTurk_UX_poller{
     }
 
     async poll(){
-
-
-        
 
         var minimum_trials_left = Math.max(MechanicalTurkSettings["MinimumTrialsForCashIn"] - TRIAL_NUMBER_FROM_SESSION_START, 0)
         if(minimum_trials_left > 0){

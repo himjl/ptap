@@ -38,22 +38,29 @@ class MonetaryReinforcer{
     }
 
 }
+
+
+
 class JuiceReinforcer{
     constructor(){
 
 
     }
 
-    async deliver_reinforcement(nreward){
+    async deliver_reinforcement(nreward, displayFeedbackScreen){
+        displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
         if(nreward >=1){
 
             var RewardDuration = this.setJuicerRewardDuration();
             
-
             SP.playSound('reward_sound');
-            // Async as to not slow the monkey down
-            var p1 = SD.displayReward(100)
+            REWARDSTRING+=nreward+','+Math.round(performance.now())
+            REWARDSTRING+='\n'
 
+            // Async as to not slow the monkey down
+            if(displayFeedbackScreen == true){
+              var p1 = SD.displayReward(100)
+            }
             if(ble.connected == false){
               await p1
             }
@@ -61,14 +68,19 @@ class JuiceReinforcer{
                 var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
                 await Promise.all([p1, p2])
             }
+
             
         }
         else if(nreward == 0){
             // punish
             
             SP.playSound('punish_sound');
-            var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) 
+            if(displayFeedbackScreen == true){
+              var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) 
+            }
+            
         }
+        console.log('Delivered ', nreward, 'rewards')
     }
 
     setJuicerRewardDuration(){
