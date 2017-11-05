@@ -15,24 +15,29 @@ class MonetaryReinforcer{
         this.bonus_per_correct = bonus_usd_per_correct || 0.0007 // one extra dollar for every 1000 correct 
     }
 
-    async deliver_reinforcement(nreward){
+    async deliver_reinforcement(nreward, displayFeedbackScreen){
+      displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
+
         if(nreward >=1){
             this.bonus_total = this.bonus_total + this.bonus_per_correct
             console.log('Running monetary bonus amount', Math.round(this.bonus_total*1000)/1000)
             //CANVAS.sequencepost[1]="reward";
             //CANVAS.tsequencepost[2] = CANVAS.tsequencepost[1]
-
             SP.playSound('reward_sound');
+            if(displayFeedbackScreen == true){
+              
 
-            var p1 = SD.displayReward(100)// (CANVAS.sequencepost,CANVAS.tsequencepost)
+              var p1 = SD.displayReward(100)// (CANVAS.sequencepost,CANVAS.tsequencepost)
             await Promise.all([p1])
+          }
             
         }
         else if(nreward == 0){
             //punish
-
-            SP.playSound('punish_sound');
-            var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
+            if(displayFeedbackScreen == true){
+              SP.playSound('punish_sound');
+              var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
+            }
         }
         SUBJECT['bonus_usd'] = this.bonus_total 
     }
@@ -48,6 +53,7 @@ class JuiceReinforcer{
     }
 
     async deliver_reinforcement(nreward, displayFeedbackScreen){
+
         displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
         if(nreward >=1){
 
