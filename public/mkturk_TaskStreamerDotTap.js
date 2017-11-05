@@ -36,7 +36,6 @@ class TaskStreamer{
     }
 
     selectSampleImage(SampleBagNames, _RNGseed){
-    
         Math.seedrandom(_RNGseed)
 
         // Select sample class 
@@ -152,115 +151,10 @@ class TaskStreamer{
     async get_trial(i){
         // called at the beginning of each trial 
         // returns images, reward maps, and other necessary things for runtrial()
-        var E = this.Experiment[this.state['current_stage']]
-        var trial_idx = i || this.state['current_stage_trial_number']
-
-        var sample_selection_RNGseed = cantor(trial_idx, E['samplingRNGseed'])
-        var test_selection_RNGseed = cantor(trial_idx, E['samplingRNGseed']+1)
-        var distractor_location_RNGseed = cantor(trial_idx, E['samplingRNGseed']+2)
-
-        var SampleBagNames = E['SampleImageBagNames']
-        var TestBagNames = E['TestImageBagNames']
-
-        var t_sample_on = E['t_SampleON']
-        var t_sample_off = E['t_SampleOFF']
         
-        var sample = this.selectSampleImage(SampleBagNames, sample_selection_RNGseed)
-
-        var sample_grid_index = E['SampleGridIndex']
-
-        if(E['Task'] == 'SR'){
-            var test = this.selectTestImagesSR(TestBagNames, test_selection_RNGseed)
-
-            var test_grid_indices = E['ObjectGridMapping']
-            var correct_test_selection = sample['bag_index'] // Indexes ObjectGridMapping
-        }
-        else if(E['Task'] == 'MTS'){
-            var Nway = E['Nway'] || 2
-
-            var test = this.selectTestImagesMTS(TestBagNames, sample['bag_index'], Nway, test_selection_RNGseed)
-            var correct_test_selection = test['bag_index'].indexOf(sample['bag_index']) 
-
-
-            // Set locations of images via grid indexes
-            var _order = [... Array(E['ObjectGridMapping'].length).keys()]
-            _order = shuffle(_order, distractor_location_RNGseed)
-
-            var test_grid_indices = []
-            for (var i_order = 0; i_order <_order.length; i_order++){
-                test_grid_indices.push(E['ObjectGridMapping'][_order[i_order]])
-            }
-
-        }
-        else if(E['Task'] == 'nonMTS'){
-            // Assumes two-way task
-            var Nway = 2
-
-            var test = this.selectTestImagesMTS(TestBagNames, sample['bag_index'], Nway, test_selection_RNGseed)
-            var _match_selection = test['bag_index'].indexOf(sample['bag_index']) 
-            if (_match_selection == 1){
-                var correct_test_selection = 0
-            }
-            else if(_match_selection == 0){
-                var correct_test_selection = 1 
-            }
-
-            // Set locations of images via grid indexes
-            var _order = [... Array(E['ObjectGridMapping'].length).keys()]
-            _order = shuffle(_order, distractor_location_RNGseed)
-            console.log('order', _order)
-
-            var test_grid_indices = []
-            for (var i_order = 0; i_order <_order.length; i_order++){
-                test_grid_indices.push(E['ObjectGridMapping'][_order[i_order]])
-            }
-        }
-        
-        // Buffer image from disk 
-        var sample_image = await this.IB.get_by_name(sample['image_name'])
-
-        var test_images = []
-        for (var i_test_image = 0; i_test_image < test['image_name'].length; i_test_image++){
-            test_images.push(this.IB.get_by_name(test['image_name'][i_test_image]))
-        }
-        test_images = await Promise.all(test_images)
-
-        var choice_reward_amounts = Array(test_grid_indices.length).fill(0)
-        choice_reward_amounts[correct_test_selection] = 1
-
-        // Write down trial
-
-
-        
-        var trial = {}
-
-
-        // fixation 
-        trial['fixation_grid_index'] = this.Experiment[this.state['current_stage']]['FixationGridIndex']
-        trial['fixation_reward'] = this.Experiment[this.state['current_stage']]['FixationReward']
-
         // Stimulus
-        trial['frame_durations'] = [t_sample_on,t_sample_off,0] // List of durations
-        trial['image_sequence'] = [sample_image, 'blank', test_images] // List of {images, lists of images, or [] for blank}
-        trial['grid_placement_sequence'] = [sample_grid_index, [], test_grid_indices] // list of lists
-        trial['frame_names'] = ['frame_stimulus', 'frame_delay', 'frame_choice']
-
-        // Choice
-        trial['choice_rewards'] = choice_reward_amounts // list of award amounts
-        trial['choice_grid_indices'] = test_grid_indices // list of bounding box objects
-        trial['timeout_msec'] = this.Experiment[this.state['current_stage']]['ChoiceTimeOut']
-        trial['choice_area_scale_factor'] = 0.5 // scale the dimensions of choice regions 
-
-        // Optional
-        trial['correct_grid_index'] = test_grid_indices[correct_test_selection]
+        var trial = {}
         
-        trial['sample_bag_index'] = sample['bag_index']
-        trial['sample_image_index'] = sample['image_index']
-
-        trial['test_bag_indices'] = test['bag_index']
-        trial['test_image_indices'] = test['image_index']
-
-
         return trial
     }
 

@@ -74,8 +74,8 @@ class JuiceReinforcer{
         else if(nreward == 0){
             // punish
             
-            SP.playSound('punish_sound');
             if(displayFeedbackScreen == true){
+              SP.playSound('punish_sound');
               var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) 
             }
             

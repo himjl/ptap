@@ -45,8 +45,6 @@ async function setupTabletTask(){
   console.log(window)
   console.log('dimensions', windowWidth, windowHeight)
 
-
-
   DIO = new DropboxIO()
   var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"
   await DIO.build(DBX_REDIRECT_URI)
@@ -65,7 +63,6 @@ async function setupTabletTask(){
   });
 
   
-
   // Load Subject and Experiment file from landing page if available, 
   // otherwise run dialogue
 
@@ -84,7 +81,6 @@ async function setupTabletTask(){
     }
     subjectlistobj.addEventListener("change",subjectlist_listener,false);
     subjectdialog.showModal()
-
 
     // USER INPUT: get Experiment file
     experiment_file_list = await DIO.listdir(EXPERIMENT_DIRPATH)
@@ -122,10 +118,6 @@ async function setupTabletTask(){
   Experiment = JSON.parse(Experiment)
 
 
-
-
-
-  
   TS = new TaskStreamer(DIO, SIO, Experiment["Experiment"], Experiment["ImageBags"], SESSION.SubjectID, "loop") // todo: move terminal setting into experiment constructor 
   await TS.build()
   wdm('TaskStreamer built')

@@ -4,13 +4,15 @@ class UX_poller{
         this.min_poll_period = 10*1000 // at least 10 seconds in between polling
         this.last_poll = performance.now()
         this.calledAutoJuice = false 
+
     }
 
     async poll(){
         
         if (this.calledAutoJuice == false){
             console.log('Called auto juicer')
-            window.setInterval(function(){R.deliver_reinforcement(1, false)}, 120000)
+            R.deliver_reinforcement(1, false)
+            window.setInterval(function(){R.deliver_reinforcement(1, false)}, 60000)
             this.calledAutoJuice = true
         } 
 

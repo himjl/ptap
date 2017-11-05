@@ -26,14 +26,22 @@ await SD.bufferSequenceFrames(sequence_id, image_sequence, grid_placement_sequen
 await SD.displayBlank()
 
 // FIXATION SCREEN
-var fixation_grid_index = 5 // todo: pull from params  
+var fixation_grid_index = TRIAL['fixation_grid_index'] || 5 // todo: pull from params  
+var fixation_reward = TRIAL['fixation_reward'] || 0
+
 var funcreturn = await SD.displayFixation(fixation_grid_index)
 var boundingBoxFixation = funcreturn[0]
 var fixation_timestamps = funcreturn[1]
 
 // Wait for fixation response
-var fixationBoundingBox = RewardMap.create_reward_map_with_bounding_boxes(boundingBoxFixation, 'none')
+var fixationBoundingBox = RewardMap.create_reward_map_with_bounding_boxes(boundingBoxFixation, fixation_reward)
 var fixation_outcome = await RewardMap.Promise_wait_until_active_response_then_return_reinforcement()
+
+// Deliver (optional) reinforcement for fixation 
+nreward = fixation_outcome['reinforcement']
+await R.deliver_reinforcement(nreward, false)
+
+// todo: log reinforcement for fixation
 
 // STIMULUS_SCREEN
 var frame_timestamps = await SD.displaySequence(sequence_id)

@@ -1,7 +1,6 @@
 import boto 
 
 
-MKTURK_PUBLIC_DIRECTORY_PATH = '../ptap/public/'
 MKTURK_LANDINGPAGES_DIRECTORY_PATH = '../ptap/landingPages/'
 split_start = '/ptap' # references above
 
@@ -20,7 +19,9 @@ def upload_public_to_sandbox():
 
     import os
 
-    for root, subdir, files in os.walk(MKTURK_PUBLIC_DIRECTORY_PATH): 
+   
+
+    for root, subdir, files in os.walk(MKTURK_LANDINGPAGES_DIRECTORY_PATH): 
         for fname in files: 
             if fname.startswith('.DS'): 
                 continue
@@ -30,8 +31,6 @@ def upload_public_to_sandbox():
             k.set_contents_from_filename(fpath)
             print 'Uploaded %s'%fkey
             k.set_acl('public-read')
-
-    
             
 if __name__ == '__main__': 
     print 'hello'
