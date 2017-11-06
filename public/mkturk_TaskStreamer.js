@@ -234,10 +234,10 @@ class TaskStreamer{
         
         var trial = {}
 
-
         // fixation 
         trial['fixation_grid_index'] = this.Experiment[this.state['current_stage']]['FixationGridIndex']
         trial['fixation_reward'] = this.Experiment[this.state['current_stage']]['FixationReward']
+        trial['show_fixation'] = this.Experiment[this.state['current_stage']]['ShowFixation']
 
         // Stimulus
         trial['frame_durations'] = [t_sample_on,t_sample_off,0] // List of durations
