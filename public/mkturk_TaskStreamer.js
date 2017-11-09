@@ -254,9 +254,11 @@ class TaskStreamer{
         // Optional
         trial['correct_grid_index'] = test_grid_indices[correct_test_selection]
         
+        trial['sampleBagName'] = sample['bag_name']
         trial['sample_bag_index'] = sample['bag_index']
         trial['sample_image_index'] = sample['image_index']
 
+        trial['testBagNames'] = test['bag_name']
         trial['test_bag_indices'] = test['bag_index']
         trial['test_image_indices'] = test['image_index']
 
@@ -376,7 +378,6 @@ class TaskStreamer{
         dataobj['TOUCHSTRING'] = TOUCHSTRING
         dataobj['REWARDSTRING'] = REWARDSTRING
         dataobj['SUBJECT'] = SUBJECT
-        dataobj['SESSION'] = SESSION
 
         dataobj['Experiment'] = this.Experiment
         
@@ -513,50 +514,47 @@ class TaskStreamer{
 
     update_behavior_records(t, cto){
 
-        // map the timestamps of the frames to your preferred field names 
-        // to save massive headache down the line 
+    
+        t['stageNumber'].push(this.state['current_stage'])
+        t['agentID'].push(SUBJECT['SubjectID'])
+        t['taskID'].push(this.Experiment[this.state['current_stage']]['taskID'])
+        t['gameID'].push(this.Experiment[this.state['current_stage']]['gameID'])
+        t['sessionID'].push(SESSION.CurrentDate)
 
-        // and save the various TRIAL fields of interest to your own fieldnames
-
-        // t: this.trial_behavior, cto: current_trial_outcome created at end of runtrial()
-        t['StartTime'].push(cto['timestamp_FixationAcquired'])
-        t['TrialNumber_Session'].push(TRIAL_NUMBER_FROM_SESSION_START)
-        t['TrialNumber_Stage'].push(this.state['current_stage_trial_number'])
-        t['StageNumber'].push(this.state['current_stage'])
+        t['trialNumberTask'].push(this.state['current_stage_trial_number'])
+        // to infer post hoc? Can calculate here by keeping track of behavioral history. (running counter for experiment hash)
+        //t['trialNumberGame'].push(this.state['current_stage_trial_number'])
+        t['trialNumberSession'].push(TRIAL_NUMBER_FROM_SESSION_START)
 
         t['timestamp_FixationOnset'].push(cto['timestamp_fixation_onset'])
-        
+        t['timestamp_FixationAcquired'].push(cto['timestamp_FixationAcquired'])
         t['timestamp_StimulusOn'].push(cto['frame_timestamps'][0])
         t['timestamp_StimulusOff'].push(cto['frame_timestamps'][1])
         t['timestamp_ChoiceOn'].push(cto['frame_timestamps'][2])
-
+        t['timestamp_Response'].push(cto['timestamp_Choice'])
         t['timestamp_ReinforcementOn'].push(cto['timestamp_reinforcement_on'])
         t['timestamp_ReinforcementOff'].push(cto['timestamp_reinforcement_off'])
 
-        t['ChoiceX'].push(cto['ChoiceX'])
-        t['ChoiceY'].push(cto['ChoiceY'])
-        t['timestamp_Choice'].push(cto['timestamp_Choice'])
-        t['Return'].push(cto['Return'])
+        t['fixationX'].push(cto['FixationX'])
+        t['fixationY'].push(cto['FixationY'])
 
-        t['Response_GridIndex'].push(cto['Response_GridIndex'])
-        t['Correct_GridIndex'].push(cto['TRIAL']['correct_grid_index'])
+        t['responseX'].push(cto['ChoiceX'])
+        t['responseY'].push(cto['ChoiceY'])
+        t['responseGridIndex'].push(cto['Response_GridIndex'])
+        
+        t['return'].push(cto['Return'])
 
-        t['FixationX'].push(cto['FixationX'])
-        t['FixationY'].push(cto['FixationY'])
-        t['timestamp_FixationAcquired'].push(cto['timestamp_FixationAcquired'])
+        t['sampleGridIndex'].push(cto['TRIAL']['grid_placement_sequence'][0])
+        t['sampleImageIndex'].push(cto['TRIAL']['sample_image_index'])
+        t['sampleBagName'].push(cto['TRIAL']['sampleBagName'])
 
-        t['Sample_ImageIndex'].push(cto['TRIAL']['sample_image_index'])
-        t['Sample_BagIndex'].push(cto['TRIAL']['sample_bag_index'])
+        t['choiceGridIndices'].push(cto['TRIAL']['grid_placement_sequence'][2])
+        t['choiceRewardAmounts'].push(cto['TRIAL']['choice_rewards'])
+        t['choiceImageIndices'].push(cto['TRIAL']['test_image_indices'])
+        t['choiceBagNames'].push(cto['TRIAL']['testBagNames'])
 
-        t['Choices_ImageIndices'].push(cto['TRIAL']['test_image_indices'])
-        t['Choices_BagIndices'].push(cto['TRIAL']['test_bag_indices'])
-
-        t['SampleGridIndex'].push(cto['TRIAL']['grid_placement_sequence'][0])
-        t['ChoiceGridIndices'].push(cto['TRIAL']['grid_placement_sequence'][2])
-        t['Choices_RewardAmounts'].push(cto['TRIAL']['choice_rewards'])
-
-        t['Choices_BoundingBoxes'].push(cto['fixation_boundingBoxes'][0])
-        t['Fixation_BoundingBox'].push(cto['choice_boundingBoxes'])
+        //t['choicesBoundingBoxes'].push(cto['fixation_boundingBoxes'][0])
+        //t['fixationBoundingBox'].push(cto['choice_boundingBoxes'])
         
         return t 
     }

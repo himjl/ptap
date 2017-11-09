@@ -14,17 +14,9 @@ async function setupMechanicalTurkTask(){
   console.log('dimensions', windowWidth, windowHeight)
 
 
-
-
-
-  
-
-
   SIO = new S3_IO() 
   DWr = new MechanicalTurkDataWriter()
   UX = new MechanicalTurk_UX_poller()
-
-
 
   //Monitor Battery - from: http://www.w3.org/TR/battery-status/
   navigator.getBattery().then(function(batteryobj){

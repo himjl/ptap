@@ -1,0 +1,11 @@
+[{"criterionTrials":0, 
+"criterionPerformance":0,
+"actionSpace":[], 
+"imageBagActionMapping":{"*bagname":"*actionName - can be gridIndex, 'match', 'nonmatch',"},
+"imageBagBagMapping":{"*bagname":"*bagname - or white dot, etc."},
+"sampleOn":200, 
+"sampleOff":0, 
+"punishTimeOut":1000, 
+"choiceTimeOut":5000,
+}], 
+"imageBags":[{"*obj":["*ids"]}] ]
