@@ -11,8 +11,8 @@ class UX_poller{
         
         if (this.calledAutoJuice == false){
             console.log('Called auto juicer')
-            R.deliver_reinforcement(1, false)
-            window.setInterval(function(){R.deliver_reinforcement(1, false)}, 60000)
+            R.deliver_reinforcement(5, false)
+            window.setInterval(function(){R.deliver_reinforcement(5, false)}, 120000)
             this.calledAutoJuice = true
         } 
 

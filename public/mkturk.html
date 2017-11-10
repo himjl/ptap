@@ -2,6 +2,11 @@
 
 
 <head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
 <link rel="stylesheet" type="text/css" href="mkturk_style.css">
 
 <form style="display: none;" id="MechanicalTurk_SubmissionForm" action="https://www.mturk.com/mturk/externalSubmit" method="post">
@@ -40,7 +45,7 @@
 <button id="drive_juice_button" onclick="writepumpdurationtoBLE(500)">Send juice signal</button>
 
 
-<div id="TrialCounter">0</div>
+<div id="TrialCounter">0123</div>
 <div id="DebugMessageTextBox">0</div>
 <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
 <div id="PreviewModeSplash">
@@ -84,7 +89,6 @@
 <button id = 'WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
 
 <button onclick="reloadPage()" id = "ReloadButton" name="ReloadButton">Reload</button>
-
 
 
 <dialog id="subjectID_dialog">

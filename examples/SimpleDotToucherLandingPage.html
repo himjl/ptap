@@ -9,13 +9,13 @@
 
 async function saveData(){
 	console.log('hello')
+
   await localStorage.setItem("setupFunction", btoa("setupTabletTask()"))
   await localStorage.setItem("manualSetupFlag", btoa(false))
 
  	await localStorage.setItem('SubjectFilePath', btoa('/MonkeyTurk_upstairs/Subjects/SubjectSettings/Chromeo_settings.txt'))
   await localStorage.setItem('ExperimentFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/initialShaping/0_DotTouching.txt'))
   console.log('done')
-
 }
 
 (async function(){
@@ -23,6 +23,10 @@ async function saveData(){
     await saveData()
     window.location.href = "../public/mkturk.html"
 })()
+
+}
+
+
 
 
 </script>

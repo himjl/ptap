@@ -57,7 +57,7 @@ class JuiceReinforcer{
         displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
         if(nreward >=1){
 
-            var RewardDuration = this.setJuicerRewardDuration();
+            var RewardDuration = nreward * this.setJuicerRewardDuration();
             
             SP.playSound('reward_sound');
             REWARDSTRING+=nreward+','+Math.round(performance.now())

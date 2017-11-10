@@ -25,8 +25,6 @@ async function setupTabletTask(){
     'touchend',sync_data_listener,false)
 
   
-
-
    //================== AWAIT CONNECT TO BLE ==================//
     
     connectBLEButtonPromise()
@@ -142,10 +140,6 @@ async function setupTabletTask(){
     wdm("Sounds loaded...")
     FLAGS.debug_mode = 1 
 
-
-   
-
-
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
@@ -153,7 +147,6 @@ async function setupTabletTask(){
 
     // Make sync button visible 
     document.querySelector("button[name=SyncButton]").style.visibility = "visible"
-
 
     // Initialize components of task
     RewardMap = new RewardMapGenerator(['touchmove', 'touchstart'])
