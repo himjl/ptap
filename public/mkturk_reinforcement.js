@@ -36,7 +36,7 @@ class MonetaryReinforcer{
             //punish
             if(displayFeedbackScreen == true){
               SP.playSound('punish_sound');
-              var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
+              var p1 = await SD.displayPunish(TS.Game[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
             }
         }
         SUBJECT['bonus_usd'] = this.bonus_total 
@@ -82,7 +82,7 @@ class JuiceReinforcer{
             
             if(displayFeedbackScreen == true){
               SP.playSound('punish_sound');
-              var p1 = await SD.displayPunish(TS.Experiment[TS.state.current_stage]['PunishTimeOut']) 
+              var p1 = await SD.displayPunish(TS.Game[TS.state.current_stage]['PunishTimeOut'])
             }
             
         }

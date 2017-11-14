@@ -89,7 +89,7 @@ function subjectIDPromise(){
 	return p;
 }
 
-// Select Experiment file
+// Select Game file
 function ExperimentFile_Promise(){
 	var resolveFunc
 	var errFunc

@@ -7,7 +7,6 @@ async function runtrial(){
 
 writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
 
-
 var TRIAL = await TS.get_trial()
 
 var image_sequence = TRIAL['image_sequence']

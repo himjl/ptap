@@ -1,7 +1,5 @@
 //============= AWAIT LOAD PARAMS =============//
 
-
-
 async function run_MouseOver_TutorialTrial(tutorial_image){
 
     // todo: make into object so we can create a 'tutorial' state machine for previewing HITs

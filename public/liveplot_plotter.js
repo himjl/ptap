@@ -25,12 +25,8 @@ async function updatePlot(i){
 
     var window_size = 25 
 
-
-
     var disk_rev = await DIO.get_rev(CURRENT_VIEW['filepath'])
     
-    
-
     
     if(CURRENT_VIEW['rev'] == disk_rev && i!=0){
         
@@ -44,7 +40,6 @@ async function updatePlot(i){
     CURRENT_VIEW['rev'] = disk_rev
 
     
-
     behavior_json = await DIO.read_textfile(CURRENT_VIEW['filepath'])
     behavior_json = JSON.parse(behavior_json)
     console.log(behavior_json)
@@ -60,7 +55,6 @@ async function updatePlot(i){
     last_trial_timestamp = Math.round(unix_start_timestamp + last_trial_timestamp_delta) // in seconds
     last_trial_string = new Date(last_trial_timestamp).toLocaleTimeString('en-US')
 
-    
 
     batteryleft = Math.round(behavior_json['SESSION']['BatteryLDT'].slice(-1)[0][0]*100);
     batteryused = Math.round(batteryleft - behavior_json['SESSION']['BatteryLDT'][0][0]*100);

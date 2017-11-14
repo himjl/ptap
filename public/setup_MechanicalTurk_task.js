@@ -1,31 +1,10 @@
 
 async function setupMechanicalTurkTask(){
 
-  var windowHeight = window.innerHeight
-    || document.documentElement.clientHeight
-    || document.body.clientHeight;
-
-
-  var windowWidth = window.innerWidth
-    || document.documentElement.clientWidth
-    || document.body.clientWidth;
-
-  console.log(window)
-  console.log('dimensions', windowWidth, windowHeight)
-
 
   SIO = new S3_IO() 
   DWr = new MechanicalTurkDataWriter()
   UX = new MechanicalTurk_UX_poller()
-
-  //Monitor Battery - from: http://www.w3.org/TR/battery-status/
-  navigator.getBattery().then(function(batteryobj){
-    SESSION.BatteryLDT.push([batteryobj.level, batteryobj.dischargingTime, Math.round(performance.now())]);
-    batteryobj.addEventListener('levelchange',function(){
-      SESSION.BatteryLDT.push([batteryobj.level, batteryobj.dischargingTime, Math.round(performance.now())]);
-    })
-  });
-
 
   SUBJECT = await loadStringFromLocalStorage("SubjectSettings_string")
   SUBJECT = JSON.parse(SUBJECT)
@@ -33,10 +12,9 @@ async function setupMechanicalTurkTask(){
   wdm("Subject settings loaded...")
 
   SESSION.SubjectID = SUBJECT['SubjectID'];
-  //SESSION.ExperimentFilePath = "https://s3.amazonaws.com/monkeyturk/Tasks/ExperimentDefinitions/NuevoToy.txt"
-  var Experiment = await loadStringFromLocalStorage('Experiment_string')
 
-  //console.log('FROM LOCAL STORAGE:', Experiment)
+  var GAME_URL = await loadStringFromLocalStorage('GAME_URL')
+  Experiment = await SIO.read_textfile(GAME_URL)
   Experiment = JSON.parse(Experiment)
 
 
@@ -47,20 +25,14 @@ async function setupMechanicalTurkTask(){
 
   console.log('FROM LOCAL STORAGE:', MechanicalTurkSettings)
   
-  // Get IP address from local storage
   SESSION['IP_address'] = await loadStringFromLocalStorage('IP_address')
 
   TS = new TaskStreamer(undefined, SIO, Experiment["Experiment"], Experiment["ImageBags"], SESSION.SubjectID, MechanicalTurkSettings['on_finish']) 
   await TS.build(MechanicalTurkSettings['MinimumTrialsForCashIn'])
   wdm('TaskStreamer built')
 
-
-  //================== await create SoundPlayer ==================// 
     SP = new SoundPlayer()
     await SP.build()    
-
-    wdm("Sounds loaded...")
-
 
     FLAGS.debug_mode = 1 
 
@@ -68,13 +40,10 @@ async function setupMechanicalTurkTask(){
     // Initialize components of task
     RewardMap = new RewardMapGenerator(['mousemove', 'touchmove', 'touchstart']); 
     
-
     R = new MonetaryReinforcer(MechanicalTurkSettings['bonus_usd_per_correct'])
 
-
-  var ngridpoints = TS.Experiment[0]['NGridPoints'] 
-  setupPlayspace(ngridpoints) // sets up PLAYSPACE based on window dimensions
-
+  var ngridpoints = TS.Game[0]['NGridPoints']
+  setupPlayspace(ngridpoints) 
 
   SD = new ScreenDisplayer()
 
@@ -82,11 +51,11 @@ async function setupMechanicalTurkTask(){
 
 
   var skip_preview_mode = false
-  console.log(window.location.href.startsWith('http://localhost:7800'))
 
   if(skip_preview_mode != true && window.location.href.startsWith('http://localhost:7800') == false){
     if(SUBJECT['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE' || SUBJECT['assignmentId'] == '' ){
       console.log('RUNNING IN PREVIEW MODE')
+
       // If in preview mode on MechanicalTurk
       toggleElement(1, 'PreviewModeSplash')
       var tutorial_image = await SIO.load_image('tutorial_images/TutorialMouseOver.png')
@@ -97,15 +66,14 @@ async function setupMechanicalTurkTask(){
     }
   }
 
-  // Show user the cash-in button, which is referenced in the instructions
+
   document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'visible'
   toggleCashInButtonClickability(0)
 
 
-
-
   var show_instructions = true
   if(show_instructions == true){
+
     var screen1_instructions =  "" 
     screen1_instructions += "<ul>"
     screen1_instructions +='<p><text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at MIT!</text>'
@@ -118,19 +86,13 @@ async function setupMechanicalTurkTask(){
     screen1_instructions += "</ul>"
 
     await showMechanicalTurkInstructions(screen1_instructions)
-    // Ask for handedness 
-    
-    // Show device selection
     var hand_used = await showHandSelectionDialogue_and_getUserSelection()
     var device_selected = await showDeviceSelectionDialogue_and_getUserSelection()
-    
-    console.log(hand_used)
-    console.log(device_selected)
+
   }
   transition_from_debug_to_science_trials()
 
   // Show trial progress counter
-  
   toggleElement(1, 'MechanicalTurk_ProgressBar')
   toggleElement(1, 'MechanicalTurk_TrialBar')
 

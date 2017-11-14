@@ -61,7 +61,7 @@ async function setupTabletTask(){
   });
 
   
-  // Load Subject and Experiment file from landing page if available, 
+  // Load Subject and Game file from landing page if available,
   // otherwise run dialogue
 
   var run_manual_setup = await loadStringFromLocalStorage("manualSetupFlag") || 'true'
@@ -80,7 +80,7 @@ async function setupTabletTask(){
     subjectlistobj.addEventListener("change",subjectlist_listener,false);
     subjectdialog.showModal()
 
-    // USER INPUT: get Experiment file
+    // USER INPUT: get Game file
     experiment_file_list = await DIO.listdir(EXPERIMENT_DIRPATH)
     experiment_dialog = document.getElementById("ExperimentFile_dialog");
     experimentfile_obj = document.getElementById("ExperimentFile_list");
@@ -115,21 +115,17 @@ async function setupTabletTask(){
   var Experiment = await DIO.read_textfile(SESSION.ExperimentFilePath)
   Experiment = JSON.parse(Experiment)
 
-
   TS = new TaskStreamer(DIO, SIO, Experiment["Experiment"], Experiment["ImageBags"], SESSION.SubjectID, "loop") // todo: move terminal setting into experiment constructor 
   await TS.build()
   wdm('TaskStreamer built')
-
-
 
   var estimated_eye_screen_distance_inches = SUBJECT['estimated_eye_screen_distance_inches']
   var estimated_screen_virtual_pixels_per_inch = SUBJECT['estimated_screen_virtual_pixels_per_inch']
   var estimated_grid_vertical_offset_inches = SUBJECT['estimated_grid_vertical_offset_inches']
   var intended_grid_degrees_of_visual_angle = SUBJECT['intended_grid_degrees_of_visual_angle']
   
-  
 
-  var ngridpoints = TS.Experiment[0]['NGridPoints'] 
+  var ngridpoints = TS.Game[0]['NGridPoints']
   setupPlayspace(ngridpoints, estimated_eye_screen_distance_inches, estimated_screen_virtual_pixels_per_inch, estimated_grid_vertical_offset_inches, intended_grid_degrees_of_visual_angle) // sets up PLAYSPACE based on window dimensions
 
 

@@ -36,7 +36,7 @@ function updateSessionTextbox(SubjectID, ExperimentName){
 
 	  var line1_prefix = "<b>Subject:</b> "
 	  var linebreak = "<br>"
-	  var line2_prefix = "<b>Experiment:</b> "
+	  var line2_prefix = "<b>Game:</b> "
 
 	  sess_textbox.innerHTML = line1_prefix + SubjectID + linebreak + line2_prefix + ExperimentName
 }

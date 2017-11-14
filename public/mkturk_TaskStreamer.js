@@ -1,12 +1,12 @@
 
 class TaskStreamer{
-    constructor(DIO_checkpointing, DIO_images, Experiment, ImageBags, SubjectID, on_finish){
+    constructor(DIO_checkpointing, DIO_images, Game, ImageBags, SubjectID, on_finish){
         // To save 
         this.trial_behavior = this.initialize_behavior_records()
 
         this.DIO_checkpointing = DIO_checkpointing // For writing checkpoints 
 
-        this.Experiment = Experiment
+        this.Game = Game
         this.ImageBags = ImageBags
 
         this.use_checkpointing = (DIO_checkpointing != undefined) 
@@ -152,7 +152,7 @@ class TaskStreamer{
     async get_trial(i){
         // called at the beginning of each trial 
         // returns images, reward maps, and other necessary things for runtrial()
-        var E = this.Experiment[this.state['current_stage']]
+        var E = this.Game[this.state['current_stage']]
         var trial_idx = i || this.state['current_stage_trial_number']
 
         var sample_selection_RNGseed = cantor(trial_idx, E['samplingRNGseed'])
@@ -235,9 +235,9 @@ class TaskStreamer{
         var trial = {}
 
         // fixation 
-        trial['fixation_grid_index'] = this.Experiment[this.state['current_stage']]['FixationGridIndex']
-        trial['fixation_reward'] = this.Experiment[this.state['current_stage']]['FixationReward']
-        trial['show_fixation'] = this.Experiment[this.state['current_stage']]['ShowFixation']
+        trial['fixation_grid_index'] = this.Game[this.state['current_stage']]['FixationGridIndex']
+        trial['fixation_reward'] = this.Game[this.state['current_stage']]['FixationReward']
+        trial['show_fixation'] = this.Game[this.state['current_stage']]['ShowFixation']
 
         // Stimulus
         trial['frame_durations'] = [t_sample_on,t_sample_off,0] // List of durations
@@ -248,7 +248,7 @@ class TaskStreamer{
         // Choice
         trial['choice_rewards'] = choice_reward_amounts // list of award amounts
         trial['choice_grid_indices'] = test_grid_indices // list of bounding box objects
-        trial['timeout_msec'] = this.Experiment[this.state['current_stage']]['ChoiceTimeOut']
+        trial['timeout_msec'] = this.Game[this.state['current_stage']]['ChoiceTimeOut']
         trial['choice_area_scale_factor'] = 0.5 // scale the dimensions of choice regions 
 
         // Optional
@@ -267,8 +267,8 @@ class TaskStreamer{
     }
 
     _check_transition_criterion(){
-        var min_trials = this.Experiment[this.state['current_stage']]['MinTrialsCriterion']
-        var average_return_criterion = this.Experiment[this.state['current_stage']]['AverageReturnCriterion']
+        var min_trials = this.Game[this.state['current_stage']]['MinTrialsCriterion']
+        var average_return_criterion = this.Game[this.state['current_stage']]['AverageReturnCriterion']
         
    
 
@@ -304,10 +304,10 @@ class TaskStreamer{
         var Return = current_trial_outcome['Return']
 
 
-        var _repeat_if_wrong_probability = this.Experiment[this.state.current_stage]['probability_repeat_trial_if_wrong'] || 0
+        var _repeat_if_wrong_probability = this.Game[this.state.current_stage]['probability_repeat_trial_if_wrong'] || 0
         if(Return == 0){
 
-            var repeat_rng_seed = cantor(this.state['current_stage'], this.Experiment[this.state.current_stage]['samplingRNGseed'])
+            var repeat_rng_seed = cantor(this.state['current_stage'], this.Game[this.state.current_stage]['samplingRNGseed'])
             Math.seedrandom(repeat_rng_seed)
 
             if(Math.random() < _repeat_if_wrong_probability){
@@ -329,9 +329,9 @@ class TaskStreamer{
         if(this._done_monitoring == false){
             var transition_criterion_met = this._check_transition_criterion()
             if(transition_criterion_met == true){
-                updateProgressbar(this.state['current_stage_trial_number']+1 / this.Experiment.length*100, 'StageBar', 'Stages finished:')
+                updateProgressbar(this.state['current_stage_trial_number']+1 / this.Game.length*100, 'StageBar', 'Stages finished:')
                 
-                if(this.state['current_stage'] + 1 >= this.Experiment.length){
+                if(this.state['current_stage'] + 1 >= this.Game.length){
                     // Out of stages; start looping or continue current stage 
                     if (this.on_finish == 'loop'){
                         this.state['current_stage'] = 0 
@@ -379,7 +379,7 @@ class TaskStreamer{
         dataobj['REWARDSTRING'] = REWARDSTRING
         dataobj['SUBJECT'] = SUBJECT
 
-        dataobj['Experiment'] = this.Experiment
+        dataobj['Game'] = this.Game
         
         //dataobj['IMAGEMETA'] = this.image_meta
         // dataobj["IMAGEBAGS"] = this.ImageBags # potentially HUGE 
@@ -415,7 +415,7 @@ class TaskStreamer{
         console.log('Constructing new trial queue')
 
 
-        var Experiment = this.Experiment
+        var Experiment = this.Game
         this.EXPERIMENT_hash = JSON.stringify(Experiment).hashCode()
 
         if(this.use_checkpointing == true){
@@ -425,7 +425,7 @@ class TaskStreamer{
 
                 checkpoint = JSON.parse(checkpoint)
                 if(checkpoint['EXPERIMENT_hash'] != this.EXPERIMENT_hash){
-                    wdm('Checkpoint file on disk does not match current Experiment. Generating default state...')
+                    wdm('Checkpoint file on disk does not match current Game. Generating default state...')
                     this._generate_default_state() 
                     await this.save_ckpt()
                 }
@@ -447,7 +447,7 @@ class TaskStreamer{
         }
 
 
-        // Prebuffer stages of Experiment
+        // Prebuffer stages of Game
         for (var i_stage = 0; i_stage < Experiment.length; i_stage++){
 
             var _tk = Experiment[i_stage]
@@ -514,12 +514,11 @@ class TaskStreamer{
 
     update_behavior_records(t, cto){
 
-    
         t['stageNumber'].push(this.state['current_stage'])
         t['agentID'].push(SUBJECT['SubjectID'])
-        t['taskID'].push(this.Experiment[this.state['current_stage']]['taskID'])
-        t['gameID'].push(this.Experiment[this.state['current_stage']]['gameID'])
-        t['sessionID'].push(SESSION.CurrentDate)
+        t['taskID'].push(this.Game[this.state['current_stage']]['taskID'])
+        t['gameID'].push(this.Game[this.state['current_stage']]['gameID'])
+        t['sessionID'].push(SUBJECT['SubjectID'] + '_' + SESSION.CurrentDate)
 
         t['trialNumberTask'].push(this.state['current_stage_trial_number'])
         // to infer post hoc? Can calculate here by keeping track of behavioral history. (running counter for experiment hash)
@@ -561,42 +560,34 @@ class TaskStreamer{
     initialize_behavior_records(){
         var t = {}
 
-        t['StartTime'] = []
-        t['TrialNumber_Session'] = []
-        t['TrialNumber_Stage'] = []
-        t['StageNumber'] = []
-
-        t['timestamp_FixationOnset'] = []
-        t['timestamp_StimulusOn'] = []
-        t['timestamp_StimulusOff'] = []
-        t['timestamp_ChoiceOn'] = []
-        t['timestamp_ReinforcementOn'] = []
-        t['timestamp_ReinforcementOff'] = []
-
-        t['ChoiceX'] = []
-        t['ChoiceY'] = []
-        t['timestamp_Choice'] = []
-        t['Return'] = [] 
-
-        t['Response_GridIndex'] = []
-        t['Correct_GridIndex'] = []
-
-        t['FixationX'] = []
-        t['FixationY'] = []
-        t['timestamp_FixationAcquired'] = []
-
-        t['Sample_ImageIndex'] = []  
-        t['Sample_BagIndex'] = []
-
-        t['Choices_ImageIndices'] = [] 
-        t['Choices_BagIndices'] = [] 
-
-        t['SampleGridIndex'] = []
-        t['ChoiceGridIndices'] = []
-        t['Choices_RewardAmounts'] = [] 
-
-        t['Choices_BoundingBoxes'] = []
-        t['Fixation_BoundingBox'] = [] 
+        t['stageNumber']=[]
+        t['agentID']=[]
+        t['taskID']=[]
+        t['gameID']=[]
+        t['sessionID']=[]
+        t['trialNumberTask']=[]
+        t['trialNumberSession']=[]
+        t['timestamp_FixationOnset']=[]
+        t['timestamp_FixationAcquired']=[]
+        t['timestamp_StimulusOn']=[]
+        t['timestamp_StimulusOff']=[]
+        t['timestamp_ChoiceOn']=[]
+        t['timestamp_Response']=[]
+        t['timestamp_ReinforcementOn']=[]
+        t['timestamp_ReinforcementOff']=[]
+        t['fixationX']=[]
+        t['fixationY']=[]
+        t['responseX']=[]
+        t['responseY']=[]
+        t['responseGridIndex']=[]
+        t['return']=[]
+        t['sampleGridIndex']=[]
+        t['sampleImageIndex']=[]
+        t['sampleBagName']=[]
+        t['choiceGridIndices']=[]
+        t['choiceRewardAmounts']=[]
+        t['choiceImageIndices']=[]
+        t['choiceBagNames']=[]
         
         return t
     }
