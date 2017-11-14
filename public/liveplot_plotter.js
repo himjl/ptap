@@ -44,14 +44,34 @@ async function updatePlot(i){
     behavior_json = JSON.parse(behavior_json)
     console.log(behavior_json)
     trial_behavior = behavior_json['BEHAVIOR']
+
+    trial_responseGridIndex = trial_behavior['Response_GridIndex']
+    if(trial_responseGridIndex == undefined){
+        trial_responseGridIndex = trial_behavior['responseGridIndex']
+    }
+    trial_numberSession = trial_behavior['TrialNumber_Session']
+    if (trial_numberSession == undefined){
+        trial_numberSession = trial_behavior['trialNumberSession']
+    }
     trial_returns = trial_behavior['Return']
+    if (trial_returns == undefined){
+        trial_returns = trial_behavior['return']
+    }
     var smoothed_trial_returns = smooth(trial_returns, window_size)
-    var tooltip = trial_behavior['StartTime']
 
     // Extract meta info
     subjectname = behavior_json['SESSION']['SubjectID']
+    if(subjectname == undefined){
+        subjectname = behavior_json['SESSION']['agentID']
+    }
+
     unix_start_timestamp = behavior_json['SESSION']['UnixTimestampAtStart'] // sec
-    last_trial_timestamp_delta = behavior_json['BEHAVIOR']['StartTime'].slice(-1)[0] // sec
+    last_trial_timestamp_delta = behavior_json['BEHAVIOR']['StartTime']
+    if(last_trial_timestamp_delta == undefined){
+        last_trial_timestamp_delta = behavior_json['BEHAVIOR']['timestamp_FixationOnset']
+    }
+    last_trial_timestamp_delta = last_trial_timestamp_delta.slice(-1)[0] // sec
+
     last_trial_timestamp = Math.round(unix_start_timestamp + last_trial_timestamp_delta) // in seconds
     last_trial_string = new Date(last_trial_timestamp).toLocaleTimeString('en-US')
 
@@ -81,10 +101,10 @@ async function updatePlot(i){
     var dataPerf = new google.visualization.DataTable()
     var data_array = []
 
-    for (var j = 0; j<trial_behavior['Return'].length; j++){
+    for (var j = 0; j<trial_returns.length; j++){
         data_array.push([
-            trial_behavior['TrialNumber_Session'][j], 
-            trial_behavior['Return'][j], 
+            trial_numberSession[j], 
+            trial_returns[j], 
             smoothed_trial_returns[j], 
             ]) 
     }
@@ -92,7 +112,6 @@ async function updatePlot(i){
     dataPerf.addColumn('number', 'Session trial number');
     dataPerf.addColumn('number', 'Trial reward');
     dataPerf.addColumn('number', 'Smoothed (n='+window_size+') reward');
-    //dataPerf.addColumn({type:'string', role:'tooltip'})
 
     dataPerf.addRows(data_array);
     var options = {
@@ -117,8 +136,8 @@ async function updatePlot(i){
       var action_array = {}
 
 
-    for (var j = 0; j<trial_behavior['Response_GridIndex'].length; j++){
-        var resp = trial_behavior['Response_GridIndex'][j]
+    for (var j = 0; j<trial_responseGridIndex.length; j++){
+        var resp = trial_responseGridIndex[j]
         if(action_array[resp] == undefined){
             action_array[resp] = 0
         }
