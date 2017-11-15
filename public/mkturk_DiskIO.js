@@ -115,6 +115,11 @@ class S3_IO{
 
         // Configuring S3: to accept xhttp requests:
         // https://stackoverflow.com/questions/17533888/s3-access-control-allow-origin-header
+        
+        // scrub text url of quotations: 
+        text_url = text_url.replace(/['"]+/g, '')
+
+
         var resolveFunc
         var rejectFunc
         var p = new Promise(function(resolve, reject){

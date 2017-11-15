@@ -46,7 +46,6 @@ if (TRIAL['show_fixation'] != false){
 	// todo: log reinforcement for fixation
 }
 
-
 // STIMULUS_SCREEN
 var frame_timestamps = await SD.displaySequence(sequence_id)
 

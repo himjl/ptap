@@ -27,7 +27,12 @@ async function setupMechanicalTurkTask(){
   
   SESSION['IP_address'] = await loadStringFromLocalStorage('IP_address')
 
-  TS = new TaskStreamer(undefined, SIO, Experiment["Experiment"], Experiment["ImageBags"], SESSION.SubjectID, MechanicalTurkSettings['on_finish']) 
+
+  var Game = Experiment['Experiment']
+  if (Game == undefined){
+    Game = Experiment['Game']
+  }
+  TS = new TaskStreamer(undefined, SIO, Game, Experiment["ImageBags"], SESSION.SubjectID, MechanicalTurkSettings['on_finish']) 
   await TS.build(MechanicalTurkSettings['MinimumTrialsForCashIn'])
   wdm('TaskStreamer built')
 
@@ -50,7 +55,7 @@ async function setupMechanicalTurkTask(){
   window.addEventListener('resize', onWindowResize)
 
 
-  var skip_preview_mode = false
+  var skip_preview_mode = true
 
   if(skip_preview_mode != true && window.location.href.startsWith('http://localhost:7800') == false){
     if(SUBJECT['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE' || SUBJECT['assignmentId'] == '' ){

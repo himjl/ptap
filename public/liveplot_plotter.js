@@ -21,6 +21,8 @@ function update_status_strings(){
 
 
 }
+
+
 async function updatePlot(i){
 
     var window_size = 25 
