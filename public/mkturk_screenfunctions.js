@@ -30,7 +30,6 @@ function setHandSelection(element, handedness){
 
 }
 
-
 function updateSessionTextbox(SubjectID, ExperimentName){
 	  var sess_textbox = document.getElementById("SessionTextBox")
 
@@ -45,7 +44,6 @@ function writeToTrialCounterDisplay(s){
 	var elem = document.getElementById('TrialCounter')
 	elem.innerHTML = s; // text
 }
-
 
 
 function toggleElement(on_or_off, element_id){

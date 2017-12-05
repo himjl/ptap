@@ -4,6 +4,38 @@
 		"selected_items":
 		[
 			[
+				"freeze",
+				"freezeCriterionTrials"
+			],
+			[
+				"readout",
+				"readoutPredictionHistory"
+			],
+			[
+				"Not",
+				"NotFittedError"
+			],
+			[
+				"guiding",
+				"guidingReadoutIndex"
+			],
+			[
+				"guidig",
+				"guidingReadoutIndex"
+			],
+			[
+				"active",
+				"activeReadoutIndex"
+			],
+			[
+				"current",
+				"currentReadoutIndex"
+			],
+			[
+				"_id2",
+				"_id2Features"
+			],
+			[
 				"_image",
 				"_image_cache"
 			],
@@ -482,231 +514,48 @@
 			[
 				"AUTOM",
 				"AUTOMATOR_SAMPLE_BAG_PATHS"
-			],
-			[
-				"not",
-				"not_downloaded_filenames"
-			],
-			[
-				"trial_s",
-				"trial_sampleImage_index"
-			],
-			[
-				"trial_xyt",
-				"trial_xytfixation"
-			],
-			[
-				"need2load",
-				"need2loadImages"
-			],
-			[
-				"current",
-				"currentAutomatorStage"
-			],
-			[
-				"bagitem",
-				"bagitems_paths"
-			],
-			[
-				"curren",
-				"currentAutomatorStage"
-			],
-			[
-				"automator",
-				"automatorFilePath"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "Michaelo_landing_page.html",
+			"file": "public/liveplot.html",
 			"settings":
 			{
-				"buffer_size": 853,
-				"encoding": "UTF-8",
+				"buffer_size": 3368,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "Zico_landing_page.html",
+			"file": "public/liveplot_eventlisteners.js",
 			"settings":
 			{
-				"buffer_size": 705,
+				"buffer_size": 3258,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "mkturk_bluetooth.js",
+			"file": "public/liveplot_globals.js",
 			"settings":
 			{
-				"buffer_size": 10366,
+				"buffer_size": 160,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "mkturk_canvas_business.js",
+			"file": "public/liveplot_utils.js",
 			"settings":
 			{
-				"buffer_size": 10480,
+				"buffer_size": 2954,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "mkturk_data_writer.js",
+			"file": "public/liveplot_plotter.js",
 			"settings":
 			{
-				"buffer_size": 6228,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_DiskIO.js",
-			"settings":
-			{
-				"buffer_size": 11517,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_eventlisteners.js",
-			"settings":
-			{
-				"buffer_size": 3018,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_globalvariables.js",
-			"settings":
-			{
-				"buffer_size": 2380,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_ImageBuffer.js",
-			"settings":
-			{
-				"buffer_size": 5002,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_installsettings.js",
-			"settings":
-			{
-				"buffer_size": 2543,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_reinforcement.js",
-			"settings":
-			{
-				"buffer_size": 3824,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_rewardmap.js",
-			"settings":
-			{
-				"buffer_size": 5999,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_screenfunctions.js",
-			"settings":
-			{
-				"buffer_size": 7810,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_SoundPlayer.js",
-			"settings":
-			{
-				"buffer_size": 1139,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_TaskStreamer.js",
-			"settings":
-			{
-				"buffer_size": 23310,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_tutorial.js",
-			"settings":
-			{
-				"buffer_size": 2171,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_utils.js",
-			"settings":
-			{
-				"buffer_size": 5571,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_UX.js",
-			"settings":
-			{
-				"buffer_size": 3949,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "setup_MechanicalTurk_task.js",
-			"settings":
-			{
-				"buffer_size": 5745,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "setup_upstairs_task.js",
-			"settings":
-			{
-				"buffer_size": 6465,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk.html",
-			"settings":
-			{
-				"buffer_size": 7383,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_runtrial.js",
-			"settings":
-			{
-				"buffer_size": 4120,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "mkturk_ScreenDisplayer.js",
-			"settings":
-			{
-				"buffer_size": 11186,
-				"encoding": "UTF-8",
+				"buffer_size": 6061,
 				"line_ending": "Unix"
 			}
 		}
@@ -756,13 +605,11 @@
 	},
 	"file_history":
 	[
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_setup.js",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot.html",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_utils.js",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_plotter.js",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_globals.js",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_eventlisteners.js",
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js",
+		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/SR_MTS_Transfer/1_MutatorSR_Training.txt",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/ModelTurk/Models/Allocator.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/ModelTurk/__init__.py",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Recall_SR/dataformat/recall_behavior_format.json",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Recall_SR/neural_intrinsic_capacity_HvM_by_category.pk",
 		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/SRbehavior.json",
 		"/Users/michaellee/Dropbox (MIT)/ptap/docs/taskdefinition_format.json",
 		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/MTSbehavior.json",
@@ -883,7 +730,9 @@
 		"/Volumes/mil/ModelTurk/TaskStreams/CreateAllocationExperiment.py",
 		"/Volumes/mil/ModelTurk/Wedjat/ModelArchetype.py",
 		"/Volumes/mil/ModelTurk/TaskStreams/TaskStreamTemplate.py",
-		"/Volumes/mil/ModelTurk/Examples/allocationTaskStream_nullmodel.py"
+		"/Volumes/mil/ModelTurk/Examples/allocationTaskStream_nullmodel.py",
+		"/Volumes/mil/ModelTurk/Examples/allocationTask_svm_archetype.py",
+		"/Volumes/mil/ModelTurk/TaskStreams/TaskStreamsTemplateV2.py"
 	],
 	"find":
 	{
@@ -894,7 +743,6 @@
 		"height": 101.0,
 		"where_history":
 		[
-			""
 		]
 	},
 	"find_state":
@@ -902,8 +750,6 @@
 		"case_sensitive": false,
 		"find_history":
 		[
-			"loadStringFromLocalStorage",
-			"read_textfile"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -921,16 +767,16 @@
 	"groups":
 	[
 		{
-			"selected": 19,
+			"selected": 4,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "Michaelo_landing_page.html",
+					"file": "public/liveplot.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 853,
+						"buffer_size": 3368,
 						"regions":
 						{
 						},
@@ -945,389 +791,16 @@
 						{
 							"WordCount":
 							{
-								"changes": 49,
-								"count": 9,
+								"changes": 0,
+								"count": 80,
 								"modified": false,
 								"selection": false,
 								"status": -1,
 								"syntax": "plain text"
 							},
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 1,
-					"file": "Zico_landing_page.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 705,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 22,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "mkturk_bluetooth.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10366,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 21,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "mkturk_canvas_business.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10480,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 20,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "mkturk_data_writer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6228,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 19,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "mkturk_DiskIO.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11517,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2488,
-								2488
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 595.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "mkturk_eventlisteners.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3018,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 17,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "mkturk_globalvariables.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2380,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 18,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "mkturk_ImageBuffer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5002,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 16,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "mkturk_installsettings.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2543,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 15,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "mkturk_reinforcement.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3824,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 14,
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "mkturk_rewardmap.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5999,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								376,
-								376
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "mkturk_screenfunctions.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7810,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1579,
-								1579
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -1337,42 +810,12 @@
 					"type": "text"
 				},
 				{
-					"buffer": 13,
-					"file": "mkturk_SoundPlayer.js",
+					"buffer": 1,
+					"file": "public/liveplot_eventlisteners.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 1139,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 14,
-					"file": "mkturk_TaskStreamer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 23310,
+						"buffer_size": 3258,
 						"regions":
 						{
 						},
@@ -1393,16 +836,16 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 10,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 15,
-					"file": "mkturk_tutorial.js",
+					"buffer": 2,
+					"file": "public/liveplot_globals.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2171,
+						"buffer_size": 160,
 						"regions":
 						{
 						},
@@ -1415,24 +858,22 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 16,
-					"file": "mkturk_utils.js",
+					"buffer": 3,
+					"file": "public/liveplot_utils.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5571,
+						"buffer_size": 2954,
 						"regions":
 						{
 						},
@@ -1445,74 +886,6 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 17,
-					"file": "mkturk_UX.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3949,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								0,
-								0
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 18,
-					"file": "setup_MechanicalTurk_task.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5745,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1095,
-								1190
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1525,95 +898,12 @@
 					"type": "text"
 				},
 				{
-					"buffer": 19,
-					"file": "setup_upstairs_task.js",
+					"buffer": 4,
+					"file": "public/liveplot_plotter.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6465,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4556,
-								4556
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1462.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 0,
-			"sheets":
-			[
-				{
-					"buffer": 20,
-					"file": "mkturk.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7383,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7007,
-								7007
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": 75,
-								"count": 80,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 2018.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 21,
-					"file": "mkturk_runtrial.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4120,
+						"buffer_size": 6061,
 						"regions":
 						{
 						},
@@ -1634,42 +924,6 @@
 								"status": -1,
 								"syntax": "javascript"
 							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
-					"type": "text"
-				},
-				{
-					"buffer": 22,
-					"file": "mkturk_ScreenDisplayer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11186,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1233,
-								1233
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
@@ -1678,7 +932,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -1701,18 +955,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.5,
 			1.0
 		],
 		"rows":
@@ -1727,7 +974,7 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "",
-	"project": "ptap.sublime-project",
+	"project": "liveplot.sublime-project",
 	"replace":
 	{
 		"height": 46.0
@@ -1760,7 +1007,7 @@
 		],
 		"width": 548.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
@@ -1768,7 +1015,7 @@
 	"show_open_files": true,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 243.0,
+	"side_bar_width": 183.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

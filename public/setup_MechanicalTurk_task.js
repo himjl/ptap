@@ -1,37 +1,41 @@
 
 async function setupMechanicalTurkTask(){
 
-
   SIO = new S3_IO() 
   DWr = new MechanicalTurkDataWriter()
   UX = new MechanicalTurk_UX_poller()
 
   SUBJECT = await loadStringFromLocalStorage("SubjectSettings_string")
+  var GAME_URL = await loadStringFromLocalStorage('GAME_URL')
+  MechanicalTurkSettings = await loadStringFromLocalStorage('HIT_settings_string')
+  SESSION['IP_address'] = await loadStringFromLocalStorage('IP_address')
+
+  // Check if loadString failed 
+  if(SUBJECT == "ée" || GAME_URL == 'ée' || MechanicalTurkSettings == 'ée' || SESSION['IP_address'] == 'ée'){
+    console.log('something went wrong with local storage load')
+  }
+
   SUBJECT = JSON.parse(SUBJECT)
   console.log('FROM LOCAL STORAGE:', SUBJECT)
   wdm("Subject settings loaded...")
 
   SESSION.SubjectID = SUBJECT['SubjectID'];
-
-  var GAME_URL = await loadStringFromLocalStorage('GAME_URL')
+  
   Experiment = await SIO.read_textfile(GAME_URL)
   Experiment = JSON.parse(Experiment)
-
-
-  MechanicalTurkSettings = await loadStringFromLocalStorage('HIT_settings_string')
+  
   MechanicalTurkSettings = JSON.parse(MechanicalTurkSettings)
 
   SUBMIT_TO_SANDBOX = MechanicalTurkSettings['sandbox'] || false
 
   console.log('FROM LOCAL STORAGE:', MechanicalTurkSettings)
   
-  SESSION['IP_address'] = await loadStringFromLocalStorage('IP_address')
-
-
+  
   var Game = Experiment['Experiment']
   if (Game == undefined){
     Game = Experiment['Game']
   }
+
   TS = new TaskStreamer(undefined, SIO, Game, Experiment["ImageBags"], SESSION.SubjectID, MechanicalTurkSettings['on_finish']) 
   await TS.build(MechanicalTurkSettings['MinimumTrialsForCashIn'])
   wdm('TaskStreamer built')

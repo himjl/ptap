@@ -220,6 +220,7 @@ class DropboxIO{
         this.load_image = this._load_image.bind(this)
         this.changed_on_disk = this._changed_on_disk.bind(this)
         this.get_rev = this._get_rev.bind(this)
+        this.get_meta = this._get_meta.bind(this)
         // Need to .bind, because "this" changes its meaning depending on the context in which 
         // a DIO function (or any function) is called. Binding makes it so that "this"
         // always refers to the DIO object, not the "this" of the particular moment (context). 
@@ -270,21 +271,25 @@ class DropboxIO{
             
             for (var q = 0; q <= entries.length-1; q++){
                 if (entries[q][".tag"] == "file") {
-                    file_list.push(entries[q].path_display) //'/'+entries[q].name)
+                    file_list.push([entries[q].path_display, entries[q].client_modified]) //'/'+entries[q].name)
                 }
             }
 
             file_list.sort(function (a,b){
-                if (a > b){
+                if (a[1] > b[1]){
                     return -1;
                 }
-                if (a < b){
+                if (a[1] < b[1]){
                     return 1;
                 }
                 return 0;
-            }); //sort in descending order
+            }); //sort in order of creation date 
 
-            return file_list
+            var path_list = []
+            for (var i =0; i < file_list.length-1; i++){
+                path_list.push(file_list[i][0])
+            }
+            return path_list
         }
         catch (error) {
             console.error(error)
@@ -391,6 +396,17 @@ class DropboxIO{
         catch(error){
             console.log(error)
             wdm('DIO.get_rev error', error)
+        }
+    }
+
+    async _get_meta(filepath){
+        try{
+            var filemeta = await this.dbx.filesGetMetadata({path: filepath})
+            return filemeta
+        }
+        catch(error){
+            console.log(error)
+            wdm('DIO.get_meta error', error)
         }
     }
 

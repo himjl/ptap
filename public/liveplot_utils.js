@@ -41,8 +41,6 @@
 })(window);
 
 
-
-
 function getTimeElapsedString(unix_start_timestamp){
   var min_elapsed = Math.round((Date.now() / 1000  - unix_start_timestamp/1000 )/ 60 )
   if (min_elapsed >= 60){

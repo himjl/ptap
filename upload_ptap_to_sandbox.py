@@ -1,8 +1,8 @@
 import boto 
 
 
-MKTURK_PUBLIC_DIRECTORY_PATH = '../mkturk/public/'
-split_start = 'mkturk/' # references above
+MKTURK_PUBLIC_DIRECTORY_PATH = '../ptap/public/'
+split_start = '/ptap' # references above
 
 # Upload to s3 monkeyturksandbox
 from boto.s3.key import Key
@@ -30,10 +30,6 @@ def upload_public_to_sandbox():
             print 'Uploaded %s'%fkey
             k.set_acl('public-read')
 
-
 if __name__ == '__main__': 
     print 'hello'
     upload_public_to_sandbox()
-    # commandline usage: python sandbox_publish.py [true/false upload to s3] [true/false upload to turk] [hit_n]
-# http://docs.aws.amazon.com/AWSMechTurk/latest/AWSMturkAPI/ApiReference_CreateHITOperation.html
-

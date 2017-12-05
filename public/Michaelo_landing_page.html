@@ -11,7 +11,10 @@
   await localStorage.setItem("manualSetupFlag", btoa(false))
 
   await localStorage.setItem('SubjectFilePath', btoa('/MonkeyTurk_upstairs/Subjects/SubjectSettings/Michaelo_settings.txt'))
-  await localStorage.setItem('ExperimentFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/6_FullVarLightBGTraining.txt'))
+  
+  //await localStorage.setItem('ExperimentFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/6_FullVarLightBGTraining.txt'))
+
+  await localStorage.setItem('ExperimentFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/7_FullVarMediumBGTraining.txt'))
 
   window.location.href = "mkturk.html"
 

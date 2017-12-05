@@ -1,5 +1,3 @@
-
-
 function update_status_strings(){
     // Update page title 
     var percentage_perf = Math.round(mean(trial_returns)*100*10)/10
@@ -15,10 +13,12 @@ function update_status_strings(){
     header_string+=', '+getTimeElapsedString(unix_start_timestamp)+' since start'
     header_string+=')<br>'
     header_string+='Battery: '+batteryleft+'% ('+batteryused+'%)<br>'
-    header_string+='Last trial: '+last_trial_string+' ('+getTimeElapsedString(last_trial_timestamp)+' ago)'
+    header_string+='Last trial: '+last_trial_string+' ('+getTimeElapsedString(last_trial_timestamp)+' ago)<br>'
+    var lastStageNumber = behavior_json['BEHAVIOR']['StageNumber'][behavior_json['BEHAVIOR']['StageNumber'].length-1]
+    var maxStages = behavior_json['Experiment'].length
 
+    header_string+='Current stage: '+behavior_json['Experiment'][lastStageNumber]['StageNickname']+' ('+lastStageNumber+' of '+maxStages+')'
     document.getElementById('chart_header').innerHTML = header_string
-
 
 }
 
@@ -40,7 +40,6 @@ async function updatePlot(i){
 
     console.log(i+'. Updating plot')
     CURRENT_VIEW['rev'] = disk_rev
-
     
     behavior_json = await DIO.read_textfile(CURRENT_VIEW['filepath'])
     behavior_json = JSON.parse(behavior_json)

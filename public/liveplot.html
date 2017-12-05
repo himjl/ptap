@@ -77,14 +77,6 @@
 
 <script type="text/javascript">
 
-//document.querySelector("button[name=SyncButton]").addEventListener(
-//    'mouseup',sync_data_listener,false)
-
-//document.querySelector("button[name=ChangeJuiceButton]").addEventListener(
- //   'mouseup',change_juice_listener,false)
-
-
-
 DIO = new DropboxIO()
 CURRENT_VIEW = {}
 DISK_STATE = {}; 
@@ -99,6 +91,9 @@ var menuobj = document.getElementById("file_selection_dropdown_menu");
   await DIO.build(DBX_REDIRECT_URI)
 
 	var file_list = await DIO.listdir(TRIAL_DATA_SAVEPATH)
+
+
+
 	DISK_STATE['filepaths'] = file_list
 	for(var i = 0; i < file_list.length; i ++){
 		var opt = document.createElement('option')
@@ -106,6 +101,7 @@ var menuobj = document.getElementById("file_selection_dropdown_menu");
 		opt.innerHTML = splitFilename(file_list[i])
 		menuobj.appendChild(opt)
 	}; 
+
 	CURRENT_VIEW['filepath'] = DISK_STATE['filepaths'][0] // latest file is default selection on page load
 	CURRENT_VIEW['filename'] = splitFilename(DISK_STATE['filepaths'][0]) 
 	menuobj.addEventListener("change",filelist_listener,false);

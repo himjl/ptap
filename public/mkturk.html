@@ -125,7 +125,6 @@
 <script src="mkturk_reinforcement.js" type="text/javascript"></script>
 <script src="mkturk_tutorial.js" type="text/javascript"></script>
 <script src="mkturk_ScreenDisplayer.js" type="text/javascript"></script>
-<script src="mkturk_setup.js" type="text/javascript"></script>
 
 <script src="setup_upstairs_task.js" type="text/javascript"></script>
 <script src="setup_MechanicalTurk_task.js" type="text/javascript"></script>
@@ -134,8 +133,17 @@
 
 (async function(){
 
-await setupTask()
+// Run setup 
+var setup_func = await loadStringFromLocalStorage('setupFunction')
+if(setup_func.length <3){
+    // todo: write better check for nonsense ée
+    setup_func = "setupMechanicalTurkTask()"
+}
 
+console.log('setup_func', setup_func)
+await eval(setup_func)
+
+// Run main trial
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
 TERMINAL_STATE = false 
 while(TERMINAL_STATE == false){
