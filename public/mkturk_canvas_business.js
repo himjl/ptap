@@ -176,13 +176,6 @@ function setupCanvas(canvasobj, use_image_smoothing){
     context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
 
 
-    //var image_scale_width = SESSION.gridwidth / SESSION.source_image_width * _ratio
-    //var image_scale_height = SESSION.gridheight / SESSION.source_image_height * _ratio
-
-    //context.scale(image_scale_width, image_scale_height) 
-
-    // Record details of playspace (canvas pixels)
-
     if(_ratio !== 1){
       scaleContext(context)
     }

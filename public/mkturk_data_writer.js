@@ -38,7 +38,7 @@ class MechanicalTurkDataWriter{
         document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
         console.log(document.getElementById('MechanicalTurk_SubmissionForm'))
 
-        var aID = SUBJECT['assignmentId']
+        var aID = SESSION['assignmentId']
 
 
         var result_str = {'TASK_DATA':this.dataobj}
@@ -53,8 +53,8 @@ class MechanicalTurkDataWriter{
         document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
 
 
-        document.getElementById("assignmentId").value = SUBJECT['assignmentId']; 
-        document.getElementById("hitId").value = SUBJECT['hitId']
+        document.getElementById("assignmentId").value = SESSION['assignmentId']; 
+        document.getElementById("hitId").value = SESSION['hitId']
         console.log(aID) 
         document.getElementById("submission_data").value = result_str;
 
@@ -96,19 +96,19 @@ class DropboxDataWriter{
 
         
         var datastr = JSON.stringify(dataobj); 
-        var __datestr = SESSION.CurrentDate.toISOString();
-        var TrialDataFileName_suffix = __datestr.slice(0, __datestr.indexOf(".")) + "_" + SESSION.SubjectID + ".txt"; 
+        var __datestr = SESSION.currentDate.toISOString();
+        var TrialDataFileName_suffix = __datestr.slice(0, __datestr.indexOf(".")) + "_" + SESSION.agentID + ".txt"; 
 
         try{// In debug mode
             if (save_to_debug_directory == 1){
                 var savepath = join([this._debug_trial_data_savepath,
-                    SESSION.SubjectID,
-                    "debug__"+SESSION.SubjectID +'_'+TrialDataFileName_suffix])
+                    SESSION.agentID,
+                    "debug__"+SESSION.agentID +'_'+TrialDataFileName_suffix])
             }
             else { 
                 var savepath = join([this.trial_data_savepath,
-                    SESSION.SubjectID,
-                    SESSION.SubjectID +'_'+TrialDataFileName_suffix])
+                    SESSION.agentID,
+                    SESSION.agentID +'_'+TrialDataFileName_suffix])
             }
 
             await this.DIO.write_string(datastr, savepath)             
@@ -132,7 +132,7 @@ class DropboxDataWriter{
         }
 
         if (_ms_since_last_touch_data_save > TOUCHSTRING_SAVE_TIMEOUT_PERIOD){
-            console.log(_ms_since_last_touch_data_save/1000 +'s since last TOUCHSTRING save. '+TOUCHSTRING.length+' length TOUCHSTRING save requested.')
+            console.log(_ms_since_last_touch_data_save/1000 +'s since last TOUCHSTRING save. '+memorySizeOf(TOUCHLOG)+' TOUCHSTRING save requested.')
             this.saveTouches(FLAGS.debug_mode)
             last_touch_save = performance.now()
         }
@@ -142,28 +142,21 @@ class DropboxDataWriter{
         try{
 
             if (save_to_debug_directory == 0){
-                var savepath = join([this.touch_data_savepath, SESSION.SubjectID, SESSION.SubjectID+this._touch_filename_suffix ])
+                var savepath = join([this.touch_data_savepath, SESSION.agentID, SESSION.agentID+this._touch_filename_suffix ])
             }
             else { // In debug mode
 
-                var savepath = join([this._debug_touch_data_savepath, SESSION.SubjectID, 'debug__'+SESSION.SubjectID+this._touch_filename_suffix ])
+                var savepath = join([this._debug_touch_data_savepath, SESSION.agentID, 'debug__'+SESSION.agentID+this._touch_filename_suffix ])
             }
 
-
-            
-            console.log(savepath, '  saveTouches does this look ok?')
-
-
-            
-
-            var datastring = TOUCHSTRING
+            var datastring = JSON.stringify(TOUCHLOG)
 
             this.DIO.write_string(datastring, savepath)
 
-            if(TOUCHSTRING.length > TOUCHSTRING_MAX_CACHE_SIZE){
+            if(memorySizeOf(TOUCHLOG) > TOUCHSTRING_MAX_CACHE_SIZE){
                 // Start new file and flush cache
                 this._touch_filename_suffix = _generate_touch_filename_suffix()
-                TOUCHSTRING = ""
+                TOUCHLOG = initializeTouchLog()
             }
 
             console.log("Touches written to disk as "+savepath) 
@@ -174,7 +167,7 @@ class DropboxDataWriter{
     }
 
     _generate_touch_filename_suffix(){
-        var datestr = SESSION.CurrentDate.toISOString();
+        var datestr = SESSION.currentDate.toISOString();
         datestr = datestr.slice(0,datestr.indexOf("."))
         var _touch_filename_suffix = '_touch_'+datestr+'__'+TOUCHSTRING_UDPATECOUNTER+'.txt' // Initial name
         return _touch_filename_suffix

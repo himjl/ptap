@@ -10,8 +10,8 @@
   await localStorage.setItem("setupFunction", btoa("setupTabletTask()"))
   await localStorage.setItem("manualSetupFlag", btoa(false))
 
-  await localStorage.setItem('SubjectFilePath', btoa('/MonkeyTurk_upstairs/Subjects/SubjectSettings/Zico_settings.txt'))
-  await localStorage.setItem('ExperimentFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/MTS_SR_Transfer/1_MutatorSR_Training.txt'))
+  await localStorage.setItem('subjectFilePath', btoa('/MonkeyTurk_upstairs/Subjects/SubjectSettings/Zico_settings.txt'))
+  await localStorage.setItem('gameFilePath', btoa('/MonkeyTurk_upstairs/Tasks/ExperimentDefinitions/MTS_SR_Transfer/1_MutatorSR_Training.txt'))
 
   window.location.href = "mkturk.html"
 

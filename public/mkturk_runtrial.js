@@ -4,7 +4,6 @@ async function runtrial(){
 // Stimulus period (which can be multiple screens, etc.)
 // Choice period
 
-
 writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
 
 var TRIAL = await TS.get_trial()

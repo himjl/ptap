@@ -92,27 +92,37 @@ async function setupTabletTask(){
     }
     experimentfile_obj.addEventListener("change",experimentlist_listener,false);
     experiment_dialog.showModal()
-    await ExperimentFile_Promise() // sets SESSION.ExperimentFilePath
+    await ExperimentFile_Promise() // sets SESSION.gameFilePath
     
   }
   else{
     console.log('Loading from landing page')
-    SESSION.SubjectFilePath = await loadStringFromLocalStorage('SubjectFilePath')
-    SESSION.ExperimentFilePath = await loadStringFromLocalStorage('ExperimentFilePath')
+    SESSION.subjectFilePath = await loadStringFromLocalStorage('SubjectFilePath')
+    SESSION.gameFilePath = await loadStringFromLocalStorage('ExperimentFilePath')
   }
 
-  SUBJECT = await DIO.read_textfile(SESSION.SubjectFilePath)
-  SUBJECT = JSON.parse(SUBJECT)
+  var subject = await DIO.read_textfile(SESSION.subjectFilePath)
+  subject = JSON.parse(subject)
 
-  console.log(SUBJECT)
+  console.log(subject)
   wdm("Subject settings loaded...")
 
-  SESSION.SubjectID = SUBJECT['SubjectID'];
+  for (var prop in subject){
+    if (subject.hasOwnProperty(prop)){
+      SESSION[prop] = subject[prop]
+    }
+  }
 
-  updateSessionTextbox(SESSION.SubjectID, '')
+  if (SESSION.hasOwnProperty('SubjectID')){
+    SESSION['agentID'] = SESSION.SubjectID
+  }
+  
+  
 
-  updateSessionTextbox(SESSION.SubjectID, splitFilename(SESSION.ExperimentFilePath))
-  var Experiment = await DIO.read_textfile(SESSION.ExperimentFilePath)
+  updateSessionTextbox(SESSION.agentID, '')
+
+  updateSessionTextbox(SESSION.agentID, splitFilename(SESSION.gameFilePath))
+  var Experiment = await DIO.read_textfile(SESSION.gameFilePath)
   Experiment = JSON.parse(Experiment)
 
   var Game = Experiment['Experiment']
@@ -120,14 +130,14 @@ async function setupTabletTask(){
     Game = Experiment['Game']
   }
   
-  TS = new TaskStreamer(DIO, SIO, Game, Experiment["ImageBags"], SESSION.SubjectID, "loop") // todo: move terminal setting into experiment constructor 
+  TS = new TaskStreamer(DIO, SIO, Game, Experiment["ImageBags"], SESSION.agentID, "loop") // todo: move terminal setting into experiment constructor 
   await TS.build()
   wdm('TaskStreamer built')
 
-  var estimated_eye_screen_distance_inches = SUBJECT['estimated_eye_screen_distance_inches']
-  var estimated_screen_virtual_pixels_per_inch = SUBJECT['estimated_screen_virtual_pixels_per_inch']
-  var estimated_grid_vertical_offset_inches = SUBJECT['estimated_grid_vertical_offset_inches']
-  var intended_grid_degrees_of_visual_angle = SUBJECT['intended_grid_degrees_of_visual_angle']
+  var estimated_eye_screen_distance_inches = SESSION['estimated_eye_screen_distance_inches']
+  var estimated_screen_virtual_pixels_per_inch = SESSION['estimated_screen_virtual_pixels_per_inch']
+  var estimated_grid_vertical_offset_inches = SESSION['estimated_grid_vertical_offset_inches']
+  var intended_grid_degrees_of_visual_angle = SESSION['intended_grid_degrees_of_visual_angle']
   
 
   var ngridpoints = TS.Game[0]['NGridPoints']

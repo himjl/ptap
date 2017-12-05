@@ -5,21 +5,32 @@ async function setupMechanicalTurkTask(){
   DWr = new MechanicalTurkDataWriter()
   UX = new MechanicalTurk_UX_poller()
 
-  SUBJECT = await loadStringFromLocalStorage("SubjectSettings_string")
+  var subject = await loadStringFromLocalStorage("SubjectSettings_string")
+
   var GAME_URL = await loadStringFromLocalStorage('GAME_URL')
   MechanicalTurkSettings = await loadStringFromLocalStorage('HIT_settings_string')
-  SESSION['IP_address'] = await loadStringFromLocalStorage('IP_address')
+  ipAddress = await loadStringFromLocalStorage('IP_address')
 
   // Check if loadString failed 
-  if(SUBJECT == "ée" || GAME_URL == 'ée' || MechanicalTurkSettings == 'ée' || SESSION['IP_address'] == 'ée'){
+  if(subject == "ée" || GAME_URL == 'ée' || MechanicalTurkSettings == 'ée' || ipAddress == 'ée'){
     console.log('something went wrong with local storage load')
   }
 
-  SUBJECT = JSON.parse(SUBJECT)
-  console.log('FROM LOCAL STORAGE:', SUBJECT)
+  SESSION['IP_address'] = ipAddress
+
+  subject = JSON.parse(subject)
+  console.log('FROM LOCAL STORAGE:', subject)
   wdm("Subject settings loaded...")
 
-  SESSION.SubjectID = SUBJECT['SubjectID'];
+  for (var prop in subject){
+    if (subject.hasOwnProperty(prop)){
+      SESSION[prop] = subject[prop]
+    }
+  }
+
+  if (SESSION.hasOwnProperty('SubjectID')){
+    SESSION['agentID'] = SESSION.SubjectID
+  }
   
   Experiment = await SIO.read_textfile(GAME_URL)
   Experiment = JSON.parse(Experiment)
@@ -36,7 +47,7 @@ async function setupMechanicalTurkTask(){
     Game = Experiment['Game']
   }
 
-  TS = new TaskStreamer(undefined, SIO, Game, Experiment["ImageBags"], SESSION.SubjectID, MechanicalTurkSettings['on_finish']) 
+  TS = new TaskStreamer(undefined, SIO, Game, Experiment["ImageBags"], SESSION.agentID, MechanicalTurkSettings['on_finish']) 
   await TS.build(MechanicalTurkSettings['MinimumTrialsForCashIn'])
   wdm('TaskStreamer built')
 
@@ -62,7 +73,7 @@ async function setupMechanicalTurkTask(){
   var skip_preview_mode = true
 
   if(skip_preview_mode != true && window.location.href.startsWith('http://localhost:7800') == false){
-    if(SUBJECT['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE' || SUBJECT['assignmentId'] == '' ){
+    if(SESSION['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE' || SESSION['assignmentId'] == '' ){
       console.log('RUNNING IN PREVIEW MODE')
 
       // If in preview mode on MechanicalTurk

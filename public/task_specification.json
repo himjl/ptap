@@ -1,0 +1,64 @@
+
+/////// General: 
+//stateBags
+{"bagName":["url", "url"]}
+
+
+//// SR task specification: 
+// rewardMaps
+{"bagName":["rewardForAction0", "rewardForAction1"]}
+
+// game 
+[{"rewardMap"}, {"rewardMap"}]
+
+
+// MTS task specification 
+
+// match rules
+{"bagName":"bagName", 
+"bagName":["bagNames", "bagNames"]}
+
+//// CHECKPOINT: 
+
+
+///// OUTPUT: Data Format 
+{"BEHAVIOR":{
+    "return":[], 
+    "action":[], 
+    "responseX":[], 
+    "responseY":[],
+    "fixationX":[],
+    "fixationY":[],
+    "i_bag":[], 
+    "i_id":[], 
+    "stageNumber":[],
+    "timestampStart":[], 
+    "timestampStimulusOn":[],
+    "timestampChoiceOn":[],
+    "timestampFixationOn":[],
+    "timestampFixationAcquired":[],
+    "timestampResponse":[],
+    
+    "timestampReinforcementOn":[], 
+    "timestampReinforcementOff":[],
+    "trialNumberGame":[],
+    "trialNumberTask":[],
+    "trialNumberSession":[],
+    "reactionTime":[],
+},
+
+"SESSION":{
+    "gameID":"text", 
+    "agentID":"text",
+    "species":"text",
+    "unixTimestampPageLoad":"",
+    "workerId":"",
+    "hitId":"",
+    "assignmentId":"",
+}, 
+
+"GAME":[{""}], 
+"IMAGEBAGS":[],
+"TOUCH":"text",
+"REWARDLOG":
+}

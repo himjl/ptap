@@ -22,7 +22,7 @@ var SOUND_FILEPREFIX = "/MonkeyTurk_upstairs/Resources/sounds/au"
 
 
 // New 
-var SUBJECT_DIRPATH = "/MonkeyTurk_upstairs/Subjects/SubjectSettings/" // SubjectID; tablet; pump; liquid; species
+var SUBJECT_DIRPATH = "/MonkeyTurk_upstairs/Subjects/SubjectSettings/" // agentID; tablet; pump; liquid; species
 var CHECKPOINT_DIRPATH = "/MonkeyTurk_upstairs/Subjects/SubjectCheckpoints/" // Used to revivify the state of a TaskStream
 var _debug_CHECKPOINT_DIRPATH = "/MonkeyTurk_upstairs/Subjects/debug/SubjectCheckpoints/"
 

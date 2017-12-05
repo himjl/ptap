@@ -30,14 +30,14 @@ function setHandSelection(element, handedness){
 
 }
 
-function updateSessionTextbox(SubjectID, ExperimentName){
+function updateSessionTextbox(agentID, ExperimentName){
 	  var sess_textbox = document.getElementById("SessionTextBox")
 
 	  var line1_prefix = "<b>Subject:</b> "
 	  var linebreak = "<br>"
 	  var line2_prefix = "<b>Game:</b> "
 
-	  sess_textbox.innerHTML = line1_prefix + SubjectID + linebreak + line2_prefix + ExperimentName
+	  sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
 }
 
 function writeToTrialCounterDisplay(s){
@@ -114,14 +114,28 @@ function displayTerminalScreen(){
 
 
 
+
+function initializeTouchLog(){
+    var tlog = {}
+
+    tlog['x'] = []
+    tlog['y'] = []
+    tlog['t'] = []
+    tlog['radiusX'] = []
+    tlog['radiusY'] = []
+    tlog['clientXdelta_from_pageX'] = []
+    tlog['screenYdelta_from_pageX'] = []
+    tlog['updateCounter'] = []
+    tlog['eventType'] = []
+
+    return tlog 
+
+}
 function initializeMouseTracker(){
-	var header='pageX,pageY'
-    header+=',touch_update_number'
-    header+=',unix_timestamp_delta_from__'+SESSION.UnixTimestampAtStart
-    header+='\n'
+	TOUCHSTRING_UDPATECOUNTER = 0
+    TOUCHLOG = initializeTouchLog()
     
-    TOUCHSTRING = header 
-    TOUCHSTRING_UDPATECOUNTER = 0
+
 
 	console.log('setupmousetracker')
 	// https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
@@ -148,13 +162,14 @@ function initializeMouseTracker(){
               (doc && doc.clientTop  || body && body.clientTop  || 0 );
         }
 
-        // Use event.pageX / event.pageY her
+        TOUCHLOG['x'].push(Math.round(event.pageX))
+        TOUCHLOG['y'].push(Math.round(event.pageY))
+        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
+        TOUCHLOG['eventType'].push('dg')
 
-        TOUCHSTRING+=Math.round(event.pageX)
-        TOUCHSTRING+=','+Math.round(event.pageY)
-        TOUCHSTRING+=','+TOUCHSTRING_UDPATECOUNTER
-        TOUCHSTRING+=','+t+'\n'
         TOUCHSTRING_UDPATECOUNTER+=1
+
 	}
 }
 
@@ -164,19 +179,19 @@ function initializeTouchTracker(){
             header+=',screenXdelta_from_pageX,screenYdelta_from_pageY'
             header+=',radiusX,radiusY'
             header+=',touch_update_number'
-            header+=',unix_timestamp_delta_from__'+SESSION.UnixTimestampAtStart
+            header+=',unix_timestamp_delta_from__'+SESSION.unixTimestampPageLoad
             header+=',Tap_or_Drag\n'
     
-    TOUCHSTRING = header 
     TOUCHSTRING_UDPATECOUNTER = 0
+    TOUCHLOG = initializeTouchLog()
 
 	window.addEventListener('touchmove', function(event){
 		// the user touched the screen
 		pageX = event.targetTouches[0].pageX
 		pageY = event.targetTouches[0].pageY
 
-		clientXdelta_from_pageX = event.targetTouches[0].clientX - pageX
-		clientYdelta_from_pageY = event.targetTouches[0].clientY - pageY
+		clientXdelta_from_pageX = Math.round(event.targetTouches[0].clientX - pageX)
+		clientYdelta_from_pageY = Math.round(event.targetTouches[0].clientY - pageY)
 		
 		screenXdelta_from_pageX = Math.round(event.targetTouches[0].screenX - pageX)
 		screenYdelta_from_pageY = Math.round(event.targetTouches[0].screenY - pageY)
@@ -185,27 +200,18 @@ function initializeTouchTracker(){
 		radiusY = Math.round(event.targetTouches[0].radiusY)
 		t = Math.round(performance.now())
 
+		TOUCHLOG['x'].push(Math.round(pageX))
+        TOUCHLOG['y'].push(Math.round(pageY))
+        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['radiusX'].push(radiusX)
+        TOUCHLOG['radiusY'].push(radiusY)
+        TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)
+        TOUCHLOG['screenYdelta_from_pageX'].push(screenYdelta_from_pageX)
+        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
+        TOUCHLOG['eventType'].push('dg')
+        
+        TOUCHSTRING_UDPATECOUNTER+=1
 
-		TOUCHSTRING+= Math.round(pageX)
-		TOUCHSTRING+=','+Math.round(pageY)
-		
-		TOUCHSTRING+=','+clientXdelta_from_pageX
-		TOUCHSTRING+=','+clientYdelta_from_pageY
-
-		TOUCHSTRING+=','+screenXdelta_from_pageX
-		TOUCHSTRING+=','+screenYdelta_from_pageX
-		
-		TOUCHSTRING+=','+radiusX
-		TOUCHSTRING+=','+radiusY
-
-		TOUCHSTRING+=','+TOUCHSTRING_UDPATECOUNTER
-		TOUCHSTRING+=','+t
-		TOUCHSTRING+=',d\n'
-
-		TOUCHSTRING_UDPATECOUNTER+=1
-
-		//console.log(TOUCHSTRING_UDPATECOUNTER)
-		//console.log('drag', x, y, t)
 	},  {passive: true})
 
 	window.addEventListener('touchstart', function(event){
@@ -224,23 +230,19 @@ function initializeTouchTracker(){
 		t = Math.round(performance.now())
 
 
-		TOUCHSTRING+= Math.round(pageX)
-		TOUCHSTRING+=','+Math.round(pageY)
-		
-		TOUCHSTRING+=','+clientXdelta_from_pageX
-		TOUCHSTRING+=','+clientYdelta_from_pageY
-
-		TOUCHSTRING+=','+screenXdelta_from_pageX
-		TOUCHSTRING+=','+screenYdelta_from_pageX
-		
-		TOUCHSTRING+=','+radiusX
-		TOUCHSTRING+=','+radiusY
-
-		TOUCHSTRING+=','+TOUCHSTRING_UDPATECOUNTER
-		TOUCHSTRING+=','+t
-		TOUCHSTRING+=',t\n'
+        TOUCHLOG['x'].push(Math.round(pageX))
+        TOUCHLOG['y'].push(Math.round(pageY))
+        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['radiusX'].push(radiusX)
+        TOUCHLOG['radiusY'].push(radiusY)
+        TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)
+        TOUCHLOG['screenYdelta_from_pageX'].push(screenYdelta_from_pageX)
+        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
+        TOUCHLOG['eventType'].push('tp')
 
 		TOUCHSTRING_UDPATECOUNTER+=1
+
+
 	},  {passive: true})
 
 }

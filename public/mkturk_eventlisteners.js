@@ -11,7 +11,7 @@ function doneTestingTask_listener(event){
 function subjectlist_listener(event){
 	//console.log("subject selected");
 
-	SESSION.SubjectFilePath = subject_filepath_list[this.value]
+	SESSION.subjectFilePath = subject_filepath_list[this.value]
 	
 	subjectdialog.close();
 	waitforClick.next(1);
@@ -20,7 +20,7 @@ function subjectlist_listener(event){
 
 function experimentlist_listener(event){
 
-	SESSION.ExperimentFilePath = experiment_file_list[this.value]
+	SESSION.gameFilePath = experiment_file_list[this.value]
 	
 	experiment_dialog.close();
 	waitforClick.next(1);

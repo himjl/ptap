@@ -4,18 +4,28 @@
 
 PLAYSPACE = {}
 
-REWARDSTRING = "nreward,unix_timestamp_delta_from_"+window.performance.timing.navigationStart+"\n"
-TOUCHSTRING = ""
+REWARDLOG = {}
+REWARDLOG['t'] = []
+REWARDLOG['nreward'] = []
+
+TOUCHLOG = {} // X, Y, t, evennttype
 TOUCHSTRING_UDPATECOUNTER = 0
 
-MOUSESTRING = "" 
-MOUSESTRING_UPDATE_COUNTER = 0
+TOUCHLOG['x'] = []
+TOUCHLOG['y'] = []
+TOUCHLOG['t'] = []
+TOUCHLOG['radiusX'] =[]
+TOUCHLOG['radiusY'] =[]
+TOUCHLOG['clientXdelta_from_pageX'] = []
+TOUCHLOG['screenYdelta_from_pageX'] = []
+TOUCHLOG['updateCounter'] = []
+TOUCHLOG['eventType'] = []
+
 
 TRIAL_NUMBER_FROM_SESSION_START = 0 
 TRIAL_NUMBER_FROM_TASKSTREAM_START = 0
 
 SUBMIT_TO_SANDBOX = false 
-var SUBJECT = {}
 
 
 var SESSION = {} // Does not change during a session on a particular device 
@@ -41,9 +51,9 @@ SESSION.windowHeight = windowHeight
 SESSION.windowWidth = windowWidth
 
 
-SESSION.SubjectID = ''
-SESSION.UnixTimestampAtStart = window.performance.timing.navigationStart
-SESSION.CurrentDate = new Date;
+SESSION.agentID = ''
+SESSION.unixTimestampPageLoad = window.performance.timing.navigationStart
+SESSION.currentDate = new Date;
 SESSION.url = window.location.href
 
 
