@@ -1,6 +1,4 @@
 // Functions for recording scientific data to disk. 
-
-
 class MechanicalTurkDataWriter{
     // Where there can be no live writing / reading
     constructor(){
@@ -25,8 +23,6 @@ class MechanicalTurkDataWriter{
 
     async concludeSession(){
         // Upload to turk
-        
-
 
         if(SUBMIT_TO_SANDBOX == true){
             var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit" 

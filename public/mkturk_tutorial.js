@@ -2,20 +2,6 @@
 
 async function run_MouseOver_TutorialTrial(tutorial_image){
 
-    // todo: make into object so we can create a 'tutorial' state machine for previewing HITs
-
-    // Global references: 
-    // TRIAL_NUMBER_FROM_SESSION_START
-    // TS 
-    // CANVAS
-    // SD 
-    // FixationRewardMap
-    // ChoiceRewardMap
-    // R
-    // EVENT_TIMESTAMPS
-    // TRIAL_BEHAVIOR
-    // DWr
-    // TERMINAL_STATE
 
     writeToTrialCounterDisplay("")
 

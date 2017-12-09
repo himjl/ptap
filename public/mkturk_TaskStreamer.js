@@ -1,42 +1,106 @@
-
 class TaskStreamer{
-    constructor(DIO_checkpointing, DIO_images, Game, ImageBags, agentID, on_finish){
-        // To save 
-        this.trial_behavior = this.initialize_behavior_records()
-
-        this.DIO_checkpointing = DIO_checkpointing // For writing checkpoints 
-
+    constructor(Game, ImageBags, checkpoint){
         this.Game = Game
         this.ImageBags = ImageBags
-
-        this.use_checkpointing = (DIO_checkpointing != undefined) 
-        if(this.use_checkpointing == true){
-            this.taskstream_checkpoint_fname = this._checkpoint_namehash(agentID)
-            this.taskstream_checkpoint_path = join([CHECKPOINT_DIRPATH, this.taskstream_checkpoint_fname])
-            this._last_checkpoint_save = performance.now()
-            this._checkpoint_save_timeout_period = CHECKPOINT_SAVE_TIMEOUT_PERIOD
-            this._agentID = agentID
-            this._debug_mode = true
-            this._debug_taskstream_checkpoint_path = join([_debug_CHECKPOINT_DIRPATH, this.taskstream_checkpoint_fname])
-        }        
-
+        
         // State info
-        this.state = {}        
-        this.state['current_stage'] = undefined 
-        this.state['current_stage_trial_number'] = undefined
-        this.state['returns_in_stage'] = undefined 
-    
-        // Image buffer
-        this.IB = new ImageBuffer(DIO_images)        
-        // Terminal state 
-        on_finish = on_finish || "loop" 
-        this.on_finish = on_finish // "loop", "terminate", "continue"
-        this._done_monitoring = false
+        this.taskNumber = checkpoint['taskNumber'] || 0 
+        this.trialNumberTask = checkpoint['trialNumberTask'] || 0
+        this.taskReturnHistory = checkpoint['taskReturnHistory'] || [] 
+
     }
 
-    selectSampleImage(SampleBagNames, _RNGseed){
+    get_trial(i){
+        // called at the beginning of each trial 
+        // returns images, reward maps, and other necessary things for runtrial()
+        var trial_idx = i || this.state['trialNumberTask']
+        var trialPackage = {}
+
+        trialPackage['i_fixationBag'] = 0 
+        trialPackage['i_fixationId'] = 0 
+        trialPackage['fixationReward'] = undefined 
+        trialPackage['fixationPlacement'] = undefined
+        trialPackage['fixationRewardSoundName'] = undefined
+        trialPackage['fixationRewardVisual'] = undefined
+
+        trialPackage['i_sampleBag'] = 0
+        trialPackage['i_sampleId'] = 0
+        trialPackage['samplePlacement'] = 0 
+        
+        trialPackage['i_testBag'] = [0,1]
+        trialPackage['i_testId'] = [0,1] // [0, 1,]
+        trialPackage['testPlacement'] = [0,1] 
+        
+        trialPackage['choiceRewardAmounts'] = []
+        trialPackage['choiceCentroids'] = []
+        trialPackage['choiceScales'] = []
+
+        trialPackage['sampleOn'] = 0 
+        trialPackage['sampleOff'] = 0
+        trialPackage['choiceTimeLimit'] = 0 
+        trialPackage['punishTimeOut'] = 0
+        return trialPackage
+    }
+
+    async update_state(rewardAmount){
+        // update counters 
+        this.taskReturnHistory.push(rewardAmount)
+
+
+        // Check if transition criterion is met
+        var transitionCriterionMet = false
+        var averageReturnCriterion = this.Game[this.taskNumber]['averageReturnCriterion']
+        var minTrialsCriterion = this.Game[this.taskNumber]['minTrialsCriterion']
+        
+        if (this.taskReturnHistory.length < minTrialsCriterion){
+            return 
+        }
+
+        var lastNreturns = this.taskReturnHistory.slice(-1 * minTrialsCriterion) 
+        if(averageReturn >= np.mean(lastNreturns)){
+            transitionCriterionMet = true
+        }
+
+        if (transitionCriterionMet == true){
+            this.taskNumber++ 
+            this.trialNumberTask = 0
+            this.taskReturnHistory = []
+        }
+        
+        // Check if at the end of the game (then repeat, continue, or terminate).
+        if (this.taskNumber > this.Game['taskSequence'].length){
+            var endBehavior = this.Game['onFinish']
+
+            // Terminate task
+            if (endBehavior == 'terminate'){
+                TERMINAL_STATE = true
+            }
+            // Continue current stage
+            else if (endBehavior == 'continue'){
+                this.taskNumber--
+                this.trialNumberTask = 0 
+                this.taskReturnHistory = []
+            }
+            // Start over from beginning (default behavior)
+            else{
+                this.taskNumber = 0 
+                this.trialNumberTask = 0 
+                this.taskReturnHistory = []
+            }
+        }
+
+        return
+    }
+
+    async get_checkpoint(){
+        var checkpoint
+        return checkpoint
+    }
+
+
+    selectSampleImage(SampleBagNames, RNGseed){
     
-        Math.seedrandom(_RNGseed)
+        Math.seedrandom(RNGseed)
 
         // Select sample class 
         var num_classes = SampleBagNames.length
@@ -57,12 +121,12 @@ class TaskStreamer{
         return sample
     }
 
-    selectTestImagesSR(TestBagNames, _RNGseed){
+    selectTestImagesSR(E['TestImageBagNames'], RNGseed){
         
-        Math.seedrandom(_RNGseed)
+        Math.seedrandom(RNGseed)
 
         // Select distractor (SR)
-        var num_classes = TestBagNames.length
+        var num_classes = E['TestImageBagNames'].length
 
         var test = {}
         test['bag_name'] = []
@@ -72,7 +136,7 @@ class TaskStreamer{
 
         for (var i_choice_class = 0; i_choice_class<num_classes; i_choice_class++){
             // Get name of class
-            var bag_name = TestBagNames[i_choice_class]
+            var bag_name = E['TestImageBagNames'][i_choice_class]
 
             // Select image inside of that class 
             var test_image_index = Math.floor(Math.random()*this.ImageBags[bag_name].length)
@@ -88,11 +152,11 @@ class TaskStreamer{
         return test 
     }
 
-    selectTestImagesMTS(TestBagNames, sample_bag_index, nway, _RNGseed){
-        // Guarantees one of the images is from TestBagNames[sample_bag_index]
+    selectTestImagesMTS(E['TestImageBagNames'], sample_bag_index, nway, RNGseed){
+        // Guarantees one of the images is from E['TestImageBagNames'][sample_bag_index]
         // returns nway images 
 
-        Math.seedrandom(_RNGseed)
+        Math.seedrandom(RNGseed)
 
         // Select distractor (SR)
         var num_distractors = nway - 1
@@ -104,20 +168,20 @@ class TaskStreamer{
         test['image_name'] = []
 
         // Randomly select the token for the sample class
-        var samplebag_name = TestBagNames[sample_bag_index]
+        var samplebag_name = E['TestImageBagNames'][sample_bag_index]
 
 
         var sample_image_index = Math.floor(Math.random()*this.ImageBags[samplebag_name].length)
-        test['bag_name'].push(TestBagNames[sample_bag_index])
+        test['bag_name'].push(E['TestImageBagNames'][sample_bag_index])
         test['bag_index'].push(sample_bag_index)
         test['image_index'].push(sample_image_index)
         test['image_name'].push(this.ImageBags[samplebag_name][sample_image_index])
 
         // Randomly select distractors
 
-        var DistractorBagNames = JSON.parse(JSON.stringify(TestBagNames))// so it doesn't overwrite input arg
+        var DistractorBagNames = JSON.parse(JSON.stringify(E['TestImageBagNames']))// so it doesn't overwrite input arg
         DistractorBagNames.splice(sample_bag_index, 1)
-        DistractorBagNames = shuffle(DistractorBagNames, _RNGseed) // random order
+        DistractorBagNames = shuffle(DistractorBagNames, RNGseed) // random order
 
         var _cnt = 0 // num distractors added 
         for (var i_choice_class = 0; i_choice_class<DistractorBagNames.length; i_choice_class++){
@@ -148,122 +212,7 @@ class TaskStreamer{
     }
 
 
-    async get_trial(i){
-        // called at the beginning of each trial 
-        // returns images, reward maps, and other necessary things for runtrial()
-        var E = this.Game[this.state['current_stage']]
-        var trial_idx = i || this.state['current_stage_trial_number']
-
-        var sample_selection_RNGseed = cantor(trial_idx, E['samplingRNGseed'])
-        var test_selection_RNGseed = cantor(trial_idx, E['samplingRNGseed']+1)
-        var distractor_location_RNGseed = cantor(trial_idx, E['samplingRNGseed']+2)
-
-        var SampleBagNames = E['SampleImageBagNames']
-        var TestBagNames = E['TestImageBagNames']
-
-        var t_sample_on = E['t_SampleON']
-        var t_sample_off = E['t_SampleOFF']
-        
-        var sample = this.selectSampleImage(SampleBagNames, sample_selection_RNGseed)
-
-        var sample_grid_index = E['SampleGridIndex']
-
-        if(E['Task'] == 'SR'){
-            var test = this.selectTestImagesSR(TestBagNames, test_selection_RNGseed)
-
-            var test_grid_indices = E['ObjectGridMapping']
-            var correct_test_selection = sample['bag_index'] // Indexes ObjectGridMapping
-        }
-        else if(E['Task'] == 'MTS'){
-            var Nway = E['Nway'] || 2
-
-            var test = this.selectTestImagesMTS(TestBagNames, sample['bag_index'], Nway, test_selection_RNGseed)
-            var correct_test_selection = test['bag_index'].indexOf(sample['bag_index']) 
-
-
-            // Set locations of images via grid indexes
-            var _order = [... Array(E['ObjectGridMapping'].length).keys()]
-            _order = shuffle(_order, distractor_location_RNGseed)
-
-            var test_grid_indices = []
-            for (var i_order = 0; i_order <_order.length; i_order++){
-                test_grid_indices.push(E['ObjectGridMapping'][_order[i_order]])
-            }
-
-        }
-        else if(E['Task'] == 'nonMTS'){
-            // Assumes two-way task
-            var Nway = 2
-
-            var test = this.selectTestImagesMTS(TestBagNames, sample['bag_index'], Nway, test_selection_RNGseed)
-            var _match_selection = test['bag_index'].indexOf(sample['bag_index']) 
-            if (_match_selection == 1){
-                var correct_test_selection = 0
-            }
-            else if(_match_selection == 0){
-                var correct_test_selection = 1 
-            }
-
-            // Set locations of images via grid indexes
-            var _order = [... Array(E['ObjectGridMapping'].length).keys()]
-            _order = shuffle(_order, distractor_location_RNGseed)
-            console.log('order', _order)
-
-            var test_grid_indices = []
-            for (var i_order = 0; i_order <_order.length; i_order++){
-                test_grid_indices.push(E['ObjectGridMapping'][_order[i_order]])
-            }
-        }
-        
-        // Buffer image from disk 
-        var sample_image = await this.IB.get_by_name(sample['image_name'])
-
-        var test_images = []
-        for (var i_test_image = 0; i_test_image < test['image_name'].length; i_test_image++){
-            test_images.push(this.IB.get_by_name(test['image_name'][i_test_image]))
-        }
-        test_images = await Promise.all(test_images)
-
-        var choice_reward_amounts = Array(test_grid_indices.length).fill(0)
-        choice_reward_amounts[correct_test_selection] = 1
-
-        // Write down trial
-
-
-        
-        var trial = {}
-
-        // fixation 
-        trial['fixation_grid_index'] = this.Game[this.state['current_stage']]['FixationGridIndex']
-        trial['fixation_reward'] = this.Game[this.state['current_stage']]['FixationReward']
-        trial['show_fixation'] = this.Game[this.state['current_stage']]['ShowFixation']
-
-        // Stimulus
-        trial['frame_durations'] = [t_sample_on,t_sample_off,0] // List of durations
-        trial['image_sequence'] = [sample_image, 'blank', test_images] // List of {images, lists of images, or [] for blank}
-        trial['grid_placement_sequence'] = [sample_grid_index, [], test_grid_indices] // list of lists
-        trial['frame_names'] = ['frame_stimulus', 'frame_delay', 'frame_choice']
-
-        // Choice
-        trial['choice_rewards'] = choice_reward_amounts // list of award amounts
-        trial['choice_grid_indices'] = test_grid_indices // list of bounding box objects
-        trial['timeout_msec'] = this.Game[this.state['current_stage']]['ChoiceTimeOut']
-        trial['choice_area_scale_factor'] = 0.5 // scale the dimensions of choice regions 
-
-        // Optional
-        trial['correct_grid_index'] = test_grid_indices[correct_test_selection]
-        
-        trial['sampleBagName'] = sample['bag_name']
-        trial['sample_bag_index'] = sample['bag_index']
-        trial['sample_image_index'] = sample['image_index']
-
-        trial['testBagNames'] = test['bag_name']
-        trial['test_bag_indices'] = test['bag_index']
-        trial['test_image_indices'] = test['image_index']
-
-
-        return trial
-    }
+    
 
     _check_transition_criterion(){
         var min_trials = this.Game[this.state['current_stage']]['MinTrialsCriterion']
@@ -302,16 +251,28 @@ class TaskStreamer{
        // trial_behavior: the just-finished trial's behavior. 
         // called at the end of every trial. 
         // Update trial object 
-        this.trial_behavior = this.update_behavior_records(this.trial_behavior, current_trial_outcome)
-
 
         var Return = current_trial_outcome['Return']
 
+        var action = current_trial_outcome['Response_GridIndex']
+        this.lastActions.push(action)
+        this.lastReturns.push(Return)
+
+        if(this.actionReturns[action] == undefined){
+            this.actionReturns[action] = []
+        }
+        this.actionReturns[action].push(Return)
+
+        
+        
+
+        this.trial_behavior = this.update_behavior_records(this.trial_behavior, current_trial_outcome)
 
         var _repeat_if_wrong_probability = this.Game[this.state.current_stage]['probability_repeat_trial_if_wrong'] || 0
         if(Return == 0){
 
             var repeat_rng_seed = cantor(this.state['current_stage'], this.Game[this.state.current_stage]['samplingRNGseed'])
+            var repeat_rng_seed = cantor(repeat_rng_seed, Math.round(performance.now()/100))
             Math.seedrandom(repeat_rng_seed)
 
             if(Math.random() < _repeat_if_wrong_probability){
@@ -363,54 +324,9 @@ class TaskStreamer{
                 }            
             }
         }
-
-
-        
-        // Write checkpoint to disk if it's been a while
-        if(performance.now() - this._last_checkpoint_save > this._checkpoint_save_timeout_period){
-            this.save_ckpt()
-            this._last_checkpoint_save = performance.now()
-            wdm('Checkpoint save called')
-        }
     }
 
-    package_behavioral_data(){
-        var dataobj = {}
-
-        dataobj['SESSION'] = SESSION
-        dataobj['PLAYSPACE'] = PLAYSPACE
-        dataobj['TOUCH'] = TOUCHLOG
-        dataobj['REWARDLOG'] = REWARDLOG
-        dataobj['Game'] = this.Game
-        dataobj['BEHAVIOR'] = this.trial_behavior
-        
-        // dataobj['IMAGEMETA'] = this.image_meta
-        // dataobj["IMAGEBAGS"] = this.ImageBags # potentially HUGE 
-
-        
-        return dataobj
-    }
-
-    async save_ckpt(){
-        var ckpt = {}
-        ckpt['agentID'] = this._agentID
-        ckpt['current_stage'] = this.state['current_stage']
-        ckpt['current_stage_trial_number'] = this.state['current_stage_trial_number'] 
-        ckpt['last_save_unix_timestamp'] = Math.round(performance.now() + SESSION.unixTimestampPageLoad)
-        ckpt['returns_in_stage'] = this.state['returns_in_stage']
-        ckpt['EXPERIMENT_hash'] = this.EXPERIMENT_hash
-        var datastring = JSON.stringify(ckpt, null, 2)
-
-        if(this._debug_mode == false){
-            var savepath = this.taskstream_checkpoint_path
-        }
-        else{
-            var savepath = this._debug_taskstream_checkpoint_path
-        }
-
-        await this.DIO_checkpointing.write_string(datastring, savepath)
-        wdm('Wrote checkpoint file to '+savepath)
-    }
+    
 
     async build(num_trials_per_stage_to_prebuffer){
         num_trials_per_stage_to_prebuffer = num_trials_per_stage_to_prebuffer || 10
@@ -420,34 +336,7 @@ class TaskStreamer{
         var Experiment = this.Game
         this.EXPERIMENT_hash = JSON.stringify(Experiment).hashCode()
 
-        if(this.use_checkpointing == true){
-            // Try to load checkpoint from disk, if it exists      
-            if(await this.DIO_checkpointing.exists(this.taskstream_checkpoint_path)){
-                var checkpoint = await this.DIO_checkpointing.read_textfile(this.taskstream_checkpoint_path)
-
-                checkpoint = JSON.parse(checkpoint)
-                if(checkpoint['EXPERIMENT_hash'] != this.EXPERIMENT_hash){
-                    wdm('Checkpoint file on disk does not match current Game. Generating default state...')
-                    this._generate_default_state() 
-                    await this.save_ckpt()
-                }
-                else{
-                    wdm('Successfully loaded valid checkpoint '+ this.taskstream_checkpoint_path)
-                    this.state['current_stage'] = checkpoint["current_stage"]
-                    this.state['current_stage_trial_number'] = checkpoint["current_stage"]
-                    this.state['returns_in_stage'] = checkpoint['returns_in_stage']
-                }
-            }
-            else{
-                this._generate_default_state()
-                await this.save_ckpt
-            }
-        }
-        else{
-            this._generate_default_state()
-            wdm('Not using checkpointing...generated default state')
-        }
-
+    
 
         // Prebuffer stages of Game
         for (var i_stage = 0; i_stage < Experiment.length; i_stage++){
@@ -455,7 +344,6 @@ class TaskStreamer{
             var _tk = Experiment[i_stage]
 
             
-
             if(i_stage == this.state['current_stage']){
                 var start_trial_number = this.state['current_stage_trial_number']                 
             }
@@ -495,83 +383,12 @@ class TaskStreamer{
         return 
     }
 
-    _checkpoint_namehash(agentID){
-        return 'Checkpoint_'+agentID + '.ckpt'
-    }
-
+    
     _generate_default_state(){
         this.state['current_stage'] = 0
         this.state['current_stage_trial_number'] = 0
         this.state['returns_in_stage'] = []
     }
-
-    
-
-    transition_from_debug_to_science_mode(){
-        this.state = this._initial_state 
-        this._initial_state = undefined
-        this._debug_mode = false
-        this.trial_behavior = this.initialize_behavior_records()
-    }
-
-    update_behavior_records(t, cto){
-        t['return'].push(cto['Return'])
-        t['action'].push(cto['Response_GridIndex'])
-        t['responseX'].push(cto['ChoiceX'])
-        t['responseY'].push(cto['ChoiceY'])
-        t['fixationX'].push(cto['FixationX'])
-        t['fixationY'].push(cto['FixationY'])
-        //t['i_stimulusBag'].push(cto['TRIAL']['sampleBagName']) index
-        //t['i_stimulusID'] cto['TRIAL']['sample_image_index']
-        //t['i_choiceBags'] cto['TRIAL']['testBagNames']
-        //t['i_choiceIDs'] cto['TRIAL']['test_image_indices']
-        t['stageNumber'].push(this.state['current_stage'])
-        t['timestampStart'].push(Math.round(cto['timestamp_FixationAcquired']))
-        t['timestampStimulusOn'].push(Math.round(cto['frame_timestamps'][0]))
-        t['timestampStimulusOff'].push(Math.round(cto['frame_timestamps'][1]))
-        t['timestampChoiceOn'].push(Math.round(cto['frame_timestamps'][2]))
-        t['timestampFixationOn'].push(Math.round(cto['timestamp_fixation_onset']))
-        t['timestampFixationAcquired'].push(Math.round(cto['timestamp_FixationAcquired']))
-        t['timestampReinforcementOn'].push(Math.round(cto['timestamp_reinforcement_on']))
-        t['timestampReinforcementOff'].push(Math.round(cto['timestamp_reinforcement_off']))
-        //t['trialNumberGame'] - infer from checkpoint
-        t['trialNumberTask'].push(this.state['current_stage_trial_number'])
-        t['trialNumberSession'].push(TRIAL_NUMBER_FROM_SESSION_START)
-        t['reactionTime'].push(Math.round(cto['timestamp_Choice'] - cto['frame_timestamps'][2]))
-        
-        return t 
-    }
-
-    initialize_behavior_records(){
-        var t = {}
-
-        t['return'] = []
-        t['action'] = []
-        t['responseX'] = []
-        t['responseY'] = []
-        t['fixationX'] = []
-        t['fixationY'] = []
-        t['i_stimulusBag'] = []
-        t['i_stimulusID'] = []
-        t['i_choiceBags'] = []
-        t['i_choiceIDs'] = []
-        t['stageNumber'] = []
-        t['timestampStart'] = []
-        t['timestampStimulusOn'] = []
-        t['timestampStimulusOff'] = []
-        t['timestampChoiceOn'] = []
-        t['timestampFixationOn'] = []
-        t['timestampFixationAcquired'] = []
-        t['timestampReinforcementOn'] = []
-        t['timestampReinforcementOff'] = []
-        t['trialNumberGame'] = []
-        t['trialNumberTask'] = []
-        t['trialNumberSession'] = []
-        t['reactionTime'] = []
-        
-        return t
-    }
-
 }
 
 

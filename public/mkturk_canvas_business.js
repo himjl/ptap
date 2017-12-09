@@ -253,9 +253,6 @@ async function renderImageOnCanvasLiterally(image, grid_index, canvasobj){
   canvasobj.style.bottom = 0
   canvasobj.style.margin = 'auto'
   
-  
-  
-
 
   var xleft=NaN;
   var ytop=NaN;

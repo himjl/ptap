@@ -40,10 +40,7 @@ function updateSessionTextbox(agentID, ExperimentName){
 	  sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
 }
 
-function writeToTrialCounterDisplay(s){
-	var elem = document.getElementById('TrialCounter')
-	elem.innerHTML = s; // text
-}
+
 
 
 function toggleElement(on_or_off, element_id){

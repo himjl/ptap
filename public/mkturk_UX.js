@@ -16,6 +16,8 @@ class UX_poller{
             this.calledAutoJuice = true
         } 
 
+        this.writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
+
         return
     }
 
@@ -31,6 +33,10 @@ class UX_poller{
         }
     }
 
+    writeToTrialCounterDisplay(s){
+        var elem = document.getElementById('TrialCounter')
+        elem.innerHTML = s; // text
+    }
 }
 
 class MechanicalTurk_UX_poller{

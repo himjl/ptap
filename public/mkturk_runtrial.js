@@ -1,105 +1,73 @@
 async function runtrial(){
-// (Current) Basic assumptions of what a TRIAL constitutes:
-// Fixation screen 
-// Stimulus period (which can be multiple screens, etc.)
-// Choice period
 
-writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
+var trialPackage = await TaskStreamer.get_trial()
 
-var TRIAL = await TS.get_trial()
+// ************ Prebuffer trial assets ***************
 
-var image_sequence = TRIAL['image_sequence']
-var grid_placement_sequence = TRIAL['grid_placement_sequence']
-var frame_durations = TRIAL['frame_durations']
-var timeout_msec = TRIAL['timeout_msec']
-var choice_regions_reward_amounts = TRIAL['choice_rewards']
-var choice_regions_gridIndices = TRIAL['choice_grid_indices']
-var choice_area_scale_factor = TRIAL['choice_area_scale_factor']
+// Fixation
+var fixationPlacement = trialPackage['fixationPlacement'] || [0.5, 0.2] 
+var fixationScale = TRIAL['fixationScale'] || 0.3
+await PY.bufferFixation(fixationPlacement, fixationScale)
 
-// Prebuffer 
-var sequence_id = 'stimulus_sequence'
-await SD.bufferSequenceFrames(sequence_id, image_sequence, grid_placement_sequence, frame_durations)
+// Stimulus sequence
+var frameImages = trialPackage['frameImages']
+var frameScales = trialPackage['frameScale']
+var framePlacements = trialPackage['framePlacements']
+var frameDurations = trialPackage['frameDurations']
 
-// BLANK SCREEN
-await SD.displayBlank()
+await PlaySpace.bufferSequence(
+    "stimulus_sequence", 
+    frameImages, 
+    frameScales, 
+    framePlacements, 
+    frameDurations)
 
-// FIXATION SCREEN
-var fixation_grid_index = TRIAL['fixation_grid_index'] || 5 // todo: pull from params  
-var fixation_reward = TRIAL['fixation_reward'] || 0
+// *************** Run trial *************************
 
-var funcreturn = await SD.displayFixation(fixation_grid_index)
-var boundingBoxFixation = funcreturn[0]
-var fixation_timestamps = funcreturn[1]
+// SHOW BLANK
+await PlaySpace.displayBlank()
 
-// Wait for fixation response
+// FIXATION
+ActionPoller.create_action_regions(fixationPlacement, fixationScale)
 
-var fixation_outcome = {}
-var fixationBoundingBox = {}
-if (TRIAL['show_fixation'] != false){
-	fixationBoundingBox = RewardMap.create_reward_map_with_bounding_boxes(boundingBoxFixation, fixation_reward)
-	fixation_outcome = await RewardMap.Promise_wait_until_active_response_then_return_reinforcement()
 
-	// Deliver (optional) reinforcement for fixation 
-	nreward = fixation_outcome['reinforcement']
-	await R.deliver_reinforcement(nreward, false)
-	// todo: log reinforcement for fixation
+var t_fixationOn = await PlaySpace.displayFixation()
+var action = await ActionPoller.Promise_wait_until_active_response()
+
+if (trialPackage['fixationReward']>0){
+    await R.deliver_reinforcement(trialPackage['fixationReward'], 
+        trialPackage['fixationRewardSoundName'], 
+        trialPackage['fixationRewardVisual'])
 }
 
 // STIMULUS_SCREEN
-var frame_timestamps = await SD.displaySequence(sequence_id)
+ActionPoller.create_action_regions(
+    trialPackage['choiceCentroids'], 
+    trialPackage['choiceScales'])
+var t_SequenceTimestamps = await PlaySpace.displaySequence("stimulus_sequence")
 
-
-// Wait for choice response, with optional timeout
-// todo: chaining markov reward maps for multi-response tasks (v3); chain stimulus / reward map periods (but why call it a trial?)
-var choiceBoundingBox = RewardMap.create_reward_map_with_grid_indices(choice_regions_gridIndices, choice_regions_reward_amounts, choice_area_scale_factor)
-if(timeout_msec > 0){
-    var choice_promise = Promise.race([
-                        RewardMap.Promise_wait_until_active_response_then_return_reinforcement(), 
-                        timeOut(timeout_msec)]) 
+if(trialPackage['choiceTimeLimit'] > 0){
+    var actionPromise = Promise.race([
+                        ActionPoller.Promise_wait_until_active_response(), 
+                        timeOut(trialPackage['choiceTimeLimit'])]) 
 }
 else{
-    var choice_promise = RewardMap.Promise_wait_until_active_response_then_return_reinforcement()
+    var actionPromise = ActionPoller.Promise_wait_until_active_response()
 }
 
-choice_outcome = await choice_promise
-nreward = choice_outcome['reinforcement']
-var chosen_grid_index = choice_regions_gridIndices[choice_outcome['region_index']]
+var action = await actionPromise
+var rewardAmount = trialPackage['choiceRewardAmounts'][action]
 
-// Deliver reinforcement
-var reinforcement_start = performance.now()
-await R.deliver_reinforcement(nreward)
-var reinforcement_end = performance.now()
+var t_ReinforcementTimestamps = await R.deliver_reinforcement(rewardAmount)
+TS.update_state(rewardAmount)
 
-// Update taskstreamer with results of this trial 
-var current_trial_outcome = {}
-current_trial_outcome['frame_timestamps'] = frame_timestamps
 
-current_trial_outcome['timestamp_fixation_onset'] = fixation_timestamps[0]
-current_trial_outcome['timestamp_FixationAcquired'] = fixation_outcome['timestamp']
-current_trial_outcome['timestamp_reinforcement_on'] = reinforcement_start
-current_trial_outcome['timestamp_reinforcement_off'] = reinforcement_end
-current_trial_outcome['timestamp_Choice'] = choice_outcome['timestamp']
+// *************** Write down data *************************
 
-current_trial_outcome['FixationX'] = fixation_outcome['x']
-current_trial_outcome['FixationY'] = fixation_outcome['y']
-current_trial_outcome['FixationGridIndex'] = fixation_grid_index
-current_trial_outcome['ChoiceX'] = choice_outcome['x']// todo: multiple response screens
-current_trial_outcome['ChoiceY'] = choice_outcome['y']
-current_trial_outcome['Response_GridIndex'] = chosen_grid_index
-current_trial_outcome['fixation_boundingBoxes'] = fixationBoundingBox
-current_trial_outcome['choice_boundingBoxes'] = choiceBoundingBox
 
-current_trial_outcome['Return'] = nreward
-current_trial_outcome['TRIAL'] = TRIAL
+// timestamps 
 
-TS.update_state(current_trial_outcome)
-
-// Package data and writeout (e.g. live, to dropbox)
-dataobj = TS.package_behavioral_data() // However you'd like, specific to your TaskStreamer
-DWr.writeout(dataobj)
-
-TRIAL_NUMBER_FROM_SESSION_START++
 
 return 
-
 }
+

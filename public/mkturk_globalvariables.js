@@ -65,7 +65,8 @@ FLAGS.debug_mode = 1;
 function transition_from_debug_to_science_trials(){
 
 	// Revert TaskStreamer
-	TS.transition_from_debug_to_science_mode()
+	TS.initialize()
+	TS._debug_mode = false
 
 	DWr.initialize()
 	

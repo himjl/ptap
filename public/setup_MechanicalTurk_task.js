@@ -58,7 +58,7 @@ async function setupMechanicalTurkTask(){
 
 
     // Initialize components of task
-    RewardMap = new RewardMapGenerator(['mousemove', 'touchmove', 'touchstart']); 
+    RewardMap = new ActionPoller(['mousemove', 'touchmove', 'touchstart']); 
     
     R = new MonetaryReinforcer(MechanicalTurkSettings['bonus_usd_per_correct'])
 

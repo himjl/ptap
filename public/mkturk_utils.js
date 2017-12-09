@@ -12,6 +12,24 @@ function wdm(s){
   }
 }
 
+class np{
+  static mean(arr){
+    var total = 0, i;
+      for (i = 0; i < arr.length; i += 1) {
+          total += arr[i];
+      }
+      return total / arr.length;
+  }
+
+  static sum(arr){
+    var total = 0
+    for (var i = 0; i < arr.length; i ++){
+      total+=arr[i]
+    }
+    return total
+  }
+}
+
 
 (function(window){
   window.utils = {

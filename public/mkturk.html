@@ -149,6 +149,9 @@ TERMINAL_STATE = false
 while(TERMINAL_STATE == false){
 	await runtrial()
   UX.poll()
+  // Package data and writeout 
+  dataobj = BehaviorScribe.get_data_package() 
+  DWr.writeout(dataobj)
 
 }
 

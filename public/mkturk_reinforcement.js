@@ -36,6 +36,8 @@ class MonetaryReinforcer{
             //punish
             if(displayFeedbackScreen == true){
               SP.playSound('punish_sound');
+
+
               var p1 = await SD.displayPunish(TS.Game[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
             }
         }
@@ -82,7 +84,9 @@ class JuiceReinforcer{
             
             if(displayFeedbackScreen == true){
               SP.playSound('punish_sound');
-              var p1 = await SD.displayPunish(TS.Game[TS.state.current_stage]['PunishTimeOut'])
+
+              var punishDuration = TS.Game[TS.state.current_stage]['PunishTimeOut']
+              var p1 = await SD.displayPunish()
             }
             
         }

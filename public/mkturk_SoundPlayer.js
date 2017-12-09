@@ -3,7 +3,7 @@ class SoundPlayer{
     // todo: feed in explicit filepaths here and load; 
     // write playSound(filename)
     
-      this.num_redundant_buffers = 4; // because sounds do not get played if requested to be played before they are over from a previous call 
+      this.num_redundant_buffers = 8; // because sounds do not get played if requested to be played before they are over from a previous call 
 
       this.sound_filepaths = {
       'reward_sound':'sounds/chime.wav', // chime

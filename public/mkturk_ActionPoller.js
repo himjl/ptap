@@ -1,18 +1,15 @@
-class RewardMapGenerator{
+class ActionPollerClass{
     constructor(event_types){
 
         this.event_types = event_types        
         this._response_promise
         this.boundingBoxes = []
-        this.reward_amounts = []
 
         this._resolveFunc
         this._errFunc
 
         var _this = this
 
-        var boundingBoxes = this.boundingBoxes // 
-        var reward_amounts = this.reward_amounts 
 
         this.listening = false
         this.attached = false 
@@ -40,6 +37,54 @@ class RewardMapGenerator{
         }
     } 
 
+    create_action_regions(placements, scales){
+        // assumes circular 
+
+        if(this.attached == false){
+            this.add_event_listener()
+            this.attached = true 
+        }
+        if(typeof(placements) == "number"){
+            placements = [placements]
+        }
+        if(typeof(scales) == "number"){
+            scales = [scales]
+        }
+
+        this.actionCentroids = placements 
+        this.actionScales = scales
+
+        this.listening = true
+
+
+    }
+
+    Promise_wait_until_active_response(){
+        // 
+        var _this = this
+        this._response_promise = new Promise(function(resolve, reject){
+            _this._resolveFunc = resolve
+            _this._errFunc = reject
+        })
+        var outcome = this._response_promise
+        return outcome
+
+        
+    }
+
+    check_if_inside_circle(x, y, xc, yc, r){
+        var dxs = Math.pow(x - xc, 2)
+        var dys = Math.pow(y - yc, 2)
+
+        if (dxs + dys <= r){
+            return true
+        }
+        else{
+            return false
+        }
+
+    }
+
     check_if_interior(x, y, t){
         for (var box_index = 0; box_index<this.boundingBoxes.length; box_index++){
 
@@ -52,7 +97,6 @@ class RewardMapGenerator{
                     "x":x, 
                     "y":y, 
                     "timestamp":t, 
-                    "reinforcement":this.reward_amounts[box_index], 
                     "region_index":box_index}
                 this.listening = false
                 this._resolveFunc(outcome)
@@ -61,7 +105,7 @@ class RewardMapGenerator{
     }
     
 
-    create_reward_map_with_bounding_boxes(boundingBoxes, reward_amounts){
+    create_reward_map_with_bounding_boxes(boundingBoxes){
         // boundingBoxes in units of PLAYSPACE
         if(this.attached == false){
             console.log('Attached mouse move listener for rewardmap')
@@ -71,18 +115,14 @@ class RewardMapGenerator{
         if(boundingBoxes.constructor != Array){
             boundingBoxes = [boundingBoxes]
         }
-        if(reward_amounts.constructor != Array){
-            reward_amounts = [reward_amounts]
-        }
-        
+  
         this.boundingBoxes = boundingBoxes
-        this.reward_amounts = reward_amounts
         this.listening = true
 
         return boundingBoxes
     }
 
-    create_reward_map_with_grid_indices(grid_indices, reward_amounts, scale_factor){
+    create_reward_map_with_grid_indices(grid_indices, scale_factor){
 
         if(this.attached == false){
             console.log('Attached mouse move listener for rewardmap')
@@ -91,9 +131,6 @@ class RewardMapGenerator{
         }
         if(typeof(grid_indices) == "number"){
             grid_indices = [grid_indices]
-        }
-        if(typeof(reward_amounts) == "number"){
-            reward_amounts = [reward_amounts]
         }
 
         scale_factor = scale_factor || 1
@@ -125,7 +162,6 @@ class RewardMapGenerator{
         }   
 
         this.boundingBoxes = boundingBoxes
-        this.reward_amounts = reward_amounts
         this.listening = true
 
         return boundingBoxes
@@ -159,8 +195,7 @@ class RewardMapGenerator{
             }
             
             console.log('Added ', event_types[i])
-        }
-        
+        }   
     }
 
     close_listener(){

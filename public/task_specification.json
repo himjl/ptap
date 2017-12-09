@@ -8,8 +8,24 @@
 // rewardMaps
 {"bagName":["rewardForAction0", "rewardForAction1"]}
 
+// environment - mechanical turk vs. upstairs
+{"viewingDistanceInches":0, 
+"virtualPixelsPerInch":0, 
+"screenVerticalOffsetInches":0,
+"screenHorizontalOffsetInches":0, 
+"reinforcer":"juice", 
+}
+
 // game 
-[{"rewardMap"}, {"rewardMap"}]
+{"taskSequence":[{"rewardMap":[], 
+"averageReturnCriterion":0, 
+"minTrialsCriterion":0, 
+"sampleOn":0, 
+"sampleOff":0, 
+"sampleScale":0, // pixels, Playspace units, degrees
+}], 
+"onFinish":"terminate, continue, or loop", 
+"" }
 
 
 // MTS task specification 
@@ -29,9 +45,11 @@
     "responseY":[],
     "fixationX":[],
     "fixationY":[],
-    "i_bag":[], 
-    "i_id":[], 
-    "stageNumber":[],
+    "i_stimulusBag":[], 
+    "i_stimulusId":[],
+    "i_testBag":[[]], 
+    "i_testId":[[]], 
+    "taskNumber":[],
     "timestampStart":[], 
     "timestampStimulusOn":[],
     "timestampChoiceOn":[],

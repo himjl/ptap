@@ -160,7 +160,7 @@ async function setupTabletTask(){
     document.querySelector("button[name=SyncButton]").style.visibility = "visible"
 
     // Initialize components of task
-    RewardMap = new RewardMapGenerator(['touchmove', 'touchstart'])
+    RewardMap = new ActionPoller(['touchmove', 'touchstart'])
     SD = new ScreenDisplayer()
     R = new JuiceReinforcer()
 
