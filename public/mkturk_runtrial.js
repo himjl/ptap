@@ -1,73 +1,94 @@
-async function runtrial(){
+async function runtrial(trialPackage){
 
-var trialPackage = await TaskStreamer.get_trial()
 
 // ************ Prebuffer trial assets ***************
 
 // Fixation
-var fixationPlacement = trialPackage['fixationPlacement'] || [0.5, 0.2] 
-var fixationScale = TRIAL['fixationScale'] || 0.3
-await PY.bufferFixation(fixationPlacement, fixationScale)
+await PY.bufferFixation(
+    trialPackage['fixationCentroid'] , 
+    trialPackage['fixationRadius'] )
 
 // Stimulus sequence
-var frameImages = trialPackage['frameImages']
-var frameScales = trialPackage['frameScale']
-var framePlacements = trialPackage['framePlacements']
-var frameDurations = trialPackage['frameDurations']
-
-await PlaySpace.bufferSequence(
-    "stimulus_sequence", 
-    frameImages, 
-    frameScales, 
-    framePlacements, 
-    frameDurations)
+await PlaySpace.bufferStimulusSequence(
+    trialPackage['sampleImage'], 
+    trialPackage['sampleOn'], 
+    trialPackage['sampleOff'], 
+    trialPackage['sampleRadius'], 
+    trialPackage['samplePlacement'], 
+    trialPackage['testImage'], 
+    trialPackage['testRadius'], 
+    trialPackage['testPlacement'])
 
 // *************** Run trial *************************
 
 // SHOW BLANK
 await PlaySpace.displayBlank()
 
-// FIXATION
-ActionPoller.create_action_regions(fixationPlacement, fixationScale)
-
+// RUN FIXATION
+ActionPoller.create_action_regions(
+    trialPackage['fixationPlacement'], 
+    trialPackage['fixationRadius'])
 
 var t_fixationOn = await PlaySpace.displayFixation()
-var action = await ActionPoller.Promise_wait_until_active_response()
+var fixationOutcome = await ActionPoller.Promise_wait_until_active_response()
 
-if (trialPackage['fixationReward']>0){
-    await R.deliver_reinforcement(trialPackage['fixationReward'], 
-        trialPackage['fixationRewardSoundName'], 
-        trialPackage['fixationRewardVisual'])
-}
 
-// STIMULUS_SCREEN
+// RUN STIMULUS SEQUENCE
+var t_SequenceTimestamps = await PlaySpace.displayStimulusSequence()
+
 ActionPoller.create_action_regions(
     trialPackage['choiceCentroids'], 
-    trialPackage['choiceScales'])
-var t_SequenceTimestamps = await PlaySpace.displaySequence("stimulus_sequence")
+    trialPackage['choiceRadius'])
 
 if(trialPackage['choiceTimeLimit'] > 0){
     var actionPromise = Promise.race([
                         ActionPoller.Promise_wait_until_active_response(), 
-                        timeOut(trialPackage['choiceTimeLimit'])]) 
+                        ActionPoller.timeout(trialPackage['choiceTimeLimit'])]) 
 }
 else{
     var actionPromise = ActionPoller.Promise_wait_until_active_response()
 }
 
-var action = await actionPromise
-var rewardAmount = trialPackage['choiceRewardAmounts'][action]
+var actionOutcome = await actionPromise
+var rewardAmount = trialPackage['choiceRewardAmounts'][actionOutcome['actionIndex']]
 
-var t_ReinforcementTimestamps = await R.deliver_reinforcement(rewardAmount)
-TS.update_state(rewardAmount)
+// Deliver reinforcement
+var t_reinforcementOn = performance.now()
+var p_sound = SP.play_sound('reward_sound')
+var p_visual = PlaySpace.displayReward()
+var p_primaryReinforcement = R.deliver_reinforcement(rewardAmount)
+await Promise.all([p_primaryReinforcement, p_visual]) 
+var t_reinforcementOff = performance.now()
 
 
-// *************** Write down data *************************
+// *************** Write down trial outcome *************************
+var trialOutcome = {}
+trialOutcome['return'] = rewardAmount 
+trialOutcome['action'] = actionOutcome['actionIndex']
+trialOutcome['responseX'] = actionOutcome['x']
+trialOutcome['responseY'] = actionOutcome['y']
+trialOutcome['fixationX'] = fixationOutcome['x']
+trialOutcome['fixationY'] = fixationOutcome['y']
+trialOutcome['i_fixationBag'] = trialPackage['i_fixationBag']
+trialOutcome['i_fixationId'] = trialPackage['i_fixationId']
+trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
+trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
+trialOutcome['i_testBag'] = trialPackage['i_testBag']
+trialOutcome['i_testId'] = trialPackage['i_testId']
+trialOutcome['taskNumber'] = TaskStreamer.taskNumber
+trialOutcome['timestampStart'] = fixationOutcome['timestamp']
+trialOutcome['timestampFixationOnset'] = 
+trialOutcome['timestampFixationAcquired'] = fixationOutcome['timestamp']
+trialOutcome['timestampResponse'] = actionOutcome['timestamp']
+trialOutcome['timestampReinforcementOn'] = t_reinforcementOn
+trialOutcome['timestampReinforcementOff'] = t_reinforcementOff
+trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
+trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession
+trialOutcome['timestampStimulusOn'] = t_SequenceTimestamps[0]
+trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
+trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
+trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - timestampChoiceOn)
 
-
-// timestamps 
-
-
-return 
+return trialOutcome
 }
 

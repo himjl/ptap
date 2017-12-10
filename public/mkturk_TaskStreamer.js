@@ -1,13 +1,16 @@
-class TaskStreamer{
-    constructor(Game, ImageBags, checkpoint){
+class TaskStreamerClass{
+    constructor(Game, ImageBags, IB, CheckPointer){
         this.Game = Game
         this.ImageBags = ImageBags
+        this.IB = IB 
         
         // State info
         this.taskNumber = checkpoint['taskNumber'] || 0 
         this.trialNumberTask = checkpoint['trialNumberTask'] || 0
         this.taskReturnHistory = checkpoint['taskReturnHistory'] || [] 
 
+        this.trialNumberSession
+        this.trialNumberGame
     }
 
     get_trial(i){
@@ -16,24 +19,24 @@ class TaskStreamer{
         var trial_idx = i || this.state['trialNumberTask']
         var trialPackage = {}
 
-        trialPackage['i_fixationBag'] = 0 
-        trialPackage['i_fixationId'] = 0 
-        trialPackage['fixationReward'] = undefined 
-        trialPackage['fixationPlacement'] = undefined
-        trialPackage['fixationRewardSoundName'] = undefined
-        trialPackage['fixationRewardVisual'] = undefined
+        trialPackage['fixationCentroid'] = undefined
+        trialPackage['fixationRadius'] = undefined
 
         trialPackage['i_sampleBag'] = 0
         trialPackage['i_sampleId'] = 0
         trialPackage['samplePlacement'] = 0 
-        
+        trialPackage['sampleRadius'] = 0 
+        trialPackage['sampleImage']
+
+        trialPackage['testImage']
         trialPackage['i_testBag'] = [0,1]
         trialPackage['i_testId'] = [0,1] // [0, 1,]
         trialPackage['testPlacement'] = [0,1] 
+        tralPackage['testRadius']
         
-        trialPackage['choiceRewardAmounts'] = []
-        trialPackage['choiceCentroids'] = []
-        trialPackage['choiceScales'] = []
+        trialPackage['choiceRewardMap'] = []
+        trialPackage['choiceCentroid'] = []
+        trialPackage['choiceRadius'] = []
 
         trialPackage['sampleOn'] = 0 
         trialPackage['sampleOff'] = 0
@@ -42,7 +45,8 @@ class TaskStreamer{
         return trialPackage
     }
 
-    async update_state(rewardAmount){
+    async update_state(trialOutcome){
+        var rewardAmount = trialOutcome['return']
         // update counters 
         this.taskReturnHistory.push(rewardAmount)
 

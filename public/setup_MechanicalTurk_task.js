@@ -67,7 +67,6 @@ async function setupMechanicalTurkTask(){
 
   SD = new ScreenDisplayer()
 
-  window.addEventListener('resize', onWindowResize)
 
 
   var skip_preview_mode = true

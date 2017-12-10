@@ -181,20 +181,6 @@ function md5Hash(blob){
   var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(blob));
   return hash
 }
-// Promise: choice time-out
-function timeOut(timeout_length){
-  return new Promise(
-    function(resolve, reject){
-      var timer_return = function(){resolve({
-        "x":'timed_out', 
-        "y":'timed_out', 
-        'timestamp':performance.now(), 
-        'reinforcement':0, 
-        'region_index':'timed_out'})}
-
-      setTimeout(timer_return,timeout_length)
-    })
-}
 
 
 String.prototype.hashCode = function(){

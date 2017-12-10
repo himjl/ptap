@@ -1,4 +1,4 @@
-class SoundPlayer{ 
+class SoundPlayerClass{ 
   constructor(){
     // todo: feed in explicit filepaths here and load; 
     // write playSound(filename)
@@ -30,6 +30,10 @@ class SoundPlayer{
   }
 
   async playSound(name){
+    if (!(name in this.sound_filepaths)){
+      return 
+    }
+
     this.sound_objects[name][this.current_sound_counter].play() 
     this.current_sound_counter = (this.current_sound_counter+1) % this.num_redundant_buffers
     return 

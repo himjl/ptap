@@ -38,17 +38,7 @@ function setupPlayspace(ngridpoints, estimated_eye_screen_distance_inches, estim
 
     defineImageGrid(ngridpoints)
 }
-function windowSize(){
-  var windowHeight = window.innerHeight
-      || document.documentElement.clientHeight
-      || document.body.clientHeight;
 
-
-    var windowWidth = window.innerWidth
-      || document.documentElement.clientWidth
-      || document.body.clientWidth;
-    return [windowHeight, windowWidth]
-}
 
 function _dpr(){
   var devicePixelRatio = window.devicePixelRatio || 1

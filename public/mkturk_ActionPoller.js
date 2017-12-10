@@ -13,14 +13,41 @@ class ActionPollerClass{
 
         this.listening = false
         this.attached = false 
+        this.useComplementAsRegion = false
 
 
         this.handleTouchEvent = function(event){
             var t = performance.now()
             var x = event.targetTouches[0].pageX - PLAYSPACE.leftbound
             var y = event.targetTouches[0].pageY - PLAYSPACE.topbound
+            var inside = false
             if(_this.listening == true){
-                _this.check_if_interior(x, y, t)
+
+                for (var i = 0; i < this.actionCentroids.length-1; i++){
+                    inside = _this.check_if_inside_circle(
+                        x, 
+                        y, 
+                        this.actionCentroids[i][0], 
+                        this.actionCentroids[i][1], 
+                        this.actionScales[i])
+                    if(inside == true){
+                        this.listening = false
+                        var outcome = {'actionIndex':i, 
+                                        'timestamp':t, 
+                                        'x':x, 
+                                        'y':y}
+                        this._resolveFunc(outcome)
+                    }
+                }
+                
+                if(this.useComplementAsRegion == true){
+                    this.listening = false 
+                    var outcome = {
+                        'actionIndex':'complement', 
+                        'timestamp':t, 
+                        'x':x, 
+                        'y':y}
+                }   
             }
             
         }  
@@ -31,13 +58,38 @@ class ActionPollerClass{
             var x = event.pageX - PLAYSPACE.leftbound // In PLAYSPACE units. 
             var y = event.pageY - PLAYSPACE.topbound
 
+            var inside = false
             if(_this.listening == true){
-                _this.check_if_interior(x, y, t)
+
+                for (var i = 0; i < this.actionCentroids.length-1; i++){
+                    inside = _this.check_if_inside_circle(
+                        x, 
+                        y, 
+                        this.actionCentroids[i][0], 
+                        this.actionCentroids[i][1], 
+                        this.actionScales[i])
+                    if(inside == true){
+                        this.listening = false
+                        var outcome = {'actionIndex':i, 
+                                        'timestamp':t, 
+                                        'x':x, 
+                                        'y':y}
+                        this._resolveFunc(outcome)
+                    }
+                }
+                if(this.useComplementAsRegion == true){
+                    this.listening = false 
+                    var outcome = {
+                        'actionIndex':'complement', 
+                        'timestamp':t, 
+                        'x':x, 
+                        'y':y}
+                }
             }
         }
     } 
 
-    create_action_regions(placements, scales){
+    create_action_regions(placements, scales, useComplementAsRegion){
         // assumes circular 
 
         if(this.attached == false){
@@ -53,6 +105,7 @@ class ActionPollerClass{
 
         this.actionCentroids = placements 
         this.actionScales = scales
+        this.useComplementAsRegion = useComplementAsRegion
 
         this.listening = true
 
@@ -69,7 +122,7 @@ class ActionPollerClass{
         var outcome = this._response_promise
         return outcome
 
-        
+
     }
 
     check_if_inside_circle(x, y, xc, yc, r){
@@ -85,98 +138,7 @@ class ActionPollerClass{
 
     }
 
-    check_if_interior(x, y, t){
-        for (var box_index = 0; box_index<this.boundingBoxes.length; box_index++){
 
-            if (x <= this.boundingBoxes[box_index].x[1] 
-                && x >= this.boundingBoxes[box_index].x[0]
-                && y <= this.boundingBoxes[box_index].y[1] 
-                && y >= this.boundingBoxes[box_index].y[0]){
-
-                var outcome = {
-                    "x":x, 
-                    "y":y, 
-                    "timestamp":t, 
-                    "region_index":box_index}
-                this.listening = false
-                this._resolveFunc(outcome)
-            }
-        }
-    }
-    
-
-    create_reward_map_with_bounding_boxes(boundingBoxes){
-        // boundingBoxes in units of PLAYSPACE
-        if(this.attached == false){
-            console.log('Attached mouse move listener for rewardmap')
-            this.add_event_listener()
-            this.attached = true 
-        }
-        if(boundingBoxes.constructor != Array){
-            boundingBoxes = [boundingBoxes]
-        }
-  
-        this.boundingBoxes = boundingBoxes
-        this.listening = true
-
-        return boundingBoxes
-    }
-
-    create_reward_map_with_grid_indices(grid_indices, scale_factor){
-
-        if(this.attached == false){
-            console.log('Attached mouse move listener for rewardmap')
-            this.add_event_listener()
-            this.attached = true 
-        }
-        if(typeof(grid_indices) == "number"){
-            grid_indices = [grid_indices]
-        }
-
-        scale_factor = scale_factor || 1
-        var boundingBoxes = []
-
-        
-        var base_width = 0 
-        var base_height = 0
-        var x_dim = 0 
-        var y_dim = 0 
-
-        for (var i = 0; i < grid_indices.length; i++){
-            if(scale_factor == 1){
-                boundingBoxes.push(PLAYSPACE._grid_boundingBox[grid_indices[i]])
-                continue
-            }
-
-            base_width = PLAYSPACE._grid_boundingBox[grid_indices[i]].x[1] - PLAYSPACE._grid_boundingBox[grid_indices[i]].x[0]
-            base_height = PLAYSPACE._grid_boundingBox[grid_indices[i]].y[1] - PLAYSPACE._grid_boundingBox[grid_indices[i]].y[0]
-
-            x_dim = (base_width - scale_factor * (base_width)) /2
-            y_dim = (base_height - scale_factor * (base_height)) /2
-
-            var box = {}
-            box['x'] = [PLAYSPACE._grid_boundingBox[grid_indices[i]].x[0]+x_dim, PLAYSPACE._grid_boundingBox[grid_indices[i]].x[1]-x_dim]
-            box['y'] = [PLAYSPACE._grid_boundingBox[grid_indices[i]].y[0]+y_dim, PLAYSPACE._grid_boundingBox[grid_indices[i]].y[1]-y_dim]
-
-            boundingBoxes.push(box)
-        }   
-
-        this.boundingBoxes = boundingBoxes
-        this.listening = true
-
-        return boundingBoxes
-    }
-
-    async Promise_wait_until_active_response_then_return_reinforcement(){
-        //this.add_event_listener()
-        var _this = this
-        this._response_promise = new Promise(function(resolve, reject){
-            _this._resolveFunc = resolve
-            _this._errFunc = reject
-        })
-        var outcome = this._response_promise
-        return outcome
-    }
     add_event_listener(){
 
         if(typeof(this.event_types) == "string"){
@@ -217,5 +179,19 @@ class ActionPollerClass{
             console.log('Removed ', event_types[i])
         }
     }
+
+    timeout(timeoutMsec){
+      return new Promise(
+        function(resolve, reject){
+          var timer_return = function(){resolve({
+            "actionIndex":'timed_out', 
+            'timestamp':performance.now(), 
+            'x':'timed_out', 
+            'y':'timed_out'})}
+
+          setTimeout(timer_return,timeoutMsec)
+        })
+    }
+}
 }
 

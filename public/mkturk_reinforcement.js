@@ -1,13 +1,4 @@
-// Functions for delivering reinforcement
-
-class ReinforcerTemplate{
-    constructor(){
-
-    }
-    async deliver_reinforcement(nreward){
-
-    }
-}
+// Functions for delivering primary reinforcement
 
 class MonetaryReinforcer{
     constructor(bonus_usd_per_correct){
@@ -15,35 +6,17 @@ class MonetaryReinforcer{
         this.bonus_per_correct = bonus_usd_per_correct || 0.0007 // one extra dollar for every 1000 correct 
     }
 
-    async deliver_reinforcement(nreward, displayFeedbackScreen){
-      displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
+    async deliver_reinforcement(nreward){
 
         if(nreward >=1){
             this.bonus_total = this.bonus_total + this.bonus_per_correct
             console.log('Running monetary bonus amount', Math.round(this.bonus_total*1000)/1000)
-            //CANVAS.sequencepost[1]="reward";
-            //CANVAS.tsequencepost[2] = CANVAS.tsequencepost[1]
-            SP.playSound('reward_sound');
-            if(displayFeedbackScreen == true){
-              
-
-              var p1 = SD.displayReward(100)// (CANVAS.sequencepost,CANVAS.tsequencepost)
-            await Promise.all([p1])
           }
-            
-        }
-        else if(nreward == 0){
-            //punish
-            if(displayFeedbackScreen == true){
-              SP.playSound('punish_sound');
 
-
-              var p1 = await SD.displayPunish(TS.Game[TS.state.current_stage]['PunishTimeOut']) // (CANVAS.sequencepost,CANVAS.tsequencepost);
-            }
-        }
         SESSION['bonus_usd'] = this.bonus_total 
+      }
+       
     }
-
 }
 
 
@@ -51,45 +24,23 @@ class MonetaryReinforcer{
 class JuiceReinforcer{
     constructor(){
 
-
     }
 
-    async deliver_reinforcement(nreward, displayFeedbackScreen){
+    async deliver_reinforcement(nreward){
 
-        displayFeedbackScreen = (typeof displayFeedbackScreen === 'undefined') ? true : displayFeedbackScreen
         if(nreward >=1){
 
             var RewardDuration = nreward * this.setJuicerRewardDuration();
-            
-            SP.playSound('reward_sound');
-            REWARDLOG['nreward'].push(nreward)
-            REWARDLOG['t'].push(Math.round(performance.now()))
 
-            // Async as to not slow the monkey down
-            if(displayFeedbackScreen == true){
-              var p1 = SD.displayReward(100)
-            }
             if(ble.connected == false){
-              await p1
+              return p1
             }
             else if (ble.connected == true){
                 var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
-                await Promise.all([p1, p2])
+                return Promise.all([p1, p2])
             }
-
-            
         }
-        else if(nreward == 0){
-            // punish
-            
-            if(displayFeedbackScreen == true){
-              SP.playSound('punish_sound');
-
-              var punishDuration = TS.Game[TS.state.current_stage]['PunishTimeOut']
-              var p1 = await SD.displayPunish()
-            }
-            
-        }
+      
         console.log('Delivered ', nreward, 'rewards')
     }
 
