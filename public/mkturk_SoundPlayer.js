@@ -12,6 +12,8 @@ class SoundPlayerClass{
 
       this.sound_objects = {}
       this.current_sound_counter = 0
+
+      this.is_built = false
 }
 
   async build(){
@@ -25,11 +27,14 @@ class SoundPlayerClass{
         }
       }
     }
-
+    this.is_built = true
     return 
   }
 
   async playSound(name){
+    if(this.is_built == false){
+      await this.build()
+    }
     if (!(name in this.sound_filepaths)){
       return 
     }

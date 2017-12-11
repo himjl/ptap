@@ -20,7 +20,6 @@ class cv{
     }
 }
 
-
 function getWindowWidth(){
     // Reference: https://www.w3schools.com/js/js_window.asp
     var w = window.innerWidth

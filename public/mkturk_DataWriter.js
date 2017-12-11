@@ -1,4 +1,51 @@
-// Functions for recording scientific data to disk. 
+class DataWriter{
+    constructor(){
+        this.trialData = {}
+        this.sessionData = {} // doesn't change over the course of a session
+    }
+
+    deposit_trial_outcome(trialOutcome){
+        for (var key in trialOutcome){
+            if(!trialOutcome.hasOwnProperty(key)){
+                continue
+            }
+            if(!this.trialData.hasOwnProperty(key)){
+                this.trialData[key] = []
+                console.log('Added property ', key, ' to trialData')
+            }
+            this.trialData[key].push(trialOutcome[key])
+        }
+    }
+
+    deposit_session_data(data){
+        this.sessionData = data 
+    }
+
+    package_data(){
+        var dataPackage = {}
+        dataPackage['BEHAVIOR'] = this.trialData // trial outcomes
+        dataPackage['SESSION'] = this.sessionData // session meta; unchanging
+        dataPackage['GAME'] = this.gameData // task info; unchanging
+        dataPackage['TOUCH_LOG'] = ACTION_LOG // action tracker
+        dataPackage['REWARD_LOG'] = REWARD_LOG // groundtruth 
+        dataPackage['DEVICE_LOG'] = DEVICE_LOG // battery; window resize events
+
+        return dataPackage
+    }
+
+    poll(){
+        // save every T seconds
+    }
+
+  
+
+    concludeSession(){
+
+    }
+
+
+}
+
 class MechanicalTurkDataWriter{
     // Where there can be no live writing / reading
     constructor(){
@@ -10,16 +57,6 @@ class MechanicalTurkDataWriter{
         initializeMouseTracker()
     }
 
-    async writeout(dataobj){
-        this.dataobj = dataobj
-        console.log(dataobj)
-    }
-    async saveTrialData(dataobj, debug_mode){
-        console.log('No saveTrialData until concludeSession()')
-    }
-    async saveTouches(debug_mode){
-        console.log('No saveTouches until concludeSession()')
-    }
 
     async concludeSession(){
         // Upload to turk
@@ -87,6 +124,20 @@ class DropboxDataWriter{
         this.dataobj = undefined
         initializeTouchTracker()
     }
+
+    deposit(trialOutcome){
+        for (var key in trialOutcome){
+            if(!trialOutcome.hasOwnProperty(key)){
+                continue
+            }
+            if(!this.dataobj.hasOwnProperty(key)){
+                this.dataobj[key] = []
+                console.log('Added property ', key, ' to dataobj')
+            }
+            this.dataobj[key].push(trialOutcome[key])
+        }
+    }
+
 
     async saveTrialData(dataobj, save_to_debug_directory){
 

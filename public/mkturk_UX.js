@@ -9,12 +9,7 @@ class UX_poller{
 
     async poll(){
         
-        if (this.calledAutoJuice == false){
-            console.log('Called auto juicer')
-            R.deliver_reinforcement(5, false)
-            window.setInterval(function(){R.deliver_reinforcement(5, false)}, 120000)
-            this.calledAutoJuice = true
-        } 
+        
 
         this.writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
 
