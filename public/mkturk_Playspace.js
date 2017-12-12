@@ -11,11 +11,19 @@ class PlaySpaceClass{
         bonusUSDPerCorrect, 
         ){
 
+
+        this.viewingDistanceInches = playspace_viewingDistanceInches
+        this.viewingOffsetInches = playspace_verticalOffsetInches
+        this.playspaceSizeDegrees = playspace_degreesVisualAngle
+        this.virtualPixelsPerInch = screen_virtualPixelsPerInch
+
         this.ScreenDisplayer = new ScreenDisplayer( playspace_degreesVisualAngle, 
                                                     playspace_verticalOffsetInches,
                                                     playspace_viewingDistanceInches,
                                                     screen_virtualPixelsPerInch)
 
+
+        this.play
         if (primary_reinforcer_type == 'juice'){
             this.Reinforcer = new JuiceReinforcer()
         }
@@ -36,82 +44,9 @@ class PlaySpaceClass{
     async build(){
         await this.SoundPlayer.build()
         await this.ScreenDisplayer.build()
+        this.attachWindowResizeMonitor()
     }
 
-    toggleBorder(on_or_off){
-        this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
-    }
-    start_periodic_rewards(){
-        if (this.periodic_reward_amount <= 0){
-            return
-        }
-
-        console.log('Called auto juicer')
-
-        var periodic_reward = function(){
-            this.Reinforcer.deliver_reinforcement(this.periodic_reward_amount, false)
-        } 
-
-        window.setInterval(periodic_reward, this.periodic_reward_interval)
-        
-    }
-
-    start_action_tracking(actionLog){
-        this.ActionPoller.start_logging()
-    }
-
-    get_action_log(){
-        return this.ActionPoller.actionLog
-    }
-
-    start_environment_tracking(environmentLog){
-        // battery
-        // resize events
-        this.environmentLog = {}
-        
-        // ******** Battery ******** 
-        // http://www.w3.org/TR/battery-status/
-        this.environmentLog['battery'] = {} 
-        this.environmentLog['battery']['level'] = [] 
-        this.environmentLog['battery']['dischargingTime'] = [] 
-        this.environmentLog['battery']['timestamp'] = [] 
-
-        var _this = this
-        navigator.getBattery().then(function(batteryobj){
-            _this.environmentLog['battery']['level'].push(batteryobj.level)
-            _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-            _this.environmentLog['battery']['timestamp'].push(performance.now())
-
-            batteryobj.addEventListener('levelchange',function(){
-                _this.environmentLog['battery']['level'].push(batteryobj.level)
-                _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-                _this.environmentLog['battery']['timestamp'].push(performance.now())
-            })
-          });
-
-        // ******** Window resize ****
-        this.environmentLog['window'] = {}
-        this.environmentLog['window']['height'] = []
-        this.environmentLog['window']['width'] = []
-        this.environmentLog['window']['timestamp'] = []
-        window.addEventListener('resize', function(){
-            _this.environmentLog['window']['height'].push(getWindowHeight())
-            _this.environmentLog['window']['width'].push(getWindowWidth())
-            _this.environmentLog['window']['timestamp'].push(performance.now())
-        })
-
-        this.environmentLog.DevicePixelRatio = window.devicePixelRatio || 1
-        this.environmentLog.navigator_appVersion = navigator.appVersion
-        this.environmentLog.navigator_platform = navigator.platform
-        this.environmentLog.navigator_userAgent = navigator.userAgent
-        this.environmentLog.navigator_vendor = navigator.vendor
-        this.environmentLog.navigator_language = navigator.language
-        this.environmentLog.unixTimestampPageLoad = window.performance.timing.navigationStart
-        this.environmentLog.currentDate = new Date;
-        this.environmentLog.url = window.location.href
-    }
-
-    
     async run_trial(trialPackage){
 
         // ************ Prebuffer trial assets ***************
@@ -141,13 +76,16 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.displayBlank()
 
         // RUN FIXATION
+        var fixationXpixels = this.ScreenDisplayer.xprop2pixels(trialPackage['fixationXCentroid'])
+        var fixationYpixels = this.ScreenDisplayer.yprop2pixels(trialPackage['fixationYCentroid'])
+        var fixationRadiuspixels = this.ScreenDisplayer.deg2pixels(trialPackage['fixationRadiusDegrees'])
         this.ActionPoller.create_action_regions(
-            trialPackage['fixationPlacement'], 
-            trialPackage['fixationRadius'])
+            fixationXpixels,
+            fixationYpixels,
+            fixationRadiuspixels)
 
         var t_fixationOn = await this.ScreenDisplayer.displayFixation()
         var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
-
 
         // RUN STIMULUS SEQUENCE
         var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence()
@@ -215,4 +153,145 @@ class PlaySpaceClass{
 
         return trialOutcome
     }
+
+
+    toggleBorder(on_or_off){
+        this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
+    }
+
+    start_periodic_rewards(){
+        if (this.periodic_reward_amount <= 0){
+            return
+        }
+
+        console.log('Called auto juicer')
+
+        var periodic_reward = function(){
+            this.Reinforcer.deliver_reinforcement(this.periodic_reward_amount, false)
+        } 
+
+        window.setInterval(periodic_reward, this.periodic_reward_interval)
+        
+    }
+
+    start_action_tracking(actionLog){
+        this.ActionPoller.start_logging()
+    }
+
+    get_action_log(){
+        return this.ActionPoller.actionLog
+    }
+
+
+    attachWindowResizeMonitor(){
+  
+   
+        var _this = this
+        function onWindowResize(){
+          // on window resize 
+            var bounds = {}
+            var windowHeight = getWindowHeight()
+            var windowWidth = getWindowWidth()
+
+            var screen_margin = 0.15
+            var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+
+            var min_dimension = Math.min(max_allowable_playspace_dimension, _this.playspaceSizePixels)
+            var min_dimension = Math.ceil(min_dimension)
+
+            bounds['height'] = min_dimension
+            bounds['width'] = min_dimension 
+            bounds['leftbound'] = Math.floor((windowWidth - bounds['width'])/2) // in units of window
+            bounds['rightbound'] = Math.floor(windowWidth-(windowWidth - bounds['width'])/2)
+            bounds['topbound'] = Math.floor((windowHeight - bounds['height'])/2)
+            bounds['bottombound'] = Math.floor(windowHeight-(windowHeight - bounds['height'])/2)
+
+            _this.ScreenDisplayer.calibrateBounds(bounds)
+            _this.ActionPoller.calibrateBounds(bounds)
+            console.log('onWindowResize', bounds['leftbound'], bounds['topbound'])
+        }
+
+        onWindowResize()
+        
+        window.addEventListener('resize', onWindowResize)
+        console.log('Attached window resize listener')
+    }
+
+    start_environment_tracking(environmentLog){
+        // battery
+        // resize events
+        this.environmentLog = {}
+        
+        // ******** Battery ******** 
+        // http://www.w3.org/TR/battery-status/
+        this.environmentLog['battery'] = {} 
+        this.environmentLog['battery']['level'] = [] 
+        this.environmentLog['battery']['dischargingTime'] = [] 
+        this.environmentLog['battery']['timestamp'] = [] 
+
+        var _this = this
+        navigator.getBattery().then(function(batteryobj){
+            _this.environmentLog['battery']['level'].push(batteryobj.level)
+            _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+            _this.environmentLog['battery']['timestamp'].push(performance.now())
+
+            batteryobj.addEventListener('levelchange',function(){
+                _this.environmentLog['battery']['level'].push(batteryobj.level)
+                _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+                _this.environmentLog['battery']['timestamp'].push(performance.now())
+            })
+          });
+
+        // ******** Window resize ****
+        this.environmentLog['window'] = {}
+        this.environmentLog['window']['height'] = []
+        this.environmentLog['window']['width'] = []
+        this.environmentLog['window']['timestamp'] = []
+        window.addEventListener('resize', function(){
+            _this.environmentLog['window']['height'].push(getWindowHeight())
+            _this.environmentLog['window']['width'].push(getWindowWidth())
+            _this.environmentLog['window']['timestamp'].push(performance.now())
+        })
+
+        this.environmentLog.DevicePixelRatio = window.devicePixelRatio || 1
+        this.environmentLog.navigator_appVersion = navigator.appVersion
+        this.environmentLog.navigator_platform = navigator.platform
+        this.environmentLog.navigator_userAgent = navigator.userAgent
+        this.environmentLog.navigator_vendor = navigator.vendor
+        this.environmentLog.navigator_language = navigator.language
+        this.environmentLog.unixTimestampPageLoad = window.performance.timing.navigationStart
+        this.environmentLog.currentDate = new Date;
+        this.environmentLog.url = window.location.href
+    }
+
+    deg2inches(degrees){
+            var rad = this.deg2rad(degrees)
+            return this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches
+        }
+
+    deg2pixels(degrees){
+        // Return virtual pixels 
+        var inches = this.deg2inches(degrees, this.viewingDistanceInches, this.viewingOffsetInches)
+        return Math.round(inches * this.virtualPixelsPerInch)
+    }
+
+    proportion2pixels(proportion, x){
+        // todo - separate for height / width
+        return Math.round(proportion * x)
+    }
+
+    xprop2pixels(xproportion){
+        return Math.round(xproportion*this.width)
+    }
+
+    yprop2pixels(yproportion){
+        return Math.round(yproportion*this.height)
+    }
+
+    deg2rad(deg){
+        return deg * Math.PI / 180
+    }
+
+    
+    
 }

@@ -1,19 +1,7 @@
 class ScreenDisplayer{
-    constructor(playspace_degreesVisualAngle, 
-        playspace_verticalOffsetInches,
-        playspace_viewingDistanceInches,
-        screen_virtualPixelsPerInch){
+    constructor(bounds){
 
-        this.viewingDistanceInches = playspace_viewingDistanceInches
-        this.viewingOffsetInches = playspace_verticalOffsetInches
-        this.playspaceSizeDegrees = playspace_degreesVisualAngle
-        this.virtualPixelsPerInch = screen_virtualPixelsPerInch
-
-        this.calibrateBounds(playspace_viewingDistanceInches, 
-            playspace_verticalOffsetInches, 
-            playspace_degreesVisualAngle, 
-            screen_virtualPixelsPerInch,)
-
+        this.calibrateBounds(bounds)
 
         this.last_fixation_xcentroid = undefined 
         this.last_fixation_ycentroid = undefined
@@ -39,66 +27,18 @@ class ScreenDisplayer{
         await this.renderReward(this.canvas_reward)
         await this.renderPunish(this.canvas_punish) 
 
-    
-
-        var _this = this
-        function onWindowResize(){
-          // on window resize 
-            var windowHeight = getWindowHeight()
-            var windowWidth = getWindowWidth()
-
-            var screen_margin = 0.15
-            var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
-
-            var min_dimension = Math.min(max_allowable_playspace_dimension, _this.design_playspace_virtual_pixels)
-            var min_dimension = Math.ceil(min_dimension)
-
-            _this.height = min_dimension
-            _this.width = min_dimension 
-            _this.leftbound = Math.floor((windowWidth - _this.width)/2) // in units of window
-            _this.rightbound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
-            _this.topbound = Math.floor((windowHeight - _this.height)/2)
-            _this.bottombound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
-
-            console.log('onWindowResize', _this.leftbound, _this.topbound)
-        }
-        
-        window.addEventListener('resize', onWindowResize)
-
     }
 
+    calibrateBounds(bounds){
+        // Called by Playspace whenever the window size changes 
 
+        this.height = bounds['height']
+        this.width = bounds['width'] 
 
-
-    calibrateBounds(playspace_viewingDistanceInches, 
-        playspace_verticalOffsetInches, 
-        playspace_degreesVisualAngle, 
-        screen_virtualPixelsPerInch, ){
-
-        var design_playspace_physical_inches = cv.deg2inches(playspace_degreesVisualAngle, 
-            playspace_viewingDistanceInches, playspace_verticalOffsetInches) 
-
-        var design_playspace_virtual_pixels = screen_virtualPixelsPerInch * design_playspace_physical_inches
-
-        this.design_playspace_virtual_pixels = design_playspace_virtual_pixels
-
-        // Get window size
-        var windowHeight = getWindowHeight()
-        var windowWidth = getWindowWidth()
-
-        var screen_margin = 0.15
-        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
-
-        var min_dimension = Math.min(max_allowable_playspace_dimension, design_playspace_virtual_pixels)
-        var min_dimension = Math.ceil(min_dimension)
-
-        this.height = min_dimension
-        this.width = min_dimension 
-
-        this.leftbound = Math.floor((windowWidth - this.width)/2) // in units of window
-        this.rightbound = Math.floor(windowWidth-(windowWidth - this.width)/2)
-        this.topbound = Math.floor((windowHeight - this.height)/2)
-        this.bottombound = Math.floor(windowHeight-(windowHeight - this.height)/2)
+        this.leftbound = bounds['leftbound']
+        this.rightbound = bounds['rightbound']
+        this.topbound = bounds['topbound']
+        this.bottombound = bounds['bottombound']
 
     }   
 
@@ -126,8 +66,8 @@ class ScreenDisplayer{
         var rad = pixelradius;
 
         // Convert to pixel units of window
-        var xcent = this.leftbound + xcentroid_pixel
-        var ycent = this.topbound + ycentroid_pixel
+        var xcent = xcentroid_pixel 
+        var ycent = ycentroid_pixel
         context.beginPath();
         context.arc(xcent,ycent,rad,0*Math.PI,2*Math.PI);
         context.fillStyle=color; 
@@ -139,11 +79,11 @@ class ScreenDisplayer{
         sampleImage, 
         sampleOn, 
         sampleOff, 
-        sampleRadiusDegrees, 
+        sampleRadiusPixels, 
         sampleXCentroid, 
         sampleYCentroid,
         choiceImage, 
-        choiceRadiusDegrees, 
+        choiceRadiusPixels, 
         choiceXCentroid, 
         choiceYCentroid
         ){
@@ -153,7 +93,7 @@ class ScreenDisplayer{
         var frame_durations = []
         // Draw sample screen
         var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
-        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusDegrees, sampleCanvas)
+        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusPixels, sampleCanvas)
         frame_canvases.push(sampleCanvas)
         frame_durations.push(sampleOn)
 
@@ -167,7 +107,7 @@ class ScreenDisplayer{
 
         // Draw test screen
         var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
-        testCanvas = await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusDegrees, testCanvas)
+        testCanvas = await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusPixels, testCanvas)
         frame_canvases.push(testCanvas)
         frame_durations.push(undefined)
 
@@ -177,9 +117,9 @@ class ScreenDisplayer{
     }
 
     async drawImagesOnCanvas(images, 
-        xcentroids_proportion, 
-        ycentroids_proportion,
-        radius_degrees,
+        xcentroids_pixels, 
+        ycentroids_pixels,
+        radius_pixels,
         canvasobj){
 
         if(images.constructor == Array){
@@ -188,91 +128,65 @@ class ScreenDisplayer{
 
                     await this._drawImage(
                         images[i_image], 
-                        xcentroids_proportion[i_image], 
-                        ycentroids_proportion[i_image], 
-                        radius_degrees[i_image], 
+                        xcentroids_pixels[i_image], 
+                        ycentroids_pixels[i_image], 
+                        radius_pixels[i_image], 
                         canvasobj)
                 }
             }
 
-        else{
-            await this._drawImage(images, xcentroids_proportion, 
-                            ycentroids_proportion,
-                            radius_degrees,
-                            canvasobj)
+            else{
+                await this._drawImage(images, xcentroids_pixels, 
+                    ycentroids_pixels,
+                    radius_pixels,
+                    canvasobj)
+            }
         }
-    }
 
-    async _drawImage(image, xcentroid_proportion, ycentroid_proportion, radius_degrees, canvasobj){
-        var xcentroid_pixel = cv.proportion2pixels(xcentroid_proportion, this.width)
-        var ycentroid_pixel = cv.proportion2pixels(ycentroid_proportion, this.height)
+        async _drawImage(image, xcentroids_pixel, ycentroids_pixel, radius_pixel, canvasobj){
 
-        var r_pixel = cv.deg2pixels(
-            radius_degrees, 
-            this.viewingDistanceInches, 
-            this.viewingOffsetInches, 
-            this.virtualPixelsPerInch)
+            // Special cases for 'image'
+            if(image == 'dot'){
+                await this.drawDot(xcentroid_pixel, ycentroid_pixel, fixationRadius_pixel, 'white', canvasobj)
+                return
+            }
+            if(image == 'blank'){
+                await this.renderBlank(canvasobj)
+                return
+            }
 
-        await this.renderImageAndScaleIfNecessary(
-            image, 
-            xcentroid_pixel, 
-            ycentroid_pixel, 
-            r_pixel, 
-            canvasobj)
-    }
+            var nativeWidth = image.naturalWidth 
+            var nativeHeight = image.naturalHeight
 
-    async renderImageAndScaleIfNecessary(image, 
+            if (nativeHeight > nativeWidth){
+                var drawHeight = fixationRadius_pixel * 2
+                var drawWidth = 2 * fixationRadius_pixel * nativeWidth / nativeHeight
+            }
+            else{
+                var drawWidth = fixationRadius_pixel * 2
+                var drawHeight = 2 * fixationRadius_pixel * nativeHeight / nativeWidth
+            }
+
+            // in units of window
+            var original_left_start = this.leftbound + xcentroid_pixel - fixationRadius_pixel // in virtual pixel coordinates
+            var original_top_start = this.topbound + ycentroid_pixel - fixationRadius_pixel
+
+            var context = canvasobj.getContext('2d')
+            await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
+
+            return 
+
+        }
+
+ 
+    async bufferFixation(
         xcentroid_pixel, 
         ycentroid_pixel, 
-        fixationRadius_pixel,
-        canvasobj){
-        // In units of playspace
-
-        // Special cases for 'image'
-        if(image == 'dot'){
-            await this.drawDot(xcentroid_pixel, ycentroid_pixel, fixationRadius_pixel, 'white', canvasobj)
-            return
-        }
-        if(image == 'blank'){
-            await this.renderBlank(canvasobj)
-            return
-        }
-
-        var nativeWidth = image.naturalWidth 
-        var nativeHeight = image.naturalHeight
-
-        if (nativeHeight > nativeWidth){
-            var drawHeight = fixationRadius_pixel * 2
-            var drawWidth = 2 * fixationRadius_pixel * nativeWidth / nativeHeight
-        }
-        else{
-            var drawWidth = fixationRadius_pixel * 2
-            var drawHeight = 2 * fixationRadius_pixel * nativeHeight / nativeWidth
-        }
-
-        // in units of window
-        var original_left_start = this.leftbound + xcentroid_pixel - fixationRadius_pixel // in virtual pixel coordinates
-        var original_top_start = this.topbound + ycentroid_pixel - fixationRadius_pixel
-
-        var context = canvasobj.getContext('2d')
-        await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
-
-        return 
-    }
-
-
-    async bufferFixation(
-        xcentroid_proportion, 
-        ycentroid_proportion, 
-        fixationRadius_degrees, 
+        fixationRadius_pixel, 
         ){
         // input arguments in playspace units 
 
         // Clear canvas if different 
-        var xcentroid_pixel = cv.deg2pixels(xcentroid_proportion)
-        var ycentroid_pixel = cv.deg2pixels(ycentroid_proportion)
-        var fixationRadius_pixel = cv.deg2pixels(fixationRadius_degrees)
-
         if (this.last_fixation_xcentroid == xcentroid_pixel 
             && this.last_fixation_ycentroid == ycentroid_pixel
             && this.last_fixation_radius == fixationRadius_pixel){
@@ -469,13 +383,12 @@ togglePlayspaceBorder(on_or_off){
 
     setupCanvas(canvasobj, use_image_smoothing){
       use_image_smoothing =  use_image_smoothing || false 
-      console.log(canvasobj)
       var context = canvasobj.getContext('2d')
 
       var devicePixelRatio = window.devicePixelRatio || 1
       var backingStoreRatio = context.webkitBackingStorePixelRatio ||
       context.mozBackingStorePixelRatio ||
-      context.msBackingStorePixelRatio ||
+      context.msBackingStorePixelRatioproportion2pixels ||
       context.oBackingStorePixelRatio ||
       context.backingStorePixelRatio || 1 // /1 by default for chrome?
 
@@ -509,7 +422,6 @@ togglePlayspaceBorder(on_or_off){
     // Remove overflow?
     //https://www.w3schools.com/cssref/pr_pos_overflow.asp
 
-    console.log('Use image smoothing:', use_image_smoothing)
     context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
 
 
@@ -518,18 +430,19 @@ togglePlayspaceBorder(on_or_off){
   }
 } 
 
+
+
 }
 
 
 
 function scaleContext(context){
- var devicePixelRatio = window.devicePixelRatio || 1
- var backingStoreRatio = context.webkitBackingStorePixelRatio ||
- context.mozBackingStorePixelRatio ||
- context.msBackingStorePixelRatio ||
- context.oBackingStorePixelRatio ||
+   var devicePixelRatio = window.devicePixelRatio || 1
+   var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+   context.mozBackingStorePixelRatio ||
+   context.msBackingStorePixelRatio ||
+   context.oBackingStorePixelRatio ||
     context.backingStorePixelRatio || 1 // /1 by default for chrome?
-    console.log('devicePixelRatio', devicePixelRatio, 'backingStoreRatio', backingStoreRatio)
     var _ratio = devicePixelRatio / backingStoreRatio
 
     context.scale(_ratio, _ratio) 
@@ -568,8 +481,6 @@ async function renderImageOnCanvasLiterally(image, grid_index, canvasobj){
   ht = image.height
   xleft = Math.round(PLAYSPACE._xgridleft[grid_index])
   ytop = Math.round(PLAYSPACE._ygridtop[grid_index])
-  console.log(canvasobj)
-  console.log('_ratio', _ratio, 'xleft',xleft, 'ytop', ytop, 'wd', wd, 'ht', ht)
 
   context.drawImage(
     image, // Image element

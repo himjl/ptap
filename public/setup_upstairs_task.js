@@ -26,7 +26,7 @@ async function setupUpstairsTask(sessionPackage){
    //================== AWAIT CONNECT TO BLE ==================//
 
    connectBLEButtonPromise()
-   wdm("Bluetooth connection handled...")
+   
 
    DIO = new DropboxIO()
    var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"

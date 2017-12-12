@@ -18,13 +18,12 @@ class ActionPollerClass{
         this.attached = false 
         this.useComplementAsRegion = false
 
+        this.actionCentroids = []
+        this.actionRadii = []
 
-        this.handleTouchEvent = function(event){
-            var t = performance.now()
-            var x = event.targetTouches[0].pageX - PLAYSPACE.leftbound
-            var y = event.targetTouches[0].pageY - PLAYSPACE.topbound
+
+        this.handleActionEvent = function(x, y, t){
             var inside = false
-
             if(this.loggingTouches == true){
                 this.actionLog['t'].push(t)
                 this.actionLog['x'].push(x)
@@ -60,54 +59,28 @@ class ActionPollerClass{
                         'y':y}
                 }   
             }
+        }
+        this.handleTouchEvent = function(event){
+            console.log(event)
+            var t = performance.now()
+            var x = event.targetTouches[0].pageX - PLAYSPACE.leftbound
+            var y = event.targetTouches[0].pageY - PLAYSPACE.topbound
+            
+            this.handleActionEvent(x, y, t)
             
         }  
 
         this.handleMouseEvent = function(event){
+            console.log(event)
             var t = performance.now()
 
             var x = event.pageX - PLAYSPACE.leftbound // In PLAYSPACE units. 
             var y = event.pageY - PLAYSPACE.topbound
 
-            var inside = false
-
-            if(this.loggingTouches == true){
-                this.actionLog['t'].push(t)
-                this.actionLog['x'].push(x)
-                this.actionLog['y'].push(y)
-                this.actionLog['type'].push(event.type)
-                
+            this.handleActionEvent(x, y, t)
             }
-
-            if(_this.listening == true){
-
-                for (var i = 0; i < this.actionCentroids.length-1; i++){
-                    inside = _this.check_if_inside_circle(
-                        x, 
-                        y, 
-                        this.actionCentroids[i][0], 
-                        this.actionCentroids[i][1], 
-                        this.actionScales[i])
-                    if(inside == true){
-                        this.listening = false
-                        var outcome = {'actionIndex':i, 
-                                        'timestamp':t, 
-                                        'x':x, 
-                                        'y':y}
-                        this._resolveFunc(outcome)
-                    }
-                }
-                if(this.useComplementAsRegion == true){
-                    this.listening = false 
-                    var outcome = {
-                        'actionIndex':'complement', 
-                        'timestamp':t, 
-                        'x':x, 
-                        'y':y}
-                }
-            }
-        }
-    } 
+    }
+     
 
     start_logging(){
         this.loggingTouches = true 
@@ -123,22 +96,32 @@ class ActionPollerClass{
         }
 
     }
-    create_action_regions(placements, scales, useComplementAsRegion){
+
+    calibrateBounds(bounds){
+        this.leftbound = bounds['leftbound']
+        this.rightbound = bounds['rightbound']
+        this.topbound = bounds['topbound']
+        this.bottombound = bounds['bottombound']
+
+    }
+    create_action_regions(xCentroidPixels, yCentroidPixels, radiusPixels, useComplementAsRegion){
         // assumes circular 
 
         if(this.attached == false){
             this.add_event_listener()
             this.attached = true 
         }
-        if(typeof(placements) == "number"){
-            placements = [placements]
+        if(typeof(xCentroidPixels) == "number"){
+            xCentroidPixels = [xCentroidPixels]
+            yCentroidPixels = [yCentroidPixels]
+            radiusPixels = [radiusPixels]
         }
-        if(typeof(scales) == "number"){
-            scales = [scales]
+ 
+        for (var i = 0; i < xCentroidPixels.length; i++){
+            this.actionCentroids.push([xCentroidPixels[i], yCentroidPixels[i]])
         }
-
-        this.actionCentroids = placements 
-        this.actionScales = scales
+        this.actionRadii = radiusPixels
+        
         this.useComplementAsRegion = useComplementAsRegion
 
         this.listening = true

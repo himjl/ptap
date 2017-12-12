@@ -57,7 +57,7 @@ function connectBLEButtonPromise(){
   document.querySelector("button[name=noble]").addEventListener(
     'mouseup',skipBLEDevice,false)
 
-  
+
   document.querySelector("button[name=connectble]").style.display = "block"
   document.querySelector("button[name=connectble]").style.visibility = "visible"
   document.querySelector("button[name=noble]").style.display = "block"
@@ -78,6 +78,7 @@ function connectBLEButtonPromise(){
       document.querySelector("button[name=connectble]").style.display = "none" //if do style.visibility=hidden, element will still occupy space
       document.querySelector("button[name=noble]").style.display = "none"
       document.getElementById('drive_juice_button').style.visibility = "visible"
+      wdm("Bluetooth connection handled...")
       resolveFunc(buttonclicked);
     }
   }

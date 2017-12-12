@@ -12,6 +12,8 @@ class TaskStreamerClass{
 
         this.trialNumberSession
         this.trialNumberGame
+
+        this.TERMINAL_STATE = false
     }
 
     async get_trial(i){
@@ -19,7 +21,6 @@ class TaskStreamerClass{
         // returns images, reward maps, and other necessary things for runtrial()
         var trial_idx = i || this.trialNumberTask
         var tP = {}
-
 
 
         // perform random sample of bags 
@@ -30,10 +31,9 @@ class TaskStreamerClass{
         tP['sampleImage'] = await this.IB.get_by_name(sampleId)
         tP['choiceImage'] = ['dot', 'dot']
 
-
         tP['fixationXCentroid'] = 0.5
-        tP['fixationYCentroid'] = 0.8 
-        tP['fixationRadiusDegrees'] = 6
+        tP['fixationYCentroid'] = 0.8
+        tP['fixationRadiusDegrees'] = 3
 
         tP['i_sampleBag'] = 0
         tP['i_sampleId'] = 0
