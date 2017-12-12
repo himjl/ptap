@@ -1,12 +1,16 @@
 class verify{
 
     static check_imageBags(imageBags){
-        return JSON.parse(imageBags)
+        return imageBags
     }
     static check_game(game){
-        return JSON.parse(game)
+        return game
     }
     static check_environment(environment){
-        return JSON.parse(environment)
+        return environment
+    }
+
+    static check_task_sequence(task_sequence){
+        return task_sequence
     }
 }

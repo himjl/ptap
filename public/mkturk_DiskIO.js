@@ -419,3 +419,10 @@ async function loadStringFromLocalStorage(key){
   //localStorage.removeItem(key);
   return string
 }
+
+async function loadJSONFromLocalStorage(key){
+  var string = await localStorage.getItem(key)
+  string = atob(string)
+  //localStorage.removeItem(key);
+  return JSON.parse(string)
+}

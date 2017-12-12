@@ -137,21 +137,24 @@
 (async function(){
 
 // Load inputs from local storage
-var IMAGEBAGS = await loadStringFromLocalStorage('IMAGEBAGS')
-var GAME = await loadStringFromLocalStorage('GAME')
-var ENVIRONMENT = await loadStringFromLocalStorage('ENVIRONMENT')
+var IMAGEBAGS = await loadJSONFromLocalStorage('IMAGEBAGS')
+var GAME = await loadJSONFromLocalStorage('GAME')
+var ENVIRONMENT = await loadJSONFromLocalStorage('ENVIRONMENT')
+var TASK_SEQUENCE = await loadJSONFromLocalStorage('TASK_SEQUENCE')
 
 // Verify inputs 
-IMAGEBAGS = verify.check_imageBags(IMAGEBAGS)
-GAME = verify.check_game(GAME)
-ENVIRONMENT = verify.check_environment(ENVIRONMENT)
+var sessionPackage = {}
+sessionPackage['IMAGEBAGS'] = verify.check_imageBags(IMAGEBAGS)
+sessionPackage['GAME'] = verify.check_game(GAME)
+sessionPackage['ENVIRONMENT'] = verify.check_environment(ENVIRONMENT)
+sessionPackage['TASK_SEQUENCE'] = verify.check_task_sequence(TASK_SEQUENCE)
 
 // Construct game- and environment-specific objects
-if (ENVIRONMENT['rigEnvironment'] == 'mechanicalturk'){
-  var freturn = await setupMechanicalTurkTask(IMAGEBAGS, GAME, ENVIRONMENT)
+if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
+  var freturn = await setupMechanicalTurkTask(sessionPackage)
 }
-else if (ENVIRONMENT['rigEnvironment'] == 'monkeybox'){
-  var freturn = await setupUpstairsTask(IMAGEBAGS, GAME, ENVIRONMENT)
+else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
+  var freturn = await setupUpstairsTask(sessionPackage)
 }
 
 // Unpack objects

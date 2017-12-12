@@ -110,7 +110,7 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.bufferFixation(
             trialPackage['fixationXCentroid'] , 
             trialPackage['fixationYCentroid'] , 
-            trialPackage['fixationRadius'] )
+            trialPackage['fixationRadiusDegrees'] )
 
         // Stimulus sequence
         await this.ScreenDisplayer.bufferStimulusSequence(
@@ -120,10 +120,10 @@ class PlaySpaceClass{
             trialPackage['sampleRadiusDegrees'], 
             trialPackage['sampleXCentroid'], 
             trialPackage['sampleYCentroid'],
-            trialPackage['testImage'], 
-            trialPackage['testRadiusDegrees'], 
-            trialPackage['testXCentroid'], 
-            trialPackage['testYCentroid'])
+            trialPackage['choiceImage'], 
+            trialPackage['choiceRadiusDegrees'], 
+            trialPackage['choiceXCentroid'], 
+            trialPackage['choiceYCentroid'])
 
         // *************** Run trial *************************
 

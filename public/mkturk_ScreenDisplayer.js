@@ -4,12 +4,15 @@ class ScreenDisplayer{
         playspace_viewingDistanceInches,
         screen_virtualPixelsPerInch){
 
+        this.viewingDistanceInches = playspace_viewingDistanceInches
+        this.viewingOffsetInches = playspace_verticalOffsetInches
+        this.playspaceSizeDegrees = playspace_degreesVisualAngle
+        this.virtualPixelsPerInch = screen_virtualPixelsPerInch
+
         this.calibrateBounds(playspace_viewingDistanceInches, 
             playspace_verticalOffsetInches, 
             playspace_degreesVisualAngle, 
             screen_virtualPixelsPerInch,)
-
-        window.addEventListener('resize', this.onWindowResize)
 
 
         this.last_fixation_xcentroid = undefined 
@@ -31,34 +34,41 @@ class ScreenDisplayer{
     }
 
     async build(){
-        
+
         await this.renderBlank(this.canvas_blank)
         await this.renderReward(this.canvas_reward)
         await this.renderPunish(this.canvas_punish) 
+
+    
+
+        var _this = this
+        function onWindowResize(){
+          // on window resize 
+            var windowHeight = getWindowHeight()
+            var windowWidth = getWindowWidth()
+
+            var screen_margin = 0.15
+            var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+
+            var min_dimension = Math.min(max_allowable_playspace_dimension, _this.design_playspace_virtual_pixels)
+            var min_dimension = Math.ceil(min_dimension)
+
+            _this.height = min_dimension
+            _this.width = min_dimension 
+            _this.leftbound = Math.floor((windowWidth - _this.width)/2) // in units of window
+            _this.rightbound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
+            _this.topbound = Math.floor((windowHeight - _this.height)/2)
+            _this.bottombound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
+
+            console.log('onWindowResize', _this.leftbound, _this.topbound)
+        }
+        
+        window.addEventListener('resize', onWindowResize)
+
         
     }
 
-    onWindowResize(){
-      // on window resize 
-      var windowHeight = getWindowHeight()
-      var windowWidth = getWindowWidth()
 
-      var screen_margin = 0.15
-      var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
-
-      var min_dimension = Math.min(max_allowable_playspace_dimension, this.design_playspace_virtual_pixels)
-      var min_dimension = Math.ceil(min_dimension)
-
-      this.height = min_dimension
-      this.width = min_dimension 
-
-        this.leftbound = Math.floor((windowWidth - this.width)/2) // in units of window
-        this.rightbound = Math.floor(windowWidth-(windowWidth - this.width)/2)
-        this.topbound = Math.floor((windowHeight - this.height)/2)
-        this.bottombound = Math.floor(windowHeight-(windowHeight - this.height)/2)
-
-        console.log('onWindowResize', this.leftbound, this.topbound)
-    }
 
 
     calibrateBounds(playspace_viewingDistanceInches, 
@@ -128,13 +138,15 @@ class ScreenDisplayer{
 
     async bufferStimulusSequence(
         sampleImage, 
-        sampleOn,
+        sampleOn, 
         sampleOff, 
-        sampleScale, 
-        samplePlacement, 
-        testImages,  
-        testScale, 
-        testPlacement,
+        sampleRadiusDegrees, 
+        sampleXCentroid, 
+        sampleYCentroid,
+        choiceImage, 
+        choiceRadiusDegrees, 
+        choiceXCentroid, 
+        choiceYCentroid
         ){
 
 
@@ -142,7 +154,7 @@ class ScreenDisplayer{
         var frame_durations = []
         // Draw sample screen
         var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
-        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleCanvas)
+        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusDegrees, sampleCanvas)
         frame_canvases.push(sampleCanvas)
         frame_durations.push(sampleOn)
 
@@ -156,7 +168,7 @@ class ScreenDisplayer{
 
         // Draw test screen
         var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
-        testCanvas = await this.drawImagesOnCanvas(testImages, testCanvas)
+        testCanvas = await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusDegrees, testCanvas)
         frame_canvases.push(testCanvas)
         frame_durations.push(undefined)
 
@@ -171,30 +183,50 @@ class ScreenDisplayer{
         radius_degrees,
         canvasobj){
 
-
         if(images.constructor == Array){
                 // Iterate over the images in this frame and draw them all
                 for (var i_image = 0; i_image<images.length; i_image++){
-                    await this.renderImageAndScaleIfNecessary(images[i_image], frame_grid_indices[i_image], canvasobj)
+
+                    await this._drawImage(
+                        images[i_image], 
+                        xcentroids_proportion[i_image], 
+                        ycentroids_proportion[i_image], 
+                        radius_degrees[i_image], 
+                        canvasobj)
                 }
             }
 
-            else{
-            // Draw the single image in this frame 
-
-            if(frame_grid_indices.constructor == Array){
-                frame_grid_indices = frame_grid_indices[0]
-            }
-            
-            await this.renderImageAndScaleIfNecessary(images, frame_grid_indices, canvasobj)
+        else{
+            await this._drawImage(images, xcentroids_proportion, 
+                            ycentroids_proportion,
+                            radius_degrees,
+                            canvasobj)
         }
-
-        return canvasobj
     }
 
-    async renderImageAndScaleIfNecessary(image, xcentroid_pixel, 
+    async _drawImage(image, xcentroid_proportion, ycentroid_proportion, radius_degrees, canvasobj){
+        var xcentroid_pixel = cv.proportion2pixels(xcentroid_proportion, this.width)
+        var ycentroid_pixel = cv.proportion2pixels(ycentroid_proportion, this.height)
+
+        var r_pixel = cv.deg2pixels(
+            radius_degrees, 
+            this.viewingDistanceInches, 
+            this.viewingOffsetInches, 
+            this.virtualPixelsPerInch)
+
+        await this.renderImageAndScaleIfNecessary(
+            image, 
+            xcentroid_pixel, 
+            ycentroid_pixel, 
+            r_pixel, 
+            canvasobj)
+    }
+
+    async renderImageAndScaleIfNecessary(image, 
+        xcentroid_pixel, 
         ycentroid_pixel, 
-        fixationRadius_pixel,){
+        fixationRadius_pixel,
+        canvasobj){
         // In units of playspace
 
         // Special cases for 'image'
@@ -233,14 +265,14 @@ class ScreenDisplayer{
     async bufferFixation(
         xcentroid_proportion, 
         ycentroid_proportion, 
-        fixationRadius_proportion, 
+        fixationRadius_degrees, 
         ){
         // input arguments in playspace units 
 
         // Clear canvas if different 
-        var xcentroid_pixel = cv.proportion2pixels(xcentroid_proportion)
-        var ycentroid_pixel = cv.proportion2pixels(ycentroid_proportion)
-        var fixationRadius_pixel = cv.proportion2pixels(fixationRadius_proportion)
+        var xcentroid_pixel = cv.deg2pixels(xcentroid_proportion)
+        var ycentroid_pixel = cv.deg2pixels(ycentroid_proportion)
+        var fixationRadius_pixel = cv.deg2pixels(fixationRadius_degrees)
 
         if (this.last_fixation_xcentroid == xcentroid_pixel 
             && this.last_fixation_ycentroid == ycentroid_pixel
@@ -356,7 +388,7 @@ togglePlayspaceBorder(on_or_off){
 
 
         function updateCanvas(timestamp){
-            
+
             // If time to show new frame OR first frame, 
             if (timestamp - lastframe_timestamp >= t_durations[current_frame_index] || lastframe_timestamp == undefined){
                 current_frame_index++;
@@ -440,7 +472,7 @@ togglePlayspaceBorder(on_or_off){
       use_image_smoothing =  use_image_smoothing || false 
       console.log(canvasobj)
       var context = canvasobj.getContext('2d')
-      
+
       var devicePixelRatio = window.devicePixelRatio || 1
       var backingStoreRatio = context.webkitBackingStorePixelRatio ||
       context.mozBackingStorePixelRatio ||
@@ -450,7 +482,7 @@ togglePlayspaceBorder(on_or_off){
 
       var _ratio = devicePixelRatio / backingStoreRatio
 
-      
+
       canvasobj.width = this.width * _ratio;
       canvasobj.height = this.height * _ratio;
 

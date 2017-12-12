@@ -28,6 +28,17 @@
 "" }
 
 
+
+"GAME":{
+    "periodicRewardInterval":0,
+    "periodicRewardAmount":0,
+    "bonusUSDPerCorrect":0},
+
+"TASK_SEQUENCE":{
+    
+}
+
+
 // MTS task specification 
 
 // match rules
@@ -75,10 +86,7 @@
     "assignmentId":"",
 }, 
 
-"GAME":{
-    "periodicRewardInterval":0,
-    "periodicRewardAmount":0,
-    "bonusUSDPerCorrect":0}, 
+
 "IMAGEBAGS":[],
 "TOUCH":"text",
 "REWARDLOG":

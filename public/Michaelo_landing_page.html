@@ -23,6 +23,9 @@
             "bonusUSDPerCorrect":0
     }
 
+    TASK_SEQUENCE = [{'sampleBagNames':['stimulus_objectome_pineapple', 'stimulus_objectome_flute'], }]
+
+
     ENVIRONMENT = {
                       'playspace_degreesVisualAngle':45,
                       'playspace_verticalOffsetInches':0, 
@@ -35,6 +38,7 @@
                   }
 
     await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))
+    await localStorage.setItem("TASK_SEQUENCE", btoa(JSON.stringify(TASK_SEQUENCE)))
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
     await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
 

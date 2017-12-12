@@ -28,6 +28,15 @@ class np{
     }
     return total
   }
+
+  static choice(arr, seed){
+    if(seed == undefined){
+      seed = Math.round(performance.now())
+    }
+    Math.seedrandom(seed)
+    var selected_index = Math.floor(Math.random()*arr.length)
+    return arr[selected_index]
+  }
 }
 
 

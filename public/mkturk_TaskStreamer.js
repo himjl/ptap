@@ -1,7 +1,8 @@
 class TaskStreamerClass{
-    constructor(Game, ImageBags, IB, CheckPointer){
+    constructor(Game, taskSequence, ImageBags, IB, CheckPointer){
         this.Game = Game
-        this.ImageBags = ImageBags
+        this.taskSequence = taskSequence
+        this.imageBags = ImageBags
         this.IB = IB 
         
         // State info
@@ -13,39 +14,57 @@ class TaskStreamerClass{
         this.trialNumberGame
     }
 
-    get_trial(i){
+    async get_trial(i){
         // called at the beginning of each trial 
         // returns images, reward maps, and other necessary things for runtrial()
         var trial_idx = i || this.trialNumberTask
-        var trialPackage = {}
+        var tP = {}
 
-        trialPackage['fixationCentroid'] = undefined
-        trialPackage['fixationRadius'] = undefined
 
-        trialPackage['i_sampleBag'] = 0
-        trialPackage['i_sampleId'] = 0
-        trialPackage['samplePlacement'] = 0 
-        trialPackage['sampleRadius'] = 0 
-        trialPackage['sampleImage']
 
-        trialPackage['testImage']
-        trialPackage['i_testBag'] = [0,1]
-        trialPackage['i_testId'] = [0,1] // [0, 1,]
-        trialPackage['testPlacement'] = [0,1] 
-        trialPackage['testRadius']
+        // perform random sample of bags 
+        var samplePool = this.taskSequence[this.taskNumber]['sampleBagNames']
         
-        trialPackage['choiceRewardMap'] = []
-        trialPackage['choiceCentroid'] = []
-        trialPackage['choiceRadius'] = []
+        var sampleBag = np.choice(samplePool)
+        var sampleId = np.choice(this.imageBags[sampleBag])
+        tP['sampleImage'] = await this.IB.get_by_name(sampleId)
+        tP['choiceImage'] = ['dot', 'dot']
 
-        trialPackage['sampleOn'] = 0 
-        trialPackage['sampleOff'] = 0
-        trialPackage['choiceTimeLimit'] = 0 
-        trialPackage['punishTimeOut'] = 2000
-        trialPackage['rewardTimeOut'] = 150
-        return trialPackage
+
+        tP['fixationXCentroid'] = 0.5
+        tP['fixationYCentroid'] = 0.8 
+        tP['fixationRadiusDegrees'] = 6
+
+        tP['i_sampleBag'] = 0
+        tP['i_sampleId'] = 0
+        tP['sampleXCentroid'] = 0.5
+        tP['sampleYCentroid'] = 0.5 
+        tP['sampleRadiusDegrees'] = 8 
+
+        tP['i_choiceBag'] = [0,1]
+        tP['i_choiceId'] = [0,1] // [0, 1,]
+        tP['choiceXCentroid'] = [0.2,0.8] 
+        tP['choiceYCentroid'] = [0.8, 0.8]
+        tP['choiceRadiusDegrees'] = 6
+
+
+        tP['choiceRewardMap'] = [0, 1]
+
+        tP['sampleOn'] = 200 
+        tP['sampleOff'] = 0
+        tP['choiceTimeLimit'] = 5000 
+        tP['punishTimeOut'] = 2000
+        tP['rewardTimeOut'] = 150
+
+
+        return tP
     }
 
+    get_image_id(i_bag, i_id){
+        var id = []
+
+        return id
+    }
     async update_state(trialOutcome){
         var rewardAmount = trialOutcome['return']
         // update counters 
