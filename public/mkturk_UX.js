@@ -1,37 +1,32 @@
 class UX_poller{
-    constructor(DIO){
-        this.DIO = DIO
-        this.min_poll_period = 10*1000 // at least 10 seconds in between polling
-        this.last_poll = performance.now()
-        this.calledAutoJuice = false 
+    constructor(){
 
     }
 
-    async poll(){
+    async poll(trialOutcome){
         
-        
-
-        this.writeToTrialCounterDisplay(TRIAL_NUMBER_FROM_SESSION_START)
+        this.writeToTrialCounterDisplay(trialOutcome['trialNumberSession'])
 
         return
-    }
-
-    async _diskread(fpath){
-        var exists = await this.DIO.exists(fpath)
-        if(exists == true){
-            var string = await this.DIO.read_textfile(fpath)
-            var flag = JSON.parse(string)
-            return flag
-        }
-        else{
-            return undefined
-        }
     }
 
     writeToTrialCounterDisplay(s){
         var elem = document.getElementById('TrialCounter')
         elem.innerHTML = s; // text
     }
+
+    updateSessionTextbox(agentID, ExperimentName){
+        var sess_textbox = document.getElementById("SessionTextBox")
+
+        var line1_prefix = "<b>Subject:</b> "
+        var linebreak = "<br>"
+        var line2_prefix = "<b>Game:</b> "
+
+        sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
+    }
+
+
+
 }
 
 class MechanicalTurk_UX_poller{

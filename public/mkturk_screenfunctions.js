@@ -30,16 +30,6 @@ function setHandSelection(element, handedness){
 
 }
 
-function updateSessionTextbox(agentID, ExperimentName){
-	  var sess_textbox = document.getElementById("SessionTextBox")
-
-	  var line1_prefix = "<b>Subject:</b> "
-	  var linebreak = "<br>"
-	  var line2_prefix = "<b>Game:</b> "
-
-	  sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
-}
-
 
 
 

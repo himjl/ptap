@@ -1,45 +1,77 @@
-
-
 class ScreenDisplayer{
-    async bufferStimulusSequence(
-        sampleImage, 
-        sampleOn,
-        sampleOff, 
-        sampleScale, 
-        samplePlacement, 
-        testImages,  
-        testScale, 
-        testPlacement,
-        ){
+    constructor(playspace_degreesVisualAngle, 
+                playspace_verticalOffsetInches,
+                playspace_viewingDistanceInches,
+                screen_virtualPixelsPerInch){
 
+        this.calibrateBounds(playspace_degreesVisualAngle, 
+                playspace_verticalOffsetInches,
+                playspace_viewingDistanceInches,
+                screen_virtualPixelsPerInch)
+
+        window.addEventListener('resize', this.onWindowResize)
+
+
+        this.last_fixation_xcentroid = undefined 
+        this.last_fixation_ycentroid = undefined
+        this.last_fixation_radius = undefined 
+
+        this._sequence_canvases = {} // key: sequence. key: frame. value: canvas 
+        this.canvas_sequences = {} // key: sequence_id
+        this.time_sequences = {} // key: sequence_id
+
+        this.canvas_blank = this.createCanvas('canvas_blank')
+        this.canvas_blank.style['z-index'] = 50
+
+        this.canvas_front = this.canvas_blank
+
+        this.canvas_reward = this.createCanvas('canvas_reward')
+        this.canvas_punish = this.createCanvas('canvas_punish')
+        this.canvas_fixation = this.createCanvas('canvas_fixation', true)
     }
 
     async build(){
-        window.addEventListener('resize', this.onWindowResize)
+        
+        await this.renderBlank(this.canvas_blank)
+        await this.renderReward(this.canvas_reward)
+        await this.renderPunish(this.canvas_punish) 
+        
     }
+
     onWindowResize(){
       // on window resize 
-      var windowHeight = getWindowHeight()
-      var windowWidth = getWindowWidth()
+        var windowHeight = getWindowHeight()
+        var windowWidth = getWindowWidth()
 
-      
-      this.leftbound = Math.floor((windowWidth - this.width)/2) // as these are in units of the window, they should be updated when the window changes 
-      this.rightbound = Math.floor(windowWidth-(windowWidth - this.width)/2)
-      this.topbound = Math.floor((windowHeight - this.height)/2)
-      this.bottombound = Math.floor(windowHeight-(windowHeight - this.height)/2)
+        var screen_margin = 0.15
+        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+
+        var min_dimension = Math.min(max_allowable_playspace_dimension, this.design_playspace_virtual_pixels)
+        var min_dimension = Math.ceil(min_dimension)
+
+        this.height = min_dimension
+        this.width = min_dimension 
+
+        this.leftbound = Math.floor((windowWidth - this.width)/2) // in units of window
+        this.rightbound = Math.floor(windowWidth-(windowWidth - this.width)/2)
+        this.topbound = Math.floor((windowHeight - this.height)/2)
+        this.bottombound = Math.floor(windowHeight-(windowHeight - this.height)/2)
 
       console.log('onWindowResize', this.leftbound, this.topbound)
     }
 
 
-    calibrateBounds(estimated_eye_screen_distance_inches, estimated_screen_virtual_pixels_per_inch, 
-        estimated_grid_vertical_offset_inches, intended_playspace_degrees_of_visual_angle){
+    calibrateBounds(playspace_viewingDistanceInches, 
+        playspace_verticalOffsetInches, 
+        playspace_degreesVisualAngle, 
+        screen_virtualPixelsPerInch, ){
 
+        var design_playspace_physical_inches = cv.deg2inches(playspace_degreesVisualAngle, 
+            playspace_viewingDistanceInches, playspace_verticalOffsetInches) 
 
-        var design_playspace_physical_inches = cv.deg2inches(intended_playspace_degrees_of_visual_angle, 
-            estimated_eye_screen_distance_inches, estimated_grid_vertical_offset_inches) 
+        var design_playspace_virtual_pixels = screen_virtualPixelsPerInch * design_playspace_physical_inches
 
-        var design_playspace_virtual_pixels = estimated_screen_virtual_pixels_per_inch * design_playspace_physical_inches
+        this.design_playspace_virtual_pixels = design_playspace_virtual_pixels
 
         // Get window size
         var windowHeight = getWindowHeight()
@@ -61,112 +93,208 @@ class ScreenDisplayer{
 
     }   
 
-    drawDot(color, xproportion, yproportion, rproportion){
+    getSequenceCanvas(sequence_id, i_frame){
+        if(this._sequence_canvases[sequence_id] == undefined){
+            this._sequence_canvases[sequence_id] = []
+        }
+        if(this._sequence_canvases[sequence_id][i_frame] == undefined){
+            this._sequence_canvases[sequence_id][i_frame] = this.createCanvas(sequence_id+'_frame'+i_frame)
+        }
 
-        return bbox
+        return this._sequence_canvases[sequence_id][i_frame]
     }
 
-    drawImageAsDegrees(image, xdegreesOffset, ydegreesOffset, rdegrees){
-        // assert in bounds, otherwise just draw as max
-
-        return bbox
-    }
-
-    drawImageAsPlayspaceProportion(image, xproportion, yproportion, rproportion){
-
-    }
-
-    drawImageAsPixels(image, xpixels, ypixels, rpixels){
-
-    }
-
-
-    async displayStimulusSequence(){
-
-    }
-
-    async bufferSequence(sequenceID, 
-        frameImages, 
-        frameScales, 
-        framePlacements, 
-        frameDurations){
-
-    }
-
-    async bufferFixation(fixationCentroid, 
-        fixationScale){
-
-    }
-
+    
     async displayBlank(){
+        await this.displayScreenSequence(this.canvas_blank, 0)
+    }
+
+
+    async drawDot(xcentroid_pixel, ycentroid_pixel, pixelradius, color, canvasobj){
+        var context=canvasobj.getContext('2d');
+
+        // Draw fixation dot
+        var rad = pixelradius;
+
+        // Convert to pixel units of window
+        var xcent = this.leftbound + xcentroid_pixel
+        var ycent = this.topbound + ycentroid_pixel
+        context.beginPath();
+        context.arc(xcent,ycent,rad,0*Math.PI,2*Math.PI);
+        context.fillStyle=color; 
+        context.fill();
+    }
+
+
+    async bufferStimulusSequence(
+        sampleImage, 
+        sampleOn,
+        sampleOff, 
+        sampleScale, 
+        samplePlacement, 
+        testImages,  
+        testScale, 
+        testPlacement,
+        ){
+
+
+        var frame_canvases = []
+        var frame_durations = []
+        // Draw sample screen
+        var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
+        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleCanvas)
+        frame_canvases.push(sampleCanvas)
+        frame_durations.push(sampleOn)
+
+        // Optionally draw blank delay screen
+        if(sampleOff > 0){
+            var delayCanvas = this.getSequenceCanvas('stimulus_sequence', 1)
+            delayCanvas = await this.renderBlank(blankCanvas)
+            frame_canvases.push(delayCanvas)
+            frame_durations.push(sampleOff)
+        }
+
+        // Draw test screen
+        var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
+        testCanvas = await this.drawImagesOnCanvas(testImages, testCanvas)
+        frame_canvases.push(testCanvas)
+        frame_durations.push(undefined)
+
+        this.canvas_sequences['stimulus_sequence'] = frame_canvases
+        this.time_sequences['stimulus_sequence'] = frame_durations
 
     }
 
-    async displayFixation(){
-        // if nothing has changed, don't rebuffer (common usage to have same fixation each time)
-        
-        // should handle hard coded case for dots
+    async drawImagesOnCanvas(images, 
+        xcentroids_proportion, 
+        ycentroids_proportion,
+        radius_degrees,
+        canvasobj){
 
-        return timestamp
+
+        if(images.constructor == Array){
+                // Iterate over the images in this frame and draw them all
+                for (var i_image = 0; i_image<images.length; i_image++){
+                    await this.renderImageAndScaleIfNecessary(images[i_image], frame_grid_indices[i_image], canvasobj)
+                }
+            }
+
+        else{
+            // Draw the single image in this frame 
+
+            if(frame_grid_indices.constructor == Array){
+                frame_grid_indices = frame_grid_indices[0]
+            }
+            
+            await this.renderImageAndScaleIfNecessary(images, frame_grid_indices, canvasobj)
+        }
+
+        return canvasobj
     }
 
-    async displayPunish(){
+    async renderImageAndScaleIfNecessary(image, xcentroid_pixel, 
+        ycentroid_pixel, 
+        fixationRadius_pixel,){
+        // In units of playspace
 
-    }
-
-    async displayReward(show){
-        if(show == false){
+        // Special cases for 'image'
+        if(image == 'dot'){
+            await this.drawDot(xcentroid_pixel, ycentroid_pixel, fixationRadius_pixel, 'white', canvasobj)
+            return
+        }
+        if(image == 'blank'){
+            await this.renderBlank(canvasobj)
             return
         }
 
+        var nativeWidth = image.naturalWidth 
+        var nativeHeight = image.naturalHeight
+
+        if (nativeHeight > nativeWidth){
+            var drawHeight = fixationRadius_pixel * 2
+            var drawWidth = 2 * fixationRadius_pixel * nativeWidth / nativeHeight
+        }
+        else{
+            var drawWidth = fixationRadius_pixel * 2
+            var drawHeight = 2 * fixationRadius_pixel * nativeHeight / nativeWidth
+        }
+
+        // in units of window
+        var original_left_start = this.leftbound + xcentroid_pixel - fixationRadius_pixel // in virtual pixel coordinates
+        var original_top_start = this.topbound + ycentroid_pixel - fixationRadius_pixel
+
+        var context = canvasobj.getContext('2d')
+        await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
+
+        return 
     }
 
-    async displaySequence(sequenceID){
-        // assumes idx 0 = stimulus on 
-        // idx 1 = stimulus off 
-        
 
-        return frameTimestamps
-    }
+    async bufferFixation(
+        xcentroid_proportion, 
+        ycentroid_proportion, 
+        fixationRadius_proportion, 
+        ){
+        // input arguments in playspace units 
 
-    constructor(){
-        this._sequence_canvases = {} // key: sequence. key: frame. value: canvas 
-        this.canvas_sequences = {} // key: sequence_id
-        this.time_sequences = {} // key: sequence_id
+        // Clear canvas if different 
+        var xcentroid_pixel = cv.proportion2pixels(xcentroid_proportion)
+        var ycentroid_pixel = cv.proportion2pixels(ycentroid_proportion)
+        var fixationRadius_pixel = cv.proportion2pixels(fixationRadius_proportion)
 
-        this.canvas_blank = this.createCanvas('canvas_blank')
-        this.canvas_blank.style['z-index'] = 50
+        if (this.last_fixation_xcentroid == xcentroid_pixel 
+            && this.last_fixation_ycentroid == ycentroid_pixel
+            && this.last_fixation_radius == fixationRadius_pixel){
+            return 
+        }
+        await this.renderBlank(this.canvas_fixation)
+        await this.drawDot(
+            xcentroid_pixel, 
+            ycentroid_pixel, 
+            fixationRadius_pixel, 
+            'white', 
+            this.canvas_fixation)
 
-        this.canvas_front = this.canvas_blank
-
-        this.canvas_reward = this.createCanvas('canvas_reward')
-        this.canvas_punish = this.createCanvas('canvas_punish')
-
-
-        this.canvas_fixation = this.createCanvas('canvas_fixation', true)
-
-
-        this.renderReward(this.canvas_reward)
-        this.renderPunish(this.canvas_punish) 
-
-        // Default dimensions
-        this.height = 768 
-        this.width = 768 
-        this.leftbound = 0 
-        this.rightbound = this.width
-        this.topbound = 0
-        this.bottombound = this.height 
+        this.last_fixation_xcentroid = xcentroid_pixel
+        this.last_fixation_ycentroid = ycentroid_pixel
+        this.last_fixation_radius = fixationRadius_pixel
 
     }
-    async displaySequence(sequence_id){
-        console.log('displaying sequence ', sequence_id)
-        var sequence = this.canvas_sequences[sequence_id]
-        var tsequence = this.time_sequences[sequence_id]
-        var frame_unix_timestamps = await this.displayScreenSequence(sequence, tsequence)
+    renderBlank(canvasobj){
+        var context=canvasobj.getContext('2d');
+        context.fillStyle="#7F7F7F";
+        var width = parseFloat(canvasobj.style.width)
+        var height = parseFloat(canvasobj.style.height)
 
-        return frame_unix_timestamps
+        context.fillRect(0,0,width,height);
+        context.fill()
     }
 
+    async displayFixation(){
+        var timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
+        return timestamps
+    }
+    
+    async displayStimulusSequence(){
+        var timestamps = await this.displayScreenSequence(
+            this.canvas_sequences['stimulus_sequence'], 
+            this.time_sequences['stimulus_sequence'])
+        return timestamps
+    }
+
+    
+    async displayReward(msec_duration){
+        var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_reward, this.canvas_blank],
+            [0, msec_duration, 0])
+        return timestamps
+    }
+
+    async displayPunish(msec_duration){
+        var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_punish, this.canvas_blank],
+            [0, msec_duration, 0])
+        return timestamps
+    }
+    
     togglePlayspaceBorder(on_or_off){
         // Turns on / off the dotted PLAYSPACE border
         if(on_or_off == 1){
@@ -189,99 +317,7 @@ class ScreenDisplayer{
         }
     }
 
-    async bufferSequenceFrames(sequence_id, image_sequence, grid_placement_sequence, frame_durations){
 
-        var num_frames = image_sequence.length
-        
-        // Draw the images on each of the canvases in this sequence
-        var canvas_sequence = []
-        for (var i_frame = 0; i_frame<num_frames; i_frame++){
-            var frame_grid_indices = grid_placement_sequence[i_frame]
-            var frame_images = image_sequence[i_frame]
-            var canvasobj = this.getSequenceCanvas(sequence_id, i_frame)
-
-
-            if(frame_images.constructor == Array){
-                // Iterate over the images in this frame and draw them all
-                for (var i_image = 0; i_image<frame_images.length; i_image++){
-                    await this.renderImageAndScaleIfNecessary(frame_images[i_image], frame_grid_indices[i_image], canvasobj)
-                }
-            }
-
-            else{
-                // Draw the single image in this frame 
-
-                if(frame_grid_indices.constructor == Array){
-                    frame_grid_indices = frame_grid_indices[0]
-                }
-                
-                await this.renderImageAndScaleIfNecessary(frame_images, frame_grid_indices, canvasobj)
-            }
-            
-            canvas_sequence.push(canvasobj)
-        
-        }
-
-        this.canvas_sequences[sequence_id] = canvas_sequence
-        this.time_sequences[sequence_id] = frame_durations
-    }   
-
-    async displayBlank(){
-        await this.renderBlank(this.canvas_blank)
-        await this.displayScreenSequence(this.canvas_blank, 0)
-    }
-
-    async displayFixation(gridindex){
-        await this.renderBlank(this.canvas_fixation)
-
-        var boundingBoxesFixation = this.renderFixationDot(gridindex, PLAYSPACE._gridwidth*0.4, 'white', this.canvas_fixation)
-        var frame_timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
-        return [boundingBoxesFixation, frame_timestamps]
-    }
-
-    async displayReward(msec_duration){
-        var frame_unix_timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_reward, this.canvas_blank],
-            [0, msec_duration, 0])
-        return frame_unix_timestamps
-    }
-    async displayPunish(msec_duration){
-        var frame_unix_timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_punish, this.canvas_blank],
-            [0, msec_duration, 0])
-
-
-        return frame_unix_timestamps
-    }
-    renderFixationDot( gridindex, dot_pixelradius, color, canvasobj){
-        var context=canvasobj.getContext('2d');
-
-        // do not clear in case user would like to draw multiple
-
-        // Draw fixation dot
-        var rad = dot_pixelradius;
-        var xcent = PLAYSPACE._xgridcent[gridindex]; // playspace units
-        var ycent = PLAYSPACE._ygridcent[gridindex];
-        context.beginPath();
-        context.arc(xcent,ycent,rad,0*Math.PI,2*Math.PI);
-        context.fillStyle=color; 
-        context.fill();
-
-        // Define (rectangular) boundaries of fixation
-        var boundingBoxesFixation = {'x':[xcent-rad, xcent+rad], 'y':[ycent-rad, ycent+rad]}
-
-        return boundingBoxesFixation
-
-
-    }
-    getSequenceCanvas(sequence_id, i_frame){
-        if(this._sequence_canvases[sequence_id] == undefined){
-            this._sequence_canvases[sequence_id] = []
-        }
-        if(this._sequence_canvases[sequence_id][i_frame] == undefined){
-            this._sequence_canvases[sequence_id][i_frame] = this.createCanvas(sequence_id+'_frame'+i_frame)
-        }
-
-        return this._sequence_canvases[sequence_id][i_frame]
-    }
     createCanvas(canvas_id, use_image_smoothing){
         use_image_smoothing = false || use_image_smoothing
         var canvasobj = document.createElement('canvas')
@@ -290,10 +326,6 @@ class ScreenDisplayer{
         document.body.appendChild(canvasobj)
         return canvasobj 
     }
-
-    
-
-
 
     displayScreenSequence(sequence, t_durations){
         console.log('calling sequence', sequence, 't_durations', t_durations)
@@ -354,43 +386,38 @@ class ScreenDisplayer{
         window.requestAnimationFrame(updateCanvas); // kick off async work
         return p
     } 
-    renderBlank(canvasobj){
+    
+
+    drawRectangle(canvasobj, width_pixels, height_pixels, color, alpha){
         var context=canvasobj.getContext('2d');
-        context.fillStyle="#7F7F7F";
+        context.fillStyle=color 
+        context.globalAlpha = alpha
         var width = parseFloat(canvasobj.style.width)
         var height = parseFloat(canvasobj.style.height)
 
-        context.fillRect(0,0,width,height);
-        context.fill()
-    }
-
-
-    renderReward(canvasobj){
-        var context=canvasobj.getContext('2d');
-        context.fillStyle="#00cc00";
-        context.globalAlpha = 0.5
-        var width = parseFloat(canvasobj.style.width)
-        var height = parseFloat(canvasobj.style.height)
-
-
-        var square_width = PLAYSPACE._gridwidth * 2
-        var square_height = PLAYSPACE._gridheight * 2
+        var square_width = width_pixels
+        var square_height = height_pixels
         context.fillRect(width/2 - square_width/2,height/2 - square_width/2, square_width,square_height);
 
         context.fill()
+    }
+    renderReward(canvasobj){
+        var rewardColor =  "#00cc00"
+        var rewardAlpha = 0.5
+        var width_pixels = this.width * 2/3
+        var height_pixels = this.height * 2/3 
+        this.drawRectangle(canvasobj, width_pixels, height_pixels, rewardColor, rewardAlpha)
     }
 
     renderPunish(canvasobj){
-        var context=canvasobj.getContext('2d');
-        var width = parseFloat(canvasobj.style.width)
-        var height = parseFloat(canvasobj.style.height)
 
-        context.fillStyle="black";
-        var square_width = PLAYSPACE._gridwidth * 2
-        var square_height = PLAYSPACE._gridheight * 2
-        context.fillRect(width/2 - square_width/2,height/2 - square_width/2, square_width,square_height);
+        var punishColor = 'black'
+        var punishAlpha = 1
         
-        context.fill();
+        var width_pixels = this.width * 2/3
+        var height_pixels = this.height* 2/3 
+
+        this.drawRectangle(canvasobj, width_pixels, height_pixels, punishColor, punishAlpha)
     }
 
 
@@ -402,9 +429,6 @@ class ScreenDisplayer{
 
         context.drawImage(image, dx, dy, dwidth, dheight)
 
-
-         
-
         var _boundingBox = [{}]
         _boundingBox[0].x = [dx,dx+dwidth]
         _boundingBox[0].y = [dy, dy+dheight]
@@ -412,46 +436,6 @@ class ScreenDisplayer{
         return _boundingBox
     }
 
-    async renderImageAndScaleIfNecessary(image, grid_index, canvasobj){
-      // Render image onto the playspace
-
-      // Special cases for 'image'
-      if(image == 'dot'){
-        await this.renderFixationDot(grid_index, PLAYSPACE._gridwidth*0.45, "white", canvasobj)
-        return
-      }
-      if(image == 'blank'){
-        await this.renderBlank(canvasobj)
-        return
-      }
-
-      var context = canvasobj.getContext('2d')
-
-      var devicePixelRatio = window.devicePixelRatio || 1
-      var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-        context.mozBackingStorePixelRatio ||
-        context.msBackingStorePixelRatio ||
-        context.oBackingStorePixelRatio ||
-        context.backingStorePixelRatio || 1 // /1 by default for chrome?
-
-      var _ratio = devicePixelRatio / backingStoreRatio
-
-      var original_left_start = PLAYSPACE._xgridcent[grid_index] - PLAYSPACE._gridwidth/2// in virtual pixel coordinates
-      var original_top_start = PLAYSPACE._ygridcent[grid_index] - PLAYSPACE._gridheight/2
-
-
-      context.drawImage(image, original_left_start, original_top_start, PLAYSPACE._gridwidth, PLAYSPACE._gridheight)
-
-
-      var xbound=[original_left_start, original_left_start+PLAYSPACE._gridwidth];
-      var ybound=[original_top_start, original_top_start+PLAYSPACE._gridheight];
-
-      xbound[0]=xbound[0]
-      xbound[1]=xbound[1]
-      ybound[0]=ybound[0]
-      ybound[1]=ybound[1]
-      return [xbound, ybound]
-    }
 
 
 }
@@ -520,42 +504,6 @@ function scaleContext(context){
 
   context.scale(_ratio, _ratio) 
 }
-
-//================== IMAGE RENDERING ==================//
-
-
-async function drawGridDots(){
-  canvasobj = document.getElementById('touchfix')
-  //canvasobj.style['z-index'] = 5
-  console.log(canvasobj)
-
-  var context = canvasobj.getContext('2d')
-
-
-  var dot_pixelradius = 10
-  var color = "white"
-
-  // https://www.w3schools.com/tags/canvas_clearrect.asp
-  // Draw grid dots
-  var rad = dot_pixelradius;
-  for (var i = 0; i < PLAYSPACE._xgridcent.length; i++){
-    var xcent = PLAYSPACE._xgridcent[i];
-    var ycent = PLAYSPACE._ygridcent[i];
-    console.log(xcent, ycent)
-    context.beginPath();
-    context.arc(xcent,ycent,rad,0*Math.PI,2*Math.PI);
-    context.fillStyle=color; 
-    context.fill();
-  }
-  var tutorial_image = await SIO.load_image('tutorial_images/trackpad.png')
-  await renderImageAndScaleIfNecessary(tutorial_image, 0, canvasobj)
-  await renderImageAndScaleIfNecessary(tutorial_image, 6, canvasobj)
-  await renderImageAndScaleIfNecessary(tutorial_image, 2, canvasobj)
-  await renderImageAndScaleIfNecessary(tutorial_image, 4, canvasobj)
-  await renderImageAndScaleIfNecessary(tutorial_image, 8, canvasobj)
-  console.log(getWindowWidth(), getWindowHeight())
-}
-
 
 
 

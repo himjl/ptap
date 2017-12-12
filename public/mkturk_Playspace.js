@@ -3,28 +3,44 @@ class PlaySpaceClass{
         playspace_degreesVisualAngle, 
         playspace_verticalOffsetInches,
         playspace_viewingDistanceInches,
+        screen_virtualPixelsPerInch,
         primary_reinforcer_type, 
         action_event_type, 
         periodicRewardInterval, 
-        periodicRewardAmount
+        periodicRewardAmount, 
+        bonusUSDPerCorrect, 
         ){
 
         this.ScreenDisplayer = new ScreenDisplayer( playspace_degreesVisualAngle, 
                                                     playspace_verticalOffsetInches,
-                                                    playspace_viewingDistanceInches,)
-        this.ActionPoller = new ActionPoller(action_event_type)
-        this.Reinforcer = new Reinforcer(primary_reinforcer_type)
-        this.SoundPlayer = new SoundPlayerClass()
+                                                    playspace_viewingDistanceInches,
+                                                    screen_virtualPixelsPerInch)
 
+        if (primary_reinforcer_type == 'juice'){
+            this.Reinforcer = JuiceReinforcer()
+        }
+        else if(primary_reinforcer_type == 'monetary'){
+            this.Reinforcer = new MonetaryReinforcer(bonusPerCorrect)
+        }
+
+        this.ActionPoller = new ActionPoller(action_event_type)
+        this.SoundPlayer = new SoundPlayerClass()
         this.periodic_reward_interval = periodicRewardInterval 
         this.periodic_reward_amount = periodicRewardAmount
+
+        // Async trackers 
+        this.touchLog = {}
 
     }
 
     async build(){
         await this.SoundPlayer.build()
+        await this.ScreenDisplayer.build()
     }
 
+    toggleBorder(on_or_off){
+        this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
+    }
     start_periodic_rewards(){
         if (this.periodic_reward_amount < 0){
             return
@@ -41,13 +57,48 @@ class PlaySpaceClass{
     }
 
     start_action_tracking(actionLog){
+        this.ActionPoller.start_logging()
+    }
 
+    get_action_log(){
+        return this.ActionPoller.actionLog
     }
 
     start_environment_tracking(environmentLog){
         // battery
         // resize events
+        this.environmentLog = {}
+        
+        // ******** Battery ******** 
+        // http://www.w3.org/TR/battery-status/
+        this.environmentLog['battery'] = {} 
+        this.environmentLog['battery']['level'] = [] 
+        this.environmentLog['battery']['dischargeTime'] = [] 
+        this.environmentLog['battery']['timestamp'] = [] 
 
+        var _this = this
+        navigator.getBattery().then(function(batteryobj){
+            _this.environmentLog['battery']['level'].push(batteryobj.level)
+            _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+            _this.environmentLog['battery']['timestamp'].push(performance.now())
+
+            batteryobj.addEventListener('levelchange',function(){
+                _this.environmentLog['battery']['level'].push(batteryobj.level)
+                _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+                _this.environmentLog['battery']['timestamp'].push(performance.now())
+            })
+          });
+
+        // ******** Window resize ****
+        this.environmentLog['window'] = {}
+        this.environmentLog['window']['height'] = []
+        this.environmentLog['window']['width'] = []
+        this.environmentLog['window']['timestamp'] = []
+        window.addEventListener('resize', function(){
+            _this.environmentLog['window']['height'].push(getWindowHeight())
+            _this.environmentLog['window']['width'].push(getWindowWidth())
+            _this.environmentLog['window']['timestamp'].push(performance.now())
+        })
     }
 
     
@@ -57,7 +108,8 @@ class PlaySpaceClass{
 
         // Fixation
         await this.ScreenDisplayer.bufferFixation(
-            trialPackage['fixationCentroid'] , 
+            trialPackage['fixationXCentroid'] , 
+            trialPackage['fixationYCentroid'] , 
             trialPackage['fixationRadius'] )
 
         // Stimulus sequence
@@ -65,11 +117,13 @@ class PlaySpaceClass{
             trialPackage['sampleImage'], 
             trialPackage['sampleOn'], 
             trialPackage['sampleOff'], 
-            trialPackage['sampleRadius'], 
-            trialPackage['samplePlacement'], 
+            trialPackage['sampleRadiusDegrees'], 
+            trialPackage['sampleXCentroid'], 
+            trialPackage['sampleYCentroid'],
             trialPackage['testImage'], 
-            trialPackage['testRadius'], 
-            trialPackage['testPlacement'])
+            trialPackage['testRadiusDegrees'], 
+            trialPackage['testXCentroid'], 
+            trialPackage['testYCentroid'])
 
         // *************** Run trial *************************
 
@@ -105,13 +159,21 @@ class PlaySpaceClass{
         var rewardAmount = trialPackage['choiceRewardAmounts'][actionOutcome['actionIndex']]
 
         // Deliver reinforcement
-        var t_reinforcementOn = performance.now()
-        var p_sound = SP.play_sound('reward_sound')
-        var p_visual = this.ScreenDisplayer.displayReward()
-        var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
-        await Promise.all([p_primaryReinforcement, p_visual]) 
-        var t_reinforcementOff = performance.now()
-
+        if (rewardAmount > 0){
+            var t_reinforcementOn = performance.now()
+            var p_sound = SP.play_sound('reward_sound')
+            var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOut'])
+            var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
+            await Promise.all([p_primaryReinforcement, p_visual]) 
+            var t_reinforcementOff = performance.now()
+        }
+        if (rewardAmount <= 0){
+            var t_reinforcementOn = performance.now()
+            var p_sound = SP.play_sound('punish_sound')
+            var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOut'])
+            await Promise.all([p_sound, p_visual]) 
+            var t_reinforcementOff = performance.now()
+        }
 
         // *************** Write down trial outcome *************************
         var trialOutcome = {}

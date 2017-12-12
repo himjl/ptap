@@ -1,4 +1,4 @@
-async function setupTabletTask(){
+async function setupUpstairsTask(IMAGEBAGS, GAME, ENVIRONMENT){
 
   toggleElement(1, "SessionTextBox")
   toggleElement(1, "ReloadButton")
@@ -30,152 +30,65 @@ async function setupTabletTask(){
     connectBLEButtonPromise()
     wdm("Bluetooth connection handled...")
 
-
-  var windowHeight = window.innerHeight
-    || document.documentElement.clientHeight
-    || document.body.clientHeight;
-
-
-  var windowWidth = window.innerWidth
-    || document.documentElement.clientWidth
-    || document.body.clientWidth;
-
-  console.log(window)
-  console.log('dimensions', windowWidth, windowHeight)
-
   DIO = new DropboxIO()
   var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"
   await DIO.build(DBX_REDIRECT_URI)
 
   SIO = new S3_IO() 
-  DWr = new DropboxDataWriter(DIO)
-  UX = new UX_poller(DIO)
+  DataWriter = new DataWriter(DIO)
+  UX = new UX_poller()
+  CheckPointer = new DropboxCheckPointer()
+  IB = new ImageBuffer(DIO)
 
-  
-  //Monitor Battery - from: http://www.w3.org/TR/battery-status/
-  navigator.getBattery().then(function(batteryobj){
-    SESSION.BatteryLDT.push([batteryobj.level, batteryobj.dischargingTime, Math.round(performance.now())]);
-    batteryobj.addEventListener('levelchange',function(){
-      SESSION.BatteryLDT.push([batteryobj.level, batteryobj.dischargingTime, Math.round(performance.now())]);
-    })
-  });
-
-  
-  // Load Subject and Game file from landing page if available,
-  // otherwise run dialogue
-
-  var run_manual_setup = await loadStringFromLocalStorage("manualSetupFlag") || 'true'
-  var run_manual_setup = (run_manual_setup == 'true') 
-  if(run_manual_setup == true){
-    subject_filepath_list = await DIO.listdir(SUBJECT_DIRPATH)
-    // USER INPUT: get Subject file
-    subjectdialog = document.getElementById("subjectID_dialog");
-    subjectlistobj = document.getElementById("subjectID_list");
-    for (var i=subject_filepath_list.length-1; i>=0; i--){
-        var opt = document.createElement('option');
-        opt.value = i;
-        opt.innerHTML = splitFilename(subject_filepath_list[i]) // subject_filepath_list[i];
-        subjectlistobj.appendChild(opt);
-    }
-    subjectlistobj.addEventListener("change",subjectlist_listener,false);
-    subjectdialog.showModal()
-
-    // USER INPUT: get Game file
-    experiment_file_list = await DIO.listdir(EXPERIMENT_DIRPATH)
-    experiment_dialog = document.getElementById("ExperimentFile_dialog");
-    experimentfile_obj = document.getElementById("ExperimentFile_list");
-    for (var i=experiment_file_list.length-1; i>=0; i--){
-      var opt = document.createElement('option');
-      opt.value = i;
-      opt.innerHTML = splitFilename(experiment_file_list[i]) // subject_filepath_list[i];
-      experimentfile_obj.appendChild(opt);
-    }
-    experimentfile_obj.addEventListener("change",experimentlist_listener,false);
-    experiment_dialog.showModal()
-    await ExperimentFile_Promise() // sets SESSION.gameFilePath
-    
-  }
-  else{
-    console.log('Loading from landing page')
-    SESSION.subjectFilePath = await loadStringFromLocalStorage('SubjectFilePath')
-    SESSION.gameFilePath = await loadStringFromLocalStorage('ExperimentFilePath')
+  console.log('Loading from landing page')
+  var environment = {
+      'playspace_degreesVisualAngle':45,
+      'playspace_verticalOffsetInches':0, 
+      'playspace_viewingDistanceInches':8, 
+      'screen_virtualPixelsPerInch':143.755902965,
+      'primary_reinforcer_type':'juice', 
+      'action_event_type':['touchstart', 'touchmove'],
+      'rigEnvironment':'monkeybox', // or monkeybox
+      'agentID':'Zico',//
   }
 
-  var subject = await DIO.read_textfile(SESSION.subjectFilePath)
-  subject = JSON.parse(subject)
 
-  console.log(subject)
-  wdm("Subject settings loaded...")
-
-  for (var prop in subject){
-    if (subject.hasOwnProperty(prop)){
-      SESSION[prop] = subject[prop]
-    }
-  }
-
-  if (SESSION.hasOwnProperty('SubjectID')){
-    SESSION['agentID'] = SESSION.SubjectID
-  }
-  
-  
-
-  updateSessionTextbox(SESSION.agentID, '')
-
-  updateSessionTextbox(SESSION.agentID, splitFilename(SESSION.gameFilePath))
-  var Experiment = await DIO.read_textfile(SESSION.gameFilePath)
-  Experiment = JSON.parse(Experiment)
-
-  var Game = Experiment['Experiment']
-  if (Game == undefined){
-    Game = Experiment['Game']
-  }
-  
-  TS = new TaskStreamer(DIO, SIO, Game, Experiment["ImageBags"], SESSION.agentID, "loop") // todo: move terminal setting into experiment constructor 
-  await TS.build()
-  wdm('TaskStreamer built')
-
-  var estimated_eye_screen_distance_inches = SESSION['estimated_eye_screen_distance_inches']
-  var estimated_screen_virtual_pixels_per_inch = SESSION['estimated_screen_virtual_pixels_per_inch']
-  var estimated_grid_vertical_offset_inches = SESSION['estimated_grid_vertical_offset_inches']
-  var intended_grid_degrees_of_visual_angle = SESSION['intended_grid_degrees_of_visual_angle']
-  
-
-  var ngridpoints = TS.Game[0]['NGridPoints']
-  setupPlayspace(ngridpoints, estimated_eye_screen_distance_inches, estimated_screen_virtual_pixels_per_inch, estimated_grid_vertical_offset_inches, intended_grid_degrees_of_visual_angle) // sets up PLAYSPACE based on window dimensions
+  UX.updateSessionTextbox(environment['agentID'], game['gameID'])
 
 
-  //================== await create SoundPlayer ==================// 
-    SP = new SoundPlayer()
-    await SP.build()    
+  TaskStreamer = new TaskStreamerClass(GAME, IMAGEBAGS, IB, CheckPointer) // todo: move terminal setting into experiment constructor 
+  PY = new PlaySpaceClass(
+    environment['playspace_degreesVisualAngle'], 
+    environment['playspace_verticalOffsetInches'],
+    environment['playspace_viewingDistanceInches'],
+    environment['screen_virtualPixelsPerInch'],
+    environment['primary_reinforcer_type'], 
+    environment['action_event_type'], 
+    game['periodicRewardInterval'], 
+    game['periodicRewardAmount'], 
+    game['bonusUSDPerCorrect'], 
+    )
 
-    wdm("Sounds loaded...")
     FLAGS.debug_mode = 1 
 
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
-  
 
     // Make sync button visible 
     document.querySelector("button[name=SyncButton]").style.visibility = "visible"
 
-    // Initialize components of task
-    RewardMap = new ActionPoller(['touchmove', 'touchstart'])
-    SD = new ScreenDisplayer()
-    R = new JuiceReinforcer()
 
-
-  // Start in testing mode
-  wdm("Running debug mode...")
-  while(FLAGS.debug_mode == 1){
-    await runtrial()
-    UX.poll()
-  }
-
-  transition_from_debug_to_science_trials()
   toggleElement(0, 'SyncButton')
   toggleElement(0, 'TrialCounter')
   SD.togglePlayspaceBorder(0)
   document.getElementById('drive_juice_button').style.visibility = "hidden"
 
+  var gamePackage = {}
+  gamePackage['TaskStreamer'] = TaskStreamer
+  gamePackage['DataWriter'] = DataWriter 
+  gamePackage['PlaySpace'] = PlaySpace 
+  gamePackage['UX'] = UX 
+
+  return gamePackage
 }

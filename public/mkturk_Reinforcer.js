@@ -14,9 +14,8 @@ class MonetaryReinforcer{
           }
 
         SESSION['bonus_usd'] = this.bonus_total 
-      }
-       
     }
+       
 }
 
 

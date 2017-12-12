@@ -1,7 +1,9 @@
 class DataWriter{
-    constructor(){
+    constructor(DIO){
+        this.DIO = DIO
         this.trialData = {}
         this.sessionData = {} // doesn't change over the course of a session
+        this.pollPeriodMsec = 5000
     }
 
     deposit_trial_outcome(trialOutcome){
@@ -37,6 +39,9 @@ class DataWriter{
         // save every T seconds
     }
 
+    start_polling(){
+        setInterval(this.poll, this.pollPeriodMsec)
+    }
   
 
     concludeSession(){

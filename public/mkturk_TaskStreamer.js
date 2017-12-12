@@ -41,7 +41,8 @@ class TaskStreamerClass{
         trialPackage['sampleOn'] = 0 
         trialPackage['sampleOff'] = 0
         trialPackage['choiceTimeLimit'] = 0 
-        trialPackage['punishTimeOut'] = 0
+        trialPackage['punishTimeOut'] = 2000
+        trialPackage['rewardTimeOut'] = 150
         return trialPackage
     }
 
@@ -125,7 +126,7 @@ class TaskStreamerClass{
         return sample
     }
 
-    selectTestImagesSR(E['TestImageBagNames'], RNGseed){
+    selectTestImagesSR(){
         
         Math.seedrandom(RNGseed)
 
@@ -156,7 +157,7 @@ class TaskStreamerClass{
         return test 
     }
 
-    selectTestImagesMTS(E['TestImageBagNames'], sample_bag_index, nway, RNGseed){
+    selectTestImagesMTS(sample_bag_index, nway, RNGseed){
         // Guarantees one of the images is from E['TestImageBagNames'][sample_bag_index]
         // returns nway images 
 

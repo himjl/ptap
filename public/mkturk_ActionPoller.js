@@ -1,5 +1,6 @@
 class ActionPollerClass{
     constructor(event_types){
+        // ['mousemove', 'touchmove', 'touchstart']
 
         this.event_types = event_types        
         this._response_promise
@@ -10,7 +11,9 @@ class ActionPollerClass{
 
         var _this = this
 
+        this.actionLog = {}
 
+        this.loggingTouches = false
         this.listening = false
         this.attached = false 
         this.useComplementAsRegion = false
@@ -21,6 +24,14 @@ class ActionPollerClass{
             var x = event.targetTouches[0].pageX - PLAYSPACE.leftbound
             var y = event.targetTouches[0].pageY - PLAYSPACE.topbound
             var inside = false
+
+            if(this.loggingTouches == true){
+                this.actionLog['t'].push(t)
+                this.actionLog['x'].push(x)
+                this.actionLog['y'].push(y)
+                this.actionLog['type'].push(event.type)
+
+            }
             if(_this.listening == true){
 
                 for (var i = 0; i < this.actionCentroids.length-1; i++){
@@ -59,6 +70,15 @@ class ActionPollerClass{
             var y = event.pageY - PLAYSPACE.topbound
 
             var inside = false
+
+            if(this.loggingTouches == true){
+                this.actionLog['t'].push(t)
+                this.actionLog['x'].push(x)
+                this.actionLog['y'].push(y)
+                this.actionLog['type'].push(event.type)
+                
+            }
+
             if(_this.listening == true){
 
                 for (var i = 0; i < this.actionCentroids.length-1; i++){
@@ -89,6 +109,20 @@ class ActionPollerClass{
         }
     } 
 
+    start_logging(){
+        this.loggingTouches = true 
+        this.actionLog = {}
+        this.actionLog['t'] = []
+        this.actionLog['x'] = []
+        this.actionLog['y'] = []
+        this.actionLog['type'] = []
+
+        if(this.attached == false){
+            this.add_event_listener()
+            this.attached = true 
+        }
+
+    }
     create_action_regions(placements, scales, useComplementAsRegion){
         // assumes circular 
 
@@ -193,5 +227,5 @@ class ActionPollerClass{
         })
     }
 }
-}
+
 
