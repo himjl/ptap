@@ -17,13 +17,13 @@ class PlaySpaceClass{
                                                     screen_virtualPixelsPerInch)
 
         if (primary_reinforcer_type == 'juice'){
-            this.Reinforcer = JuiceReinforcer()
+            this.Reinforcer = new JuiceReinforcer()
         }
         else if(primary_reinforcer_type == 'monetary'){
             this.Reinforcer = new MonetaryReinforcer(bonusPerCorrect)
         }
 
-        this.ActionPoller = new ActionPoller(action_event_type)
+        this.ActionPoller = new ActionPollerClass(action_event_type)
         this.SoundPlayer = new SoundPlayerClass()
         this.periodic_reward_interval = periodicRewardInterval 
         this.periodic_reward_amount = periodicRewardAmount
@@ -42,7 +42,7 @@ class PlaySpaceClass{
         this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
     }
     start_periodic_rewards(){
-        if (this.periodic_reward_amount < 0){
+        if (this.periodic_reward_amount <= 0){
             return
         }
 
@@ -73,7 +73,7 @@ class PlaySpaceClass{
         // http://www.w3.org/TR/battery-status/
         this.environmentLog['battery'] = {} 
         this.environmentLog['battery']['level'] = [] 
-        this.environmentLog['battery']['dischargeTime'] = [] 
+        this.environmentLog['battery']['dischargingTime'] = [] 
         this.environmentLog['battery']['timestamp'] = [] 
 
         var _this = this

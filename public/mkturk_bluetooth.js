@@ -47,6 +47,17 @@ var ble = {
 
 //==================== CONNECT BLE ====================//
 function connectBLEButtonPromise(){
+
+  document.querySelector("button[name=connectble]").addEventListener(
+    'touchend',findBLEDevice,false)
+  document.querySelector("button[name=connectble]").addEventListener(
+    'mouseup',findBLEDevice,false)
+  document.querySelector("button[name=noble]").addEventListener(
+    'touchend',skipBLEDevice,false)
+  document.querySelector("button[name=noble]").addEventListener(
+    'mouseup',skipBLEDevice,false)
+
+  
   document.querySelector("button[name=connectble]").style.display = "block"
   document.querySelector("button[name=connectble]").style.visibility = "visible"
   document.querySelector("button[name=noble]").style.display = "block"

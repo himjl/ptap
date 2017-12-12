@@ -45,8 +45,8 @@
     "responseY":[],
     "fixationX":[],
     "fixationY":[],
-    "i_stimulusBag":[], 
-    "i_stimulusId":[],
+    "i_sampleBag":[], 
+    "i_sampleId":[],
     "i_testBag":[[]], 
     "i_testId":[[]], 
     "taskNumber":[],
@@ -75,7 +75,10 @@
     "assignmentId":"",
 }, 
 
-"GAME":[{""}], 
+"GAME":{
+    "periodicRewardInterval":0,
+    "periodicRewardAmount":0,
+    "bonusUSDPerCorrect":0}, 
 "IMAGEBAGS":[],
 "TOUCH":"text",
 "REWARDLOG":

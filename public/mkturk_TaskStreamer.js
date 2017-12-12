@@ -5,9 +5,9 @@ class TaskStreamerClass{
         this.IB = IB 
         
         // State info
-        this.taskNumber = checkpoint['taskNumber'] || 0 
-        this.trialNumberTask = checkpoint['trialNumberTask'] || 0
-        this.taskReturnHistory = checkpoint['taskReturnHistory'] || [] 
+        this.taskNumber = CheckPointer.getTaskNumber() || 0 
+        this.trialNumberTask = CheckPointer.getTrialNumberTask() || 0
+        this.taskReturnHistory = CheckPointer.getTaskReturnHistory() || [] 
 
         this.trialNumberSession
         this.trialNumberGame
@@ -16,7 +16,7 @@ class TaskStreamerClass{
     get_trial(i){
         // called at the beginning of each trial 
         // returns images, reward maps, and other necessary things for runtrial()
-        var trial_idx = i || this.state['trialNumberTask']
+        var trial_idx = i || this.trialNumberTask
         var trialPackage = {}
 
         trialPackage['fixationCentroid'] = undefined
@@ -32,7 +32,7 @@ class TaskStreamerClass{
         trialPackage['i_testBag'] = [0,1]
         trialPackage['i_testId'] = [0,1] // [0, 1,]
         trialPackage['testPlacement'] = [0,1] 
-        tralPackage['testRadius']
+        trialPackage['testRadius']
         
         trialPackage['choiceRewardMap'] = []
         trialPackage['choiceCentroid'] = []

@@ -1,13 +1,13 @@
 class ScreenDisplayer{
     constructor(playspace_degreesVisualAngle, 
-                playspace_verticalOffsetInches,
-                playspace_viewingDistanceInches,
-                screen_virtualPixelsPerInch){
+        playspace_verticalOffsetInches,
+        playspace_viewingDistanceInches,
+        screen_virtualPixelsPerInch){
 
-        this.calibrateBounds(playspace_degreesVisualAngle, 
-                playspace_verticalOffsetInches,
-                playspace_viewingDistanceInches,
-                screen_virtualPixelsPerInch)
+        this.calibrateBounds(playspace_viewingDistanceInches, 
+            playspace_verticalOffsetInches, 
+            playspace_degreesVisualAngle, 
+            screen_virtualPixelsPerInch,)
 
         window.addEventListener('resize', this.onWindowResize)
 
@@ -40,24 +40,24 @@ class ScreenDisplayer{
 
     onWindowResize(){
       // on window resize 
-        var windowHeight = getWindowHeight()
-        var windowWidth = getWindowWidth()
+      var windowHeight = getWindowHeight()
+      var windowWidth = getWindowWidth()
 
-        var screen_margin = 0.15
-        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+      var screen_margin = 0.15
+      var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
 
-        var min_dimension = Math.min(max_allowable_playspace_dimension, this.design_playspace_virtual_pixels)
-        var min_dimension = Math.ceil(min_dimension)
+      var min_dimension = Math.min(max_allowable_playspace_dimension, this.design_playspace_virtual_pixels)
+      var min_dimension = Math.ceil(min_dimension)
 
-        this.height = min_dimension
-        this.width = min_dimension 
+      this.height = min_dimension
+      this.width = min_dimension 
 
         this.leftbound = Math.floor((windowWidth - this.width)/2) // in units of window
         this.rightbound = Math.floor(windowWidth-(windowWidth - this.width)/2)
         this.topbound = Math.floor((windowHeight - this.height)/2)
         this.bottombound = Math.floor(windowHeight-(windowHeight - this.height)/2)
 
-      console.log('onWindowResize', this.leftbound, this.topbound)
+        console.log('onWindowResize', this.leftbound, this.topbound)
     }
 
 
@@ -179,7 +179,7 @@ class ScreenDisplayer{
                 }
             }
 
-        else{
+            else{
             // Draw the single image in this frame 
 
             if(frame_grid_indices.constructor == Array){
@@ -246,57 +246,57 @@ class ScreenDisplayer{
             && this.last_fixation_ycentroid == ycentroid_pixel
             && this.last_fixation_radius == fixationRadius_pixel){
             return 
-        }
-        await this.renderBlank(this.canvas_fixation)
-        await this.drawDot(
-            xcentroid_pixel, 
-            ycentroid_pixel, 
-            fixationRadius_pixel, 
-            'white', 
-            this.canvas_fixation)
-
-        this.last_fixation_xcentroid = xcentroid_pixel
-        this.last_fixation_ycentroid = ycentroid_pixel
-        this.last_fixation_radius = fixationRadius_pixel
-
     }
-    renderBlank(canvasobj){
-        var context=canvasobj.getContext('2d');
-        context.fillStyle="#7F7F7F";
-        var width = parseFloat(canvasobj.style.width)
-        var height = parseFloat(canvasobj.style.height)
+    await this.renderBlank(this.canvas_fixation)
+    await this.drawDot(
+        xcentroid_pixel, 
+        ycentroid_pixel, 
+        fixationRadius_pixel, 
+        'white', 
+        this.canvas_fixation)
 
-        context.fillRect(0,0,width,height);
-        context.fill()
-    }
+    this.last_fixation_xcentroid = xcentroid_pixel
+    this.last_fixation_ycentroid = ycentroid_pixel
+    this.last_fixation_radius = fixationRadius_pixel
 
-    async displayFixation(){
-        var timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
-        return timestamps
-    }
-    
-    async displayStimulusSequence(){
-        var timestamps = await this.displayScreenSequence(
-            this.canvas_sequences['stimulus_sequence'], 
-            this.time_sequences['stimulus_sequence'])
-        return timestamps
-    }
+}
+renderBlank(canvasobj){
+    var context=canvasobj.getContext('2d');
+    context.fillStyle="#7F7F7F";
+    var width = parseFloat(canvasobj.style.width)
+    var height = parseFloat(canvasobj.style.height)
 
-    
-    async displayReward(msec_duration){
-        var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_reward, this.canvas_blank],
-            [0, msec_duration, 0])
-        return timestamps
-    }
+    context.fillRect(0,0,width,height);
+    context.fill()
+}
 
-    async displayPunish(msec_duration){
-        var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_punish, this.canvas_blank],
-            [0, msec_duration, 0])
-        return timestamps
-    }
-    
-    togglePlayspaceBorder(on_or_off){
-        // Turns on / off the dotted PLAYSPACE border
+async displayFixation(){
+    var timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
+    return timestamps
+}
+
+async displayStimulusSequence(){
+    var timestamps = await this.displayScreenSequence(
+        this.canvas_sequences['stimulus_sequence'], 
+        this.time_sequences['stimulus_sequence'])
+    return timestamps
+}
+
+
+async displayReward(msec_duration){
+    var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_reward, this.canvas_blank],
+        [0, msec_duration, 0])
+    return timestamps
+}
+
+async displayPunish(msec_duration){
+    var timestamps = await this.displayScreenSequence([this.canvas_blank, this.canvas_punish, this.canvas_blank],
+        [0, msec_duration, 0])
+    return timestamps
+}
+
+togglePlayspaceBorder(on_or_off){
+        // Turns on / off the dotted border
         if(on_or_off == 1){
             var bs = '1px dotted #E6E6E6' // border style 
         }
@@ -322,7 +322,7 @@ class ScreenDisplayer{
         use_image_smoothing = false || use_image_smoothing
         var canvasobj = document.createElement('canvas')
         canvasobj.id = canvas_id
-        setupCanvas(canvasobj, use_image_smoothing)
+        this.setupCanvas(canvasobj, use_image_smoothing)
         document.body.appendChild(canvasobj)
         return canvasobj 
     }
@@ -356,7 +356,7 @@ class ScreenDisplayer{
 
 
         function updateCanvas(timestamp){
-        
+            
             // If time to show new frame OR first frame, 
             if (timestamp - lastframe_timestamp >= t_durations[current_frame_index] || lastframe_timestamp == undefined){
                 current_frame_index++;
@@ -436,28 +436,23 @@ class ScreenDisplayer{
         return _boundingBox
     }
 
-
-
-}
-
-
-function setupCanvas(canvasobj, use_image_smoothing){
-  use_image_smoothing =  use_image_smoothing || false 
-  console.log(canvasobj)
-    var context = canvasobj.getContext('2d')
-    
-    var devicePixelRatio = window.devicePixelRatio || 1
-    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+    setupCanvas(canvasobj, use_image_smoothing){
+      use_image_smoothing =  use_image_smoothing || false 
+      console.log(canvasobj)
+      var context = canvasobj.getContext('2d')
+      
+      var devicePixelRatio = window.devicePixelRatio || 1
+      var backingStoreRatio = context.webkitBackingStorePixelRatio ||
       context.mozBackingStorePixelRatio ||
       context.msBackingStorePixelRatio ||
       context.oBackingStorePixelRatio ||
       context.backingStorePixelRatio || 1 // /1 by default for chrome?
 
-    var _ratio = devicePixelRatio / backingStoreRatio
+      var _ratio = devicePixelRatio / backingStoreRatio
 
-    
-    canvasobj.width = PLAYSPACE.width * _ratio;
-    canvasobj.height = PLAYSPACE.height * _ratio;
+      
+      canvasobj.width = this.width * _ratio;
+      canvasobj.height = this.height * _ratio;
 
     // Center canvas 
     // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
@@ -472,8 +467,8 @@ function setupCanvas(canvasobj, use_image_smoothing){
     canvasobj.style.right = 0
     canvasobj.style.border='1px dotted #E6E6E6' 
     
-    canvasobj.style.width=PLAYSPACE.width+'px'; // Set browser canvas display style to be workspace_width
-    canvasobj.style.height=PLAYSPACE.height+'px';
+    canvasobj.style.width=this.width+'px'; // Set browser canvas display style to be workspace_width
+    canvasobj.style.height=this.height+'px';
 
     // Draw blank gray 
     context.fillStyle="#7F7F7F"; 
@@ -489,20 +484,24 @@ function setupCanvas(canvasobj, use_image_smoothing){
 
     if(_ratio !== 1){
       scaleContext(context)
-    }
+  }
 } 
 
-function scaleContext(context){
-   var devicePixelRatio = window.devicePixelRatio || 1
-  var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-    context.mozBackingStorePixelRatio ||
-    context.msBackingStorePixelRatio ||
-    context.oBackingStorePixelRatio ||
-    context.backingStorePixelRatio || 1 // /1 by default for chrome?
-  console.log('devicePixelRatio', devicePixelRatio, 'backingStoreRatio', backingStoreRatio)
-  var _ratio = devicePixelRatio / backingStoreRatio
+}
 
-  context.scale(_ratio, _ratio) 
+
+
+function scaleContext(context){
+ var devicePixelRatio = window.devicePixelRatio || 1
+ var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+ context.mozBackingStorePixelRatio ||
+ context.msBackingStorePixelRatio ||
+ context.oBackingStorePixelRatio ||
+    context.backingStorePixelRatio || 1 // /1 by default for chrome?
+    console.log('devicePixelRatio', devicePixelRatio, 'backingStoreRatio', backingStoreRatio)
+    var _ratio = devicePixelRatio / backingStoreRatio
+
+    context.scale(_ratio, _ratio) 
 }
 
 
@@ -511,12 +510,12 @@ async function renderImageOnCanvasLiterally(image, grid_index, canvasobj){
 
   var devicePixelRatio = window.devicePixelRatio || 1
   var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-    context.mozBackingStorePixelRatio ||
-    context.msBackingStorePixelRatio ||
-    context.oBackingStorePixelRatio ||
+  context.mozBackingStorePixelRatio ||
+  context.msBackingStorePixelRatio ||
+  context.oBackingStorePixelRatio ||
     context.backingStorePixelRatio || 1 // /1 by default for chrome?
 
-   var _ratio = devicePixelRatio / backingStoreRatio
+    var _ratio = devicePixelRatio / backingStoreRatio
 
 
   // Centers canvas vertically and horizontally
