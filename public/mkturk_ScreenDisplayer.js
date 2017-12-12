@@ -65,7 +65,6 @@ class ScreenDisplayer{
         
         window.addEventListener('resize', onWindowResize)
 
-        
     }
 
 

@@ -99,6 +99,16 @@ class PlaySpaceClass{
             _this.environmentLog['window']['width'].push(getWindowWidth())
             _this.environmentLog['window']['timestamp'].push(performance.now())
         })
+
+        this.environmentLog.DevicePixelRatio = window.devicePixelRatio || 1
+        this.environmentLog.navigator_appVersion = navigator.appVersion
+        this.environmentLog.navigator_platform = navigator.platform
+        this.environmentLog.navigator_userAgent = navigator.userAgent
+        this.environmentLog.navigator_vendor = navigator.vendor
+        this.environmentLog.navigator_language = navigator.language
+        this.environmentLog.unixTimestampPageLoad = window.performance.timing.navigationStart
+        this.environmentLog.currentDate = new Date;
+        this.environmentLog.url = window.location.href
     }
 
     
