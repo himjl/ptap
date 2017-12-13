@@ -29,7 +29,7 @@ class TaskStreamerClass{
         var sampleBag = np.choice(samplePool)
         var sampleId = np.choice(this.imageBags[sampleBag])
         tP['sampleImage'] = await this.IB.get_by_name(sampleId)
-        tP['choiceImage'] = ['dot', 'dot']
+        tP['choiceImage'] = await Promise.all([this.IB.get_by_name(sampleId), this.IB.get_by_name(sampleId)]) 
 
         tP['fixationXCentroid'] = 0.5
         tP['fixationYCentroid'] = 0.8
@@ -45,8 +45,11 @@ class TaskStreamerClass{
         tP['i_choiceId'] = [0,1] // [0, 1,]
         tP['choiceXCentroid'] = [0.2,0.8] 
         tP['choiceYCentroid'] = [0.8, 0.8]
-        tP['choiceRadiusDegrees'] = 6
+        tP['choiceRadiusDegrees'] = [6, 6]
 
+        tP['actionXCentroid'] = [0.2,0.8] 
+        tP['actionYCentroid'] = [0.8, 0.8]
+        tP['actionRadiusDegrees'] = [6, 6]
 
         tP['choiceRewardMap'] = [0, 1]
 
@@ -276,6 +279,7 @@ class TaskStreamerClass{
         // called at the end of every trial. 
         // Update trial object 
 
+        return 
         var Return = current_trial_outcome['Return']
 
         var action = current_trial_outcome['Response_GridIndex']

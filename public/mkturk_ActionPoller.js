@@ -1,6 +1,6 @@
 class ActionPollerClass{
     constructor(event_types, bounds){
-        // ['mousemove', 'touchmove', 'touchstart']
+        // ['mousemove', 'touchmove', 'touchstart', 'onclick']
 
         this.event_types = event_types    
         this.calibrateBounds(bounds)    
@@ -113,6 +113,8 @@ class ActionPollerClass{
     }
     create_action_regions(xCentroidPixels, yCentroidPixels, radiusPixels, useComplementAsRegion){
         // assumes circular 
+        this.actionRadii = []
+        this.actionCentroids = []
 
         if(this.attached == false){
             this.add_event_listener()
@@ -176,7 +178,7 @@ class ActionPollerClass{
             if(event_types[i] == 'touchmove' || event_types[i] == 'touchstart' || event_types[i] == 'touchend'){
                 window.addEventListener(event_types[i], this.handleTouchEvent, {passive:true})
             }
-            else{
+            else if(event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
                 window.addEventListener(event_types[i], this.handleMouseEvent)
             }
             

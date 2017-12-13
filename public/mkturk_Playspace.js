@@ -103,9 +103,14 @@ class PlaySpaceClass{
         // RUN STIMULUS SEQUENCE
         var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence()
 
+        var actionXCentroidPixels = this.xprop2pixels(trialPackage['actionXCentroid'])
+        var actionYCentroidPixels = this.yprop2pixels(trialPackage['actionYCentroid'])
+        var actionRadiusPixels = this.deg2pixels(trialPackage['actionRadiusDegrees'])
+
         this.ActionPoller.create_action_regions(
-            trialPackage['choiceCentroids'], 
-            trialPackage['choiceRadius'])
+            actionXCentroidPixels, 
+            actionYCentroidPixels, 
+            actionRadiusPixels)
 
         if(trialPackage['choiceTimeLimit'] > 0){
             var actionPromise = Promise.race([
@@ -117,12 +122,12 @@ class PlaySpaceClass{
         }
 
         var actionOutcome = await actionPromise
-        var rewardAmount = trialPackage['choiceRewardAmounts'][actionOutcome['actionIndex']]
+        var rewardAmount = trialPackage['choiceRewardMap'][actionOutcome['actionIndex']]
 
         // Deliver reinforcement
         if (rewardAmount > 0){
             var t_reinforcementOn = performance.now()
-            var p_sound = SP.play_sound('reward_sound')
+            var p_sound = this.SoundPlayer.play_sound('reward_sound')
             var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOut'])
             var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
             await Promise.all([p_primaryReinforcement, p_visual]) 
@@ -130,7 +135,7 @@ class PlaySpaceClass{
         }
         if (rewardAmount <= 0){
             var t_reinforcementOn = performance.now()
-            var p_sound = SP.play_sound('punish_sound')
+            var p_sound = this.SoundPlayer.play_sound('punish_sound')
             var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOut'])
             await Promise.all([p_sound, p_visual]) 
             var t_reinforcementOff = performance.now()
@@ -162,7 +167,7 @@ class PlaySpaceClass{
         trialOutcome['timestampStimulusOn'] = t_SequenceTimestamps[0]
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
-        trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - timestampChoiceOn)
+        trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
 
         return trialOutcome
     }
@@ -325,7 +330,8 @@ class PlaySpaceClass{
         if(degrees.constructor == Array){
             var result = []
             for (var i = 0; i<degrees.length; i++){
-                result.push(this.deg2inches(degrees[i], this.viewingDistanceInches, this.viewingOffsetInches))
+                var inches = this.deg2inches(degrees[i], this.viewingDistanceInches, this.viewingOffsetInches)
+                result.push(Math.round(inches * this.virtualPixelsPerInch))
             }
             return result
         }

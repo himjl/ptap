@@ -71,7 +71,7 @@ class ScreenDisplayer{
         var frame_durations = []
         // Draw sample screen
         var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
-        sampleCanvas = await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusPixels, sampleCanvas)
+        await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusPixels, sampleCanvas)
         frame_canvases.push(sampleCanvas)
         frame_durations.push(sampleOn)
 
@@ -85,9 +85,9 @@ class ScreenDisplayer{
 
         // Draw test screen
         var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
-        testCanvas = await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusPixels, testCanvas)
+        await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusPixels, testCanvas)
         frame_canvases.push(testCanvas)
-        frame_durations.push(undefined)
+        frame_durations.push(0)
 
         this.canvas_sequences['stimulus_sequence'] = frame_canvases
         this.time_sequences['stimulus_sequence'] = frame_durations
@@ -146,8 +146,8 @@ class ScreenDisplayer{
         }
 
         // in units of window
-        var original_left_start = 0 //xcentroid_pixel - radius_pixel // in virtual pixel coordinates
-        var original_top_start = 0// ycentroid_pixel - radius_pixel
+        var original_left_start = xcentroid_pixel - radius_pixel // in virtual pixel coordinates
+        var original_top_start = ycentroid_pixel - radius_pixel
 
         var context = canvasobj.getContext('2d')
         await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)

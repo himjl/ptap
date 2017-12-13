@@ -31,7 +31,7 @@ class SoundPlayerClass{
     return 
   }
 
-  async playSound(name){
+  async play_sound(name){
     if(this.is_built == false){
       await this.build()
     }
