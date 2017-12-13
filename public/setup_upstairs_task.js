@@ -44,7 +44,7 @@ async function setupUpstairsTask(sessionPackage){
    UX.updateSessionTextbox(ENVIRONMENT['agentID'], GAME['gameID'])
 
    TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
-   PlaySpace = new PlaySpaceClass(
+   Playspace = new PlaySpaceClass(
     ENVIRONMENT['playspace_degreesVisualAngle'], 
     ENVIRONMENT['playspace_verticalOffsetInches'],
     ENVIRONMENT['playspace_viewingDistanceInches'],
@@ -56,7 +56,7 @@ async function setupUpstairsTask(sessionPackage){
     GAME['bonusUSDPerCorrect'], 
     )
 
-   await PlaySpace.build()
+   await Playspace.build()
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
@@ -67,13 +67,13 @@ async function setupUpstairsTask(sessionPackage){
 
     toggleElement(0, 'SyncButton')
     toggleElement(0, 'TrialCounter')
-    PlaySpace.toggleBorder(1)
+    Playspace.toggleBorder(1)
     document.getElementById('drive_juice_button').style.visibility = "hidden"
 
     var gamePackage = {}
     gamePackage['TaskStreamer'] = TaskStreamer
     gamePackage['DataWriter'] = DataWriter 
-    gamePackage['PlaySpace'] = PlaySpace 
+    gamePackage['Playspace'] = Playspace 
     gamePackage['UX'] = UX 
 
     return gamePackage

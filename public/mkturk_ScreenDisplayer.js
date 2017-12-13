@@ -2,7 +2,6 @@ class ScreenDisplayer{
     constructor(bounds){
 
         this.calibrateBounds(bounds)
-
         this.last_fixation_xcentroid = undefined 
         this.last_fixation_ycentroid = undefined
         this.last_fixation_radius = undefined 
@@ -54,27 +53,6 @@ class ScreenDisplayer{
     }
 
     
-    async displayBlank(){
-        await this.displayScreenSequence(this.canvas_blank, 0)
-    }
-
-
-    async drawDot(xcentroid_pixel, ycentroid_pixel, pixelradius, color, canvasobj){
-        var context=canvasobj.getContext('2d');
-
-        // Draw fixation dot
-        var rad = pixelradius;
-
-        // Convert to pixel units of window
-        var xcent = xcentroid_pixel 
-        var ycent = ycentroid_pixel
-        context.beginPath();
-        context.arc(xcent,ycent,rad,0*Math.PI,2*Math.PI);
-        context.fillStyle=color; 
-        context.fill();
-    }
-
-
     async bufferStimulusSequence(
         sampleImage, 
         sampleOn, 
@@ -143,55 +121,56 @@ class ScreenDisplayer{
             }
         }
 
-        async _drawImage(image, xcentroids_pixel, ycentroids_pixel, radius_pixel, canvasobj){
+    async _drawImage(image, xcentroid_pixel, ycentroid_pixel, radius_pixel, canvasobj){
 
-            // Special cases for 'image'
-            if(image == 'dot'){
-                await this.drawDot(xcentroid_pixel, ycentroid_pixel, fixationRadius_pixel, 'white', canvasobj)
-                return
-            }
-            if(image == 'blank'){
-                await this.renderBlank(canvasobj)
-                return
-            }
-
-            var nativeWidth = image.naturalWidth 
-            var nativeHeight = image.naturalHeight
-
-            if (nativeHeight > nativeWidth){
-                var drawHeight = fixationRadius_pixel * 2
-                var drawWidth = 2 * fixationRadius_pixel * nativeWidth / nativeHeight
-            }
-            else{
-                var drawWidth = fixationRadius_pixel * 2
-                var drawHeight = 2 * fixationRadius_pixel * nativeHeight / nativeWidth
-            }
-
-            // in units of window
-            var original_left_start = this.leftbound + xcentroid_pixel - fixationRadius_pixel // in virtual pixel coordinates
-            var original_top_start = this.topbound + ycentroid_pixel - fixationRadius_pixel
-
-            var context = canvasobj.getContext('2d')
-            await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
-
-            return 
-
+        // Special cases for 'image'
+        if(image == 'dot'){
+            await this.drawDot(xcentroid_pixel, ycentroid_pixel, radius_pixel, 'white', canvasobj)
+            return
+        }
+        if(image == 'blank'){
+            await this.renderBlank(canvasobj)
+            return
         }
 
- 
-    async bufferFixation(
-        xcentroid_pixel, 
-        ycentroid_pixel, 
-        fixationRadius_pixel, 
-        ){
-        // input arguments in playspace units 
+        var nativeWidth = image.naturalWidth 
+        var nativeHeight = image.naturalHeight
 
-        // Clear canvas if different 
-        if (this.last_fixation_xcentroid == xcentroid_pixel 
-            && this.last_fixation_ycentroid == ycentroid_pixel
-            && this.last_fixation_radius == fixationRadius_pixel){
-            return 
+        if (nativeHeight > nativeWidth){
+            var drawHeight = radius_pixel * 2
+            var drawWidth = 2 * radius_pixel * nativeWidth / nativeHeight
+        }
+        else{
+            var drawWidth = radius_pixel * 2
+            var drawHeight = 2 * radius_pixel * nativeHeight / nativeWidth
+        }
+
+        // in units of window
+        var original_left_start = 0 //xcentroid_pixel - radius_pixel // in virtual pixel coordinates
+        var original_top_start = 0// ycentroid_pixel - radius_pixel
+
+        var context = canvasobj.getContext('2d')
+        await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
+
+        return 
+
     }
+
+ 
+async bufferFixation(
+    xcentroid_pixel, 
+    ycentroid_pixel, 
+    fixationRadius_pixel, 
+    ){
+    // input arguments in playspace units 
+
+    // Clear canvas if different 
+    if (this.last_fixation_xcentroid == xcentroid_pixel 
+        && this.last_fixation_ycentroid == ycentroid_pixel
+        && this.last_fixation_radius == fixationRadius_pixel){
+        return 
+    }
+
     await this.renderBlank(this.canvas_fixation)
     await this.drawDot(
         xcentroid_pixel, 
@@ -200,11 +179,24 @@ class ScreenDisplayer{
         'white', 
         this.canvas_fixation)
 
+
     this.last_fixation_xcentroid = xcentroid_pixel
     this.last_fixation_ycentroid = ycentroid_pixel
     this.last_fixation_radius = fixationRadius_pixel
 
 }
+
+
+async drawDot(xcentroid_pixel, ycentroid_pixel, pixelradius, color, canvasobj){
+    var context=canvasobj.getContext('2d');
+
+    context.beginPath();
+    context.arc(xcentroid_pixel,ycentroid_pixel,pixelradius,0*Math.PI,2*Math.PI);
+    context.fillStyle=color; 
+    context.fill();
+}
+
+
 renderBlank(canvasobj){
     var context=canvasobj.getContext('2d');
     context.fillStyle="#7F7F7F";
@@ -219,6 +211,11 @@ async displayFixation(){
     var timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
     return timestamps
 }
+
+async displayBlank(){
+    await this.displayScreenSequence(this.canvas_blank, 0)
+}
+
 
 async displayStimulusSequence(){
     var timestamps = await this.displayScreenSequence(
@@ -435,7 +432,6 @@ togglePlayspaceBorder(on_or_off){
 }
 
 
-
 function scaleContext(context){
    var devicePixelRatio = window.devicePixelRatio || 1
    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
@@ -449,57 +445,5 @@ function scaleContext(context){
 }
 
 
-
-async function renderImageOnCanvasLiterally(image, grid_index, canvasobj){
-
-  var devicePixelRatio = window.devicePixelRatio || 1
-  var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-  context.mozBackingStorePixelRatio ||
-  context.msBackingStorePixelRatio ||
-  context.oBackingStorePixelRatio ||
-    context.backingStorePixelRatio || 1 // /1 by default for chrome?
-
-    var _ratio = devicePixelRatio / backingStoreRatio
-
-
-  // Centers canvas vertically and horizontally
-  canvasobj.style.width = canvasobj.width / _ratio + 'px'
-  canvasobj.style.height = canvasobj.height / _ratio + 'px'
-  canvasobj.style.left = 0
-  canvasobj.style.right = 0
-  canvasobj.style.top = 0
-  canvasobj.style.bottom = 0
-  canvasobj.style.margin = 'auto'
-  
-
-  var xleft=NaN;
-  var ytop=NaN;
-  var xbound=[];
-  var ybound=[];
-
-  wd = image.width
-  ht = image.height
-  xleft = Math.round(PLAYSPACE._xgridleft[grid_index])
-  ytop = Math.round(PLAYSPACE._ygridtop[grid_index])
-
-  context.drawImage(
-    image, // Image element
-    xleft, // dx: Canvas x-coordinate of image's top-left corner. 
-    ytop // dy: Canvas y-coordinate of  image's top-left corner. 
-    ); // dheight. height of drawn image.
-
-  // For drawing cropped regions of an image in the canvas, see alternate input argument structures,
-  // See: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-  
-  // Bounding boxes of images on canvas; in units of window
-  xbound=[xleft, xleft+wd];
-  ybound=[ytop, ytop+ht];
-
-  xbound[0]=xbound[0]
-  xbound[1]=xbound[1]
-  ybound[0]=ybound[0]
-  ybound[1]=ybound[1]
-  return [xbound, ybound]
-}
 
 

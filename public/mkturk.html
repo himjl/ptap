@@ -160,13 +160,13 @@ else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
 // Unpack objects
 var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
-var PlaySpace = freturn['PlaySpace']
+var Playspace = freturn['Playspace']
 var UX = freturn['UX']
 
 // Kick off async threads 
-//PlaySpace.start_periodic_rewards()
-//PlaySpace.start_action_tracking()
-//PlaySpace.start_environment_tracking()
+//Playspace.start_periodic_rewards()
+//Playspace.start_action_tracking()
+//Playspace.start_environment_tracking()
 //DataWriter.start_polling()
 
 
@@ -174,7 +174,7 @@ var UX = freturn['UX']
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
 while(TaskStreamer.TERMINAL_STATE == false){
   var trialPackage = await TaskStreamer.get_trial()
-	var trialOutcome = await PlaySpace.run_trial(trialPackage) 
+	var trialOutcome = await Playspace.run_trial(trialPackage) 
   TaskStreamer.update_state(trialOutcome)
   UX.poll(trialOutcome)
   DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk

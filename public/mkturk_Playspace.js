@@ -17,11 +17,12 @@ class PlaySpaceClass{
         this.playspaceSizeDegrees = playspace_degreesVisualAngle
         this.virtualPixelsPerInch = screen_virtualPixelsPerInch
 
-        this.ScreenDisplayer = new ScreenDisplayer( playspace_degreesVisualAngle, 
-                                                    playspace_verticalOffsetInches,
-                                                    playspace_viewingDistanceInches,
-                                                    screen_virtualPixelsPerInch)
+        this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)
 
+
+        var bounds = this.getPlayspaceBounds()    
+        this.ScreenDisplayer = new ScreenDisplayer(bounds)
+        
 
         this.play
         if (primary_reinforcer_type == 'juice'){
@@ -31,7 +32,7 @@ class PlaySpaceClass{
             this.Reinforcer = new MonetaryReinforcer(bonusPerCorrect)
         }
 
-        this.ActionPoller = new ActionPollerClass(action_event_type)
+        this.ActionPoller = new ActionPollerClass(action_event_type, bounds)
         this.SoundPlayer = new SoundPlayerClass()
         this.periodic_reward_interval = periodicRewardInterval 
         this.periodic_reward_amount = periodicRewardAmount
@@ -42,9 +43,11 @@ class PlaySpaceClass{
     }
 
     async build(){
+        
+        this.attachWindowResizeMonitor()
         await this.SoundPlayer.build()
         await this.ScreenDisplayer.build()
-        this.attachWindowResizeMonitor()
+        
     }
 
     async run_trial(trialPackage){
@@ -52,23 +55,36 @@ class PlaySpaceClass{
         // ************ Prebuffer trial assets ***************
 
         // Fixation
+
+        var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
+        var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
+        var fixationRadiusPixels = this.deg2pixels(trialPackage['fixationRadiusDegrees'] )
         await this.ScreenDisplayer.bufferFixation(
-            trialPackage['fixationXCentroid'] , 
-            trialPackage['fixationYCentroid'] , 
-            trialPackage['fixationRadiusDegrees'] )
+            fixationXCentroidPixels, 
+            fixationYCentroidPixels, 
+            fixationRadiusPixels
+            )
 
         // Stimulus sequence
+        var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
+        var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
+        var sampleRadiusPixels = this.deg2pixels(trialPackage['sampleRadiusDegrees'])
+
+        var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid'])
+        var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid'])
+        var choiceRadiusPixels = this.deg2pixels(trialPackage['choiceRadiusDegrees'])
+
         await this.ScreenDisplayer.bufferStimulusSequence(
             trialPackage['sampleImage'], 
             trialPackage['sampleOn'], 
             trialPackage['sampleOff'], 
-            trialPackage['sampleRadiusDegrees'], 
-            trialPackage['sampleXCentroid'], 
-            trialPackage['sampleYCentroid'],
+            sampleRadiusPixels, 
+            sampleXCentroidPixels, 
+            sampleYCentroidPixels,
             trialPackage['choiceImage'], 
-            trialPackage['choiceRadiusDegrees'], 
-            trialPackage['choiceXCentroid'], 
-            trialPackage['choiceYCentroid'])
+            choiceRadiusPixels, 
+            choiceXCentroidPixels, 
+            choiceYCentroidPixels)
 
         // *************** Run trial *************************
 
@@ -76,13 +92,10 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.displayBlank()
 
         // RUN FIXATION
-        var fixationXpixels = this.ScreenDisplayer.xprop2pixels(trialPackage['fixationXCentroid'])
-        var fixationYpixels = this.ScreenDisplayer.yprop2pixels(trialPackage['fixationYCentroid'])
-        var fixationRadiuspixels = this.ScreenDisplayer.deg2pixels(trialPackage['fixationRadiusDegrees'])
         this.ActionPoller.create_action_regions(
-            fixationXpixels,
-            fixationYpixels,
-            fixationRadiuspixels)
+            fixationXCentroidPixels,
+            fixationYCentroidPixels,
+            fixationRadiusPixels)
 
         var t_fixationOn = await this.ScreenDisplayer.displayFixation()
         var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
@@ -182,6 +195,26 @@ class PlaySpaceClass{
         return this.ActionPoller.actionLog
     }
 
+    getPlayspaceBounds(){
+        var bounds = {}
+        var windowHeight = getWindowHeight()
+        var windowWidth = getWindowWidth()
+
+        var screen_margin = 0.15
+        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+
+        var min_dimension = Math.min(max_allowable_playspace_dimension, this.playspaceSizePixels)
+        var min_dimension = Math.ceil(min_dimension)
+
+        bounds['height'] = min_dimension
+        bounds['width'] = min_dimension 
+        bounds['leftbound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
+        bounds['rightbound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
+        bounds['topbound'] = Math.floor((windowHeight - min_dimension)/2)
+        bounds['bottombound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
+
+        return bounds
+    }
 
     attachWindowResizeMonitor(){
   
@@ -199,15 +232,24 @@ class PlaySpaceClass{
             var min_dimension = Math.min(max_allowable_playspace_dimension, _this.playspaceSizePixels)
             var min_dimension = Math.ceil(min_dimension)
 
-            bounds['height'] = min_dimension
-            bounds['width'] = min_dimension 
-            bounds['leftbound'] = Math.floor((windowWidth - bounds['width'])/2) // in units of window
-            bounds['rightbound'] = Math.floor(windowWidth-(windowWidth - bounds['width'])/2)
-            bounds['topbound'] = Math.floor((windowHeight - bounds['height'])/2)
-            bounds['bottombound'] = Math.floor(windowHeight-(windowHeight - bounds['height'])/2)
+            _this.height = min_dimension
+            _this.width = min_dimension 
+            _this.leftbound = Math.floor((windowWidth - _this.width)/2) // in units of window
+            _this.rightbound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
+            _this.topbound = Math.floor((windowHeight - _this.height)/2)
+            _this.bottombound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
+
+
+            bounds['height'] = _this.height
+            bounds['width'] = _this.width
+            bounds['leftbound'] = _this.leftbound
+            bounds['rightbound'] = _this.rightbound
+            bounds['topbound'] = _this.topbound
+            bounds['bottombound'] = _this.bottombound
 
             _this.ScreenDisplayer.calibrateBounds(bounds)
             _this.ActionPoller.calibrateBounds(bounds)
+
             console.log('onWindowResize', bounds['leftbound'], bounds['topbound'])
         }
 
@@ -265,30 +307,64 @@ class PlaySpaceClass{
     }
 
     deg2inches(degrees){
-            var rad = this.deg2rad(degrees)
-            return this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches
+        if(degrees.constructor == Array){
+            var result = []
+            for (var i = 0; i<degrees.length; i++){
+                var rad = this.deg2rad(degrees[i])
+                result.push(this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches)
+            }
+            return result
         }
+
+        var rad = this.deg2rad(degrees)
+        return this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches
+    }
 
     deg2pixels(degrees){
         // Return virtual pixels 
+        if(degrees.constructor == Array){
+            var result = []
+            for (var i = 0; i<degrees.length; i++){
+                result.push(this.deg2inches(degrees[i], this.viewingDistanceInches, this.viewingOffsetInches))
+            }
+            return result
+        }
+
         var inches = this.deg2inches(degrees, this.viewingDistanceInches, this.viewingOffsetInches)
         return Math.round(inches * this.virtualPixelsPerInch)
     }
 
-    proportion2pixels(proportion, x){
-        // todo - separate for height / width
-        return Math.round(proportion * x)
-    }
 
     xprop2pixels(xproportion){
+        if(xproportion.constructor == Array){
+            var result = []
+            for (var i = 0; i<xproportion.length; i++){
+                result.push(Math.round(xproportion[i]*this.width))
+            }
+            return result
+        }
         return Math.round(xproportion*this.width)
     }
 
     yprop2pixels(yproportion){
+        if(yproportion.constructor == Array){
+            var result = []
+            for (var i = 0; i<yproportion.length; i++){
+                result.push(Math.round(yproportion[i]*this.height))
+            }
+            return result
+        }
         return Math.round(yproportion*this.height)
     }
 
     deg2rad(deg){
+        if(deg.constructor == Array){
+            var result = []
+            for (var i = 0; i<deg.length; i++){
+                result.push(deg[i] * Math.PI / 180)
+            }
+            return result
+        }
         return deg * Math.PI / 180
     }
 

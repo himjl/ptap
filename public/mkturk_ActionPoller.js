@@ -1,8 +1,9 @@
 class ActionPollerClass{
-    constructor(event_types){
+    constructor(event_types, bounds){
         // ['mousemove', 'touchmove', 'touchstart']
 
-        this.event_types = event_types        
+        this.event_types = event_types    
+        this.calibrateBounds(bounds)    
         this._response_promise
         this.boundingBoxes = []
 
@@ -12,6 +13,10 @@ class ActionPollerClass{
         var _this = this
 
         this.actionLog = {}
+        this.actionLog['t'] = []
+        this.actionLog['x'] = []
+        this.actionLog['y'] = []
+        this.actionLog['type'] = []
 
         this.loggingTouches = false
         this.listening = false
@@ -21,8 +26,8 @@ class ActionPollerClass{
         this.actionCentroids = []
         this.actionRadii = []
 
-
         this.handleActionEvent = function(x, y, t){
+            console.log(x, y, t)
             var inside = false
             if(this.loggingTouches == true){
                 this.actionLog['t'].push(t)
@@ -33,13 +38,13 @@ class ActionPollerClass{
             }
             if(_this.listening == true){
 
-                for (var i = 0; i < this.actionCentroids.length-1; i++){
+                for (var i = 0; i < this.actionCentroids.length; i++){
                     inside = _this.check_if_inside_circle(
                         x, 
                         y, 
                         this.actionCentroids[i][0], 
                         this.actionCentroids[i][1], 
-                        this.actionScales[i])
+                        this.actionRadii[i])
                     if(inside == true){
                         this.listening = false
                         var outcome = {'actionIndex':i, 
@@ -60,13 +65,15 @@ class ActionPollerClass{
                 }   
             }
         }
+
+        var _this = this
         this.handleTouchEvent = function(event){
             console.log(event)
             var t = performance.now()
-            var x = event.targetTouches[0].pageX - PLAYSPACE.leftbound
-            var y = event.targetTouches[0].pageY - PLAYSPACE.topbound
+            var x = event.targetTouches[0].pageX - _this.leftbound
+            var y = event.targetTouches[0].pageY - _this.topbound
             
-            this.handleActionEvent(x, y, t)
+            _this.handleActionEvent(x, y, t)
             
         }  
 
@@ -74,10 +81,10 @@ class ActionPollerClass{
             console.log(event)
             var t = performance.now()
 
-            var x = event.pageX - PLAYSPACE.leftbound // In PLAYSPACE units. 
-            var y = event.pageY - PLAYSPACE.topbound
+            var x = event.pageX - _this.leftbound // In PLAYSPACE units. 
+            var y = event.pageY - _this.topbound
 
-            this.handleActionEvent(x, y, t)
+            _this.handleActionEvent(x, y, t)
             }
     }
      
@@ -146,7 +153,7 @@ class ActionPollerClass{
         var dxs = Math.pow(x - xc, 2)
         var dys = Math.pow(y - yc, 2)
 
-        if (dxs + dys <= r){
+        if (dxs + dys <= Math.pow(r, 2)){
             return true
         }
         else{
