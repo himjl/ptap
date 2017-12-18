@@ -4,6 +4,10 @@ class DataWriter{
         this.trialData = {}
         this.sessionData = {} // doesn't change over the course of a session
         this.pollPeriodMsec = 5000
+        this.probeFunctions = {}
+
+        this.keyData = {}
+        this.savePath = '/testptap.txt'
     }
 
     deposit_trial_outcome(trialOutcome){
@@ -19,34 +23,63 @@ class DataWriter{
         }
     }
 
-    deposit_session_data(data){
-        this.sessionData = data 
+    attach_probe(object, propertyName, probeName){
+        var probefunc = function(){
+            return object[propertyName]
+        }
+        this.probeFunctions[probeName] = probefunc
+    }
+
+    deposit_key_data(key, data){
+        this.keyData[key] = data
     }
 
     package_data(){
         var dataPackage = {}
         dataPackage['BEHAVIOR'] = this.trialData // trial outcomes
-        dataPackage['SESSION'] = this.sessionData // session meta; unchanging
-        dataPackage['GAME'] = this.gameData // task info; unchanging
-        dataPackage['TOUCH_LOG'] = ACTION_LOG // action tracker
-        dataPackage['REWARD_LOG'] = REWARD_LOG // groundtruth 
-        dataPackage['DEVICE_LOG'] = DEVICE_LOG // battery; window resize events
+
+        for (var probe in this.probeFunctions){
+            if(!this.probeFunctions.hasOwnProperty(probe)){
+                continue
+            }
+            dataPackage[probe] = this.probeFunctions[probe]()
+        }
+
+        for (var key in this.keyData){
+            if(!this.keyData.hasOwnProperty(key)){
+                continue
+            }
+            dataPackage[key] = this.keyData[key]
+        }
 
         return dataPackage
     }
 
-    poll(){
-        // save every T seconds
-    }
+    
 
     start_polling(){
-        setInterval(this.poll, this.pollPeriodMsec)
+        if (this.pollPeriodMsec < 0 || this.pollPeriodMsec == undefined){
+            return
+        }
+
+        this.pollPeriodMsec = Math.max(10000, this.pollPeriodMsec) // Save at most every 5000 msec
+
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
+        var _this = this
+        window.setInterval(function(){_this.write_out.apply(_this)}, this.pollPeriodMsec)
     }
   
+    async write_out(){
+        console.log('saving')
+        var dataString = JSON.stringify(this.package_data(), null)
+        await this.DIO.write_string(dataString, this.savePath)
+    }
 
     concludeSession(){
-
+        // 
     }
+
+
 
 
 }

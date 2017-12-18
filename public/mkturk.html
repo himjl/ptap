@@ -163,11 +163,23 @@ var DataWriter = freturn['DataWriter']
 var Playspace = freturn['Playspace']
 var UX = freturn['UX']
 
+
+// Attach static data objects 
+DataWriter.deposit_key_data('ENVIRONMENT', ENVIRONMENT)
+DataWriter.deposit_key_data('GAME', GAME)
+DataWriter.deposit_key_data('TASK_SEQUENCE', TASK_SEQUENCE)
+DataWriter.deposit_key_data('IMAGEBAGS', IMAGEBAGS)
+
+// Attach async data probes 
+DataWriter.attach_probe(Playspace, 'environmentLog', 'ENVIRONMENT_LOG')
+DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
+DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
+
 // Kick off async threads 
-//Playspace.start_periodic_rewards()
-//Playspace.start_action_tracking()
-//Playspace.start_environment_tracking()
-//DataWriter.start_polling()
+Playspace.start_periodic_rewards()
+Playspace.start_action_tracking()
+Playspace.start_environment_tracking()
+DataWriter.start_polling()
 
 
 // Main trial loop
@@ -178,6 +190,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
   TaskStreamer.update_state(trialOutcome)
   UX.poll(trialOutcome)
   DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk
+  //DataWriter.write_out()
 }
 
 await DataWriter.concludeSession()

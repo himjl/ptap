@@ -31,7 +31,7 @@ class np{
 
   static choice(arr, seed){
     if(seed == undefined){
-      seed = Math.round(performance.now())
+      seed = Math.round(performance.now()*1000)/1000
     }
     Math.seedrandom(seed)
     var selected_index = Math.floor(Math.random()*arr.length)

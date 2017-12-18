@@ -32,7 +32,6 @@ function setHandSelection(element, handedness){
 
 
 
-
 function toggleElement(on_or_off, element_id){
 		var elem = document.getElementById(element_id)
 	if(on_or_off == 0){
@@ -100,24 +99,6 @@ function displayTerminalScreen(){
 }
 
 
-
-
-function initializeTouchLog(){
-    var tlog = {}
-
-    tlog['x'] = []
-    tlog['y'] = []
-    tlog['t'] = []
-    tlog['radiusX'] = []
-    tlog['radiusY'] = []
-    tlog['clientXdelta_from_pageX'] = []
-    tlog['screenYdelta_from_pageX'] = []
-    tlog['updateCounter'] = []
-    tlog['eventType'] = []
-
-    return tlog 
-
-}
 function initializeMouseTracker(){
 	TOUCHSTRING_UDPATECOUNTER = 0
     TOUCHLOG = initializeTouchLog()
@@ -128,7 +109,7 @@ function initializeMouseTracker(){
 	// https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
 	document.onmousemove = handleMouseMove;
 	function handleMouseMove(event){
-		t = Math.round(performance.now())
+		t = Math.round(performance.now()*1000)/1000
 		var dot, eventDoc, doc, body, pageX, pageY;
 
         event = event || window.event; // IE-ism
@@ -151,7 +132,7 @@ function initializeMouseTracker(){
 
         TOUCHLOG['x'].push(Math.round(event.pageX))
         TOUCHLOG['y'].push(Math.round(event.pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
         TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
         TOUCHLOG['eventType'].push('dg')
 
@@ -185,11 +166,11 @@ function initializeTouchTracker(){
 
 		radiusX = Math.round(event.targetTouches[0].radiusX)
 		radiusY = Math.round(event.targetTouches[0].radiusY)
-		t = Math.round(performance.now())
+		t = Math.round(performance.now()*1000)/1000
 
 		TOUCHLOG['x'].push(Math.round(pageX))
         TOUCHLOG['y'].push(Math.round(pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
         TOUCHLOG['radiusX'].push(radiusX)
         TOUCHLOG['radiusY'].push(radiusY)
         TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)
@@ -214,12 +195,12 @@ function initializeTouchTracker(){
 
 		radiusX = Math.round(event.targetTouches[0].radiusX)
 		radiusY = Math.round(event.targetTouches[0].radiusY)
-		t = Math.round(performance.now())
+		t = Math.round(performance.now()*1000)/1000
 
 
         TOUCHLOG['x'].push(Math.round(pageX))
         TOUCHLOG['y'].push(Math.round(pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()))
+        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
         TOUCHLOG['radiusX'].push(radiusX)
         TOUCHLOG['radiusY'].push(radiusY)
         TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)

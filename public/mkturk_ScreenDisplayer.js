@@ -52,6 +52,13 @@ class ScreenDisplayer{
         return this._sequence_canvases[sequence_id][i_frame]
     }
 
+    async refreshCurrentFrames(){
+        if(performance.now() - this.lastRefreshCall < this.refreshTimeoutPeriod){
+            return
+        }
+
+        this.lastRefreshCall = performance.now()
+    }
     
     async bufferStimulusSequence(
         sampleImage, 

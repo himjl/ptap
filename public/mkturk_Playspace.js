@@ -1,16 +1,15 @@
 class PlaySpaceClass{
-    constructor(
-        playspace_degreesVisualAngle, 
-        playspace_verticalOffsetInches,
-        playspace_viewingDistanceInches,
-        screen_virtualPixelsPerInch,
-        primary_reinforcer_type, 
-        action_event_type, 
-        periodicRewardInterval, 
-        periodicRewardAmount, 
-        bonusUSDPerCorrect, 
-        ){
+    constructor(playspacePackage){
 
+        var playspace_degreesVisualAngle = playspacePackage['playspace_degreesVisualAngle'] 
+        var playspace_verticalOffsetInches = playspacePackage['playspace_verticalOffsetInches']
+        var playspace_viewingDistanceInches = playspacePackage['playspace_viewingDistanceInches']
+        var screen_virtualPixelsPerInch = playspacePackage['screen_virtualPixelsPerInch']
+        var primary_reinforcer_type = playspacePackage['primary_reinforcer_type'] 
+        var action_event_type = playspacePackage['action_event_type'] 
+        var periodicRewardIntervalMsec = playspacePackage['periodicRewardIntervalMsec'] 
+        var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
+        var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
 
         this.viewingDistanceInches = playspace_viewingDistanceInches
         this.viewingOffsetInches = playspace_verticalOffsetInches
@@ -24,7 +23,6 @@ class PlaySpaceClass{
         this.ScreenDisplayer = new ScreenDisplayer(bounds)
         
 
-        this.play
         if (primary_reinforcer_type == 'juice'){
             this.Reinforcer = new JuiceReinforcer()
         }
@@ -34,11 +32,12 @@ class PlaySpaceClass{
 
         this.ActionPoller = new ActionPollerClass(action_event_type, bounds)
         this.SoundPlayer = new SoundPlayerClass()
-        this.periodic_reward_interval = periodicRewardInterval 
-        this.periodic_reward_amount = periodicRewardAmount
+        this.periodicRewardIntervalMsec = periodicRewardIntervalMsec 
+        this.periodicRewardAmount = periodicRewardAmount
 
         // Async trackers 
-        this.touchLog = {}
+        this.rewardLog = {'t':[], 'n':[]}
+        this.environmentLog = {}
 
     }
 
@@ -126,20 +125,23 @@ class PlaySpaceClass{
 
         // Deliver reinforcement
         if (rewardAmount > 0){
-            var t_reinforcementOn = performance.now()
+            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var p_sound = this.SoundPlayer.play_sound('reward_sound')
             var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOut'])
             var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
             await Promise.all([p_primaryReinforcement, p_visual]) 
-            var t_reinforcementOff = performance.now()
+            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
         }
         if (rewardAmount <= 0){
-            var t_reinforcementOn = performance.now()
+            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var p_sound = this.SoundPlayer.play_sound('punish_sound')
             var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOut'])
             await Promise.all([p_sound, p_visual]) 
-            var t_reinforcementOff = performance.now()
+            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
         }
+
+        this.rewardLog['t'].push(t_reinforcementOn)
+        this.rewardLog['n'].push(rewardAmount)
 
         // *************** Write down trial outcome *************************
         var trialOutcome = {}
@@ -157,7 +159,7 @@ class PlaySpaceClass{
         trialOutcome['i_testId'] = trialPackage['i_testId']
         trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['timestampStart'] = fixationOutcome['timestamp']
-        trialOutcome['timestampFixationOnset'] = 
+        trialOutcome['timestampFixationOnset'] = t_fixationOn
         trialOutcome['timestampFixationAcquired'] = fixationOutcome['timestamp']
         trialOutcome['timestampResponse'] = actionOutcome['timestamp']
         trialOutcome['timestampReinforcementOn'] = t_reinforcementOn
@@ -178,22 +180,28 @@ class PlaySpaceClass{
     }
 
     start_periodic_rewards(){
-        if (this.periodic_reward_amount <= 0){
+        if (this.periodicRewardAmount <= 0){
             return
         }
 
-        console.log('Called auto juicer')
+        console.log('Called auto reinforcer')
 
+        this.SoundPlayer.play_sound('reward_sound')
+        var _this = this
         var periodic_reward = function(){
-            this.Reinforcer.deliver_reinforcement(this.periodic_reward_amount, false)
+            var t = Math.round(performance.now()*1000)/1000
+            _this.Reinforcer.deliver_reinforcement(_this.periodicRewardAmount)
+            _this.SoundPlayer.play_sound('reward_sound')
+            _this.rewardLog['n'].push(_this.periodicRewardAmount)
+            _this.rewardLog['t'].push(t)
         } 
 
-        window.setInterval(periodic_reward, this.periodic_reward_interval)
+        window.setInterval(periodic_reward, this.periodicRewardIntervalMsec)
         
     }
 
     start_action_tracking(actionLog){
-        this.ActionPoller.start_logging()
+        this.ActionPoller.start_action_tracking()
     }
 
     get_action_log(){
@@ -223,7 +231,6 @@ class PlaySpaceClass{
 
     attachWindowResizeMonitor(){
   
-   
         var _this = this
         function onWindowResize(){
           // on window resize 
@@ -255,6 +262,8 @@ class PlaySpaceClass{
             _this.ScreenDisplayer.calibrateBounds(bounds)
             _this.ActionPoller.calibrateBounds(bounds)
 
+            _this.ScreenDisplayer.refreshCurrentFrames()
+
             console.log('onWindowResize', bounds['leftbound'], bounds['topbound'])
         }
 
@@ -280,12 +289,12 @@ class PlaySpaceClass{
         navigator.getBattery().then(function(batteryobj){
             _this.environmentLog['battery']['level'].push(batteryobj.level)
             _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-            _this.environmentLog['battery']['timestamp'].push(performance.now())
+            _this.environmentLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
 
             batteryobj.addEventListener('levelchange',function(){
                 _this.environmentLog['battery']['level'].push(batteryobj.level)
                 _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-                _this.environmentLog['battery']['timestamp'].push(performance.now())
+                _this.environmentLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
             })
           });
 
@@ -297,10 +306,11 @@ class PlaySpaceClass{
         window.addEventListener('resize', function(){
             _this.environmentLog['window']['height'].push(getWindowHeight())
             _this.environmentLog['window']['width'].push(getWindowWidth())
-            _this.environmentLog['window']['timestamp'].push(performance.now())
+            _this.environmentLog['window']['timestamp'].push(Math.round(performance.now()*1000)/1000)
         })
 
-        this.environmentLog.DevicePixelRatio = window.devicePixelRatio || 1
+        // ******** Device and browser ****
+        this.environmentLog.devicePixelRatio = window.devicePixelRatio || 1
         this.environmentLog.navigator_appVersion = navigator.appVersion
         this.environmentLog.navigator_platform = navigator.platform
         this.environmentLog.navigator_userAgent = navigator.userAgent
@@ -339,7 +349,6 @@ class PlaySpaceClass{
         var inches = this.deg2inches(degrees, this.viewingDistanceInches, this.viewingOffsetInches)
         return Math.round(inches * this.virtualPixelsPerInch)
     }
-
 
     xprop2pixels(xproportion){
         if(xproportion.constructor == Array){

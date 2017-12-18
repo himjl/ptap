@@ -27,7 +27,6 @@ async function setupUpstairsTask(sessionPackage){
 
    connectBLEButtonPromise()
    
-
    DIO = new DropboxIO()
    var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"
    await DIO.build(DBX_REDIRECT_URI)
@@ -44,19 +43,23 @@ async function setupUpstairsTask(sessionPackage){
    UX.updateSessionTextbox(ENVIRONMENT['agentID'], GAME['gameID'])
 
    TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
-   Playspace = new PlaySpaceClass(
-    ENVIRONMENT['playspace_degreesVisualAngle'], 
-    ENVIRONMENT['playspace_verticalOffsetInches'],
-    ENVIRONMENT['playspace_viewingDistanceInches'],
-    ENVIRONMENT['screen_virtualPixelsPerInch'],
-    ENVIRONMENT['primary_reinforcer_type'], 
-    ENVIRONMENT['action_event_type'], 
-    GAME['periodicRewardInterval'], 
-    GAME['periodicRewardAmount'], 
-    GAME['bonusUSDPerCorrect'], 
-    )
 
+
+   var playspacePackage = {
+    'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
+    'playspace_verticalOffsetInches':ENVIRONMENT['playspace_verticalOffsetInches'],
+    'playspace_viewingDistanceInches':ENVIRONMENT['playspace_viewingDistanceInches'],
+    'screen_virtualPixelsPerInch':ENVIRONMENT['screen_virtualPixelsPerInch'],
+    'primary_reinforcer_type':ENVIRONMENT['primary_reinforcer_type'], 
+    'action_event_type':ENVIRONMENT['action_event_type'], 
+    'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], 
+    'periodicRewardAmount':GAME['periodicRewardAmount'], 
+    'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }
+
+   Playspace = new PlaySpaceClass(playspacePackage)
    await Playspace.build()
+
+
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"

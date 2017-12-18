@@ -18,7 +18,11 @@ class ActionPollerClass{
         this.actionLog['y'] = []
         this.actionLog['type'] = []
 
-        this.loggingTouches = false
+        this.eventType2eventCode = {'mousemove':'mmv', 'mouseup':'mclk', 'touchmove':'dg', 'touchstart':'tp'}
+        this.supportedEventTypes = ['mousemove', 'mouseup', 'touchmove', 'touchstart']
+
+
+        this.loggingActions = false
         this.listening = false
         this.attached = false 
         this.useComplementAsRegion = false
@@ -26,16 +30,25 @@ class ActionPollerClass{
         this.actionCentroids = []
         this.actionRadii = []
 
-        this.handleActionEvent = function(x, y, t){
-            console.log(x, y, t)
-            var inside = false
-            if(this.loggingTouches == true){
+
+        this.recordActionEvent = function(x, y, t, event_type){
+            // Adds event to action log 
+
+            //console.log('x:', x, ' y:', y, ' t:', t)
+            if(this.loggingActions == true){
                 this.actionLog['t'].push(t)
                 this.actionLog['x'].push(x)
                 this.actionLog['y'].push(y)
-                this.actionLog['type'].push(event.type)
+                this.actionLog['type'].push(this.eventType2eventCode[event_type])
 
             }
+        }
+
+
+        this.handleActionEvent = function(x, y, t, event_type){
+            
+            var inside = false
+            
             if(_this.listening == true){
 
                 for (var i = 0; i < this.actionCentroids.length; i++){
@@ -68,29 +81,39 @@ class ActionPollerClass{
 
         var _this = this
         this.handleTouchEvent = function(event){
-            console.log(event)
-            var t = performance.now()
+            var t = Math.round(performance.now()*1000)/1000
             var x = event.targetTouches[0].pageX - _this.leftbound
             var y = event.targetTouches[0].pageY - _this.topbound
-            
-            _this.handleActionEvent(x, y, t)
+            _this.recordActionEvent(x, y, t, event.type)
+            _this.handleActionEvent(x, y, t, event.type)
             
         }  
 
+        this.recordTouchEvent = function(event){
+            var t = Math.round(performance.now()*1000)/1000
+            var x = event.targetTouches[0].pageX - _this.leftbound
+            var y = event.targetTouches[0].pageY - _this.topbound
+            _this.recordActionEvent(x, y, t, event.type)
+        }
+
         this.handleMouseEvent = function(event){
-            console.log(event)
-            var t = performance.now()
-
-            var x = event.pageX - _this.leftbound // In PLAYSPACE units. 
+            var t = Math.round(performance.now()*1000)/1000
+            var x = event.pageX - _this.leftbound 
             var y = event.pageY - _this.topbound
-
-            _this.handleActionEvent(x, y, t)
+            _this.recordActionEvent(x, y, t, event.type)
+            _this.handleActionEvent(x, y, t, event.type)
             }
+
+        this.recordMouseEvent = function(event){
+            var t = Math.round(performance.now()*1000)/1000
+            var x = event.pageX - _this.leftbound 
+            var y = event.pageY - _this.topbound
+            _this.recordActionEvent(x, y, t, event.type)
+        }
     }
      
-
-    start_logging(){
-        this.loggingTouches = true 
+    start_action_tracking(){
+        this.loggingActions = true 
         this.actionLog = {}
         this.actionLog['t'] = []
         this.actionLog['x'] = []
@@ -101,7 +124,6 @@ class ActionPollerClass{
             this.add_event_listener()
             this.attached = true 
         }
-
     }
 
     calibrateBounds(bounds){
@@ -167,6 +189,10 @@ class ActionPollerClass{
 
     add_event_listener(){
 
+        if(this.attached == true){
+            console.log('already attached.')
+            return
+        }
         if(typeof(this.event_types) == "string"){
             var event_types = [this.event_types]
         }
@@ -184,6 +210,21 @@ class ActionPollerClass{
             
             console.log('Added ', event_types[i])
         }   
+
+        // Record all the rest of the events
+        for (var i = 0; i < this.supportedEventTypes.length; i++){
+            var e = this.supportedEventTypes[i]
+            if (this.event_types.includes(e)){
+                continue
+            }
+
+            if(e == 'touchmove' || e == 'touchstart' || e == 'touchend'){
+                window.addEventListener(e, this.recordTouchEvent, {passive:true})
+            }
+            else if(e == 'mousemove' || e == 'mouseup'){
+                window.addEventListener(e, this.recordMouseEvent)
+            }
+        }
     }
 
     close_listener(){
@@ -198,7 +239,7 @@ class ActionPollerClass{
             if(event_types[i] == 'touchmove' || 'touchstart' || 'touchend'){
                 window.removeEventListener(event_types[i], this.handleTouchEvent, {passive:true})
             }
-            else{
+            else if (event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
                 window.removeEventListener(event_types[i], this.handleMouseEvent)
             }
             
@@ -211,7 +252,7 @@ class ActionPollerClass{
         function(resolve, reject){
           var timer_return = function(){resolve({
             "actionIndex":'timed_out', 
-            'timestamp':performance.now(), 
+            'timestamp':Math.round(performance.now()*1000)/1000, 
             'x':'timed_out', 
             'y':'timed_out'})}
 
