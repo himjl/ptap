@@ -50,6 +50,31 @@
                     "rewardTimeOutMsec":150,
                     }]
 
+    TASK_SEQUENCE = [{
+                    "taskType":"SR", 
+                    "nway":2,
+                    "sampleBagNames":['stimulus_objectome_pineapple', 'stimulus_objectome_flute', 
+                    'stimulus_objectome_dog'], 
+                    "rewardMap":{"stimulus_objectome_pineapple":[1, 0, 0], "stimulus_objectome_flute":[0, 1, 0], 
+                    "stimulus_objectome_dog":[0, 0, 1]},
+                    "fixationXCentroid":0.5,
+                    "fixationYCentroid":0.8,
+                    "fixationRadiusDegrees":3,
+                    "sampleXCentroid":0.5,
+                    "sampleYCentroid":0.5,
+                    "sampleRadiusDegrees":8,
+                    "actionXCentroid":[0.2, 0.8, 0.5], 
+                    "actionYCentroid":[0.8, 0.8, 0.2],
+                    "actionRadiusDegrees":[6, 6, 6],
+                    "choiceXCentroid":[0.2, 0.8, 0.5,],
+                    "choiceYCentroid":[0.8, 0.8, 0.2],
+                    "choiceRadiusDegrees":[6, 6, 6],
+                    "sampleOnMsec":200, 
+                    "sampleOffMsec":0,
+                    "choiceTimeLimitMsec":5000,
+                    "punishTimeOutMsec":400,
+                    "rewardTimeOutMsec":150,
+                    }]
 
     ENVIRONMENT = {
                       'playspace_degreesVisualAngle':45,

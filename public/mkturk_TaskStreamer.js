@@ -134,7 +134,6 @@ class TaskStreamerClass{
             console.log(choiceId)
             console.log(rewardMap)
             console.log(choiceIdx)
-
         }
         
         // Construct image request 
@@ -149,10 +148,6 @@ class TaskStreamerClass{
         var images = await Promise.all(imageRequests)        
         tP['sampleImage'] = images[0]
         tP['choiceImage'] = images.slice(1)
-
-
-        //await Promise.all(choiceId.map(function(entry){_this.IB.get_by_name(entry)})) 
-
         
         tP['fixationXCentroid'] = tk['fixationXCentroid']
         tP['fixationYCentroid'] = tk['fixationYCentroid']
