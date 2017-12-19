@@ -29,13 +29,80 @@ class np{
     return total
   }
 
-  static choice(arr, seed){
-    if(seed == undefined){
-      seed = Math.round(performance.now()*1000)/1000
+  static choice(arr, n, replace){
+    
+    if(n == undefined){
+      n = 1 
     }
-    Math.seedrandom(seed)
-    var selected_index = Math.floor(Math.random()*arr.length)
-    return arr[selected_index]
+
+    if(replace == undefined){
+      replace = true
+    }
+
+    if(arr.constructor != Array){
+      arr = [arr]
+    }
+
+    var idxs = this.arange(arr.length)
+    idxs = shuffle(idxs)
+
+    var result = []
+    for(var i = 0; i < n; i++){
+      result.push(arr[idxs[i]])
+    }
+    
+    if(result.length == 1){
+      result = result[0]
+    }
+    
+    return result
+  }
+
+  static arange(start_, stop, step_){
+    if (stop == undefined && step_ == undefined){
+      stop = start_
+      start_ = 0
+    }
+    if(step_ == undefined){
+      step_ = 1
+    }
+
+
+    var x =[]
+    for (var i = start_; i < stop; i = i+step_){
+      x.push(i)
+    }
+    return x
+  }
+
+  static zeros(n){
+    var x = []
+    for (var i = 0; i < n; i++){
+      x.push(0)
+    }
+    return x
+  }
+
+  static ones(n){
+    var x = []
+    for (var i = 0; i < n; i++){
+      x.push(1)
+    }
+    return x
+  }
+
+  static iloc(arr, idx){
+    
+    if(idx.constructor != Array){
+      return arr[idx]
+    }
+
+    var x = []
+    for (var i in idx){
+      x.push(arr[idx[i]])
+    }
+
+    return x
   }
 }
 
@@ -127,7 +194,10 @@ function getAllInstancesIndexes(arr, val){
 
 // Shuffles an array
 function shuffle(array, RNGseed) {
-  Math.seedrandom(RNGseed)
+  if(RNGseed != undefined){
+    Math.seedrandom(RNGseed)
+  }
+  
 
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -235,7 +305,7 @@ function splitFilename(s){
 
 
 // https://stackoverflow.com/questions/1248302/how-to-get-the-size-of-a-javascript-object
-function memorySizeOf(obj) {
+function memorySizeOf(obj, format) {
     var bytes = 0;
 
     function sizeOf(obj) {
@@ -271,6 +341,9 @@ function memorySizeOf(obj) {
         else return(bytes / 1073741824).toFixed(3) + " GiB";
     };
 
-    return sizeOf(obj) //formatByteSize(sizeOf(obj));
+    if(format == undefined){
+      return sizeOf(obj) 
+    }
+    return formatByteSize(sizeOf(obj));
 };
 

@@ -277,7 +277,7 @@ togglePlayspaceBorder(on_or_off){
     }
 
     displayScreenSequence(sequence, t_durations){
-        console.log('calling sequence', sequence, 't_durations', t_durations)
+        console.log('calling screen sequence. t_durations', t_durations)
         if(typeof(t_durations) == "number"){
             t_durations = [t_durations]
         }
@@ -317,7 +317,7 @@ togglePlayspaceBorder(on_or_off){
                 prev_canvasobj = curr_canvasobj;
 
                 lastframe_timestamp = timestamp
-                console.log('lastframe_timestamp', lastframe_timestamp)
+                //console.log('lastframe_timestamp', lastframe_timestamp)
                 frames_left_to_animate--
                 
             }; 

@@ -75,8 +75,8 @@ class PlaySpaceClass{
 
         await this.ScreenDisplayer.bufferStimulusSequence(
             trialPackage['sampleImage'], 
-            trialPackage['sampleOn'], 
-            trialPackage['sampleOff'], 
+            trialPackage['sampleOnMsec'], 
+            trialPackage['sampleOffMsec'], 
             sampleRadiusPixels, 
             sampleXCentroidPixels, 
             sampleYCentroidPixels,
@@ -127,7 +127,7 @@ class PlaySpaceClass{
         if (rewardAmount > 0){
             var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var p_sound = this.SoundPlayer.play_sound('reward_sound')
-            var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOut'])
+            var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOutMsec'])
             var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
             await Promise.all([p_primaryReinforcement, p_visual]) 
             var t_reinforcementOff = Math.round(performance.now()*1000)/1000
@@ -135,7 +135,7 @@ class PlaySpaceClass{
         if (rewardAmount <= 0){
             var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var p_sound = this.SoundPlayer.play_sound('punish_sound')
-            var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOut'])
+            var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOutMsec'])
             await Promise.all([p_sound, p_visual]) 
             var t_reinforcementOff = Math.round(performance.now()*1000)/1000
         }
@@ -151,25 +151,24 @@ class PlaySpaceClass{
         trialOutcome['responseY'] = actionOutcome['y']
         trialOutcome['fixationX'] = fixationOutcome['x']
         trialOutcome['fixationY'] = fixationOutcome['y']
-        trialOutcome['i_fixationBag'] = trialPackage['i_fixationBag']
-        trialOutcome['i_fixationId'] = trialPackage['i_fixationId']
-        trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
-        trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
-        trialOutcome['i_testBag'] = trialPackage['i_testBag']
-        trialOutcome['i_testId'] = trialPackage['i_testId']
-        trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['timestampStart'] = fixationOutcome['timestamp']
         trialOutcome['timestampFixationOnset'] = t_fixationOn
         trialOutcome['timestampFixationAcquired'] = fixationOutcome['timestamp']
         trialOutcome['timestampResponse'] = actionOutcome['timestamp']
         trialOutcome['timestampReinforcementOn'] = t_reinforcementOn
         trialOutcome['timestampReinforcementOff'] = t_reinforcementOff
-        trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
-        trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession
         trialOutcome['timestampStimulusOn'] = t_SequenceTimestamps[0]
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
+
+        trialOutcome['taskNumber'] = TaskStreamer.taskNumber
+        trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
+        trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession
+        trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
+        trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
+        trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag']
+        trialOutcome['i_choiceId'] = trialPackage['i_choiceId']
 
         return trialOutcome
     }

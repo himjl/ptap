@@ -1,13 +1,15 @@
 class DataWriter{
-    constructor(DIO){
+    constructor(DIO, savePath){
         this.DIO = DIO
         this.trialData = {}
         this.sessionData = {} // doesn't change over the course of a session
-        this.pollPeriodMsec = 5000
+        this.pollPeriodMsec = 60000
+        this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
+        this.lastSaveTimestamp = performance.now()
         this.probeFunctions = {}
 
         this.keyData = {}
-        this.savePath = '/testptap.txt'
+        this.savePath = savePath
     }
 
     deposit_trial_outcome(trialOutcome){
@@ -62,26 +64,30 @@ class DataWriter{
             return
         }
 
-        this.pollPeriodMsec = Math.max(10000, this.pollPeriodMsec) // Save at most every 5000 msec
+        this.pollPeriodMsec = Math.max(5000, this.pollPeriodMsec) // Save at most every 5000 msec
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
         var _this = this
-        window.setInterval(function(){_this.write_out.apply(_this)}, this.pollPeriodMsec)
+        window.setInterval(function(){console.log('calling poll save');_this.write_out.apply(_this)}, this.pollPeriodMsec)
     }
   
     async write_out(){
-        console.log('saving')
+        
+        if(performance.now() - this.lastSaveTimestamp < this.saveTimeoutPeriodMsec){
+            console.log('skipping save')
+            return 
+        }
+
+
         var dataString = JSON.stringify(this.package_data(), null)
+        this.lastSaveTimestamp = performance.now()
         await this.DIO.write_string(dataString, this.savePath)
+        console.log('Saved. Size:', memorySizeOf(dataString, 1), 'Last save (msec ago):', Math.round(performance.now() - this.lastSaveTimestamp))
     }
 
     concludeSession(){
-        // 
+        return
     }
-
-
-
-
 }
 
 class MechanicalTurkDataWriter{

@@ -31,8 +31,10 @@ async function setupUpstairsTask(sessionPackage){
    var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"
    await DIO.build(DBX_REDIRECT_URI)
 
+
+   var savePath = '/testptap'+ENVIRONMENT['agentID']+'.txt'
    SIO = new S3_IO() 
-   DataWriter = new DataWriter(DIO)
+   DataWriter = new DataWriter(DIO, savePath)
    UX = new UX_poller()
    CheckPointer = new DropboxCheckPointer()
    IB = new ImageBuffer(SIO)
@@ -44,7 +46,7 @@ async function setupUpstairsTask(sessionPackage){
 
    TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
 
-
+   await TaskStreamer.build(5)
    var playspacePackage = {
     'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
     'playspace_verticalOffsetInches':ENVIRONMENT['playspace_verticalOffsetInches'],

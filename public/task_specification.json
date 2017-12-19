@@ -1,12 +1,30 @@
 
-/////// General: 
-//stateBags
-{"bagName":["url", "url"]}
+// task
+{"taskType":"SR", 
+"choiceBagNames":[], 
+"sampleBagNames":[], 
+"fixationXCentroid":0.5,
+"fixationYCentroid":0.8,
+"fixationRadiusDegrees":3,
+"sampleXCentroid":0.5,
+"sampleYCentroid":0.5,
+"sampleRadiusDegrees":8,
+"actionXCentroid":[0.2, 0.8], 
+"actionYCentroid":[0.8, 0.8],
+"actionRadiusDegrees":[6, 6],
+"choiceXCentroid":[0.2, 0.8],
+"choiceYCentroid":[0.8, 0.8],
+"choiceRadiusDegrees":[6, 6],
+// SR specific
+"rewardMap":{"*bagName":[0, 1]}} // indexes action*; gives rewards for selecting that action. Assumes 0 everywhere else.
+// MTS specific
+"choiceMap":{"*sampleBagName":"*choiceBagName"},
 
 
 //// SR task specification: 
 // rewardMaps
 {"bagName":["rewardForAction0", "rewardForAction1"]}
+
 
 // environment - mechanical turk vs. upstairs
 {"viewingDistanceInches":0, 

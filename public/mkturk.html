@@ -163,7 +163,6 @@ var DataWriter = freturn['DataWriter']
 var Playspace = freturn['Playspace']
 var UX = freturn['UX']
 
-
 // Attach static data objects 
 DataWriter.deposit_key_data('ENVIRONMENT', ENVIRONMENT)
 DataWriter.deposit_key_data('GAME', GAME)
@@ -181,7 +180,6 @@ Playspace.start_action_tracking()
 Playspace.start_environment_tracking()
 DataWriter.start_polling()
 
-
 // Main trial loop
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
 while(TaskStreamer.TERMINAL_STATE == false){
@@ -190,7 +188,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
   TaskStreamer.update_state(trialOutcome)
   UX.poll(trialOutcome)
   DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk
-  //DataWriter.write_out()
+  DataWriter.write_out()
 }
 
 await DataWriter.concludeSession()

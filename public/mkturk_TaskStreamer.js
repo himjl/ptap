@@ -4,16 +4,69 @@ class TaskStreamerClass{
         this.taskSequence = taskSequence
         this.imageBags = ImageBags
         this.IB = IB 
+        this.CheckPointer = CheckPointer
         
         // State info
         this.taskNumber = CheckPointer.getTaskNumber() || 0 
         this.trialNumberTask = CheckPointer.getTrialNumberTask() || 0
         this.taskReturnHistory = CheckPointer.getTaskReturnHistory() || [] 
 
-        this.trialNumberSession
-        this.trialNumberGame
-
         this.TERMINAL_STATE = false
+    }
+    async build(num_trials_per_stage_to_prebuffer){
+        this.bag2idx = {}
+        this.idx2bag = {}
+        this.id2idx = {}
+
+        
+
+        var i_bag = 0
+        var bagsAlphabetized = Object.keys(this.imageBags).sort()
+        for (var i_bag in bagsAlphabetized){
+            var bag = bagsAlphabetized[i_bag]
+            this.bag2idx[bag] = parseInt(i_bag)
+            this.idx2bag[parseInt(i_bag)] = bag
+            i_bag++
+
+             
+            var idAlphabetized = (this.imageBags[bag]).sort()
+            this.id2idx[bag] = {}
+            for (var i_id in idAlphabetized){
+                this.id2idx[bag][idAlphabetized[i_id]] = parseInt(i_id)
+            }
+        }
+    }
+
+    get_image_idx(bag_name, id){
+        var i = {}
+
+        if (bag_name.constructor == Array){
+            var _this = this
+            i['bag'] = bag_name.map(function(item){return _this.bag2idx[item]})
+            var bagid = bag_name.map(function(item, idx){return [item, id[idx]]})
+            i['id'] = bagid.map(function(item){return _this.id2idx[item[0]][item[1]]})
+        }
+        else{
+            i['bag'] = this.bag2idx[bag_name]
+            i['id'] = this.id2idx[bag_name][id]
+        }
+
+        return i
+        // handle multiple bag names and return in order
+    }
+
+    get_bag_from_idx(bag_idx){
+        var i = []
+        if(bag_idx.constructor == Array){
+            for (var j in bag_idx){
+                i.push(this.idx2bag[bag_idx[j]])
+            }
+        }
+        else{
+            i = this.idx2bag[bag_idx]
+        }
+
+        return i
     }
 
     async get_trial(i){
@@ -22,43 +75,107 @@ class TaskStreamerClass{
         var trial_idx = i || this.trialNumberTask
         var tP = {}
 
+        var tk = this.taskSequence[this.taskNumber]
 
-        // perform random sample of bags 
-        var samplePool = this.taskSequence[this.taskNumber]['sampleBagNames']
-        
+        // Select sample bag
+        var samplePool = tk['sampleBagNames']
         var sampleBag = np.choice(samplePool)
         var sampleId = np.choice(this.imageBags[sampleBag])
+        var sampleIdx = this.get_image_idx(sampleBag, sampleId)
+
+        // SR - select choice
+        if (tk['taskType'] == 'SR'){
+            var rewardMap = tk['rewardMap'][sampleBag]
+            var choiceId = rewardMap.map(function(entry){return 'dot'})
+            var choiceIdx = rewardMap.map(function(entry){return {'bag':undefined, 'id':undefined}})
+        }
+
+        // MTS - select choice
+        else if(tk['taskType'] == 'MTS'){
+            var correctBag = np.choice(tk['choiceMap'][sampleBag])
+            var correctPool = this.imageBags[correctBag]
+            var correctId = np.choice(correctPool)
+            var correctIdx = this.get_image_idx(correctBag, choiceId) 
+
+            // Select distractors
+            var distractorBagIdxPool = [] 
+            for (var potentialSampleBag in tk['choiceMap']){
+                if (potentialSampleBag == sampleBag){
+                    console.log(potentialSampleBag)
+                    continue
+                }
+                distractorBagIdxPool.push(this.bag2idx[tk['choiceMap'][potentialSampleBag]])
+            }
+
+            var distractorBagIdx = np.choice(distractorBagIdxPool, tk['nway']-1, false)
+            var distractorBag = this.get_bag_from_idx(distractorBagIdx)
+            if(distractorBag.constructor != Array){
+                distractorBag = [distractorBag]
+            }
+            var distractorId = []
+            for(var j in distractorBag){
+                distractorId.push(np.choice(this.imageBags[distractorBag[j]]))
+            }
+            var distractorIdx = {'bag':distractorBagIdx, 'id':this.id2idx[distractorId]}
+
+            // Shuffle arrangement of choices
+            var choiceId = [correctId]
+            var choiceBag = [correctBag]
+            choiceId.push(...distractorId)
+            choiceBag.push(...distractorBag) 
+            var choice_shuffle = shuffle(np.arange(choiceId.length))
+            choiceId = np.iloc(choiceId, choice_shuffle)
+            choiceBag = np.iloc(choiceBag, choice_shuffle)
+
+            var choiceIdx = this.get_image_idx(choiceBag, choiceId)
+            // Construct reward map
+            var rewardMap = np.zeros(choiceId.length)
+            rewardMap[choiceId.indexOf(correctId)] = 1 
+            console.log(choiceId)
+            console.log(rewardMap)
+            console.log(choiceIdx)
+
+        }
+        
+        // Construct image request 
+
+        var _this = this 
         tP['sampleImage'] = await this.IB.get_by_name(sampleId)
-        tP['choiceImage'] = await Promise.all([this.IB.get_by_name(sampleId), this.IB.get_by_name(sampleId)]) 
+        tP['choiceImage'] = await Promise.all(choiceId.map(function(entry){_this.IB.get_by_name(entry)})) 
 
-        tP['fixationXCentroid'] = 0.5
-        tP['fixationYCentroid'] = 0.8
-        tP['fixationRadiusDegrees'] = 3
+        tP['choiceImage'] = [await this.IB.get_by_name(choiceId[0]), 
+        await this.IB.get_by_name(choiceId[1])]
 
-        tP['i_sampleBag'] = 0
-        tP['i_sampleId'] = 0
-        tP['sampleXCentroid'] = 0.5
-        tP['sampleYCentroid'] = 0.5 
-        tP['sampleRadiusDegrees'] = 8 
+        //await Promise.all(choiceId.map(function(entry){_this.IB.get_by_name(entry)})) 
 
-        tP['i_choiceBag'] = [0,1]
-        tP['i_choiceId'] = [0,1] // [0, 1,]
-        tP['choiceXCentroid'] = [0.2,0.8] 
-        tP['choiceYCentroid'] = [0.8, 0.8]
-        tP['choiceRadiusDegrees'] = [6, 6]
+        
+        tP['fixationXCentroid'] = tk['fixationXCentroid']
+        tP['fixationYCentroid'] = tk['fixationYCentroid']
+        tP['fixationRadiusDegrees'] = tk['fixationRadiusDegrees']
 
-        tP['actionXCentroid'] = [0.2,0.8] 
-        tP['actionYCentroid'] = [0.8, 0.8]
-        tP['actionRadiusDegrees'] = [6, 6]
+        tP['i_sampleBag'] = sampleIdx['bag']
+        tP['i_sampleId'] = sampleIdx['id']
+        tP['sampleXCentroid'] = tk['sampleXCentroid']
+        tP['sampleYCentroid'] = tk['sampleYCentroid'] 
+        tP['sampleRadiusDegrees'] = tk['sampleRadiusDegrees']
 
-        tP['choiceRewardMap'] = [0, 1]
+        tP['i_choiceBag'] = choiceIdx['bag']
+        tP['i_choiceId'] = choiceIdx['id']
+        tP['choiceXCentroid'] = tk['choiceXCentroid']
+        tP['choiceYCentroid'] = tk['choiceYCentroid']
+        tP['choiceRadiusDegrees'] = tk['choiceRadiusDegrees']
 
-        tP['sampleOn'] = 200 
-        tP['sampleOff'] = 0
-        tP['choiceTimeLimit'] = 5000 
-        tP['punishTimeOut'] = 2000
-        tP['rewardTimeOut'] = 150
+        tP['actionXCentroid'] = tk['actionXCentroid']
+        tP['actionYCentroid'] = tk['actionYCentroid']
+        tP['actionRadiusDegrees'] = tk['actionRadiusDegrees']
 
+        tP['choiceRewardMap'] = rewardMap
+
+        tP['sampleOnMsec'] = tk['sampleOnMsec'] 
+        tP['sampleOffMsec'] = tk['sampleOffMsec']
+        tP['choiceTimeLimitMsec'] = tk['choiceTimeLimitMsec'] 
+        tP['punishTimeOutMsec'] = tk['punishTimeOutMsec']
+        tP['rewardTimeOutMsec'] = tk['rewardTimeOutMsec']
 
         return tP
     }
@@ -100,7 +217,7 @@ class TaskStreamerClass{
 
             // Terminate task
             if (endBehavior == 'terminate'){
-                TERMINAL_STATE = true
+                this.TERMINAL_STATE = true
             }
             // Continue current stage
             else if (endBehavior == 'continue'){
@@ -332,7 +449,7 @@ class TaskStreamerClass{
                         this.state['returns_in_stage'] = [] 
                     }
                     else if(this.on_finish == 'terminate' ){
-                        TERMINAL_STATE = true
+                        this.TERMINAL_STATE = true
                         return 
                     }
                     else if(this.on_finish == 'continue'){
@@ -356,61 +473,7 @@ class TaskStreamerClass{
 
     
 
-    async build(num_trials_per_stage_to_prebuffer){
-        num_trials_per_stage_to_prebuffer = num_trials_per_stage_to_prebuffer || 10
-        console.log('Constructing new trial queue')
-
-
-        var Experiment = this.Game
-        this.EXPERIMENT_hash = JSON.stringify(Experiment).hashCode()
-
     
-
-        // Prebuffer stages of Game
-        for (var i_stage = 0; i_stage < Experiment.length; i_stage++){
-
-            var _tk = Experiment[i_stage]
-
-            
-            if(i_stage == this.state['current_stage']){
-                var start_trial_number = this.state['current_stage_trial_number']                 
-            }
-            else{
-                var start_trial_number = 0
-            }
-
-            updateProgressbar((i_stage+1)/Experiment.length*100, 'AutomatorLoadBar', 'Stages loaded:')
-            
-            var image_requests = new Set()
-            for (var i_trial = start_trial_number; i_trial < start_trial_number + num_trials_per_stage_to_prebuffer; i_trial++){
-                var _RNGseed = cantor(i_trial, _tk['samplingRNGseed'])
-                var sample = this.selectSampleImage(_tk['SampleImageBagNames'], _RNGseed)
-
-                // SR or MTS 
-                if (_tk['Task'] == 'SR'){
-                    var test = this.selectTestImagesSR(_tk['TestImageBagNames'], _RNGseed)
-                }
-                else if(_tk['Task'] == 'MTS'){
-                    var nway = _tk['Nway'] || 2
-                    var test = this.selectTestImagesMTS(_tk['TestImageBagNames'], sample['bag_index'], nway, _RNGseed)
-                }
-                
-                image_requests.add(sample['image_name'])
-                for (var i_test = 0; i_test<test['image_name'].length; i_test++){
-                    image_requests.add(test['image_name'][i_test])
-                }
-                
-                await this.IB.cache_these_images(image_requests)
-            }
-
-            wdm('Loaded stage '+(i_stage+1)+' of '+Experiment.length)
-        }
-
-        this._initial_state = JSON.parse(JSON.stringify(this.state))
-
-        return 
-    }
-
     
     _generate_default_state(){
         this.state['current_stage'] = 0
