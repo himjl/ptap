@@ -19,7 +19,7 @@ class DataWriter{
             }
             if(!this.trialData.hasOwnProperty(key)){
                 this.trialData[key] = []
-                console.log('Added property ', key, ' to trialData')
+                //console.log('Added property ', key, ' to trialData')
             }
             this.trialData[key].push(trialOutcome[key])
         }

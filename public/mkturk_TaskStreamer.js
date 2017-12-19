@@ -7,10 +7,11 @@ class TaskStreamerClass{
         this.CheckPointer = CheckPointer
         
         // State info
-        this.taskNumber = 0 // CheckPointer.getTaskNumber() || 0 
-        this.trialNumberTask = 0 // CheckPointer.getTrialNumberTask() || 0
-        this.taskReturnHistory = [] // CheckPointer.getTaskReturnHistory() || [] 
-        this.taskActionHistory = [] // CheckPointer.getTaskActionHistory() || []
+        this.taskNumber = CheckPointer.get_task_number()  
+        this.trialNumberTask = CheckPointer.get_trial_number_task() 
+        this.trialNumberSession = 0
+        this.taskReturnHistory = CheckPointer.get_task_return_history()  
+        this.taskActionHistory = CheckPointer.get_task_action_history() 
 
         this.TERMINAL_STATE = false
         this.monitoring = true
@@ -89,9 +90,13 @@ class TaskStreamerClass{
         // SR - select choice
         if (tk['taskType'] == 'SR'){
             var rewardMap = tk['rewardMap'][sampleBag]
+
+            // if custom tokens are specified, use those 
+
             var choiceId = rewardMap.map(function(entry){return 'dot'})
             var choiceIdx = {'bag':np.nans(choiceId.length),
                             'id':np.nans(choiceId.length)}
+        
         }
 
         // MTS - select choice
@@ -189,56 +194,6 @@ class TaskStreamerClass{
 
         return id
     }
-    async update_state(trialOutcome){
-        var rewardAmount = trialOutcome['return']
-        // update counters 
-        this.taskReturnHistory.push(rewardAmount)
-
-
-        // Check if transition criterion is met
-        var transitionCriterionMet = false
-        var averageReturnCriterion = this.game[this.taskNumber]['averageReturnCriterion']
-        var minTrialsCriterion = this.game[this.taskNumber]['minTrialsCriterion']
-        
-        if (this.taskReturnHistory.length < minTrialsCriterion){
-            return 
-        }
-
-        var lastNreturns = this.taskReturnHistory.slice(-1 * minTrialsCriterion) 
-        if(averageReturn >= np.mean(lastNreturns)){
-            transitionCriterionMet = true
-        }
-
-        if (transitionCriterionMet == true){
-            this.taskNumber++ 
-            this.trialNumberTask = 0
-            this.taskReturnHistory = []
-        }
-        
-        // Check if at the end of the game (then repeat, continue, or terminate).
-        if (this.taskNumber > this.game['taskSequence'].length){
-            var endBehavior = this.game['onFinish']
-
-            // Terminate task
-            if (endBehavior == 'terminate'){
-                this.TERMINAL_STATE = true
-            }
-            // Continue current stage
-            else if (endBehavior == 'continue'){
-                this.taskNumber--
-                this.trialNumberTask = 0 
-                this.taskReturnHistory = []
-            }
-            // Start over from beginning (default behavior)
-            else{
-                this.taskNumber = 0 
-                this.trialNumberTask = 0 
-                this.taskReturnHistory = []
-            }
-        }
-
-        return
-    }
 
     update_state(current_trial_outcome){
        // trial_behavior: the just-finished trial's behavior. 
@@ -252,7 +207,8 @@ class TaskStreamerClass{
 
         this.taskReturnHistory.push(r)
         this.taskActionHistory.push(action)
-
+        this.trialNumberTask++
+        this.trialNumberSession++
         // TODO - probability repeat if wrong
         //var probabilityRepeatWhenWrong = tk['probabilityRepeatWhenWrong'] || 0
         
@@ -277,6 +233,7 @@ class TaskStreamerClass{
                 this.taskNumber++
                 this.taskReturnHistory = []
                 this.taskActionHistory = []
+                this.trialNumberTask = 0
             }
         }
 
@@ -295,6 +252,16 @@ class TaskStreamerClass{
                 }
             }
         }
+
+        // Update checkpoint 
+        var checkpointPackage = {
+            'taskNumber': this.taskNumber, 
+            'trialNumberTask': this.trialNumberTask, 
+            'return':r, 
+            'action':action
+        }
+        this.CheckPointer.update(checkpointPackage)
+        this.CheckPointer.request_checkpoint_save()
         return 
     }
 

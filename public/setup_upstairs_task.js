@@ -36,7 +36,8 @@ async function setupUpstairsTask(sessionPackage){
    SIO = new S3_IO() 
    DataWriter = new DataWriter(DIO, savePath)
    UX = new UX_poller()
-   CheckPointer = new DropboxCheckPointer()
+   CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, ENVIRONMENT)
+   await CheckPointer.build()
    IB = new ImageBuffer(SIO)
 
    console.log('Loading from landing page')

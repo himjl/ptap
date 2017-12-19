@@ -51,3 +51,14 @@ var last_paramfile_check = performance.now()
 
 var CHECKPOINT_SAVE_TIMEOUT_PERIOD = 7500 // Save at most every n milliseconds
 // ------ todo: move into params file -
+
+class INSTALL_SETTINGS{
+    constructor(){
+
+    }
+
+    static checkpointDirPath(){
+        var CHECKPOINT_DIRPATH = "/MonkeyTurk_upstairs/Subjects/SubjectCheckpoints/"
+        return CHECKPOINT_DIRPATH
+    }
+}
