@@ -91,6 +91,23 @@ class np{
     return x
   }
 
+  static nans(n){
+    var x = []
+    for (var i = 0; i < n; i++){
+      x.push(NaN)
+    }
+    return x
+  }
+  
+  static xvec(n, x){
+    // populates a vector of length n with x
+    var y = []
+    for (var i = 0; i < n; i++){
+      y.push(x)
+    }
+    return y
+  }
+
   static iloc(arr, idx){
     
     if(idx.constructor != Array){

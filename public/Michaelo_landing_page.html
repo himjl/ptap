@@ -20,7 +20,8 @@
     GAME = {'gameID':'testgame',
             "periodicRewardIntervalMsec":60000,
             "periodicRewardAmount":1,
-            "bonusUSDPerCorrect":0
+            "bonusUSDPerCorrect":0, 
+            "onFinish":"loop", // terminate, continue
     }
 
     TASK_SEQUENCE = [{
@@ -48,6 +49,9 @@
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
                     "rewardTimeOutMsec":150,
+                    "probabilityRepeatWhenWrong":0,
+                    "averageReturnCriterion":0.8, 
+                    "minTrialsCriterion":5,
                     }]
 
     TASK_SEQUENCE = [{
@@ -74,6 +78,9 @@
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
                     "rewardTimeOutMsec":150,
+                    "probabilityRepeatWhenWrong":0.5,
+                    "averageReturnCriterion":0.8, 
+                    "minTrialsCriterion":5,
                     }]
 
     ENVIRONMENT = {

@@ -1,17 +1,20 @@
 class TaskStreamerClass{
     constructor(Game, taskSequence, ImageBags, IB, CheckPointer){
-        this.Game = Game
+        this.game = Game
         this.taskSequence = taskSequence
         this.imageBags = ImageBags
         this.IB = IB 
         this.CheckPointer = CheckPointer
         
         // State info
-        this.taskNumber = CheckPointer.getTaskNumber() || 0 
-        this.trialNumberTask = CheckPointer.getTrialNumberTask() || 0
-        this.taskReturnHistory = CheckPointer.getTaskReturnHistory() || [] 
+        this.taskNumber = 0 // CheckPointer.getTaskNumber() || 0 
+        this.trialNumberTask = 0 // CheckPointer.getTrialNumberTask() || 0
+        this.taskReturnHistory = [] // CheckPointer.getTaskReturnHistory() || [] 
+        this.taskActionHistory = [] // CheckPointer.getTaskActionHistory() || []
 
         this.TERMINAL_STATE = false
+        this.monitoring = true
+
     }
     async build(num_trials_per_stage_to_prebuffer){
         this.bag2idx = {}
@@ -87,7 +90,8 @@ class TaskStreamerClass{
         if (tk['taskType'] == 'SR'){
             var rewardMap = tk['rewardMap'][sampleBag]
             var choiceId = rewardMap.map(function(entry){return 'dot'})
-            var choiceIdx = rewardMap.map(function(entry){return {'bag':undefined, 'id':undefined}})
+            var choiceIdx = {'bag':np.nans(choiceId.length),
+                            'id':np.nans(choiceId.length)}
         }
 
         // MTS - select choice
@@ -193,8 +197,8 @@ class TaskStreamerClass{
 
         // Check if transition criterion is met
         var transitionCriterionMet = false
-        var averageReturnCriterion = this.Game[this.taskNumber]['averageReturnCriterion']
-        var minTrialsCriterion = this.Game[this.taskNumber]['minTrialsCriterion']
+        var averageReturnCriterion = this.game[this.taskNumber]['averageReturnCriterion']
+        var minTrialsCriterion = this.game[this.taskNumber]['minTrialsCriterion']
         
         if (this.taskReturnHistory.length < minTrialsCriterion){
             return 
@@ -212,8 +216,8 @@ class TaskStreamerClass{
         }
         
         // Check if at the end of the game (then repeat, continue, or terminate).
-        if (this.taskNumber > this.Game['taskSequence'].length){
-            var endBehavior = this.Game['onFinish']
+        if (this.taskNumber > this.game['taskSequence'].length){
+            var endBehavior = this.game['onFinish']
 
             // Terminate task
             if (endBehavior == 'terminate'){
@@ -236,250 +240,64 @@ class TaskStreamerClass{
         return
     }
 
-    async get_checkpoint(){
-        var checkpoint
-        return checkpoint
-    }
-
-
-    selectSampleImage(SampleBagNames, RNGseed){
-    
-        Math.seedrandom(RNGseed)
-
-        // Select sample class 
-        var num_classes = SampleBagNames.length
-        var selected_bag_index = Math.floor(Math.random()*num_classes)
-
-        var selected_bag_name = SampleBagNames[selected_bag_index]
-
-        // Select image inside of that class
-        var num_bag_images = this.ImageBags[selected_bag_name].length
-        var selected_image_index = Math.floor(Math.random() * num_bag_images)
-        var selected_image_name = this.ImageBags[selected_bag_name][selected_image_index]
-
-        var sample = {'bag_name':selected_bag_name, 
-                        'bag_index':selected_bag_index,
-                        'image_index':selected_image_index, 
-                        'image_name': selected_image_name}
-
-        return sample
-    }
-
-    selectTestImagesSR(){
-        
-        Math.seedrandom(RNGseed)
-
-        // Select distractor (SR)
-        var num_classes = E['TestImageBagNames'].length
-
-        var test = {}
-        test['bag_name'] = []
-        test['bag_index'] = []
-        test['image_index'] = []
-        test['image_name'] = []
-
-        for (var i_choice_class = 0; i_choice_class<num_classes; i_choice_class++){
-            // Get name of class
-            var bag_name = E['TestImageBagNames'][i_choice_class]
-
-            // Select image inside of that class 
-            var test_image_index = Math.floor(Math.random()*this.ImageBags[bag_name].length)
-            var test_image_name = this.ImageBags[bag_name][test_image_index]
-
-            test['bag_name'].push(bag_name)
-            test['bag_index'].push(i_choice_class)
-            test['image_index'].push(test_image_index)
-            test['image_name'].push(test_image_name)
-        }
-
-
-        return test 
-    }
-
-    selectTestImagesMTS(sample_bag_index, nway, RNGseed){
-        // Guarantees one of the images is from E['TestImageBagNames'][sample_bag_index]
-        // returns nway images 
-
-        Math.seedrandom(RNGseed)
-
-        // Select distractor (SR)
-        var num_distractors = nway - 1
-
-        var test = {}
-        test['bag_name'] = []
-        test['bag_index'] = []
-        test['image_index'] = []
-        test['image_name'] = []
-
-        // Randomly select the token for the sample class
-        var samplebag_name = E['TestImageBagNames'][sample_bag_index]
-
-
-        var sample_image_index = Math.floor(Math.random()*this.ImageBags[samplebag_name].length)
-        test['bag_name'].push(E['TestImageBagNames'][sample_bag_index])
-        test['bag_index'].push(sample_bag_index)
-        test['image_index'].push(sample_image_index)
-        test['image_name'].push(this.ImageBags[samplebag_name][sample_image_index])
-
-        // Randomly select distractors
-
-        var DistractorBagNames = JSON.parse(JSON.stringify(E['TestImageBagNames']))// so it doesn't overwrite input arg
-        DistractorBagNames.splice(sample_bag_index, 1)
-        DistractorBagNames = shuffle(DistractorBagNames, RNGseed) // random order
-
-        var _cnt = 0 // num distractors added 
-        for (var i_choice_class = 0; i_choice_class<DistractorBagNames.length; i_choice_class++){
-            if(DistractorBagNames[i_choice_class] == samplebag_name){
-                continue 
-                // If test image the match of sample, continue.
-            }
-            
-            if(_cnt == nway-1){
-                break 
-            }
-
-            var bag_name = DistractorBagNames[i_choice_class]
-
-            // Select image inside of that class that is not same as sample
-            var test_image_index = Math.floor(Math.random()*this.ImageBags[bag_name].length)
-            var test_image_name = this.ImageBags[bag_name][test_image_index]
-
-            test['bag_name'].push(bag_name)
-            test['bag_index'].push(Object.keys(this.ImageBags).indexOf(bag_name)) // todo: possibly performance heavy with many imagebags
-            test['image_index'].push(test_image_index)
-            test['image_name'].push(test_image_name)
-            _cnt++
-        }
-
-
-        return test 
-    }
-
-
-    
-
-    _check_transition_criterion(){
-        var min_trials = this.Game[this.state['current_stage']]['MinTrialsCriterion']
-        var average_return_criterion = this.Game[this.state['current_stage']]['AverageReturnCriterion']
-        if (average_return_criterion > 1){
-            // assume user meant percent
-            average_return_criterion = average_return_criterion / 100
-            console.log('User specified averageReturnCriterion as >1. Assuming percent..', average_return_criterion)
-
-        }
-   
-
-        if(min_trials == undefined 
-            || min_trials <=0 
-            || average_return_criterion == undefined
-            || average_return_criterion < 0){
-            return false
-        }
-
-        if(this.state['returns_in_stage'].length < min_trials){
-            // Haven't reached minimum number of trials
-            return false 
-        }
-
-        var average_return_for_last_min_trials = (this.state['returns_in_stage'].slice(-1 * min_trials).reduce(add, 0)) / min_trials
-        wdm('Average return for last '+min_trials+': '+average_return_for_last_min_trials)
-        if(average_return_for_last_min_trials >= average_return_criterion){
-            return true
-        }
-        else if(average_return_for_last_min_trials < average_return_criterion){
-            return false
-        }
-    }
-
     update_state(current_trial_outcome){
        // trial_behavior: the just-finished trial's behavior. 
         // called at the end of every trial. 
         // Update trial object 
 
-        return 
-        var Return = current_trial_outcome['Return']
+        var tk = this.taskSequence[this.taskNumber]
+        var b = current_trial_outcome
+        var r = b['return']
+        var action = current_trial_outcome['action']
 
-        var action = current_trial_outcome['Response_GridIndex']
-        this.lastActions.push(action)
-        this.lastReturns.push(Return)
+        this.taskReturnHistory.push(r)
+        this.taskActionHistory.push(action)
 
-        if(this.actionReturns[action] == undefined){
-            this.actionReturns[action] = []
+        // TODO - probability repeat if wrong
+        //var probabilityRepeatWhenWrong = tk['probabilityRepeatWhenWrong'] || 0
+        
+        if (this.monitoring == false){
+            return
         }
-        this.actionReturns[action].push(Return)
 
-        
-        
+        // Check transition criterion 
+        var averageReturnCriterion = tk['averageReturnCriterion']
+        var minTrialsCriterion = tk['minTrialsCriterion']
 
-        this.trial_behavior = this.update_behavior_records(this.trial_behavior, current_trial_outcome)
+        if(averageReturnCriterion > 1){
+            // Assume percent if user specified above 1
+            averageReturnCriterion = averageReturnCriterion / 100 
+        }
 
-        var _repeat_if_wrong_probability = this.Game[this.state.current_stage]['probability_repeat_trial_if_wrong'] || 0
-        if(Return == 0){
-
-            var repeat_rng_seed = cantor(this.state['current_stage'], this.Game[this.state.current_stage]['samplingRNGseed'])
-            var repeat_rng_seed = cantor(repeat_rng_seed, Math.round(performance.now()/100))
-            Math.seedrandom(repeat_rng_seed)
-
-            if(Math.random() < _repeat_if_wrong_probability){
-                console.log('repeating TRIAL because of wrong response')
-                this.state['current_stage_trial_number'] = this.state['current_stage_trial_number'] // Repeat trial
+        var transition = false
+        if (this.taskReturnHistory.length >= minTrialsCriterion ){
+            var averageReturn = np.mean(this.taskReturnHistory.slice(-1 * minTrialsCriterion))
+            if(averageReturn >= averageReturnCriterion){
+                transition = true
+                this.taskNumber++
+                this.taskReturnHistory = []
+                this.taskActionHistory = []
             }
-            else{
-                this.state['current_stage_trial_number']++
-            }
         }
-        else{
-            this.state['current_stage_trial_number']++ // Equivalent to number of trials completed
-        }
-        
-            
-        this.state['returns_in_stage'].push(Return) 
 
-        // Check transition criterion, if monitoring 
-        if(this._done_monitoring == false){
-            var transition_criterion_met = this._check_transition_criterion()
-            if(transition_criterion_met == true){
-                updateProgressbar(this.state['current_stage_trial_number']+1 / this.Game.length*100, 'StageBar', 'Stages finished:')
-                
-                if(this.state['current_stage'] + 1 >= this.Game.length){
-                    // Out of stages; start looping or continue current stage 
-                    if (this.on_finish == 'loop'){
-                        this.state['current_stage'] = 0 
-                        this.state['current_stage_trial_number'] = 0
-                        this.state['returns_in_stage'] = [] 
-                    }
-                    else if(this.on_finish == 'terminate' ){
-                        this.TERMINAL_STATE = true
-                        return 
-                    }
-                    else if(this.on_finish == 'continue'){
-                        this._done_monitoring = true
-                    }
-                    else{
-                        // just loop (default)
-                        this.state['current_stage'] = 0 
-                        this.state['current_stage_trial_number'] = 0
-                        this.state['returns_in_stage'] = [] 
-                    }
+        // Check termination condition
+        if(transition == true){
+            if(this.taskNumber >= this.taskSequence.length){
+                var onFinish = this.game['onFinish']
+                if(onFinish == 'loop'){
+                    this.taskNumber = 0
                 }
-                else{
-                    this.state['current_stage']++
-                    this.state['current_stage_trial_number'] = 0 
-                    this.state['returns_in_stage'] = []
-                }            
+                else if(onFinish == 'terminate'){
+                    this.TERMINAL_STATE = true 
+                }
+                else if(onFinish == 'continue'){
+                    this.monitoring = false
+                }
             }
         }
+        return 
     }
 
-    
-
-    
-    
-    _generate_default_state(){
-        this.state['current_stage'] = 0
-        this.state['current_stage_trial_number'] = 0
-        this.state['returns_in_stage'] = []
-    }
 }
 
 

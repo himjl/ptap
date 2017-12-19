@@ -18,6 +18,8 @@ class ScreenDisplayer{
         this.canvas_reward = this.createCanvas('canvas_reward')
         this.canvas_punish = this.createCanvas('canvas_punish')
         this.canvas_fixation = this.createCanvas('canvas_fixation', true)
+        
+        this.resizeTimeout = false
     }
 
     async build(){
@@ -52,27 +54,18 @@ class ScreenDisplayer{
         return this._sequence_canvases[sequence_id][i_frame]
     }
 
-    async refreshCurrentFrames(){
-        if(performance.now() - this.lastRefreshCall < this.refreshTimeoutPeriod){
-            return
-        }
-
-        this.lastRefreshCall = performance.now()
-    }
-    
-    async bufferStimulusSequence(
-        sampleImage, 
-        sampleOn, 
-        sampleOff, 
-        sampleRadiusPixels, 
-        sampleXCentroid, 
-        sampleYCentroid,
-        choiceImage, 
-        choiceRadiusPixels, 
-        choiceXCentroid, 
-        choiceYCentroid
-        ){
-
+   
+    async bufferStimulusSequence(stimulusFramePackage){
+        var sampleImage = stimulusFramePackage['sampleImage'] 
+        var sampleOn = stimulusFramePackage['sampleOn'] 
+        var sampleOff = stimulusFramePackage['sampleOff'] 
+        var sampleRadiusPixels = stimulusFramePackage['sampleRadiusPixels'] 
+        var sampleXCentroid = stimulusFramePackage['sampleXCentroid'] 
+        var sampleYCentroid = stimulusFramePackage['sampleYCentroid']
+        var choiceImage = stimulusFramePackage['choiceImage'] 
+        var choiceRadiusPixels = stimulusFramePackage['choiceRadiusPixels'] 
+        var choiceXCentroid = stimulusFramePackage['choiceXCentroid'] 
+        var choiceYCentroid = stimulusFramePackage['choiceYCentroid']        
 
         var frame_canvases = []
         var frame_durations = []
@@ -160,15 +153,14 @@ class ScreenDisplayer{
         await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
 
         return 
-
     }
 
  
-async bufferFixation(
-    xcentroid_pixel, 
-    ycentroid_pixel, 
-    fixationRadius_pixel, 
-    ){
+async bufferFixation(fixationFramePackage){
+
+    var xcentroid_pixel = fixationFramePackage['fixationXCentroidPixels'] 
+    var ycentroid_pixel = fixationFramePackage['fixationYCentroidPixels']
+    var fixationRadius_pixel = fixationFramePackage['fixationRadiusPixels'] 
     // input arguments in playspace units 
 
     // Clear canvas if different 
@@ -205,18 +197,27 @@ async drawDot(xcentroid_pixel, ycentroid_pixel, pixelradius, color, canvasobj){
 
 
 renderBlank(canvasobj){
-    var context=canvasobj.getContext('2d');
-    context.fillStyle="#7F7F7F";
-    var width = parseFloat(canvasobj.style.width)
-    var height = parseFloat(canvasobj.style.height)
+    if (canvasobj.constructor != Array){
+        canvasobj = [canvasobj]
+    }
 
-    context.fillRect(0,0,width,height);
-    context.fill()
+    for (var i in canvasobj){
+        var i_canvasobj = canvasobj[i]
+        var context=i_canvasobj.getContext('2d');
+        context.fillStyle="#7F7F7F";
+        var width = parseFloat(i_canvasobj.style.width)
+        var height = parseFloat(i_canvasobj.style.height)
+
+        context.fillRect(0,0,width,height);
+        context.fill()
+
+    }
+    
 }
 
 async displayFixation(){
     var timestamps = await this.displayScreenSequence(this.canvas_fixation, 0)
-    return timestamps
+    return timestamps[0]
 }
 
 async displayBlank(){

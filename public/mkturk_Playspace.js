@@ -58,11 +58,13 @@ class PlaySpaceClass{
         var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
         var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
         var fixationRadiusPixels = this.deg2pixels(trialPackage['fixationRadiusDegrees'] )
-        await this.ScreenDisplayer.bufferFixation(
-            fixationXCentroidPixels, 
-            fixationYCentroidPixels, 
-            fixationRadiusPixels
-            )
+
+        var fixationFramePackage = {
+            'fixationXCentroidPixels':fixationXCentroidPixels,
+            'fixationYCentroidPixels':fixationYCentroidPixels, 
+            'fixationRadiusPixels':fixationRadiusPixels,
+        }
+        await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
 
         // Stimulus sequence
         var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
@@ -73,17 +75,20 @@ class PlaySpaceClass{
         var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid'])
         var choiceRadiusPixels = this.deg2pixels(trialPackage['choiceRadiusDegrees'])
 
-        await this.ScreenDisplayer.bufferStimulusSequence(
-            trialPackage['sampleImage'], 
-            trialPackage['sampleOnMsec'], 
-            trialPackage['sampleOffMsec'], 
-            sampleRadiusPixels, 
-            sampleXCentroidPixels, 
-            sampleYCentroidPixels,
-            trialPackage['choiceImage'], 
-            choiceRadiusPixels, 
-            choiceXCentroidPixels, 
-            choiceYCentroidPixels)
+        var stimulusFramePackage = {
+            'sampleImage':trialPackage['sampleImage'],
+            'sampleOn':trialPackage['sampleOnMsec'],
+            'sampleOff':trialPackage['sampleOffMsec'],
+            'sampleRadiusPixels':sampleRadiusPixels,
+            'sampleXCentroid':sampleXCentroidPixels,
+            'sampleYCentroid':sampleYCentroidPixels,
+            'choiceImage':trialPackage['choiceImage'],
+            'choiceRadiusPixels':choiceRadiusPixels,
+            'choiceXCentroid':choiceXCentroidPixels,
+            'choiceYCentroid':choiceYCentroidPixels,
+        }
+
+        await this.ScreenDisplayer.bufferStimulusSequence(stimulusFramePackage)
 
         // *************** Run trial *************************
 
@@ -261,7 +266,9 @@ class PlaySpaceClass{
             _this.ScreenDisplayer.calibrateBounds(bounds)
             _this.ActionPoller.calibrateBounds(bounds)
 
-            _this.ScreenDisplayer.refreshCurrentFrames()
+            // https://stackoverflow.com/questions/5489946/jquery-how-to-wait-for-the-end-of-resize-event-and-only-then-perform-an-ac
+            // TODO: rebuffer frames on resize (needs to be controlled by Playspace?) - retranslate canvas 
+            //_this.ScreenDisplayer.requestRefreshCurrentFrames()
 
             console.log('onWindowResize', bounds['leftbound'], bounds['topbound'])
         }
