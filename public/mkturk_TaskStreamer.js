@@ -140,11 +140,16 @@ class TaskStreamerClass{
         // Construct image request 
 
         var _this = this 
-        tP['sampleImage'] = await this.IB.get_by_name(sampleId)
-        tP['choiceImage'] = await Promise.all(choiceId.map(function(entry){_this.IB.get_by_name(entry)})) 
+        var imageRequests = []
+        imageRequests.push(this.IB.get_by_name(sampleId))
+        for (var i in choiceId){
+            imageRequests.push(this.IB.get_by_name(choiceId[i]))
+        }
+    
+        var images = await Promise.all(imageRequests)        
+        tP['sampleImage'] = images[0]
+        tP['choiceImage'] = images.slice(1)
 
-        tP['choiceImage'] = [await this.IB.get_by_name(choiceId[0]), 
-        await this.IB.get_by_name(choiceId[1])]
 
         //await Promise.all(choiceId.map(function(entry){_this.IB.get_by_name(entry)})) 
 

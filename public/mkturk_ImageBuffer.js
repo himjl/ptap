@@ -26,7 +26,10 @@ constructor(DIO){
 
 // ------- Image blob getting functions ----------------------------
 async get_by_name(filename){
-	
+	if(filename == 'dot'){
+		return filename
+	}
+
 	try{
 		// Requested image not in buffer. Add it, then return. 
 		if (filename in this.cache_dict){
