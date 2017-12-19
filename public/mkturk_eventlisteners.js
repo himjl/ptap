@@ -3,8 +3,9 @@ function doneTestingTask_listener(event){
 	event.preventDefault()
 	//console.log("User is done testing. Start saving data");
 	FLAGS.debug_mode = 0
-	
+
 	document.querySelector("button[name=doneTestingTask]").style.display = "none"
+	TaskStreamer.reset()
 	return
 }
 

@@ -6,23 +6,31 @@ class TaskStreamerClass{
         this.IB = IB 
         this.CheckPointer = CheckPointer
         
+
         // State info
         this.taskNumber = CheckPointer.get_task_number()  
         this.trialNumberTask = CheckPointer.get_trial_number_task() 
         this.trialNumberSession = 0
         this.taskReturnHistory = CheckPointer.get_task_return_history()  
         this.taskActionHistory = CheckPointer.get_task_action_history() 
-
         this.TERMINAL_STATE = false
         this.monitoring = true
 
+
+        this.onLoadState = {
+            'taskNumber': this.taskNumber,
+            'trialNumberTask': this.trialNumberTask,
+            'trialNumberSession': this.trialNumberSession,
+            'taskReturnHistory': this.taskReturnHistory,
+            'taskActionHistory': this.taskActionHistory,
+            'TERMINAL_STATE': this.TERMINAL_STATE,
+            'monitoring': this.monitoring,
+        }
     }
     async build(num_trials_per_stage_to_prebuffer){
         this.bag2idx = {}
         this.idx2bag = {}
         this.id2idx = {}
-
-        
 
         var i_bag = 0
         var bagsAlphabetized = Object.keys(this.imageBags).sort()
@@ -39,6 +47,16 @@ class TaskStreamerClass{
                 this.id2idx[bag][idAlphabetized[i_id]] = parseInt(i_id)
             }
         }
+    }
+
+    reset(){
+        this.taskNumber = this.onLoadState['taskNumber']
+        this.trialNumberTask = this.onLoadState['trialNumberTask']
+        this.trialNumberSession = this.onLoadState['trialNumberSession']
+        this.taskReturnHistory = this.onLoadState['taskReturnHistory']
+        this.taskActionHistory = this.onLoadState['taskActionHistory']
+        this.TERMINAL_STATE = this.onLoadState['TERMINAL_STATE']
+        this.monitoring = this.onLoadState['monitoring']
     }
 
     get_image_idx(bag_name, id){

@@ -55,8 +55,11 @@ verify_checkpoint(checkpoint){
 
     if(verified == false){
         console.log('Current game does not match checkpoint. Generating default... ')
-        checkpoint = this.generate_default_checkpoint
+        checkpoint = this.generate_default_checkpoint()
     }
+
+    console.log(this.generate_hash())
+    console.log(checkpoint['gameHash'])
     return checkpoint
 }
 

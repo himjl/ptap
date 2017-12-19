@@ -2,7 +2,6 @@ class DataWriter{
     constructor(DIO, savePath){
         this.DIO = DIO
         this.trialData = {}
-        this.sessionData = {} // doesn't change over the course of a session
         this.pollPeriodMsec = 60000
         this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
         this.lastSaveTimestamp = performance.now()

@@ -170,14 +170,14 @@ DataWriter.deposit_key_data('TASK_SEQUENCE', TASK_SEQUENCE)
 DataWriter.deposit_key_data('IMAGEBAGS', IMAGEBAGS)
 
 // Attach async data probes 
-DataWriter.attach_probe(Playspace, 'environmentLog', 'ENVIRONMENT_LOG')
+DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
 DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
 DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
 
 // Kick off async threads 
 Playspace.start_periodic_rewards()
 Playspace.start_action_tracking()
-Playspace.start_environment_tracking()
+Playspace.start_device_tracking()
 DataWriter.start_polling()
 
 // Main trial loop
@@ -192,6 +192,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
 }
 
 await DataWriter.concludeSession()
+await TaskStreamer.concludeSession()
 } ())
 
 </script>

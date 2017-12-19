@@ -37,7 +37,7 @@ class PlaySpaceClass{
 
         // Async trackers 
         this.rewardLog = {'t':[], 'n':[]}
-        this.environmentLog = {}
+        this.deviceLog = {}
 
     }
 
@@ -279,52 +279,52 @@ class PlaySpaceClass{
         console.log('Attached window resize listener')
     }
 
-    start_environment_tracking(environmentLog){
+    start_device_tracking(){
         // battery
         // resize events
-        this.environmentLog = {}
+        this.deviceLog = {}
         
         // ******** Battery ******** 
         // http://www.w3.org/TR/battery-status/
-        this.environmentLog['battery'] = {} 
-        this.environmentLog['battery']['level'] = [] 
-        this.environmentLog['battery']['dischargingTime'] = [] 
-        this.environmentLog['battery']['timestamp'] = [] 
+        this.deviceLog['battery'] = {} 
+        this.deviceLog['battery']['level'] = [] 
+        this.deviceLog['battery']['dischargingTime'] = [] 
+        this.deviceLog['battery']['timestamp'] = [] 
 
         var _this = this
         navigator.getBattery().then(function(batteryobj){
-            _this.environmentLog['battery']['level'].push(batteryobj.level)
-            _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-            _this.environmentLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
+            _this.deviceLog['battery']['level'].push(batteryobj.level)
+            _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+            _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
 
             batteryobj.addEventListener('levelchange',function(){
-                _this.environmentLog['battery']['level'].push(batteryobj.level)
-                _this.environmentLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-                _this.environmentLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
+                _this.deviceLog['battery']['level'].push(batteryobj.level)
+                _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+                _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
             })
           });
 
         // ******** Window resize ****
-        this.environmentLog['window'] = {}
-        this.environmentLog['window']['height'] = []
-        this.environmentLog['window']['width'] = []
-        this.environmentLog['window']['timestamp'] = []
+        this.deviceLog['window'] = {}
+        this.deviceLog['window']['height'] = []
+        this.deviceLog['window']['width'] = []
+        this.deviceLog['window']['timestamp'] = []
         window.addEventListener('resize', function(){
-            _this.environmentLog['window']['height'].push(getWindowHeight())
-            _this.environmentLog['window']['width'].push(getWindowWidth())
-            _this.environmentLog['window']['timestamp'].push(Math.round(performance.now()*1000)/1000)
+            _this.deviceLog['window']['height'].push(getWindowHeight())
+            _this.deviceLog['window']['width'].push(getWindowWidth())
+            _this.deviceLog['window']['timestamp'].push(Math.round(performance.now()*1000)/1000)
         })
 
         // ******** Device and browser ****
-        this.environmentLog.devicePixelRatio = window.devicePixelRatio || 1
-        this.environmentLog.navigator_appVersion = navigator.appVersion
-        this.environmentLog.navigator_platform = navigator.platform
-        this.environmentLog.navigator_userAgent = navigator.userAgent
-        this.environmentLog.navigator_vendor = navigator.vendor
-        this.environmentLog.navigator_language = navigator.language
-        this.environmentLog.unixTimestampPageLoad = window.performance.timing.navigationStart
-        this.environmentLog.currentDate = new Date;
-        this.environmentLog.url = window.location.href
+        this.deviceLog.devicePixelRatio = window.devicePixelRatio || 1
+        this.deviceLog.navigator_appVersion = navigator.appVersion
+        this.deviceLog.navigator_platform = navigator.platform
+        this.deviceLog.navigator_userAgent = navigator.userAgent
+        this.deviceLog.navigator_vendor = navigator.vendor
+        this.deviceLog.navigator_language = navigator.language
+        this.deviceLog.unixTimestampPageLoad = window.performance.timing.navigationStart
+        this.deviceLog.currentDate = new Date;
+        this.deviceLog.url = window.location.href
     }
 
     deg2inches(degrees){

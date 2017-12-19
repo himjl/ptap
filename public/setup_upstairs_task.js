@@ -36,7 +36,7 @@ async function setupUpstairsTask(sessionPackage){
    SIO = new S3_IO() 
    DataWriter = new DataWriter(DIO, savePath)
    UX = new UX_poller()
-   CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, ENVIRONMENT)
+   CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
    IB = new ImageBuffer(SIO)
 
@@ -64,14 +64,13 @@ async function setupUpstairsTask(sessionPackage){
 
 
     //========= Start in TEST mode =======//
+
+    
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
 
-    // Make sync button visible 
-    document.querySelector("button[name=SyncButton]").style.visibility = "visible"
+    
 
-
-    toggleElement(0, 'SyncButton')
     toggleElement(0, 'TrialCounter')
     Playspace.toggleBorder(1)
     document.getElementById('drive_juice_button').style.visibility = "hidden"
