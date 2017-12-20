@@ -58,7 +58,7 @@
   <input type="image"  class='DeviceButton' id = 'TabletImage' src="tutorial_images/tablet.png " alt="Tablet" onclick="setDeviceSelection(this, 'touchscreen')" />
 
   <span>
-  <button style="text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); FLAGS.clicked_device_selection(SESSION.MechanicalTurk_DeviceSelected)" id='CloseDeviceSelectionButton' disabled> <i>Make selection...</i> </button>
+  <button style="text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); FLAGS.clicked_device_selection(UX.MechanicalTurk_DeviceSelected)" id='CloseDeviceSelectionButton' disabled> <i>Make selection...</i> </button>
   </span>
 </div>
 
@@ -69,7 +69,7 @@
   <input type="image"  class='HandButton' id = 'RightHandImage' src="tutorial_images/right_hand.png " alt="Righthanded" onclick="setHandSelection(this, 'right')" />
 
   <span>
-  <button style="text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(SESSION.MechanicalTurk_Handedness)" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>
+  <button style="text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(UX.MechanicalTurk_Handedness)" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>
   </span>
 </div>
 
@@ -77,21 +77,6 @@
 
 <button id = 'WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
 
-<dialog id="subjectID_dialog">
-  <p>Select subject: </p>
-   <!--Pull down menu that will hold file list-->
-  <select id="subjectID_list">
-  	<option value="-1">--</option>
-  </select>
-</dialog>
-
-<dialog id="ExperimentFile_dialog">
-  <p>Select experiment: </p>
-   <!--Pull down menu that will hold file list-->
-  <select id="ExperimentFile_list">
-  	<option value="-1">--</option>
-  </select>
-</dialog>
 
 <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
 <script src="setup_upstairs_session.js" type="text/javascript"></script>

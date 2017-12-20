@@ -27,15 +27,14 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
 
-
-  var skip_preview_mode = false
+  var skip_preview_mode = true
   if(skip_preview_mode == false){
       console.log('RUNNING IN PREVIEW MODE')
       var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')
+      UX.show_preview_splash()
       while(true){
         await Playspace.run_tutorial_trial(tutorialImage)
       }
-      
   }
 
   var show_instructions = true
@@ -43,11 +42,17 @@ async function setup_mechanicalturk_session(sessionPackage){
     await UX.run_instructions_dialogue()
   }
 
-  var show_device_selection = true 
-  if(show_device_selection){
-    await UX.run_device_selection_dialogue()
+  var show_hand_selection = true 
+  if(show_hand_selection == true){
+    ENVIRONMENT['handedness'] = await UX.run_hand_selection_dialogue()
   }
-    
+
+  var show_device_selection = true 
+  if(show_device_selection){    
+    ENVIRONMENT['inputDevice'] = await UX.run_device_selection_dialogue()
+  }
+
+  
   TaskStreamer.debug2record()
   Playspace.debug2record()
   DataWriter.debug2record()
@@ -60,6 +65,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   gamePackage['UX'] = UX 
   return gamePackage
 }
+
 
 
 

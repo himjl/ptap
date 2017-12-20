@@ -1,5 +1,5 @@
 function setDeviceSelection(element, devicename){
-	SESSION.MechanicalTurk_DeviceSelected = devicename 
+	UX.MechanicalTurk_DeviceSelected = devicename 
 	var device_option_elements = document.querySelectorAll(".DeviceButton")
 	for(var i = 0; i<device_option_elements.length; i++){
 		device_option_elements[i].style['opacity'] = 0.5
@@ -15,7 +15,7 @@ function setDeviceSelection(element, devicename){
 }
 
 function setHandSelection(element, handedness){
-    SESSION.MechanicalTurk_Handedness = handedness 
+    UX.MechanicalTurk_Handedness = handedness 
     var hand_option_elements = document.querySelectorAll(".HandButton")
     for(var i = 0; i<hand_option_elements.length; i++){
         hand_option_elements[i].style['opacity'] = 0.5
@@ -97,122 +97,6 @@ function displayTerminalScreen(){
 
 }
 
-
-function initializeMouseTracker(){
-	TOUCHSTRING_UDPATECOUNTER = 0
-    TOUCHLOG = initializeTouchLog()
-    
-
-
-	console.log('setupmousetracker')
-	// https://stackoverflow.com/questions/7790725/javascript-track-mouse-position
-	document.onmousemove = handleMouseMove;
-	function handleMouseMove(event){
-		t = Math.round(performance.now()*1000)/1000
-		var dot, eventDoc, doc, body, pageX, pageY;
-
-        event = event || window.event; // IE-ism
-
-        // If pageX/Y aren't available and clientX/Y are,
-        // calculate pageX/Y - logic taken from jQuery.
-        // (This is to support old IE)
-        if (event.pageX == null && event.clientX != null) {
-            eventDoc = (event.target && event.target.ownerDocument) || document;
-            doc = eventDoc.documentElement;
-            body = eventDoc.body;
-
-            event.pageX = event.clientX +
-              (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
-              (doc && doc.clientLeft || body && body.clientLeft || 0);
-            event.pageY = event.clientY +
-              (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
-              (doc && doc.clientTop  || body && body.clientTop  || 0 );
-        }
-
-        TOUCHLOG['x'].push(Math.round(event.pageX))
-        TOUCHLOG['y'].push(Math.round(event.pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
-        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
-        TOUCHLOG['eventType'].push('dg')
-
-        TOUCHSTRING_UDPATECOUNTER+=1
-
-	}
-}
-
-function initializeTouchTracker(){
-	var header='pageX,pageY'
-            header+=',clientXdelta_from_pageX,clientYdelta_from_pageY'
-            header+=',screenXdelta_from_pageX,screenYdelta_from_pageY'
-            header+=',radiusX,radiusY'
-            header+=',touch_update_number'
-            header+=',unix_timestamp_delta_from__'+SESSION.unixTimestampPageLoad
-            header+=',Tap_or_Drag\n'
-    
-    TOUCHSTRING_UDPATECOUNTER = 0
-    TOUCHLOG = initializeTouchLog()
-
-	window.addEventListener('touchmove', function(event){
-		// the user touched the screen
-		pageX = event.targetTouches[0].pageX
-		pageY = event.targetTouches[0].pageY
-
-		clientXdelta_from_pageX = Math.round(event.targetTouches[0].clientX - pageX)
-		clientYdelta_from_pageY = Math.round(event.targetTouches[0].clientY - pageY)
-		
-		screenXdelta_from_pageX = Math.round(event.targetTouches[0].screenX - pageX)
-		screenYdelta_from_pageY = Math.round(event.targetTouches[0].screenY - pageY)
-
-		radiusX = Math.round(event.targetTouches[0].radiusX)
-		radiusY = Math.round(event.targetTouches[0].radiusY)
-		t = Math.round(performance.now()*1000)/1000
-
-		TOUCHLOG['x'].push(Math.round(pageX))
-        TOUCHLOG['y'].push(Math.round(pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
-        TOUCHLOG['radiusX'].push(radiusX)
-        TOUCHLOG['radiusY'].push(radiusY)
-        TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)
-        TOUCHLOG['screenYdelta_from_pageX'].push(screenYdelta_from_pageX)
-        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
-        TOUCHLOG['eventType'].push('dg')
-        
-        TOUCHSTRING_UDPATECOUNTER+=1
-
-	},  {passive: true})
-
-	window.addEventListener('touchstart', function(event){
-
-		pageX = event.targetTouches[0].pageX
-		pageY = event.targetTouches[0].pageY
-
-		clientXdelta_from_pageX = event.targetTouches[0].clientX - pageX
-		clientYdelta_from_pageY = event.targetTouches[0].clientY - pageY
-		
-		screenXdelta_from_pageX = Math.round(event.targetTouches[0].screenX - pageX)
-		screenYdelta_from_pageX = Math.round(event.targetTouches[0].screenY - pageY)
-
-		radiusX = Math.round(event.targetTouches[0].radiusX)
-		radiusY = Math.round(event.targetTouches[0].radiusY)
-		t = Math.round(performance.now()*1000)/1000
-
-
-        TOUCHLOG['x'].push(Math.round(pageX))
-        TOUCHLOG['y'].push(Math.round(pageY))
-        TOUCHLOG['t'].push(Math.round(performance.now()*1000)/1000)
-        TOUCHLOG['radiusX'].push(radiusX)
-        TOUCHLOG['radiusY'].push(radiusY)
-        TOUCHLOG['clientXdelta_from_pageX'].push(clientXdelta_from_pageX)
-        TOUCHLOG['screenYdelta_from_pageX'].push(screenYdelta_from_pageX)
-        TOUCHLOG['updateCounter'].push(TOUCHSTRING_UDPATECOUNTER)
-        TOUCHLOG['eventType'].push('tp')
-
-		TOUCHSTRING_UDPATECOUNTER+=1
-
-
-	},  {passive: true})
-
-}
 //passive event handlers: 
 //https://stackoverflow.com/questions/39152877/consider-marking-event-handler-as-passive-to-make-the-page-more-responsive
 

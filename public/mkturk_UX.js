@@ -68,20 +68,16 @@ class MechanicalTurkUX{
         this.minimumTrials = minimumTrials // for enabling early turn-in
         this.maximumTrials = maximumTrials
         this.bonusUSDPerCorrect = bonusUSDPerCorrect
-
         this.bonusEarned = 0
-
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('mouseup',this.cash_in_listener,false)
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('touchstart',this.cash_in_listener,false)
-        toggleElement(1, 'MechanicalTurk_ProgressBar')
-        toggleElement(1, 'MechanicalTurk_TrialBar')
-
-          document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'visible'
-                                toggleCashInButtonClickability(0)
-
     }
 
     debug2record(){
+        toggleElement(1, 'MechanicalTurk_ProgressBar')
+        toggleElement(1, 'MechanicalTurk_TrialBar')
+        document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'visible'
+                                toggleCashInButtonClickability(0)
+        document.querySelector("button[name=WorkerCashInButton]").addEventListener('mouseup',this.cash_in_listener,false)
+        document.querySelector("button[name=WorkerCashInButton]").addEventListener('touchstart',this.cash_in_listener,false)
         return
     }
     async run_instructions_dialogue(){
@@ -100,14 +96,18 @@ class MechanicalTurkUX{
         
     }
 
-    async run_device_selection_dialogue(){
+    async run_hand_selection_dialogue(){
         var hand_used = await this.showHandSelectionDialogue_and_getUserSelection()
+        return hand_used
+    }
+    async run_device_selection_dialogue(){
         var device_selected = await this.showDeviceSelectionDialogue_and_getUserSelection()
+        return device_selected
     }
 
     async showDeviceSelectionDialogue_and_getUserSelection(){
     // Turn on dialogue
-    SESSION.MechanicalTurk_DeviceSelected = 'not_selected'
+    this.MechanicalTurk_DeviceSelected = 'not_selected'
     document.getElementById("MechanicalTurkCursorDeviceSelectionScreen").style.visibility = 'visible'
     return new Promise(function(resolve, reject){
         FLAGS.clicked_device_selection = resolve
@@ -116,22 +116,15 @@ class MechanicalTurkUX{
 
     async showHandSelectionDialogue_and_getUserSelection(){
         // Turn on dialogue
-        SESSION.MechanicalTurk_Handedness = 'not_selected'
+        this.MechanicalTurk_Handedness = 'not_selected'
         document.getElementById("MechanicalTurkHandSelectionScreen").style.visibility = 'visible'
         return new Promise(function(resolve, reject){
             FLAGS.clicked_hand_selection = resolve
         })
     }
 
-    async run_mouse_over_tutorial(){
-        // If in preview mode on MechanicalTurk
-      toggleElement(1, 'PreviewModeSplash')
-      var tutorial_image = await SIO.load_image('tutorial_images/TutorialMouseOver.png')
-
-      while(true){
-        await this.run_MouseOver_TutorialTrial(tutorial_image) 
-      }
-
+    show_preview_splash(){
+        toggleElement(1, 'PreviewModeSplash')
     }
     async showMechanicalTurkInstructions(instructions_text){
   
