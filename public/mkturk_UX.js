@@ -1,6 +1,14 @@
-class UX_poller{
+class MonkeyUX{
     constructor(){
+        toggleElement(1, "SessionTextBox")
+        toggleElement(1, 'DebugMessageTextBox')
+        toggleElement(1, 'TrialCounter')
+        document.querySelector("button[name=doneTestingTask]").addEventListener(
+        'touchend',this.doneTestingTask_listener,false)
+        document.querySelector("button[name=doneTestingTask]").addEventListener(
+        'mouseup',this.doneTestingTask_listener,false)
 
+        connectBLEButtonPromise()
     }
 
     async poll(trialOutcome){
@@ -57,19 +65,20 @@ class UX_poller{
     }
 }
 
-class MechanicalTurk_UX_poller{
-    constructor(){
-
+class MechanicalTurkUX{
+    constructor(minimumTrials, maximumTrials){
+        this.minimumTrials = minimumTrials // for enabling early turn-in
+        this.maximumTrials = maximumTrials
+        this.bonusEarned = 0
     }
 
-    async poll(){
+    async poll(trialOutcome){
+        var trialNumberSession = trialOutcome['trialNumberSession']
 
-        var minimum_trials_left = Math.max(MechanicalTurkSettings["MinimumTrialsForCashIn"] - TRIAL_NUMBER_FROM_SESSION_START, 0)
+        var minimum_trials_left = Math.max(this.minimumTrials - trialNumberSession, 0)
         if(minimum_trials_left > 0){
-            updateProgressbar(TRIAL_NUMBER_FROM_SESSION_START/MechanicalTurkSettings["MinimumTrialsForCashIn"]*100, 'MechanicalTurk_TrialBar', '', 100, ' ')
-
-            var bonus_earned = R.bonus_total
-            updateCashInButtonText(minimum_trials_left, bonus_earned, false)
+            updateProgressbar(trialNumberSession/this.minimumTrials*100, 'MechanicalTurk_TrialBar', '', 100, ' ')
+            updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
         }
         else{
 

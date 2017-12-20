@@ -31,7 +31,6 @@ function setHandSelection(element, handedness){
 }
 
 
-
 function toggleElement(on_or_off, element_id){
 		var elem = document.getElementById(element_id)
 	if(on_or_off == 0){

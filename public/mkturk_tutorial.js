@@ -31,7 +31,7 @@ async function run_MouseOver_TutorialTrial(tutorial_image){
 
     wdm('Awaiting fixation...')
 
-
+    
     console.log('Awaiting fixation...')
     var fixation_outcome = await RewardMap.Promise_wait_until_active_response_then_return_reinforcement()
     await SD.displayScreenSequence(SD.canvas_blank,0);

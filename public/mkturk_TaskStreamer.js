@@ -285,9 +285,7 @@ class TaskStreamerClass{
         this.CheckPointer.request_checkpoint_save()
         return 
     }
-
 }
-
 
 
 

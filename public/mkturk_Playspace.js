@@ -25,7 +25,11 @@ class PlaySpaceClass{
         if (primary_reinforcer_type == 'juice'){
             this.Reinforcer = new JuiceReinforcer()
         }
-        else if(primary_reinforcer_type == 'monetary'){
+        else if(
+            primary_reinforcer_type == 'monetary' 
+            || primary_reinforcer_type == 'usd'
+            || primary_reinforcer_type == 'money'
+            || primary_reinforcer_type == 'dollars'){
             this.Reinforcer = new MonetaryReinforcer(bonusPerCorrect)
         }
 
@@ -207,6 +211,7 @@ class PlaySpaceClass{
             _this.rewardLog['t'].push(t)
         } 
 
+        
         window.setInterval(periodic_reward, this.periodicRewardIntervalMsec)
         
     }

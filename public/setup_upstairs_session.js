@@ -1,43 +1,25 @@
-async function setupUpstairsTask(sessionPackage){
+async function setup_upstairs_session(sessionPackage){
 
-    var IMAGEBAGS = sessionPackage['IMAGEBAGS']
-    var GAME = sessionPackage['GAME'] 
-    var ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
-    var TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
-
-    toggleElement(1, "SessionTextBox")
-    toggleElement(1, 'DebugMessageTextBox')
-    toggleElement(1, 'StageBar')
-    toggleElement(1, 'AutomatorLoadBar')
+    IMAGEBAGS = sessionPackage['IMAGEBAGS']
+    GAME = sessionPackage['GAME'] 
+    ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
+    TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
 
     // Button callbacks
-    UX = new UX_poller()
-    document.querySelector("button[name=doneTestingTask]").addEventListener(
-    'touchend',UX.doneTestingTask_listener,false)
-    document.querySelector("button[name=doneTestingTask]").addEventListener(
-    'mouseup',UX.doneTestingTask_listener,false)
-  
-   //================== AWAIT CONNECT TO BLE ==================//
-
-   connectBLEButtonPromise()
+    UX = new MonkeyUX()
    
    DIO = new DropboxIO()
-
-   await DIO.build(window.location.href )
+   await DIO.build(window.location.href)
 
    var saveDir = join([INSTALL_SETTINGS.dataDirPath, ENVIRONMENT['agentID']])
    var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, ENVIRONMENT['agentID']])
-   DataWriter = new DataWriter(DIO, debugDir, saveDir, ENVIRONMENT['agentID'])
+   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, ENVIRONMENT['agentID'])
 
-   
    CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
    SIO = new S3_IO() 
    IB = new ImageBuffer(SIO)
-
-   console.log('Loading from landing page')
-
 
    UX.updateSessionTextbox(ENVIRONMENT['agentID'], GAME['gameID'])
 
@@ -57,19 +39,11 @@ async function setupUpstairsTask(sessionPackage){
 
    Playspace = new PlaySpaceClass(playspacePackage)
    await Playspace.build()
-
+   Playspace.toggleBorder(1)
 
     //========= Start in TEST mode =======//
-
-
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
-
-
-
-    toggleElement(1, 'TrialCounter')
-    Playspace.toggleBorder(1)
-    document.getElementById('drive_juice_button').style.visibility = "hidden"
 
     var gamePackage = {}
     gamePackage['TaskStreamer'] = TaskStreamer
