@@ -211,7 +211,7 @@ class PlaySpaceClass{
             _this.rewardLog['t'].push(t)
         } 
 
-        
+
         window.setInterval(periodic_reward, this.periodicRewardIntervalMsec)
         
     }
@@ -402,5 +402,51 @@ class PlaySpaceClass{
     }
 
     
-    
+    async run_tutorial_trial(tutorial_image){
+        var fixationXCentroidPixels = this.xprop2pixels(0.5)
+        var fixationYCentroidPixels = this.yprop2pixels(0.7)
+        var fixationRadiusPixels = this.deg2pixels(3)
+
+        // BUFFER FIXATION
+        var fixationFramePackage = {
+            'fixationXCentroidPixels':fixationXCentroidPixels,
+            'fixationYCentroidPixels':fixationYCentroidPixels, 
+            'fixationRadiusPixels':fixationRadiusPixels,
+        }
+        await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
+
+
+        // BUFFER STIMULUS
+        var stimulusXCentroidPixels = this.xprop2pixels(0.1 + 0.8 * Math.random())
+        var stimulusYCentroidPixels = this.yprop2pixels(0.6 * Math.random())
+        var stimulusRadiusPixels = this.deg2pixels(4)
+        
+        var stimulusCanvas = this.ScreenDisplayer.getSequenceCanvas('tutorial_sequence', 0)
+        await this.ScreenDisplayer.renderBlank(stimulusCanvas)
+        await this.ScreenDisplayer.drawImagesOnCanvas(tutorial_image, stimulusXCentroidPixels, stimulusYCentroidPixels, stimulusRadiusPixels, stimulusCanvas)
+
+        // SHOW BLANK
+        await this.ScreenDisplayer.displayBlank()
+
+        // RUN FIXATION
+        this.ActionPoller.create_action_regions(
+            fixationXCentroidPixels,
+            fixationYCentroidPixels,
+            fixationRadiusPixels)
+
+        await this.ScreenDisplayer.displayFixation()
+        await this.ActionPoller.Promise_wait_until_active_response()
+
+        // RUN STIMULUS SEQUENCE
+        
+        await this.ScreenDisplayer.displayScreenSequence(stimulusCanvas, 0)
+
+        this.ActionPoller.create_action_regions(
+            stimulusXCentroidPixels, 
+            stimulusYCentroidPixels, 
+            stimulusRadiusPixels)
+
+        await this.ActionPoller.Promise_wait_until_active_response()
+        this.SoundPlayer.play_sound('reward_sound')
+    }
 }

@@ -27,10 +27,15 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
 
+
   var skip_preview_mode = false
   if(skip_preview_mode == false){
       console.log('RUNNING IN PREVIEW MODE')
-      await UX.run_mouse_over_tutorial()
+      var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')
+      while(true){
+        await Playspace.run_tutorial_trial(tutorialImage)
+      }
+      
   }
 
   var show_instructions = true
