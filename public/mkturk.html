@@ -107,7 +107,7 @@
 
 
 <script>
-var FLAGS = {};
+var FLAGS = {}; // todo: get rid of
 
 (async function(){
 
@@ -119,14 +119,13 @@ ENVIRONMENT = await SBS.get('ENVIRONMENT')
 TASK_SEQUENCE = await SBS.get('TASK_SEQUENCE')
 
 var sessionPackage = {}
-sessionPackage['IMAGEBAGS'] = undefined//IMAGEBAGS 
+sessionPackage['IMAGEBAGS'] = IMAGEBAGS 
 sessionPackage['GAME'] = GAME 
 sessionPackage['ENVIRONMENT'] = ENVIRONMENT 
-sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE // Construct game- and environment-specific objects
+sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE
 
 // Verify inputs
 sessionPackage = verify.check_session_package(sessionPackage)
-
 
 // Construct session
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
