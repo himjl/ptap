@@ -11,11 +11,25 @@ class SessionBootStrapper{
         }
         var loadMethod = this.infer_load_method(k)
         var VALUE = await this.load(k, loadMethod)
+
+        if(key == 'IMAGEBAGS'){
+            if(memorySizeOf(k) < 500000){
+                this.imagebagsPath = k
+            }
+        }
+
         return VALUE
     }
 
-    infer_load_method(s){
+    get_imagebags_path(){
+        var imagebagsPath = ''
+        if (this.imagebagsPath != undefined){
+            imagebagsPath = this.imagebagsPath
+        }
 
+        return imagebagsPath
+    }
+    infer_load_method(s){
         
         var loadMethod
 

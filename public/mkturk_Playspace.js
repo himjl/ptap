@@ -215,7 +215,7 @@ class PlaySpaceClass{
         
     }
 
-    start_action_tracking(actionLog){
+    start_action_tracking(){
         this.ActionPoller.start_action_tracking()
     }
 

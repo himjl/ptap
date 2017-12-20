@@ -30,6 +30,8 @@ class ActionPollerClass{
         this.actionCentroids = []
         this.actionRadii = []
 
+        this.trackNullActions = false // todo: move into constructor
+
 
         this.recordActionEvent = function(x, y, t, event_type){
             // Adds event to action log 
@@ -212,17 +214,20 @@ class ActionPollerClass{
         }   
 
         // Record all the rest of the events
-        for (var i = 0; i < this.supportedEventTypes.length; i++){
-            var e = this.supportedEventTypes[i]
-            if (this.event_types.includes(e)){
-                continue
-            }
 
-            if(e == 'touchmove' || e == 'touchstart' || e == 'touchend'){
-                window.addEventListener(e, this.recordTouchEvent, {passive:true})
-            }
-            else if(e == 'mousemove' || e == 'mouseup'){
-                window.addEventListener(e, this.recordMouseEvent)
+        if(this.trackNullActions == true){
+            for (var i = 0; i < this.supportedEventTypes.length; i++){
+                var e = this.supportedEventTypes[i]
+                if (this.event_types.includes(e)){
+                    continue
+                }
+
+                if(e == 'touchmove' || e == 'touchstart' || e == 'touchend'){
+                    window.addEventListener(e, this.recordTouchEvent, {passive:true})
+                }
+                else if(e == 'mousemove' || e == 'mouseup'){
+                    window.addEventListener(e, this.recordMouseEvent)
+                }
             }
         }
     }
