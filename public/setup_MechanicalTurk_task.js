@@ -117,7 +117,7 @@ async function setupMechanicalTurkTask(){
 
   // Add cash in button 
   document.querySelector("button[name=WorkerCashInButton]").addEventListener(
-    'mouseup',cash_in_listener,false)
+    'mouseup',UX.cash_in_listener,false)
   
   updateCashInButtonText(MechanicalTurkSettings["MinimumTrialsForCashIn"], 0, false)
   

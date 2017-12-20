@@ -41,6 +41,20 @@ class UX_poller{
 
         sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
     }
+
+    doneTestingTask_listener(event){
+        event.preventDefault()
+        //console.log("User is done testing. Start saving data");
+        FLAGS.debug_mode = 0
+
+        document.querySelector("button[name=doneTestingTask]").style.display = "none"
+        TaskStreamer.debug2record()
+        Playspace.debug2record()
+        DataWriter.debug2record()
+        UX.debug2record()
+
+        return
+    }
 }
 
 class MechanicalTurk_UX_poller{
@@ -74,5 +88,27 @@ class MechanicalTurk_UX_poller{
             TERMINAL_STATE = true
         }
     }
+
+    async cash_in_listener(event){
+        console.log('Worker called cash in')
+        var original_text = document.querySelector("button[name=WorkerCashInButton]").innerHTML
+        var original_color = document.querySelector("button[name=WorkerCashInButton]").style['background-color']
+
+        document.querySelector("button[name=WorkerCashInButton]").innerHTML = 'Submitting...'
+
+        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = '#ADFF97'
+        
+        await SP.playSound('reward_sound') // Chime
+        
+        TERMINAL_STATE = true // end on next trial
+
+        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = original_color
+        DWr.concludeSession()
+
+
+        return 
+    }
+
+
 
 }

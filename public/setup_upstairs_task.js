@@ -11,13 +11,11 @@ async function setupUpstairsTask(sessionPackage){
     toggleElement(1, 'AutomatorLoadBar')
 
     // Button callbacks
-
+    UX = new UX_poller()
     document.querySelector("button[name=doneTestingTask]").addEventListener(
-    'touchend',doneTestingTask_listener,false)
+    'touchend',UX.doneTestingTask_listener,false)
     document.querySelector("button[name=doneTestingTask]").addEventListener(
-    'mouseup',doneTestingTask_listener,false)
-
-
+    'mouseup',UX.doneTestingTask_listener,false)
   
    //================== AWAIT CONNECT TO BLE ==================//
 
@@ -31,7 +29,7 @@ async function setupUpstairsTask(sessionPackage){
    var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, ENVIRONMENT['agentID']])
    DataWriter = new DataWriter(DIO, debugDir, saveDir, ENVIRONMENT['agentID'])
 
-   UX = new UX_poller()
+   
    CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
