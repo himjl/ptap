@@ -1,5 +1,16 @@
-class MonkeyUX{
+class UXclass{
     constructor(){
+
+    }
+    writeToTrialCounterDisplay(s){
+        var elem = document.getElementById('TrialCounter')
+        elem.innerHTML = s; // text
+    }
+
+}
+class MonkeyUX extends UXclass{
+    constructor(){
+        super()
         toggleElement(1, "SessionTextBox")
         toggleElement(1, 'DebugMessageTextBox')
         toggleElement(1, 'TrialCounter')
@@ -33,10 +44,7 @@ class MonkeyUX{
         this.writeToTrialCounterDisplay('-')
 
     }
-    writeToTrialCounterDisplay(s){
-        var elem = document.getElementById('TrialCounter')
-        elem.innerHTML = s; // text
-    }
+    
 
     updateSessionTextbox(agentID, ExperimentName){
         var sess_textbox = document.getElementById("SessionTextBox")
@@ -63,8 +71,9 @@ class MonkeyUX{
     }
 }
 
-class MechanicalTurkUX{
+class MechanicalTurkUX extends UXclass{
     constructor(minimumTrials, maximumTrials, bonusUSDPerCorrect){
+        super()
         this.minimumTrials = minimumTrials // for enabling early turn-in
         this.maximumTrials = maximumTrials
         this.bonusUSDPerCorrect = bonusUSDPerCorrect
@@ -143,7 +152,8 @@ class MechanicalTurkUX{
 
     async poll(trialOutcome){
         
-        var trialNumberSession = trialOutcome['trialNumberSession']
+        var trialNumberSession = trialOutcome['trialNumberSession']+1
+        this.writeToTrialCounterDisplay(trialNumberSession)
         this.bonusEarned+=(trialOutcome['return'] * this.bonusUSDPerCorrect)
 
         var minimum_trials_left = Math.max(this.minimumTrials - trialNumberSession, 0)
@@ -166,7 +176,6 @@ class MechanicalTurkUX{
         if(trialNumberSession >= this.maximumTrials){
             TERMINAL_STATE = true
         }
-
     }
 
     async cash_in_listener(event){
@@ -177,20 +186,11 @@ class MechanicalTurkUX{
         document.querySelector("button[name=WorkerCashInButton]").innerHTML = 'Submitting...'
 
         document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = '#ADFF97'
-        
-        await SP.playSound('reward_sound') // Chime
-        
-        TERMINAL_STATE = true // end on next trial
-
+                
         document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = original_color
-        DWr.concludeSession()
 
-
+        DataWriter.conclude_session()
         return 
     }
-
-    
-
-
 
 }

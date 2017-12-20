@@ -59,7 +59,6 @@ class PlaySpaceClass{
     }
 
 
-
     async run_trial(trialPackage){
 
         // ************ Prebuffer trial assets ***************
@@ -267,7 +266,6 @@ class PlaySpaceClass{
             _this.topbound = Math.floor((windowHeight - _this.height)/2)
             _this.bottombound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
 
-
             bounds['height'] = _this.height
             bounds['width'] = _this.width
             bounds['leftbound'] = _this.leftbound
@@ -438,7 +436,6 @@ class PlaySpaceClass{
         await this.ActionPoller.Promise_wait_until_active_response()
 
         // RUN STIMULUS SEQUENCE
-        
         await this.ScreenDisplayer.displayScreenSequence(stimulusCanvas, 0)
 
         this.ActionPoller.create_action_regions(

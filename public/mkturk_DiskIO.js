@@ -199,7 +199,7 @@ class DropboxIO{
             localStorage.setItem('_dbxAccessToken', btoa(accessToken))
         }
 
-        var accessToken = await loadStringFromLocalStorage('_dbxAccessToken')
+        var accessToken = await LocalStorageIO.load_string('_dbxAccessToken')
         
         if(accessToken.length<4){ // need a better check for nonsense; add dialogue 
             var dbx = new Dropbox({clientId: INSTALL_SETTINGS.dropboxClientId});
@@ -413,16 +413,23 @@ class DropboxIO{
 }
 
 
-async function loadStringFromLocalStorage(key){
-  var string = await localStorage.getItem(key)
-  string = atob(string)
-  //localStorage.removeItem(key);
-  return string
-}
+class LocalStorageIO{
+    constructor(){
 
-async function loadJSONFromLocalStorage(key){
-  var string = await localStorage.getItem(key)
-  string = atob(string)
-  //localStorage.removeItem(key);
-  return JSON.parse(string)
-}
+    }
+    static async load_string(key){
+      var string = await localStorage.getItem(key)
+      string = atob(string)
+      //localStorage.removeItem(key);
+      return string
+    }
+
+    static async load_json(key){
+      var string = await localStorage.getItem(key)
+      string = atob(string)
+      //localStorage.removeItem(key);
+      return JSON.parse(string)
+    }
+}   
+
+

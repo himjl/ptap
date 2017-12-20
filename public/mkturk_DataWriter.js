@@ -151,8 +151,8 @@ class MechanicalTurkDataWriter extends DataWriter{
     async conclude_session(){
     
         var dataobj = this.package_data()
-        result_str = JSON.stringify({'SESSION_DATA':dataobj})
-        console.log('Packaged data of size', memorySizeOf(result_str), 'for submission to Amazon.')
+        var result_str = JSON.stringify({'SESSION_DATA':dataobj})
+        console.log('Packaged data of size', memorySizeOf(result_str, 1), 'for submission to Amazon.')
         document.getElementById("assignmentId").value = this.assignmentId; 
         document.getElementById("hitId").value = this.hitId
         document.getElementById("submission_data").value = result_str;
@@ -166,7 +166,7 @@ class MechanicalTurkDataWriter extends DataWriter{
 
         document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
 
-        await timeOut(1500)
+        await sleep(1500)
 
         //document.getElementById("MechanicalTurk_SubmissionForm").submit();
         console.log('SIMULATED SUBMISSION TO TURK')

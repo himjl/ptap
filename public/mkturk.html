@@ -99,6 +99,8 @@
 <script src="mkturk_Reinforcer.js" type="text/javascript"></script>
 <script src="mkturk_ScreenDisplayer.js" type="text/javascript"></script>
 
+<script src="mkturk_SessionBootStrapper.js" type="text/javascript"></script>
+<script src="mkturk_defaultHIT_failsafe.js" type="text/javascript"></script>
 
 <script src="mkturk_window.js" type="text/javascript"></script>
 <script src="mkturk_screenfunctions.js"></script>
@@ -109,20 +111,24 @@ var FLAGS = {};
 
 (async function(){
 
-// Load inputs from local storage
-var IMAGEBAGS = await loadJSONFromLocalStorage('IMAGEBAGS')
-var GAME = await loadJSONFromLocalStorage('GAME')
-var ENVIRONMENT = await loadJSONFromLocalStorage('ENVIRONMENT')
-var TASK_SEQUENCE = await loadJSONFromLocalStorage('TASK_SEQUENCE')
+// Load inputs from local storage, web, or Dropbox.
+var SBS = new SessionBootStrapper()
+IMAGEBAGS = await SBS.get('IMAGEBAGS')
+GAME = await SBS.get('GAME')
+ENVIRONMENT = await SBS.get('ENVIRONMENT')
+TASK_SEQUENCE = await SBS.get('TASK_SEQUENCE')
 
-// Verify inputs 
 var sessionPackage = {}
-sessionPackage['IMAGEBAGS'] = verify.check_imageBags(IMAGEBAGS)
-sessionPackage['GAME'] = verify.check_game(GAME)
-sessionPackage['ENVIRONMENT'] = verify.check_environment(ENVIRONMENT)
-sessionPackage['TASK_SEQUENCE'] = verify.check_task_sequence(TASK_SEQUENCE)
+sessionPackage['IMAGEBAGS'] = undefined//IMAGEBAGS 
+sessionPackage['GAME'] = GAME 
+sessionPackage['ENVIRONMENT'] = ENVIRONMENT 
+sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE // Construct game- and environment-specific objects
 
-// Construct game- and environment-specific objects
+// Verify inputs
+sessionPackage = verify.check_session_package(sessionPackage)
+
+
+// Construct session
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
   var freturn = await setup_mechanicalturk_session(sessionPackage)
 }
@@ -165,7 +171,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
 }
 
 await DataWriter.conclude_session()
-await TaskStreamer.concludeSession()
+
 } ())
 
 </script>

@@ -27,8 +27,8 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
 
-  var skip_preview_mode = true
-  if(skip_preview_mode == false){
+  var run_preview_mode = false
+  if(run_preview_mode == true){
       console.log('RUNNING IN PREVIEW MODE')
       var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')
       UX.show_preview_splash()
@@ -37,17 +37,17 @@ async function setup_mechanicalturk_session(sessionPackage){
       }
   }
 
-  var show_instructions = true
+  var show_instructions = false
   if(show_instructions == true){
     await UX.run_instructions_dialogue()
   }
 
-  var show_hand_selection = true 
+  var show_hand_selection = false 
   if(show_hand_selection == true){
     ENVIRONMENT['handedness'] = await UX.run_hand_selection_dialogue()
   }
 
-  var show_device_selection = true 
+  var show_device_selection = false 
   if(show_device_selection){    
     ENVIRONMENT['inputDevice'] = await UX.run_device_selection_dialogue()
   }

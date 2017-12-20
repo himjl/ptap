@@ -71,6 +71,7 @@ class ScreenDisplayer{
         var frame_durations = []
         // Draw sample screen
         var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
+        await this.renderBlank(sampleCanvas) // todo: only do this on window resize
         await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusPixels, sampleCanvas)
         frame_canvases.push(sampleCanvas)
         frame_durations.push(sampleOn)
@@ -78,6 +79,7 @@ class ScreenDisplayer{
         // Optionally draw blank delay screen
         if(sampleOff > 0){
             var delayCanvas = this.getSequenceCanvas('stimulus_sequence', 1)
+            await this.renderBlank(delayCanvas) // todo: only do this on window resize
             delayCanvas = await this.renderBlank(blankCanvas)
             frame_canvases.push(delayCanvas)
             frame_durations.push(sampleOff)
@@ -85,6 +87,7 @@ class ScreenDisplayer{
 
         // Draw test screen
         var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
+        await this.renderBlank(testCanvas) // todo: only do this on window resize
         await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusPixels, testCanvas)
         frame_canvases.push(testCanvas)
         frame_durations.push(0)

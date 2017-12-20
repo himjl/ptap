@@ -137,7 +137,8 @@ class TaskStreamerClass{
                 distractorBagIdxPool.push(this.bag2idx[tk['choiceMap'][potentialSampleBag]])
             }
 
-            var distractorBagIdx = np.choice(distractorBagIdxPool, tk['nway']-1, false)
+            var nway = tk['choiceXCentroid'].length
+            var distractorBagIdx = np.choice(distractorBagIdxPool, nway-1, false)
             var distractorBag = this.get_bag_from_idx(distractorBagIdx)
             if(distractorBag.constructor != Array){
                 distractorBag = [distractorBag]
@@ -286,7 +287,7 @@ class TaskStreamerClass{
         return 
     }
 
-    
+
 }
 
 
