@@ -10,10 +10,9 @@ class MonetaryReinforcer{
 
         if(nreward >=1){
             this.bonus_total = this.bonus_total + this.bonus_per_correct
-            console.log('Running monetary bonus amount', Math.round(this.bonus_total*1000)/1000)
+            console.log('Running monetary bonus amount',
+              Math.round(this.bonus_total*1000)/1000)
           }
-
-        SESSION['bonus_usd'] = this.bonus_total 
     }
        
 }

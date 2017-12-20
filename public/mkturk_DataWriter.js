@@ -73,6 +73,7 @@ class DataWriter{
 
 class DropboxDataWriter extends DataWriter{
     constructor(DIO, debugSaveDir, saveDir, savePrefix){
+        super()
         this.DIO = DIO
         this.saveDir = saveDir
         this.debugSaveDir = debugSaveDir
@@ -133,6 +134,8 @@ class DropboxDataWriter extends DataWriter{
 
 class MechanicalTurkDataWriter extends DataWriter{
     constructor(assignmentId, hitId, inSandboxMode){
+        super()
+        console.log(this)
         this.inSandboxMode = inSandboxMode || true
         this.assignmentId = assignmentId
         this.hitId = hitId

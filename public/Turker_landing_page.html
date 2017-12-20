@@ -94,6 +94,7 @@ async function getIP(){
             "bonusUSDPerCorrect":0.0005, 
             "onFinish":"loop", // terminate, continue
             "minimumTrials":200,
+            "maximumTrials":800,
     }
 
     TASK_SEQUENCE = [{
@@ -183,8 +184,8 @@ async function getIP(){
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
     await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
 
-    //await new Promise(resolve => setTimeout(resolve, 1000));
-    //window.location.href = "mkturk.html"
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    window.location.href = "mkturk.html"
 
 })()
 

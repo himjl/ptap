@@ -30,7 +30,7 @@ class PlaySpaceClass{
             || primary_reinforcer_type == 'usd'
             || primary_reinforcer_type == 'money'
             || primary_reinforcer_type == 'dollars'){
-            this.Reinforcer = new MonetaryReinforcer(bonusPerCorrect)
+            this.Reinforcer = new MonetaryReinforcer(bonusUSDPerCorrect)
         }
 
         this.ActionPoller = new ActionPollerClass(action_event_type, bounds)
