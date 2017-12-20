@@ -49,7 +49,7 @@ class TaskStreamerClass{
         }
     }
 
-    reset(){
+    debug2record(){
         this.taskNumber = this.onLoadState['taskNumber']
         this.trialNumberTask = this.onLoadState['trialNumberTask']
         this.trialNumberSession = this.onLoadState['trialNumberSession']
@@ -57,7 +57,10 @@ class TaskStreamerClass{
         this.taskActionHistory = this.onLoadState['taskActionHistory']
         this.TERMINAL_STATE = this.onLoadState['TERMINAL_STATE']
         this.monitoring = this.onLoadState['monitoring']
+        this.CheckPointer.debug2record()
+        console.log('debug2record: TaskStreamer reverted to state on load')
     }
+
 
     get_image_idx(bag_name, id){
         var i = {}

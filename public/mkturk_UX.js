@@ -4,12 +4,29 @@ class UX_poller{
     }
 
     async poll(trialOutcome){
-        
-        this.writeToTrialCounterDisplay(trialOutcome['trialNumberSession'])
+        console.log('poo', trialOutcome['trialNumberSession'])
+        this.writeToTrialCounterDisplay(trialOutcome['trialNumberSession']+1)
 
         return
     }
 
+    debug2record(){
+        console.log('debug2record: UX (not implemented yet)')
+        toggleElement(0, "drive_juice_button")
+        toggleElement(0, "SessionTextBox")
+        toggleElement(0, "myProgress")
+        toggleElement(0, "DebugMessageTextBox")
+        var progressbar_names = [
+                            'AutomatorLoadBar',
+                            'StageBar',]
+
+        for (var _p in progressbar_names){
+            toggleProgressbar(0, progressbar_names[_p])
+        }
+
+        this.writeToTrialCounterDisplay('-')
+
+    }
     writeToTrialCounterDisplay(s){
         var elem = document.getElementById('TrialCounter')
         elem.innerHTML = s; // text
@@ -24,42 +41,6 @@ class UX_poller{
 
         sess_textbox.innerHTML = line1_prefix + agentID + linebreak + line2_prefix + ExperimentName
     }
-
-
-    transition_from_debug_to_science_trials(){
-
-        // Revert TaskStreamer
-        TS.initialize()
-        TS._debug_mode = false
-
-        DWr.initialize()
-        
-        TRIAL_NUMBER_FROM_SESSION_START = 0
-
-        // Turn off certain HTML elements
-        progressbar_names = [
-                            'AutomatorLoadBar',
-                            'StageBar',]
-
-        for (var _p in progressbar_names){
-            toggleProgressbar(0, progressbar_names[_p])
-        }
-
-        //toggleTextBox(0)
-        toggleElement(0, "DebugMessageTextBox")
-        toggleElement(0, "SessionTextBox")
-
-        // Remove reload button
-        document.querySelector("button[name=ReloadButton]").style.visibility = "hidden"
-
-        // Dim save button
-        document.querySelector("button[name=SyncButton]").style['background-color'] = "#808080"
-        document.querySelector("button[name=SyncButton]").style.opacity = 0.3
-
-        return 
-    }
-
-
 }
 
 class MechanicalTurk_UX_poller{

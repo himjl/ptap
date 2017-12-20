@@ -18,7 +18,6 @@ class PlaySpaceClass{
 
         this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)
 
-
         var bounds = this.getPlayspaceBounds()    
         this.ScreenDisplayer = new ScreenDisplayer(bounds)
         
@@ -37,8 +36,14 @@ class PlaySpaceClass{
 
         // Async trackers 
         this.rewardLog = {'t':[], 'n':[]}
-        this.deviceLog = {}
+    }
 
+    debug2record(){
+        this.rewardLog = {'t':[], 'n':[]}
+        this.start_device_tracking()
+        this.ActionPoller.start_action_tracking()
+        this.toggleBorder(0)
+        console.log('debug2record: Playspace performed a reset of reward, device, and action logs')
     }
 
     async build(){
@@ -48,6 +53,8 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.build()
         
     }
+
+
 
     async run_trial(trialPackage){
 

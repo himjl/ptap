@@ -1,14 +1,42 @@
 class DataWriter{
-    constructor(DIO, savePath){
+    constructor(DIO, debugSaveDir, saveDir, savePrefix){
         this.DIO = DIO
+        this.saveDir = saveDir
+        this.debugSaveDir = debugSaveDir
+        this.savePrefix = savePrefix
+
         this.trialData = {}
-        this.pollPeriodMsec = 60000
+        this.pollPeriodMsec = 120000
         this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
         this.lastSaveTimestamp = performance.now()
         this.probeFunctions = {}
 
         this.keyData = {}
-        this.savePath = savePath
+        this.savePath = join([this.debugSaveDir, this.generate_filename('debug_'+this.savePrefix)])// join([this.saveDir, ])
+    }
+
+    debug2record(){
+        this.savePath = join([this.saveDir, this.generate_filename(this.savePrefix)])
+        this.trialData = {}
+    }
+    generate_filename(prefix){
+        
+
+        var saveFilename = prefix
+        var curDate = new Date()
+        saveFilename+='_'
+        saveFilename+=(curDate.getFullYear())+'-'
+        saveFilename+=(curDate.getMonth()+1)+'-'
+        saveFilename+=(curDate.getDate())
+
+        saveFilename+='_T'
+        saveFilename+=curDate.getHours()+'-'
+        saveFilename+=curDate.getMinutes()+'-'
+        saveFilename+=curDate.getSeconds()
+
+        saveFilename+='.json'
+
+        return saveFilename
     }
 
     deposit_trial_outcome(trialOutcome){
@@ -77,11 +105,11 @@ class DataWriter{
             return 
         }
 
-
-        var dataString = JSON.stringify(this.package_data(), null)
-        this.lastSaveTimestamp = performance.now()
+        var dataString = JSON.stringify(this.package_data(), null, 4)
+        
         await this.DIO.write_string(dataString, this.savePath)
         console.log('Saved. Size:', memorySizeOf(dataString, 1), 'Last save (msec ago):', Math.round(performance.now() - this.lastSaveTimestamp))
+        this.lastSaveTimestamp = performance.now()
     }
 
     concludeSession(){
@@ -140,131 +168,4 @@ class MechanicalTurkDataWriter{
         console.log('SIMULATED SUBMISSION TO TURK')
 
     }
-}
-
-class DropboxDataWriter{
-    constructor(DIO){
-        this.dataobj =undefined 
-
-        this.DIO = DIO
-        this.min_write_timeout_period = TRIALDATA_SAVE_TIMEOUT_PERIOD // ms
-        this.touchstring_max_cache_size = TOUCHSTRING_MAX_CACHE_SIZE // defined in install_settings
-        this.trial_data_savepath = TRIAL_DATA_SAVEPATH
-        this.touch_data_savepath = TOUCH_DATA_SAVEPATH
-
-        this._debug_trial_data_savepath = _debug_TRIAL_DATA_SAVEPATH
-        this._debug_touch_data_savepath = _debug_TOUCH_DATA_SAVEPATH
-        this._last_touch_save = performance.now()
-        this._last_trialbehavior_save = performance.now()
-
-        this._touch_filename_suffix = this._generate_touch_filename_suffix()
-
-
-
-    }
-
-    initialize(){
-        this.dataobj = undefined
-        initializeTouchTracker()
-    }
-
-    deposit(trialOutcome){
-        for (var key in trialOutcome){
-            if(!trialOutcome.hasOwnProperty(key)){
-                continue
-            }
-            if(!this.dataobj.hasOwnProperty(key)){
-                this.dataobj[key] = []
-                console.log('Added property ', key, ' to dataobj')
-            }
-            this.dataobj[key].push(trialOutcome[key])
-        }
-    }
-
-
-    async saveTrialData(dataobj, save_to_debug_directory){
-
-        
-        var datastr = JSON.stringify(dataobj); 
-        var __datestr = SESSION.currentDate.toISOString();
-        var TrialDataFileName_suffix = __datestr.slice(0, __datestr.indexOf(".")) + "_" + SESSION.agentID + ".txt"; 
-
-        try{// In debug mode
-            if (save_to_debug_directory == 1){
-                var savepath = join([this._debug_trial_data_savepath,
-                    SESSION.agentID,
-                    "debug__"+SESSION.agentID +'_'+TrialDataFileName_suffix])
-            }
-            else { 
-                var savepath = join([this.trial_data_savepath,
-                    SESSION.agentID,
-                    SESSION.agentID +'_'+TrialDataFileName_suffix])
-            }
-
-            await this.DIO.write_string(datastr, savepath)             
-            console.log(" BEHAVIOR FILE UPLOADED at "+savepath)
-            }
-        catch(error){
-            console.error(error)
-        }
-    }
-
-    async writeout(dataobj){
-        // Asynchronous save at most every T seconds
-        var _ms_since_last_trial_data_save = performance.now() - last_trial_data_save
-        var _ms_since_last_touch_data_save = performance.now() - last_touch_save
-        var _ms_since_last_paramfile_check = performance.now() - last_paramfile_check 
-
-        if ( _ms_since_last_trial_data_save > TRIALDATA_SAVE_TIMEOUT_PERIOD){ 
-            console.log(_ms_since_last_trial_data_save/1000+'s since last trial data save. Requesting save...')
-            this.saveTrialData(dataobj, FLAGS.debug_mode)
-            last_trial_data_save = performance.now()
-        }
-
-        if (_ms_since_last_touch_data_save > TOUCHSTRING_SAVE_TIMEOUT_PERIOD){
-            console.log(_ms_since_last_touch_data_save/1000 +'s since last TOUCHSTRING save. '+memorySizeOf(TOUCHLOG)+' TOUCHSTRING save requested.')
-            this.saveTouches(FLAGS.debug_mode)
-            last_touch_save = performance.now()
-        }
-    }
-
-    async saveTouches(save_to_debug_directory){
-        try{
-
-            if (save_to_debug_directory == 0){
-                var savepath = join([this.touch_data_savepath, SESSION.agentID, SESSION.agentID+this._touch_filename_suffix ])
-            }
-            else { // In debug mode
-
-                var savepath = join([this._debug_touch_data_savepath, SESSION.agentID, 'debug__'+SESSION.agentID+this._touch_filename_suffix ])
-            }
-
-            var datastring = JSON.stringify(TOUCHLOG)
-
-            this.DIO.write_string(datastring, savepath)
-
-            if(memorySizeOf(TOUCHLOG) > TOUCHSTRING_MAX_CACHE_SIZE){
-                // Start new file and flush cache
-                this._touch_filename_suffix = _generate_touch_filename_suffix()
-                TOUCHLOG = initializeTouchLog()
-            }
-
-            console.log("Touches written to disk as "+savepath) 
-        }
-        catch (error){
-            console.error(error)
-        }
-    }
-
-    _generate_touch_filename_suffix(){
-        var datestr = SESSION.currentDate.toISOString();
-        datestr = datestr.slice(0,datestr.indexOf("."))
-        var _touch_filename_suffix = '_touch_'+datestr+'__'+TOUCHSTRING_UDPATECOUNTER+'.txt' // Initial name
-        return _touch_filename_suffix
-    }
-
-    async concludeSession(){
-        console.log("Nothing to concludeSession() in DropboxDataWriter; actively wrote out every trial")
-    }
-
 }

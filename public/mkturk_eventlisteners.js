@@ -5,7 +5,11 @@ function doneTestingTask_listener(event){
 	FLAGS.debug_mode = 0
 
 	document.querySelector("button[name=doneTestingTask]").style.display = "none"
-	TaskStreamer.reset()
+	TaskStreamer.debug2record()
+	Playspace.debug2record()
+	DataWriter.debug2record()
+	UX.debug2record()
+
 	return
 }
 

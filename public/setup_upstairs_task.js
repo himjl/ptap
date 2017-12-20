@@ -6,7 +6,6 @@ async function setupUpstairsTask(sessionPackage){
     var TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
 
     toggleElement(1, "SessionTextBox")
-    toggleElement(1, "ReloadButton")
     toggleElement(1, 'DebugMessageTextBox')
     toggleElement(1, 'StageBar')
     toggleElement(1, 'AutomatorLoadBar')
@@ -17,10 +16,7 @@ async function setupUpstairsTask(sessionPackage){
     'touchend',doneTestingTask_listener,false)
     document.querySelector("button[name=doneTestingTask]").addEventListener(
     'mouseup',doneTestingTask_listener,false)
-    //document.querySelector("button[name=SyncButton]").addEventListener(
-    //  'mouseup',sync_data_listener,false)
-    document.querySelector("button[name=SyncButton]").addEventListener(
-    'touchend',sync_data_listener,false)
+
 
   
    //================== AWAIT CONNECT TO BLE ==================//
@@ -28,16 +24,18 @@ async function setupUpstairsTask(sessionPackage){
    connectBLEButtonPromise()
    
    DIO = new DropboxIO()
-   var DBX_REDIRECT_URI = DBX_REDIRECT_URI_ROOT + "mkturk.html"
-   await DIO.build(DBX_REDIRECT_URI)
 
+   await DIO.build(window.location.href )
 
-   var savePath = '/testptap'+ENVIRONMENT['agentID']+'.txt'
-   SIO = new S3_IO() 
-   DataWriter = new DataWriter(DIO, savePath)
+   var saveDir = join([INSTALL_SETTINGS.dataDirPath, ENVIRONMENT['agentID']])
+   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, ENVIRONMENT['agentID']])
+   DataWriter = new DataWriter(DIO, debugDir, saveDir, ENVIRONMENT['agentID'])
+
    UX = new UX_poller()
    CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
+
+   SIO = new S3_IO() 
    IB = new ImageBuffer(SIO)
 
    console.log('Loading from landing page')
@@ -65,13 +63,13 @@ async function setupUpstairsTask(sessionPackage){
 
     //========= Start in TEST mode =======//
 
-    
+
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
 
-    
 
-    toggleElement(0, 'TrialCounter')
+
+    toggleElement(1, 'TrialCounter')
     Playspace.toggleBorder(1)
     document.getElementById('drive_juice_button').style.visibility = "hidden"
 

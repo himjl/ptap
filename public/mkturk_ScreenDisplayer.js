@@ -278,7 +278,7 @@ togglePlayspaceBorder(on_or_off){
     }
 
     displayScreenSequence(sequence, t_durations){
-        console.log('calling screen sequence. t_durations', t_durations)
+        //console.log('calling screen sequence. t_durations', t_durations)
         if(typeof(t_durations) == "number"){
             t_durations = [t_durations]
         }

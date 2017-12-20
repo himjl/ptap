@@ -6,10 +6,12 @@ constructor(DIO, agentID, game, taskSequence){
     this.game = game 
     this.taskSequence = taskSequence
     this.saveTimeoutMsec = 5000 
+    this.debugMode = true
 }
 
 async build(){
-    this.checkpointSavePath = join([INSTALL_SETTINGS.checkpointDirPath(), 'Checkpoint_'+this.agentID+'.ckpt'])
+    this.checkpointSavePath = join([INSTALL_SETTINGS.checkpointDirPath, 'Checkpoint_'+this.agentID+'.ckpt'])
+    this.debugCheckpointSavePath = join([INSTALL_SETTINGS.debugCheckpointDirPath, 'debug_Checkpoint_'+this.agentID+'.ckpt'])
 
     var exists = await DIO.exists(this.checkpointSavePath)
     if(exists == true){
@@ -30,11 +32,19 @@ async build(){
 
     this.checkpoint = checkpoint
     this.lastCheckpointSave = performance.now()
-    
+    this.checkpointOnLoad = JSON.parse(JSON.stringify(checkpoint))
 
     this.save_checkpoint()
 
     // Start writing out periodically
+}
+
+debug2record(){
+    this.debugMode = false
+    console.log('old:', this.checkpoint)
+    this.checkpoint = this.checkpointOnLoad
+    console.log('new:', this.checkpoint)
+    console.log('debug2record: CheckPointer reverted to checkpoint on load.')
 }
 
 verify_checkpoint(checkpoint){
@@ -58,8 +68,6 @@ verify_checkpoint(checkpoint){
         checkpoint = this.generate_default_checkpoint()
     }
 
-    console.log(this.generate_hash())
-    console.log(checkpoint['gameHash'])
     return checkpoint
 }
 
@@ -67,7 +75,6 @@ generate_default_checkpoint(){
     var checkpoint = {}
     checkpoint['agentID'] = this.agentID
     checkpoint['gameHash'] = this.generate_hash()
-
     checkpoint['taskNumber'] = 0 
     checkpoint['trialNumberTask'] = 0
     checkpoint['taskReturnHistory'] = []
@@ -98,8 +105,15 @@ async save_checkpoint(){
     this.checkpoint['lastSaveUnixTimestamp'] = (window.performance.timing.navigationStart + performance.now())/1000
     var checkpointString = JSON.stringify(this.checkpoint, null, 2)
     console.log(this.checkpoint)
-    await this.DIO.write_string(checkpointString, this.checkpointSavePath)
-    console.log('Saved checkpoint of size', memorySizeOf(checkpointString, 1))
+
+    if(this.debugMode == true){
+        var savePath = this.debugCheckpointSavePath
+    }
+    else{
+        var savePath = this.checkpointSavePath
+    }
+    await this.DIO.write_string(checkpointString, savePath)
+    console.log('Saved checkpoint at', savePath, 'of size', memorySizeOf(checkpointString, 1))
 }
 
 async request_checkpoint_save(){
@@ -110,7 +124,6 @@ async request_checkpoint_save(){
     }
 
 }
-
 
 
 get_task_number(){
