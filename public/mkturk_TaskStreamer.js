@@ -15,6 +15,7 @@ class TaskStreamerClass{
         this.taskActionHistory = CheckPointer.get_task_action_history() 
         this.TERMINAL_STATE = false
         this.monitoring = true
+        this.punishStreak = 0
 
 
         this.onLoadState = {
@@ -25,6 +26,7 @@ class TaskStreamerClass{
             'taskActionHistory': this.taskActionHistory,
             'TERMINAL_STATE': this.TERMINAL_STATE,
             'monitoring': this.monitoring,
+            'punishStreak':this.punishStreak
         }
     }
     async build(num_trials_per_stage_to_prebuffer){
@@ -58,6 +60,7 @@ class TaskStreamerClass{
         this.TERMINAL_STATE = this.onLoadState['TERMINAL_STATE']
         this.monitoring = this.onLoadState['monitoring']
         this.CheckPointer.debug2record()
+        this.punishStreak = this.onLoadState['punishStreak']
         console.log('debug2record: TaskStreamer reverted to state on load')
     }
 
@@ -166,6 +169,18 @@ class TaskStreamerClass{
             console.log(rewardMap)
             console.log(choiceIdx)
         }
+
+        // Determine punish - apply streak multiplier
+        if(this.taskReturnHistory[this.taskReturnHistory.length-1] == 0){
+            this.punishStreak++
+            var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
+            console.log("Applying time out multiplier...")
+        }
+        else{
+            this.punishStreak = 0
+            var punishTimeOutMsec = tk['punishTimeOutMsec'] 
+        }
+
         
         // Construct image request 
 
@@ -205,16 +220,11 @@ class TaskStreamerClass{
         tP['sampleOnMsec'] = tk['sampleOnMsec'] 
         tP['sampleOffMsec'] = tk['sampleOffMsec']
         tP['choiceTimeLimitMsec'] = tk['choiceTimeLimitMsec'] 
-        tP['punishTimeOutMsec'] = tk['punishTimeOutMsec']
+        tP['punishTimeOutMsec'] = punishTimeOutMsec
+        console.log('punishTimeOutMsec', punishTimeOutMsec)
         tP['rewardTimeOutMsec'] = tk['rewardTimeOutMsec']
 
         return tP
-    }
-
-    get_image_id(i_bag, i_id){
-        var id = []
-
-        return id
     }
 
     update_state(current_trial_outcome){

@@ -29,10 +29,12 @@ DEFAULT_HIT = {
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
+                    "punishStreakTimeOutMultiplier":1.2,
                     "rewardTimeOutMsec":150,
                     "probabilityRepeatWhenWrong":0.5,
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
+
                     }],
         'ENVIRONMENT':{
                       'playspace_degreesVisualAngle':45,

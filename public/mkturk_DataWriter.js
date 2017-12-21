@@ -1,7 +1,7 @@
 class DataWriter{
     constructor(){
         this.trialData = {}
-        this.pollPeriodMsec = 120000
+        this.pollPeriodMsec = 60000 * 5
         this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
         this.lastSaveTimestamp = performance.now()
         this.probeFunctions = {}

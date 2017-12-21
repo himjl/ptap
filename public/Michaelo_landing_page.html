@@ -17,8 +17,8 @@
     "stimulus_objectome_pineapple": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_5946318bc2cdd1947534ae15d43aa7a0d820506e_ty-0.64759_tz0.33642_rxy-5.6836_rxz-71.4586_ryz62.4466_s1.169.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_c50790daa826f1d3fbed5580820c6c91fdded273_ty-0.57074_tz0.84081_rxy-157.3224_rxz64.5421_ryz167.7568_s0.86084.png"]
     }
 
-    IMAGEBAGS = '/MonkeyTurk_upstairs/GameResources/ImageBags/objectome_tokens_ImageBags.json'
-    IMAGEBAGS = 'https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/CanonicalMutator/Canonical_batch0obj0.txt'
+    //IMAGEBAGS = '/MonkeyTurk_upstairs/GameResources/ImageBags/objectome_tokens_ImageBags.json'
+    //IMAGEBAGS = 'https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/CanonicalMutator/Canonical_batch0obj0.txt'
     GAME = {'gameID':'testgame',
             "periodicRewardIntervalMsec":60000,
             "periodicRewardAmount":1,
@@ -49,7 +49,8 @@
                     "sampleOnMsec":200, 
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
-                    "punishTimeOutMsec":400,
+                    "punishTimeOutMsec":100,
+                    "punishStreakTimeOutMultiplier":1,
                     "rewardTimeOutMsec":150,
                     "probabilityRepeatWhenWrong":0,
                     "averageReturnCriterion":0.8, 
@@ -78,10 +79,12 @@
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
+                    "punishStreakTimeOutMultiplier":1.1,
                     "rewardTimeOutMsec":150,
                     "probabilityRepeatWhenWrong":0.5,
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
+
                     }]
 
     ENVIRONMENT = {
