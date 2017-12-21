@@ -210,7 +210,7 @@ class ActionPollerClass{
                 window.addEventListener(event_types[i], this.handleMouseEvent)
             }
             
-            console.log('Added ', event_types[i])
+            //console.log('Added ', event_types[i])
         }   
 
         // Record all the rest of the events

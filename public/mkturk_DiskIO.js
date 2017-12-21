@@ -313,10 +313,10 @@ class DropboxIO{
         return new Promise(function(resolve,reject){
             _this.dbx.filesDownload({path: textfile_path})
             .then(function(data){
-                console.log("Read textfile "+textfile_path+" of size " + data.size)
 
                 var reader = new FileReader()
                 reader.onload = function(e){
+                    console.log("Loaded textfile", textfile_path, 'of size', memorySizeOf(reader.result, 1))
                     resolve(reader.result)
                 }
                 reader.readAsText(data.fileBlob)
@@ -429,6 +429,14 @@ class LocalStorageIO{
       string = atob(string)
       //localStorage.removeItem(key);
       return JSON.parse(string)
+    }
+
+    static async write_string(datastr, key){
+        if(datastr.constructor != String){
+            datastr = JSON.stringify(datastr)
+        }
+        await localStorage.setItem(key, btoa(datastr))
+
     }
 }   
 

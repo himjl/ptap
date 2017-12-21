@@ -17,10 +17,10 @@ constructor(DIO){
 	this.DIO = DIO 
 
 	this.cache_dict = {}; // image_path:image_actual
-
+	this.cache_members = []; // earliest image_path -> latest image_path 
 	// Todo: double buffer. Currently do not do anything.
 	this.num_elements_in_cache = 0; // tracking variable
-	this.max_buffer_size = 10; // (for now, arbitrary) number of unique images to keep in buffer
+	this.max_buffer_size = 100; // (for now, arbitrary) number of unique images to keep in buffer
 }
 
 
@@ -61,18 +61,22 @@ async clear_cache(){
 async cache_these_images(imagenames){
 	//console.log('at cache_these_images')
 	//console.log(imagenames)
+	var numRequestedImages = 0
+	var lockedImageNames = [] // Requested imagenames that are currently in cache 
 	try{
 
 		if (typeof(imagenames) == "string"){
 			var filename = imagenames; 
+
 			if (!(filename in this.cache_dict)){
 				var image = await this.DIO.load_image(filename); 
 				this.cache_dict[filename] = image; 
-				this.num_elements_in_cache++
-				return 
+				this.cache_members.push(filename)
+				numRequestedImages++
+				//this.num_elements_in_cache++
 			}
 			else{
-				return 
+				lockedImageNames.push(filename)
 			}
 		}
 
@@ -90,20 +94,57 @@ async cache_these_images(imagenames){
 				}
 				else if(filename in this.cache_dict){
 					//console.log('image already cached')
+					lockedImageNames.push(filename)
 					continue
 				}
 			}
 			var image_array = await this._loadImageArray(requested_imagenames)
 			for (var i = 0; i < image_array.length; i++){
 				this.cache_dict[requested_imagenames[i]] = image_array[i]; 
-				this.num_elements_in_cache++; 
+				this.cache_members.push(requested_imagenames[i])
+				numRequestedImages++ //this.num_elements_in_cache++; 
 			}
-			return
 		}
 
+		
+	
+		if(numRequestedImages > this.max_buffer_size){
+			this.max_buffer_size = numRequestedImages
+		}
+
+		this.num_elements_in_cache += numRequestedImages
 		if (this.num_elements_in_cache > this.max_buffer_size){
+
 			console.log('Exceeded max buffer size: '+this.num_elements_in_cache+'/'+this.max_buffer_size)
-			console.log('But I did not do anything.')
+			// Get delete pool 
+
+			// Remove oldest entries that are not locked 
+
+			var overflowAmount = this.num_elements_in_cache - this.max_buffer_size
+			var numDeletableOldEntries = Math.max(0, this.max_buffer_size - (numRequestedImages - overflowAmount))
+			numDeletableOldEntries  = Math.max(Math.floor(numDeletableOldEntries/2), numRequestedImages) // Delete half of deletable
+
+			// Iterate over first deletableOldEntries and delete the ones that are not locked
+			var deletePromiseArray = []
+			var numDeleted = 0
+			for (var j = 0; j<numDeletableOldEntries; j++){
+				if (lockedImageNames.indexOf(this.cache_members[j]) == -1){
+					deletePromiseArray.push(this.remove_image_from_cache(this.cache_members[j]))
+					numDeleted = numDeleted+1
+				}
+				else{
+					console.log('skipped deletion of ',j,  this.cache_members[j])
+				}
+			}
+
+			Promise.all(deletePromiseArray) // Not blocking
+
+			this.cache_members = this.cache_members.slice(numDeletableOldEntries)
+			this.cache_members.push(...lockedImageNames) // Push locked images to end of queue
+			this.num_elements_in_cache = this.num_elements_in_cache-numDeleted
+
+
+			// todo: don't delete entries that were just requested
 		}
 
 	}

@@ -197,8 +197,11 @@ class PlaySpaceClass{
         if (this.periodicRewardAmount <= 0){
             return
         }
+        if (this.periodicRewardIntervalMsec <= 0){
+            return
+        }
 
-        console.log('Called auto reinforcer')
+        console.log('Called auto reinforcer:',this.periodicRewardAmount, 'reward(s) every', this.periodicRewardIntervalMsec/1000, 'seconds')
 
         this.SoundPlayer.play_sound('reward_sound')
         var _this = this
@@ -280,7 +283,7 @@ class PlaySpaceClass{
             // TODO: rebuffer frames on resize (needs to be controlled by Playspace?) - retranslate canvas 
             //_this.ScreenDisplayer.requestRefreshCurrentFrames()
 
-            console.log('onWindowResize', bounds['leftbound'], bounds['topbound'])
+            console.log('onWindowResize():', bounds['leftbound'], bounds['topbound'])
         }
 
         onWindowResize()

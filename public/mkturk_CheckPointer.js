@@ -104,7 +104,6 @@ update(checkpointPackage){
 async save_checkpoint(){
     this.checkpoint['lastSaveUnixTimestamp'] = (window.performance.timing.navigationStart + performance.now())/1000
     var checkpointString = JSON.stringify(this.checkpoint, null, 2)
-    console.log(this.checkpoint)
 
     if(this.debugMode == true){
         var savePath = this.debugCheckpointSavePath
