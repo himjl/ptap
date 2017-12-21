@@ -6,8 +6,8 @@ DEFAULT_HIT = {
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
         "bonusUSDPerCorrect":0.0005, 
-        "onFinish":"loop", // terminate, continue
-        "minimumTrials":100,
+        "onFinish":"continue", // terminate, continue
+        "minimumTrials":50,
         "maximumTrials":200,
         }, 
 'TASK_SEQUENCE':[{
@@ -32,9 +32,9 @@ DEFAULT_HIT = {
                 "punishTimeOutMsec":400,
                 "punishStreakTimeOutMultiplier":1.2,
                 "rewardTimeOutMsec":150,
-                "probabilityRepeatWhenWrong":0.5,
-                "averageReturnCriterion":0.8, 
-                "minTrialsCriterion":5,
+                "probabilityRepeatWhenWrong":0,
+                "averageReturnCriterion":0, 
+                "minTrialsCriterion":50,
             }],
 'ENVIRONMENT':{
               'playspace_degreesVisualAngle':45,

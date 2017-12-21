@@ -273,32 +273,49 @@ class TaskStreamerClass{
         }
 
         var transition = false
-        if (this.taskReturnHistory.length >= minTrialsCriterion ){
+        if (this.taskReturnHistory.length >= minTrialsCriterion){
             var averageReturn = np.mean(this.taskReturnHistory.slice(-1 * minTrialsCriterion))
             if(averageReturn >= averageReturnCriterion){
                 transition = true
-                this.taskNumber++
-                this.taskReturnHistory = []
-                this.taskActionHistory = []
-                this.trialNumberTask = 0
-                this.lastTrialPackage = undefined
             }
         }
 
-        // Check termination condition
+        // Perform transition
         if(transition == true){
-            if(this.taskNumber >= this.taskSequence.length){
+            var nextTaskNumber = 0 
+            var nextTaskReturnHistory = []
+            var nextTaskActionHistory = []
+            var nextTrialNumberTask = 0 
+            var nextLastTrialPackage = undefined 
+
+            // Check termination condition
+            if(this.taskNumber >= this.taskSequence.length-1){
                 var onFinish = this.game['onFinish']
                 if(onFinish == 'loop'){
-                    this.taskNumber = 0
+                    console.log('Reached end of TASK_SEQUENCE: looping')
+                    nextTaskNumber = 0
                 }
                 else if(onFinish == 'terminate'){
+                    console.log('Reached end of TASK_SEQUENCE: terminating')
                     this.TERMINAL_STATE = true 
                 }
                 else if(onFinish == 'continue'){
+                    console.log('Reached end of TASK_SEQUENCE: continuing')
                     this.monitoring = false
+                    nextTaskNumber = this.taskNumber
+                    nextTaskReturnHistory = this.taskReturnHistory 
+                    nextTaskActionHistory = this.taskActionHistory 
+                    nextTrialNumberTask = this.trialNumberTask
+                    nextLastTrialPackage = this.lastTrialPackage
                 }
             }
+
+            // Execute transition 
+            this.taskNumber = nextTaskNumber
+            this.taskReturnHistory = nextTaskReturnHistory
+            this.taskActionHistory = nextTaskActionHistory
+            this.trialNumberTask = nextTrialNumberTask
+            this.lastTrialPackage = nextLastTrialPackage
         }
 
         // Update checkpoint 
