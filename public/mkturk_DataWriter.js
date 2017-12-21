@@ -120,15 +120,17 @@ class DropboxDataWriter extends DataWriter{
     async write_out(){
         
         if(performance.now() - this.lastSaveTimestamp < this.saveTimeoutPeriodMsec){
-            console.log('skipping save')
+            //console.log('skipping save')
             return 
         }
 
         var dataString = JSON.stringify(this.package_data(), null, 4)
-        
-        await this.DIO.write_string(dataString, this.savePath)
-        console.log('Saved. Size:', memorySizeOf(dataString, 1), 'Last save (msec ago):', Math.round(performance.now() - this.lastSaveTimestamp))
+
+        var savedMsecAgo = Math.round(performance.now() - this.lastSaveTimestamp)
         this.lastSaveTimestamp = performance.now()
+        await this.DIO.write_string(dataString, this.savePath)
+        console.log('Saved. Size:', memorySizeOf(dataString, 1), 'Last save (msec ago):', savedMsecAgo)
+        
     }
 }
 

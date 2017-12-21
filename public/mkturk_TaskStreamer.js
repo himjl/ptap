@@ -16,6 +16,7 @@ class TaskStreamerClass{
         this.TERMINAL_STATE = false
         this.monitoring = true
         this.punishStreak = 0
+        this.lastTrialPackage = undefined
 
 
         this.onLoadState = {
@@ -26,7 +27,8 @@ class TaskStreamerClass{
             'taskActionHistory': this.taskActionHistory,
             'TERMINAL_STATE': this.TERMINAL_STATE,
             'monitoring': this.monitoring,
-            'punishStreak':this.punishStreak
+            'punishStreak':this.punishStreak,
+            'lastTrialPackage':this.lastTrialPackage,
         }
     }
     async build(num_trials_per_stage_to_prebuffer){
@@ -61,6 +63,7 @@ class TaskStreamerClass{
         this.monitoring = this.onLoadState['monitoring']
         this.CheckPointer.debug2record()
         this.punishStreak = this.onLoadState['punishStreak']
+        this.lastTrialPackage = this.onLoadState['lastTrialPackage']
         console.log('debug2record: TaskStreamer reverted to state on load')
     }
 
@@ -98,12 +101,36 @@ class TaskStreamerClass{
     }
 
     async get_trial(i){
-        // called at the beginning of each trial 
-        // returns images, reward maps, and other necessary things for runtrial()
+        
         var trial_idx = i || this.trialNumberTask
         var tP = {}
 
         var tk = this.taskSequence[this.taskNumber]
+
+
+        // If last trial was wrong...
+        if(this.taskReturnHistory[this.taskReturnHistory.length-1] == 0){
+            // ...apply punish streak multiplier 
+            this.punishStreak++
+
+            // ...if available, repeat the last trial with some probability (and any applicable punish streak)
+            if(Math.random() <= tk['probabilityRepeatWhenWrong']){
+                console.log('REPEATING LAST TRIAL.')
+                if(this.lastTrialPackage != undefined){
+                    tP = this.lastTrialPackage 
+                    tP['punishTimeOutMsec'] = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
+                    return tP
+                }
+                else{
+                    console.log('Last trial not available. Generating new trial..')
+                }
+            }
+        }
+
+        else{
+            this.punishStreak = 0
+            var punishTimeOutMsec = tk['punishTimeOutMsec'] 
+        }
 
         // Select sample bag
         var samplePool = tk['sampleBagNames']
@@ -170,17 +197,7 @@ class TaskStreamerClass{
             console.log(choiceIdx)
         }
 
-        // Determine punish - apply streak multiplier
-        if(this.taskReturnHistory[this.taskReturnHistory.length-1] == 0){
-            this.punishStreak++
-            var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
-            console.log("Applying time out multiplier...")
-        }
-        else{
-            this.punishStreak = 0
-            var punishTimeOutMsec = tk['punishTimeOutMsec'] 
-        }
-
+     
         
         // Construct image request 
 
@@ -214,16 +231,14 @@ class TaskStreamerClass{
         tP['actionXCentroid'] = tk['actionXCentroid']
         tP['actionYCentroid'] = tk['actionYCentroid']
         tP['actionRadiusDegrees'] = tk['actionRadiusDegrees']
-
         tP['choiceRewardMap'] = rewardMap
-
         tP['sampleOnMsec'] = tk['sampleOnMsec'] 
         tP['sampleOffMsec'] = tk['sampleOffMsec']
         tP['choiceTimeLimitMsec'] = tk['choiceTimeLimitMsec'] 
         tP['punishTimeOutMsec'] = punishTimeOutMsec
-        console.log('punishTimeOutMsec', punishTimeOutMsec)
         tP['rewardTimeOutMsec'] = tk['rewardTimeOutMsec']
 
+        this.lastTrialPackage = tP
         return tP
     }
 
@@ -266,6 +281,7 @@ class TaskStreamerClass{
                 this.taskReturnHistory = []
                 this.taskActionHistory = []
                 this.trialNumberTask = 0
+                this.lastTrialPackage = undefined
             }
         }
 
