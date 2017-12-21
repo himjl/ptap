@@ -9,6 +9,7 @@ DEFAULT_HIT = {
         "onFinish":"continue", // terminate, continue
         "minimumTrials":50,
         "maximumTrials":200,
+        "randomSeed":undefined,
         }, 
 'TASK_SEQUENCE':[{
                 "taskType":"SR", 

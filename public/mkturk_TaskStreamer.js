@@ -103,8 +103,19 @@ class TaskStreamerClass{
     async get_trial(i){
         
         var trial_idx = i || this.trialNumberTask
-        var tP = {}
+        // Seed random
+        if(this.game['randomSeed'] == undefined || this.game['randomSeed'].constructor != Number){
+            //console.log('no random seed specified')
+            var trialSeed = undefined 
+        }
+        else{
+            //var trialSeed = cantor(trial_idx, this.game['randomSeed'])
+            console.log('trialSeed', trialSeed)
+        }
+        
+        Math.seedrandom(trialSeed)
 
+        var tP = {}
         var tk = this.taskSequence[this.taskNumber]
 
 

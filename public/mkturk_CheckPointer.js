@@ -41,9 +41,7 @@ async build(){
 
 debug2record(){
     this.debugMode = false
-    console.log('old:', this.checkpoint)
     this.checkpoint = this.checkpointOnLoad
-    console.log('new:', this.checkpoint)
     console.log('debug2record: CheckPointer reverted to checkpoint on load.')
 }
 

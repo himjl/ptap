@@ -210,11 +210,7 @@ function getAllInstancesIndexes(arr, val){
 }
 
 // Shuffles an array
-function shuffle(array, RNGseed) {
-  if(RNGseed != undefined){
-    Math.seedrandom(RNGseed)
-  }
-  
+function shuffle(array) {
 
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -237,6 +233,14 @@ function shuffle(array, RNGseed) {
 function cantor(k1, k2){
   // Cantor hash function maps two nonnegative integers into another nonnegative integer 
   // https://stackoverflow.com/questions/919612/mapping-two-integers-to-one-in-a-unique-and-deterministic-way
+  
+  if(k1 == undefined || k2 == undefined){
+    return undefined 
+  }
+
+  if(k1.constructor != Number || k2.constructor != Number){
+    return undefined 
+  }
   
   if (k1 < 0){
     k1 = -1 * k1 * 2 - 1
