@@ -2,7 +2,7 @@
 DEFAULT_HIT = {
 
 'GAME': {
-        'gameID':'failsafeDefaultGame',
+        'gameID':'failsafeDefaultGameObjectomeAirplaneVsAnt',
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
         "bonusUSDPerCorrect":0.0005, 

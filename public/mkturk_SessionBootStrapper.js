@@ -65,7 +65,7 @@ class SessionBootStrapper{
             loadMethod = 'localstorage'
         }
         else{
-            console.warn('SessionBootStrapper.infer_load_method could not infer for key', s, '; not supported')
+            console.log('SessionBootStrapper.infer_load_method could not infer for key', s, '; not supported')
             loadMethod = undefined
         }
 
@@ -91,7 +91,7 @@ class SessionBootStrapper{
         }
 
         else{
-            console.warn('SessionBootStrapper.load called with loadMethod', loadMethod, '; not supported')
+            console.log('SessionBootStrapper.load called with loadMethod', loadMethod, '; not supported')
             return undefined
         }
     }
@@ -109,7 +109,7 @@ class Verifier{
     }
 
     on_verification_fail(){
-        console.warn("Verification of sessionPackage FAILED. Using failsafe task...")
+        console.warn("Verification FAILED. Using failsafe game...")
         var sessionPackage = DEFAULT_HIT
         this.verificationLog['usingFailSafeHIT'] = true
         return sessionPackage
@@ -121,35 +121,32 @@ class Verifier{
         
 
         // Check that all keys exist 
-        var necessary_keys = ['IMAGEBAGS', 'GAME', 'ENVIRONMENT', 'TASK_SEQUENCE']
-        for (var i in necessary_keys){
-            var key = necessary_keys[i]
-            if(sessionPackage[key] == undefined){
-                console.warn('sessionPackage is missing the key', key)
+        var necessary_keys = {
+            'IMAGEBAGS':Object, 
+            'GAME':Object, 
+            'ENVIRONMENT':Object, 
+            'TASK_SEQUENCE':Array}
+
+        for (var key in necessary_keys){
+            if(!sessionPackage.hasOwnProperty(key)){
+                console.warn('Verifier error: sessionPackage is missing the key', key)
                 verified = false
-                return this.on_verification_fail()
+                continue
+            }
+            if(sessionPackage[key] == undefined){
+                console.warn('Verifier error: sessionPackage[\"'+key+'\"]  == undefined')
+                verified = false
+                continue
+            }
+            var correctConstructor = necessary_keys[key]
+            if(sessionPackage[key].constructor != correctConstructor){
+                console.warn('Verifier error: sessionPackage[\"', key, '\"] is of incorrect type', sessionPackage['IMAGEBAGS'].constructor)
+                verified = false 
+                continue
             }
         }
 
-        // Check that they are all of the correct type   
-        if(sessionPackage['IMAGEBAGS'].constructor != Object){
-            console.warn('sessionPackage["IMAGEBAGS"] is of incorrect type', sessionPackage['IMAGEBAGS'].constructor)
-            verified = false 
-        }
-        if(sessionPackage['GAME'].constructor !=Object){
-            console.warn('sessionPackage["GAME"] is of incorrect type', sessionPackage['GAME'].constructor)
-            verified = false
-        }
-        if(sessionPackage['ENVIRONMENT'].constructor != Object){
-            console.warn('sessionPackage["ENVIRONMENT"] is of incorrect type', sessionPackage['ENVIRONMENT'].constructor)
-            verified = false
-        }
-        if(sessionPackage['TASK_SEQUENCE'].constructor != Array){
-            console.warn('sessionPackage["TASK_SEQUENCE"] is of incorrect type', sessionPackage['TASK_SEQUENCE'].constructor)
-            verified = false
-        }
-
-        // Check that all imagebags referenced in TASK_SEQUENCE are in IMAGEBAGS 
+        // Check that all imagebags referenced in TASK_SEQUENCE are in IMAGEBAGS with at least one entry
         if(verified == false){
             sessionPackage = this.on_verification_fail()
         }

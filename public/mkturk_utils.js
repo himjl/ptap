@@ -293,7 +293,18 @@ String.prototype.hashCode = function(){
 
 //================== UTILITIES ==================//
 
+function hashJSON(j){
+  // Return JSON hash 
 
+  // Invariant to: 
+  // Order of keys in objects 
+  // Order of elements in arrays containing all strings
+
+  // Subject to: 
+  // Order of elements in arrays containing all numbers 
+
+  // TODO
+}
 
 
 function join(parts, sep){
