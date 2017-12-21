@@ -27,7 +27,29 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
 
-  var run_preview_mode = false
+
+
+
+  // Convenience - if debugging on my machine, skip instructions etc. 
+  if(window.location.href.indexOf('localhost')!=-1){
+    var show_instructions = false
+    var show_hand_selection = false 
+    var show_device_selection = false 
+    var run_preview_mode = false
+  }
+  else{
+    var show_instructions = true
+    var show_hand_selection = true 
+    var show_device_selection = true 
+    if(ENVIRONMENT['assignmentId'] = 'assignmentId_not_found'){
+      var run_preview_mode = true
+    }
+    else{
+      var run_preview_mode = false
+    }
+  }
+
+
   if(run_preview_mode == true){
       console.log('RUNNING IN PREVIEW MODE')
       var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')
@@ -37,17 +59,16 @@ async function setup_mechanicalturk_session(sessionPackage){
       }
   }
 
-  var show_instructions = false
   if(show_instructions == true){
     await UX.run_instructions_dialogue()
   }
 
-  var show_hand_selection = false 
+  
   if(show_hand_selection == true){
     ENVIRONMENT['handedness'] = await UX.run_hand_selection_dialogue()
   }
 
-  var show_device_selection = false 
+  
   if(show_device_selection){    
     ENVIRONMENT['inputDevice'] = await UX.run_device_selection_dialogue()
   }

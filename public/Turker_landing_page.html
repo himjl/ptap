@@ -185,7 +185,15 @@ async function getIP(){
     await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
 
     await new Promise(resolve => setTimeout(resolve, 1000));
-    window.location.href = "mkturk.html"
+
+    var currentURL = window.location.href 
+    if(currentURL.indexOf('localhost')!=-1){
+        window.location.href = 'mkturk.html'
+    }
+    else{
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"
+    }
+    
 
 })()
 

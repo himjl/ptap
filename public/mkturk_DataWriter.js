@@ -170,7 +170,7 @@ class MechanicalTurkDataWriter extends DataWriter{
 
         await sleep(1500)
 
-        //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+        document.getElementById("MechanicalTurk_SubmissionForm").submit();
         console.log('SIMULATED SUBMISSION TO TURK')
     }
 }
