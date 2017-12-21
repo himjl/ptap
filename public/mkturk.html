@@ -126,7 +126,8 @@ sessionPackage['ENVIRONMENT'] = ENVIRONMENT
 sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE
 
 // Verify inputs
-sessionPackage = verify.check_session_package(sessionPackage)
+VF = new Verifier()
+sessionPackage = VF.check_session_package(sessionPackage)
 
 // Construct session
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
@@ -147,11 +148,15 @@ DataWriter.deposit_key_data('ENVIRONMENT', ENVIRONMENT)
 DataWriter.deposit_key_data('GAME', GAME)
 DataWriter.deposit_key_data('TASK_SEQUENCE', TASK_SEQUENCE)
 DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
+DataWriter.deposit_key_data('_BOOTSTRAP_LOG', SBS.get_bootstrap_log())
+DataWriter.deposit_key_data('_VERIFICATION_LOG', VF.get_verification_log())
+
 
 // Attach async data probes 
-DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
-DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
-DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
+DataWriter.attach_probe(Playspace, 'deviceLog', '_DEVICE_LOG')
+DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', '_ACTION_LOG')
+DataWriter.attach_probe(Playspace, 'rewardLog', '_REWARD_LOG')
+
 
 // Kick off async threads 
 Playspace.start_periodic_rewards()

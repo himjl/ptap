@@ -1,9 +1,13 @@
 class SessionBootStrapper{
     constructor(){
         this.SIO = new S3_IO()
+
+        this.bootstrapLog = {}
+        this.bootstrapLog['loadMethods'] = {}
+        this.bootstrapLog['inputLocations'] = {}
     }   
     async get(key){
-        // IMAGEBAGS, GAME, ENVIRONMENT, TASK_SEQUENCE
+        // key: IMAGEBAGS, GAME, ENVIRONMENT, TASK_SEQUENCE
         var k = await LocalStorageIO.load_string(key)
         if (k.startsWith('\'') || k.startsWith('\"')){
             k = k.slice(1)
@@ -13,11 +17,24 @@ class SessionBootStrapper{
         var VALUE = await this.load(k, loadMethod)
 
         if(key == 'IMAGEBAGS'){
-            if(memorySizeOf(k) < 500000){
+            if(loadMethod != 'localstorage'){
                 this.imagebagsPath = k
+            }
+            else{
+                this.imagebagsPath = 'localstorage'
             }
         }
 
+
+        // Log .get operation
+        this.bootstrapLog['loadMethods'][key] = loadMethod
+        if(loadMethod != 'localstorage'){
+            this.bootstrapLog['inputLocations'][key] = k
+        }
+        else{
+            this.bootstrapLog['inputLocations'][key] = loadMethod
+        }
+        
         return VALUE
     }
 
@@ -29,6 +46,11 @@ class SessionBootStrapper{
 
         return imagebagsPath
     }
+
+    get_bootstrap_log(){
+        return this.bootstrapLog
+    }
+
     infer_load_method(s){
         
         var loadMethod
@@ -75,18 +97,25 @@ class SessionBootStrapper{
     }
 }
 
-class verify{
+class Verifier{
     constructor(){
-
+        this.verificationLog = {}
+        this.verificationLog['verified'] = false 
+        this.verificationLog['usingFailSafeHIT'] = false
+        this.verificationLog['IMAGEBAGS_hash'] = undefined 
+        this.verificationLog['GAME_hash'] = undefined 
+        this.verificationLog['ENVIRONMENT_hash'] = undefined 
+        this.verificationLog['TASK_SEQUENCE_hash'] = undefined 
     }
 
-    static on_verification_fail(){
+    on_verification_fail(){
         console.warn("Verification of sessionPackage FAILED. Using failsafe task...")
         var sessionPackage = DEFAULT_HIT
+        this.verificationLog['usingFailSafeHIT'] = true
         return sessionPackage
     }
 
-    static check_session_package(sessionPackage){
+    check_session_package(sessionPackage){
         var verified = true
         var use_default_HIT = false
         
@@ -122,13 +151,19 @@ class verify{
 
         // Check that all imagebags referenced in TASK_SEQUENCE are in IMAGEBAGS 
         if(verified == false){
-            return this.on_verification_fail()
+            sessionPackage = this.on_verification_fail()
         }
         if(verified == true){
             console.log("sessionPackage PASSED all tests.")
         }
 
+        // Log .check_session_package call
+        this.verificationLog['verified'] = verified
         return sessionPackage
+    }
+
+    get_verification_log(){
+        return this.verificationLog
     }
 }
 
