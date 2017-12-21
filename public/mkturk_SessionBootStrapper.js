@@ -115,7 +115,7 @@ class Verifier{
         return sessionPackage
     }
 
-    check_session_package(sessionPackage){
+    verify_session_package(sessionPackage){
         var verified = true
         var use_default_HIT = false
         
@@ -144,6 +144,8 @@ class Verifier{
                 verified = false 
                 continue
             }
+
+            this.verificationLog[key+'_hash'] = JSON.stringify(sessionPackage[key]).hashCode()
         }
 
         // Check that all imagebags referenced in TASK_SEQUENCE are in IMAGEBAGS with at least one entry

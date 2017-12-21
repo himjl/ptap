@@ -126,7 +126,7 @@ sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE
 
 // Verify inputs
 VF = new Verifier()
-sessionPackage = VF.check_session_package(sessionPackage)
+sessionPackage = VF.verify_session_package(sessionPackage)
 
 // Construct session
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
