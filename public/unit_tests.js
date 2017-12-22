@@ -27,5 +27,6 @@ async function overloadImageBuffer(){
 }
 
 async function fillUpDataWriter(){
-    DataWriter
+    var x = np.zeros(5000000)
+    DataWriter.deposit_key_data(x)
 }

@@ -105,7 +105,12 @@
     await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
 
     await new Promise(resolve => setTimeout(resolve, 1000));
-    window.location.href = "mkturk.html"
+    
+    // Hacky solution to prevent caching
+
+    window.location.href = "mkturk.html"//?randomid=" +Math.random()
+
+    //https://stackoverflow.com/questions/41041136/avoid-cache-issues-for-web-application-with-iframe
 
 
 

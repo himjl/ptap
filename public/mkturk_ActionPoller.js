@@ -5,7 +5,6 @@ class ActionPollerClass{
         this.event_types = event_types    
         this.calibrateBounds(bounds)    
         this._response_promise
-        this.boundingBoxes = []
 
         this._resolveFunc
         this._errFunc
@@ -66,6 +65,7 @@ class ActionPollerClass{
                                         'timestamp':t, 
                                         'x':x, 
                                         'y':y}
+                        console.log('Resolved', event_type, outcome)
                         this._resolveFunc(outcome)
                     }
                 }
@@ -77,12 +77,15 @@ class ActionPollerClass{
                         'timestamp':t, 
                         'x':x, 
                         'y':y}
+                        console.log('Resolved2',event_type, outcome)
+                    this._resolveFunc(outcome)
                 }   
             }
         }
 
-        var _this = this
         this.handleTouchEvent = function(event){
+            // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent
+            event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
             var x = event.targetTouches[0].pageX - _this.leftbound
             var y = event.targetTouches[0].pageY - _this.topbound
@@ -92,6 +95,7 @@ class ActionPollerClass{
         }  
 
         this.recordTouchEvent = function(event){
+            event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
             var x = event.targetTouches[0].pageX - _this.leftbound
             var y = event.targetTouches[0].pageY - _this.topbound
@@ -135,7 +139,7 @@ class ActionPollerClass{
         this.bottombound = bounds['bottombound']
 
     }
-    create_action_regions(xCentroidPixels, yCentroidPixels, radiusPixels, useComplementAsRegion){
+    create_action_regions(xCentroidPixels, yCentroidPixels, radiusPixels){
         // assumes circular 
         this.actionRadii = []
         this.actionCentroids = []
@@ -155,16 +159,13 @@ class ActionPollerClass{
         }
         this.actionRadii = radiusPixels
         
-        this.useComplementAsRegion = useComplementAsRegion
-
-        this.listening = true
-
-
+        
     }
 
     Promise_wait_until_active_response(){
         // 
         var _this = this
+        this.listening = true
         this._response_promise = new Promise(function(resolve, reject){
             _this._resolveFunc = resolve
             _this._errFunc = reject
@@ -204,7 +205,7 @@ class ActionPollerClass{
 
         for(var i = 0; i < event_types.length; i++){
             if(event_types[i] == 'touchmove' || event_types[i] == 'touchstart' || event_types[i] == 'touchend'){
-                window.addEventListener(event_types[i], this.handleTouchEvent, {passive:true})
+                window.addEventListener(event_types[i], this.handleTouchEvent, {passive:false})
             }
             else if(event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
                 window.addEventListener(event_types[i], this.handleMouseEvent)
@@ -223,7 +224,7 @@ class ActionPollerClass{
                 }
 
                 if(e == 'touchmove' || e == 'touchstart' || e == 'touchend'){
-                    window.addEventListener(e, this.recordTouchEvent, {passive:true})
+                    window.addEventListener(e, this.recordTouchEvent, {passive:false}) //https://github.com/bevacqua/dragula/issues/468
                 }
                 else if(e == 'mousemove' || e == 'mouseup'){
                     window.addEventListener(e, this.recordMouseEvent)

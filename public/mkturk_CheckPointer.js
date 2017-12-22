@@ -149,8 +149,6 @@ get_task_action_history(){
 
 
 
-
-
 class MechanicalTurkCheckPointer extends CheckPointerClass{ 
 
     constructor(game, taskSequence){
