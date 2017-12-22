@@ -159,13 +159,14 @@ class MechanicalTurkDataWriter extends DataWriter{
         document.getElementById("hitId").value = this.hitId
         document.getElementById("submission_data").value = result_str;
 
+        console.log('submi', window.location.href)
         if(this.inSandboxMode == true){
             var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit" 
         }
         else if(this.inSandboxMode == false){
             var submit_url = "https://www.mturk.com/mturk/externalSubmit"
         }
-
+        var submit_url = "https://www.mturk.com/mturk/externalSubmit"
         document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
 
         await sleep(1500)
