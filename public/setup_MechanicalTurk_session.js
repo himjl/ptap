@@ -7,7 +7,8 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   SIO = new S3_IO() 
   IB = new ImageBuffer(SIO)
-  CheckPointer = new MechanicalTurkCheckPointer()
+  CheckPointer = new MechanicalTurkCheckPointer(GAME, TASK_SEQUENCE)
+  await CheckPointer.build()
   TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
   await TaskStreamer.build(5)
   DataWriter = new MechanicalTurkDataWriter(ENVIRONMENT['assignmentId'], ENVIRONMENT['hitId'], ENVIRONMENT['inSandboxMode'])

@@ -34,7 +34,7 @@ class az{
     }
     static detect_sandbox_mode(){
         var submitToURL = this._extract_url_string('turkSubmitTo', '')
-        console.log(submitToURL)
+        console.log('submittoURL', submitToURL)
         if (submitToURL.indexOf('workersandbox')!=-1){
             var inSandboxMode = true
         }
@@ -69,7 +69,6 @@ class az{
       }
       
       xhttp.open("GET", "https://api.ipify.org?format=json", true);
-      console.log("xhttp", xhttp)
 
       xhttp.send();
       var s = await p

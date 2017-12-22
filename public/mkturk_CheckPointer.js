@@ -1,10 +1,23 @@
-class DropboxCheckPointer{ 
+class CheckPointerClass{
+    constructor(game, taskSequence){
+        this.game = game 
+        this.taskSequence = taskSequence
+    }
+
+    generate_hash(){
+        var hash = JSON.stringify(this.game) + JSON.stringify(this.taskSequence)
+        hash = hash.hashCode()
+        return hash
+    }
+}
+
+class DropboxCheckPointer extends CheckPointerClass{ 
 
 constructor(DIO, agentID, game, taskSequence){
+    super(game, taskSequence)
+
     this.DIO = DIO
     this.agentID = agentID
-    this.game = game 
-    this.taskSequence = taskSequence
     this.saveTimeoutMsec = 5000 
     this.debugMode = true
 }
@@ -80,11 +93,6 @@ generate_default_checkpoint(){
     
     return checkpoint
 }
-generate_hash(){
-    var hash = JSON.stringify(this.game) + JSON.stringify(this.taskSequence)
-    hash = hash.hashCode()
-    return hash
-}
 
 update(checkpointPackage){
 
@@ -139,39 +147,50 @@ get_task_action_history(){
 }
 }
 
-class MechanicalTurkCheckPointer{ 
-
-constructor(){
-
-}
-
-debug2record(){
-}
 
 
-update(checkpointPackage){
-}
 
 
-async request_checkpoint_save(){
-    return
-}
+class MechanicalTurkCheckPointer extends CheckPointerClass{ 
+
+    constructor(game, taskSequence){
+        super(game, taskSequence)
+
+    }
+
+    async build(){
+        // Try loading checkpoint if it exists 
+        //this.checkpoint = await LocalStorageIO.load_string('ptap_checkpoint')
+
+    }
+
+    debug2record(){
+    }
 
 
-get_task_number(){
-  return 0
-}
+    update(checkpointPackage){
+    }
 
-get_trial_number_task(){
-  return 0
-}
 
-get_task_return_history(){
-  return []
-}
-get_task_action_history(){
-  return []
-}
+    async request_checkpoint_save(){
+        return
+    }
+
+
+    get_task_number(){
+      return 0
+    }
+
+    get_trial_number_task(){
+      return 0
+    }
+
+    get_task_return_history(){
+      return []
+    }
+    get_task_action_history(){
+      return []
+    }
 }
 
 
