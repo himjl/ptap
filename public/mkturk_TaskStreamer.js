@@ -123,13 +123,14 @@ class TaskStreamerClass{
         if(this.taskReturnHistory[this.taskReturnHistory.length-1] == 0){
             // ...apply punish streak multiplier 
             this.punishStreak++
+            var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
 
             // ...if available, repeat the last trial with some probability (and any applicable punish streak)
             if(Math.random() <= tk['probabilityRepeatWhenWrong']){
                 console.log('REPEATING LAST TRIAL.')
                 if(this.lastTrialPackage != undefined){
                     tP = this.lastTrialPackage 
-                    tP['punishTimeOutMsec'] = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
+                    tP['punishTimeOutMsec'] = punishTimeOutMsec
                     return tP
                 }
                 else{

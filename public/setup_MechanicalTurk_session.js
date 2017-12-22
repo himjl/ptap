@@ -41,14 +41,13 @@ async function setup_mechanicalturk_session(sessionPackage){
     var show_instructions = true
     var show_hand_selection = true 
     var show_device_selection = true 
-    if(ENVIRONMENT['assignmentId'] = 'assignmentId_not_found'){
+    if(ENVIRONMENT['assignmentId'] == 'assignmentId_not_found'|| ENVIRONMENT['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE'){
       var run_preview_mode = true
     }
     else{
       var run_preview_mode = false
     }
   }
-
 
   if(run_preview_mode == true){
       console.log('RUNNING IN PREVIEW MODE')

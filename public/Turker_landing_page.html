@@ -12,8 +12,9 @@ function extractURLdata(){
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp(regexS);
     var results = regex.exec(window.location.href) || ["", "workerId_not_found"] 
-    console.log(results)
+    
     workerId = results[1];
+    console.log(workerId)
 
     // Extract assignmentId
     name = 'assignmentId'
@@ -21,18 +22,17 @@ function extractURLdata(){
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp(regexS);
     var results = regex.exec(window.location.href) || ["", "assignmentId_not_found"]
-    console.log(results) 
     assignmentId = results[1];
-
+    console.log(assignmentId)
     // Extract hitId
     name = 'hitId'
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regexS = "[\\?&]" + name + "=([^&#]*)";
     var regex = new RegExp(regexS);
     var results = regex.exec(window.location.href) || ["", "hitId_not_found"] 
-    console.log(results)
+    
     hitId = results[1];
-
+    console.log(hitId)
     var URLData = {
     "workerId":workerId,
     "species": "human",
@@ -41,6 +41,7 @@ function extractURLdata(){
     'hitId':hitId,
     'url':window.location.href
     }
+    console.log(URLData)
     return URLData
 }
 
@@ -121,6 +122,7 @@ async function getIP(){
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
+                    "punishStreakTimeOutMultiplier":1.2,
                     "rewardTimeOutMsec":150,
                     "probabilityRepeatWhenWrong":0,
                     "averageReturnCriterion":0.8, 
@@ -149,6 +151,7 @@ async function getIP(){
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
                     "punishTimeOutMsec":400,
+                    "punishStreakTimeOutMultiplier":1.2,
                     "rewardTimeOutMsec":150,
                     "probabilityRepeatWhenWrong":0.5,
                     "averageReturnCriterion":0.8, 
