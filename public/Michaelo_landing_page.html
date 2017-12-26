@@ -2,7 +2,9 @@
 
 <head>
 <meta name="mobile-web-app-capable" content="yes"> <!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
-
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <script>
 
 
@@ -87,23 +89,23 @@
                     "minTrialsCriterion":5,
 
                     }]
-                    
+
     TASK_SEQUENCE = [{
                     "taskType":"SR", 
                     "sampleBagNames":['stimulus_objectome_pineapple', 'stimulus_objectome_flute'], 
                     "rewardMap":{"stimulus_objectome_pineapple":[1, 0], "stimulus_objectome_flute":[0, 1]},
                     "fixationXCentroid":0.5,
                     "fixationYCentroid":0.8,
-                    "fixationDiameterDegrees":3,
+                    "fixationDiameterDegrees":6,
                     "sampleXCentroid":0.5,
                     "sampleYCentroid":0.5,
                     "sampleDiameterDegrees":8,
                     "actionXCentroid":[0.2, 0.8, 0.5], 
                     "actionYCentroid":[0.8, 0.8, 0.2],
-                    "actionDiameterDegrees":[4, 4, 4],
+                    "actionDiameterDegrees":[6, 6, 6],
                     "choiceXCentroid":[0.2, 0.8, 0.5,],
                     "choiceYCentroid":[0.8, 0.8, 0.2],
-                    "choiceDiameterDegrees":[4, 4, 4],
+                    "choiceDiameterDegrees":[6, 6, 6],
                     "sampleOnMsec":200, 
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
@@ -116,7 +118,7 @@
 
                     }]
 
-
+    //TASK_SEQUENCE = undefined 
     ENVIRONMENT = {
                       'playspace_degreesVisualAngle':45,
                       'playspace_verticalOffsetInches':0, 
@@ -125,7 +127,7 @@
                       'primary_reinforcer_type':'juice', 
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'monkeybox', // or monkeybox
-                      'agentID':'Michaelo',//
+                      'agentID':'Michaelo3',//
                   }
 
     await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))

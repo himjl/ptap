@@ -348,13 +348,13 @@ class PlaySpaceClass{
             var result = []
             for (var i = 0; i<degrees.length; i++){
                 var rad = this.deg2rad(degrees[i]/2)
-                result.push(this.viewingDistanceInches * Math.atan(rad))
+                result.push(2 * this.viewingDistanceInches * Math.atan(rad))
             }
             return result
         }
 
-        var rad = this.deg2rad(degrees)
-        return this.viewingDistanceInches * Math.atan(rad) 
+        var rad = this.deg2rad(degrees/2)
+        return 2 * this.viewingDistanceInches * Math.atan(rad) 
     }
 
     deg2pixels(degrees){
