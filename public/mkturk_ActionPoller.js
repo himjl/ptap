@@ -139,7 +139,7 @@ class ActionPollerClass{
         this.bottombound = bounds['bottombound']
 
     }
-    create_action_regions(xCentroidPixels, yCentroidPixels, radiusPixels){
+    create_action_regions(xCentroidPixels, yCentroidPixels, diameterPixels){
         // assumes circular 
         this.actionRadii = []
         this.actionCentroids = []
@@ -151,13 +151,14 @@ class ActionPollerClass{
         if(typeof(xCentroidPixels) == "number"){
             xCentroidPixels = [xCentroidPixels]
             yCentroidPixels = [yCentroidPixels]
-            radiusPixels = [radiusPixels]
+            diameterPixels = [diameterPixels]
         }
  
         for (var i = 0; i < xCentroidPixels.length; i++){
             this.actionCentroids.push([xCentroidPixels[i], yCentroidPixels[i]])
+            this.actionRadii.push(diameterPixels[i]/2)
         }
-        this.actionRadii = radiusPixels
+        
         
         
     }

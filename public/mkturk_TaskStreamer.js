@@ -208,8 +208,6 @@ class TaskStreamerClass{
             console.log(rewardMap)
             console.log(choiceIdx)
         }
-
-     
         
         // Construct image request 
 
@@ -226,23 +224,23 @@ class TaskStreamerClass{
         
         tP['fixationXCentroid'] = tk['fixationXCentroid']
         tP['fixationYCentroid'] = tk['fixationYCentroid']
-        tP['fixationRadiusDegrees'] = tk['fixationRadiusDegrees']
+        tP['fixationDiameterDegrees'] = tk['fixationDiameterDegrees']
 
         tP['i_sampleBag'] = sampleIdx['bag']
         tP['i_sampleId'] = sampleIdx['id']
         tP['sampleXCentroid'] = tk['sampleXCentroid']
         tP['sampleYCentroid'] = tk['sampleYCentroid'] 
-        tP['sampleRadiusDegrees'] = tk['sampleRadiusDegrees']
+        tP['sampleDiameterDegrees'] = tk['sampleDiameterDegrees']
 
         tP['i_choiceBag'] = choiceIdx['bag']
         tP['i_choiceId'] = choiceIdx['id']
         tP['choiceXCentroid'] = tk['choiceXCentroid']
         tP['choiceYCentroid'] = tk['choiceYCentroid']
-        tP['choiceRadiusDegrees'] = tk['choiceRadiusDegrees']
+        tP['choiceDiameterDegrees'] = tk['choiceDiameterDegrees']
 
         tP['actionXCentroid'] = tk['actionXCentroid']
         tP['actionYCentroid'] = tk['actionYCentroid']
-        tP['actionRadiusDegrees'] = tk['actionRadiusDegrees']
+        tP['actionDiameterDegrees'] = tk['actionDiameterDegrees']
         tP['choiceRewardMap'] = rewardMap
         tP['sampleOnMsec'] = tk['sampleOnMsec'] 
         tP['sampleOffMsec'] = tk['sampleOffMsec']

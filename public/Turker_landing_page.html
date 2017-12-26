@@ -32,16 +32,16 @@
                     'stimulus_objectome_dog'], 
                     "fixationXCentroid":0.5,
                     "fixationYCentroid":0.8,
-                    "fixationRadiusDegrees":3,
+                    "fixationDiameterDegrees":3,
                     "sampleXCentroid":0.5,
                     "sampleYCentroid":0.5,
-                    "sampleRadiusDegrees":8,
+                    "sampleDiameterDegrees":8,
                     "actionXCentroid":[0.2, 0.8, 0.5], 
                     "actionYCentroid":[0.8, 0.8, 0.2],
-                    "actionRadiusDegrees":[6, 6, 6],
+                    "actionDiameterDegrees":[6, 6, 6],
                     "choiceXCentroid":[0.2, 0.8, 0.5,],
                     "choiceYCentroid":[0.8, 0.8, 0.2],
-                    "choiceRadiusDegrees":[6, 6, 6],
+                    "choiceDiameterDegrees":[6, 6, 6],
                     "choiceMap":{"stimulus_objectome_flute":"token_objectome_flute", 
                     "stimulus_objectome_pineapple":"token_objectome_pineapple", 
                     'stimulus_objectome_dog':"token_objectome_dog"}, 
@@ -64,16 +64,16 @@
                     "stimulus_objectome_dog":[0, 0, 1]},
                     "fixationXCentroid":0.5,
                     "fixationYCentroid":0.8,
-                    "fixationRadiusDegrees":3,
+                    "fixationDiameterDegrees":3,
                     "sampleXCentroid":0.5,
                     "sampleYCentroid":0.5,
-                    "sampleRadiusDegrees":8,
+                    "sampleDiameterDegrees":8,
                     "actionXCentroid":[0.2, 0.8, 0.5], 
                     "actionYCentroid":[0.8, 0.8, 0.2],
-                    "actionRadiusDegrees":[4, 4, 4],
+                    "actionDiameterDegrees":[4, 4, 4],
                     "choiceXCentroid":[0.2, 0.8, 0.5,],
                     "choiceYCentroid":[0.8, 0.8, 0.2],
-                    "choiceRadiusDegrees":[4, 4, 4],
+                    "choiceDiameterDegrees":[4, 4, 4],
                     "sampleOnMsec":200, 
                     "sampleOffMsec":0,
                     "choiceTimeLimitMsec":5000,
@@ -98,6 +98,7 @@
     
 
     console.log('landing page url', window.location.href)
+
     ENVIRONMENT['workerId'] = az.get_workerId_from_url()
     ENVIRONMENT['hitId'] = az.get_hitId_from_url()
     ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url()
@@ -106,7 +107,6 @@
     ENVIRONMENT['species'] = 'human'
     ENVIRONMENT['url'] = window.location.href
     ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
-    
 
     await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))
     await localStorage.setItem("TASK_SEQUENCE", btoa(JSON.stringify(TASK_SEQUENCE)))

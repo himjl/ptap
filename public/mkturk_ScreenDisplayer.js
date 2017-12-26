@@ -4,7 +4,7 @@ class ScreenDisplayer{
         this.calibrateBounds(bounds)
         this.last_fixation_xcentroid = undefined 
         this.last_fixation_ycentroid = undefined
-        this.last_fixation_radius = undefined 
+        this.last_fixation_diameter = undefined 
 
         this._sequence_canvases = {} // key: sequence. key: frame. value: canvas 
         this.canvas_sequences = {} // key: sequence_id
@@ -59,11 +59,11 @@ class ScreenDisplayer{
         var sampleImage = stimulusFramePackage['sampleImage'] 
         var sampleOn = stimulusFramePackage['sampleOn'] 
         var sampleOff = stimulusFramePackage['sampleOff'] 
-        var sampleRadiusPixels = stimulusFramePackage['sampleRadiusPixels'] 
+        var sampleDiameterPixels = stimulusFramePackage['sampleDiameterPixels'] 
         var sampleXCentroid = stimulusFramePackage['sampleXCentroid'] 
         var sampleYCentroid = stimulusFramePackage['sampleYCentroid']
         var choiceImage = stimulusFramePackage['choiceImage'] 
-        var choiceRadiusPixels = stimulusFramePackage['choiceRadiusPixels'] 
+        var choiceDiameterPixels = stimulusFramePackage['choiceDiameterPixels'] 
         var choiceXCentroid = stimulusFramePackage['choiceXCentroid'] 
         var choiceYCentroid = stimulusFramePackage['choiceYCentroid']        
 
@@ -72,7 +72,7 @@ class ScreenDisplayer{
         // Draw sample screen
         var sampleCanvas = this.getSequenceCanvas('stimulus_sequence', 0)
         await this.renderBlank(sampleCanvas) // todo: only do this on window resize
-        await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleRadiusPixels, sampleCanvas)
+        await this.drawImagesOnCanvas(sampleImage, sampleXCentroid, sampleYCentroid, sampleDiameterPixels, sampleCanvas)
         frame_canvases.push(sampleCanvas)
         frame_durations.push(sampleOn)
 
@@ -88,7 +88,7 @@ class ScreenDisplayer{
         // Draw test screen
         var testCanvas = this.getSequenceCanvas('stimulus_sequence', frame_canvases.length)
         await this.renderBlank(testCanvas) // todo: only do this on window resize
-        await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceRadiusPixels, testCanvas)
+        await this.drawImagesOnCanvas(choiceImage, choiceXCentroid, choiceYCentroid, choiceDiameterPixels, testCanvas)
         frame_canvases.push(testCanvas)
         frame_durations.push(0)
 
@@ -100,7 +100,7 @@ class ScreenDisplayer{
     async drawImagesOnCanvas(images, 
         xcentroids_pixels, 
         ycentroids_pixels,
-        radius_pixels,
+        diameter_pixels,
         canvasobj){
 
         if(images.constructor == Array){
@@ -111,7 +111,7 @@ class ScreenDisplayer{
                         images[i_image], 
                         xcentroids_pixels[i_image], 
                         ycentroids_pixels[i_image], 
-                        radius_pixels[i_image], 
+                        diameter_pixels[i_image], 
                         canvasobj)
                 }
             }
@@ -119,16 +119,16 @@ class ScreenDisplayer{
             else{
                 await this._drawImage(images, xcentroids_pixels, 
                     ycentroids_pixels,
-                    radius_pixels,
+                    diameter_pixels,
                     canvasobj)
             }
         }
 
-    async _drawImage(image, xcentroid_pixel, ycentroid_pixel, radius_pixel, canvasobj){
+    async _drawImage(image, xcentroid_pixel, ycentroid_pixel, diameter_pixels, canvasobj){
 
         // Special cases for 'image'
         if(image == 'dot'){
-            await this.drawDot(xcentroid_pixel, ycentroid_pixel, radius_pixel, 'white', canvasobj)
+            await this.drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixels, 'white', canvasobj)
             return
         }
         if(image == 'blank'){
@@ -140,17 +140,17 @@ class ScreenDisplayer{
         var nativeHeight = image.naturalHeight
 
         if (nativeHeight > nativeWidth){
-            var drawHeight = radius_pixel * 2
-            var drawWidth = 2 * radius_pixel * nativeWidth / nativeHeight
+            var drawHeight = diameter_pixels
+            var drawWidth = diameter_pixels * nativeWidth / nativeHeight
         }
         else{
-            var drawWidth = radius_pixel * 2
-            var drawHeight = 2 * radius_pixel * nativeHeight / nativeWidth
+            var drawWidth = diameter_pixels 
+            var drawHeight = diameter_pixels * nativeHeight / nativeWidth
         }
 
         // in units of window
-        var original_left_start = xcentroid_pixel - radius_pixel // in virtual pixel coordinates
-        var original_top_start = ycentroid_pixel - radius_pixel
+        var original_left_start = xcentroid_pixel - diameter_pixels/2 // in virtual pixel coordinates
+        var original_top_start = ycentroid_pixel - diameter_pixels/2
 
         var context = canvasobj.getContext('2d')
         await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
@@ -163,13 +163,13 @@ async bufferFixation(fixationFramePackage){
 
     var xcentroid_pixel = fixationFramePackage['fixationXCentroidPixels'] 
     var ycentroid_pixel = fixationFramePackage['fixationYCentroidPixels']
-    var fixationRadius_pixel = fixationFramePackage['fixationRadiusPixels'] 
+    var fixationDiameter_pixels = fixationFramePackage['fixationDiameterPixels'] 
     // input arguments in playspace units 
 
     // Clear canvas if different 
     if (this.last_fixation_xcentroid == xcentroid_pixel 
         && this.last_fixation_ycentroid == ycentroid_pixel
-        && this.last_fixation_radius == fixationRadius_pixel){
+        && this.last_fixation_diameter == fixationDiameter_pixels){
         return 
     }
 
@@ -177,23 +177,23 @@ async bufferFixation(fixationFramePackage){
     await this.drawDot(
         xcentroid_pixel, 
         ycentroid_pixel, 
-        fixationRadius_pixel, 
+        fixationDiameter_pixels, 
         'white', 
         this.canvas_fixation)
 
 
     this.last_fixation_xcentroid = xcentroid_pixel
     this.last_fixation_ycentroid = ycentroid_pixel
-    this.last_fixation_radius = fixationRadius_pixel
+    this.last_fixation_diameter = fixationDiameter_pixels
 
 }
 
 
-async drawDot(xcentroid_pixel, ycentroid_pixel, pixelradius, color, canvasobj){
+async drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixel, color, canvasobj){
     var context=canvasobj.getContext('2d');
 
     context.beginPath();
-    context.arc(xcentroid_pixel,ycentroid_pixel,pixelradius,0*Math.PI,2*Math.PI);
+    context.arc(xcentroid_pixel,ycentroid_pixel,diameter_pixel/2,0*Math.PI,2*Math.PI);
     context.fillStyle=color; 
     context.fill();
 }

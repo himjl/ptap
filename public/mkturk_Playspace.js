@@ -12,7 +12,7 @@ class PlaySpaceClass{
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
 
         this.viewingDistanceInches = playspace_viewingDistanceInches
-        this.viewingOffsetInches = playspace_verticalOffsetInches
+        this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet 
         this.playspaceSizeDegrees = playspace_degreesVisualAngle
         this.virtualPixelsPerInch = screen_virtualPixelsPerInch
 
@@ -64,36 +64,36 @@ class PlaySpaceClass{
         // ************ Prebuffer trial assets ***************
 
         // Fixation
-
+        console.log(trialPackage)
         var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
         var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
-        var fixationRadiusPixels = this.deg2pixels(trialPackage['fixationRadiusDegrees'] )
+        var fixationDiameterPixels = this.deg2pixels(trialPackage['fixationDiameterDegrees'] )
 
         var fixationFramePackage = {
             'fixationXCentroidPixels':fixationXCentroidPixels,
             'fixationYCentroidPixels':fixationYCentroidPixels, 
-            'fixationRadiusPixels':fixationRadiusPixels,
+            'fixationDiameterPixels':fixationDiameterPixels,
         }
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
 
         // Stimulus sequence
         var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
         var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
-        var sampleRadiusPixels = this.deg2pixels(trialPackage['sampleRadiusDegrees'])
+        var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees'])
 
         var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid'])
         var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid'])
-        var choiceRadiusPixels = this.deg2pixels(trialPackage['choiceRadiusDegrees'])
+        var choiceDiameterPixels = this.deg2pixels(trialPackage['choiceDiameterDegrees'])
 
         var stimulusFramePackage = {
             'sampleImage':trialPackage['sampleImage'],
             'sampleOn':trialPackage['sampleOnMsec'],
             'sampleOff':trialPackage['sampleOffMsec'],
-            'sampleRadiusPixels':sampleRadiusPixels,
+            'sampleDiameterPixels':sampleDiameterPixels,
             'sampleXCentroid':sampleXCentroidPixels,
             'sampleYCentroid':sampleYCentroidPixels,
             'choiceImage':trialPackage['choiceImage'],
-            'choiceRadiusPixels':choiceRadiusPixels,
+            'choiceDiameterPixels':choiceDiameterPixels,
             'choiceXCentroid':choiceXCentroidPixels,
             'choiceYCentroid':choiceYCentroidPixels,
         }
@@ -109,7 +109,7 @@ class PlaySpaceClass{
         this.ActionPoller.create_action_regions(
             fixationXCentroidPixels,
             fixationYCentroidPixels,
-            fixationRadiusPixels)
+            fixationDiameterPixels)
 
         var t_fixationOn = await this.ScreenDisplayer.displayFixation()
         var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
@@ -119,12 +119,12 @@ class PlaySpaceClass{
 
         var actionXCentroidPixels = this.xprop2pixels(trialPackage['actionXCentroid'])
         var actionYCentroidPixels = this.yprop2pixels(trialPackage['actionYCentroid'])
-        var actionRadiusPixels = this.deg2pixels(trialPackage['actionRadiusDegrees'])
+        var actionDiameterPixels = this.deg2pixels(trialPackage['actionDiameterDegrees'])
 
         this.ActionPoller.create_action_regions(
             actionXCentroidPixels, 
             actionYCentroidPixels, 
-            actionRadiusPixels)
+            actionDiameterPixels)
 
         if(trialPackage['choiceTimeLimit'] > 0){
             var actionPromise = Promise.race([
@@ -341,17 +341,20 @@ class PlaySpaceClass{
     }
 
     deg2inches(degrees){
+
+        // diameter degrees 
+        // assume centered (center of diameter length at viewing normal to screen surface)
         if(degrees.constructor == Array){
             var result = []
             for (var i = 0; i<degrees.length; i++){
-                var rad = this.deg2rad(degrees[i])
-                result.push(this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches)
+                var rad = this.deg2rad(degrees[i]/2)
+                result.push(this.viewingDistanceInches * Math.atan(rad))
             }
             return result
         }
 
         var rad = this.deg2rad(degrees)
-        return this.viewingDistanceInches * Math.atan(rad + Math.tan(this.viewingOffsetInches / this.viewingDistanceInches)) - this.viewingOffsetInches
+        return this.viewingDistanceInches * Math.atan(rad) 
     }
 
     deg2pixels(degrees){
@@ -359,13 +362,13 @@ class PlaySpaceClass{
         if(degrees.constructor == Array){
             var result = []
             for (var i = 0; i<degrees.length; i++){
-                var inches = this.deg2inches(degrees[i], this.viewingDistanceInches, this.viewingOffsetInches)
+                var inches = this.deg2inches(degrees[i])
                 result.push(Math.round(inches * this.virtualPixelsPerInch))
             }
             return result
         }
 
-        var inches = this.deg2inches(degrees, this.viewingDistanceInches, this.viewingOffsetInches)
+        var inches = this.deg2inches(degrees)
         return Math.round(inches * this.virtualPixelsPerInch)
     }
 
@@ -406,13 +409,13 @@ class PlaySpaceClass{
     async run_tutorial_trial(tutorial_image){
         var fixationXCentroidPixels = this.xprop2pixels(0.5)
         var fixationYCentroidPixels = this.yprop2pixels(0.7)
-        var fixationRadiusPixels = this.deg2pixels(3)
+        var fixationDiameterPixels = this.deg2pixels(3)
 
         // BUFFER FIXATION
         var fixationFramePackage = {
             'fixationXCentroidPixels':fixationXCentroidPixels,
             'fixationYCentroidPixels':fixationYCentroidPixels, 
-            'fixationRadiusPixels':fixationRadiusPixels,
+            'fixationDiameterPixels':fixationDiameterPixels,
         }
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
 
@@ -420,11 +423,11 @@ class PlaySpaceClass{
         // BUFFER STIMULUS
         var stimulusXCentroidPixels = this.xprop2pixels(0.1 + 0.8 * Math.random())
         var stimulusYCentroidPixels = this.yprop2pixels(0.6 * Math.random())
-        var stimulusRadiusPixels = this.deg2pixels(4)
+        var stimulusDiameterPixels = this.deg2pixels(4)
         
         var stimulusCanvas = this.ScreenDisplayer.getSequenceCanvas('tutorial_sequence', 0)
         await this.ScreenDisplayer.renderBlank(stimulusCanvas)
-        await this.ScreenDisplayer.drawImagesOnCanvas(tutorial_image, stimulusXCentroidPixels, stimulusYCentroidPixels, stimulusRadiusPixels, stimulusCanvas)
+        await this.ScreenDisplayer.drawImagesOnCanvas(tutorial_image, stimulusXCentroidPixels, stimulusYCentroidPixels, stimulusDiameterPixels, stimulusCanvas)
 
         // SHOW BLANK
         await this.ScreenDisplayer.displayBlank()
@@ -433,7 +436,7 @@ class PlaySpaceClass{
         this.ActionPoller.create_action_regions(
             fixationXCentroidPixels,
             fixationYCentroidPixels,
-            fixationRadiusPixels)
+            fixationDiameterPixels)
 
         await this.ScreenDisplayer.displayFixation()
         await this.ActionPoller.Promise_wait_until_active_response()
@@ -444,7 +447,7 @@ class PlaySpaceClass{
         this.ActionPoller.create_action_regions(
             stimulusXCentroidPixels, 
             stimulusYCentroidPixels, 
-            stimulusRadiusPixels)
+            stimulusDiameterPixels)
 
         await this.ActionPoller.Promise_wait_until_active_response()
         this.SoundPlayer.play_sound('reward_sound')
