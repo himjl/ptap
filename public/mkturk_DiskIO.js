@@ -269,7 +269,7 @@ class DropboxIO{
             }
 
             
-            for (var q = 0; q <= entries.length-1; q++){
+            for (var q = 0; q < entries.length; q++){
                 if (entries[q][".tag"] == "file") {
                     file_list.push([entries[q].path_display, entries[q].client_modified]) //'/'+entries[q].name)
                 }
@@ -286,7 +286,7 @@ class DropboxIO{
             }); //sort in order of creation date 
 
             var path_list = []
-            for (var i =0; i < file_list.length-1; i++){
+            for (var i = 0; i < file_list.length; i++){
                 path_list.push(file_list[i][0])
             }
             return path_list
