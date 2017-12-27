@@ -8,31 +8,31 @@ async function setup_upstairs_session(sessionPackage){
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
 
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
-  sessionMeta = {}
-  sessionMeta['ipAddress'] = await az.get_ip_address()
-  sessionMeta['species'] = 'monkey'
-  sessionMeta['url'] = window.location.href
-  sessionMeta['landingPageURL'] = landingPageURL
-  sessionMeta['agentID'] = await LocalStorageIO.load_string('agentID')
+  SESSION = {}
+  SESSION['ipAddress'] = await az.get_ip_address()
+  SESSION['species'] = 'monkey'
+  SESSION['url'] = window.location.href
+  SESSION['landingPageURL'] = landingPageURL
+  SESSION['agentID'] = await LocalStorageIO.load_string('agentID')
 
-  sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
+  SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
     UX = new MonkeyUX()
    
    DIO = new DropboxIO()
    await DIO.build(window.location.href)
 
-   var saveDir = join([INSTALL_SETTINGS.dataDirPath, sessionMeta['agentID']])
-   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, sessionMeta['agentID']])
-   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, sessionMeta['agentID'])
+   var saveDir = join([INSTALL_SETTINGS.dataDirPath, SESSION['agentID']])
+   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, SESSION['agentID']])
+   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentID'])
 
-   CheckPointer = new DropboxCheckPointer(DIO, sessionMeta['agentID'], GAME, TASK_SEQUENCE)
+   CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
    SIO = new S3_IO() 
    IB = new ImageBuffer(SIO)
 
-   UX.updateSessionTextbox(sessionMeta['agentID'], GAME['gameID'])
+   UX.updateSessionTextbox(SESSION['agentID'], GAME['gameID'])
 
    TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
 
@@ -61,6 +61,6 @@ async function setup_upstairs_session(sessionPackage){
     gamePackage['DataWriter'] = DataWriter 
     gamePackage['Playspace'] = Playspace 
     gamePackage['UX'] = UX 
-    gamePackage['sessionMeta'] = sessionMeta
+    gamePackage['SESSION'] = SESSION
     return gamePackage
 }

@@ -135,12 +135,12 @@ var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
 var Playspace = freturn['Playspace']
 var UX = freturn['UX']
-var sessionMeta = freturn['sessionMeta']
+var SESSION = freturn['SESSION']
 
 // Attach static data objects 
 DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('GAME_PACKAGE', sessionPackage['GAME_PACKAGE'])
-DataWriter.deposit_key_data('SESSION', sessionMeta)
+DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.idx2bag)
 //DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())

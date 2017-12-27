@@ -8,18 +8,18 @@ async function setup_mechanicalturk_session(sessionPackage){
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
   
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
-  
-  var sessionMeta = {}
-  sessionMeta['workerId'] = az.get_workerId_from_url(landingPageURL)
-  sessionMeta['hitId'] = az.get_hitId_from_url(landingPageURL)
-  sessionMeta['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
-  sessionMeta['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL)
-  sessionMeta['ipAddress'] = await az.get_ip_address()
-  sessionMeta['species'] = 'human_turker'
-  sessionMeta['url'] = window.location.href
-  sessionMeta['landingPageURL'] = landingPageURL
-  sessionMeta['agentID']  = sessionMeta['workerId']
-  sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
+
+  SESSION = {}
+  SESSION['workerId'] = az.get_workerId_from_url(landingPageURL)
+  SESSION['hitId'] = az.get_hitId_from_url(landingPageURL)
+  SESSION['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
+  SESSION['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL)
+  SESSION['ipAddress'] = await az.get_ip_address()
+  SESSION['species'] = 'human_turker'
+  SESSION['url'] = window.location.href
+  SESSION['landingPageURL'] = landingPageURL
+  SESSION['agentID']  = SESSION['workerId']
+  SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
   SIO = new S3_IO() 
   IB = new ImageBuffer(SIO)
@@ -97,7 +97,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   gamePackage['DataWriter'] = DataWriter 
   gamePackage['Playspace'] = Playspace 
   gamePackage['UX'] = UX 
-  gamePackage['sessionMeta'] = sessionMeta
+  gamePackage['SESSION'] = SESSION
   return gamePackage
 }
 

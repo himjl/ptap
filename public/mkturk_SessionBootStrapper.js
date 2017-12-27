@@ -201,8 +201,6 @@ class Verifier{
 
         }
 
-        
-
 
         return verified
     }
@@ -251,6 +249,12 @@ class Verifier{
 
         // Log .check_session_package call
         this.verificationLog['verified'] = verified
+
+        // Hash 
+        this.verificationLog['ENVIRONMENT_hash'] = JSON.stringify(sessionPackage['ENVIRONMENT']).hashCode()
+        this.verificationLog['GAME_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['GAME']).hashCode()
+        this.verificationLog['IMAGEBAGS_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['IMAGEBAGS']).hashCode()
+        this.verificationLog['TASK_SEQUENCE_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']).hashCode()
         return sessionPackage
     }
 
