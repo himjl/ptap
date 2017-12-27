@@ -1,12 +1,14 @@
+// Also used as a template by the Verifier
+
 
 DEFAULT_HIT = {
 
 'GAME': {
-        'gameID':'failsafeDefaultGameObjectomeAirplaneVsAnt',
+        'gameID':'failsafeGameSettings',
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
         "bonusUSDPerCorrect":0.0005, 
-        "onFinish":"continue", // terminate, continue
+        "onFinish":"terminate", // terminate, continue
         "minimumTrials":50,
         "maximumTrials":200,
         "randomSeed":undefined,

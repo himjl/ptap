@@ -138,34 +138,95 @@ class Verifier{
     }
 
     verify_game_package(gamePackage){
+        // Checks top level key presence and type
         var verified = true
-        var necessary_keys = {
-            'IMAGEBAGS':Object, 
-            'GAME':Object, 
-            'TASK_SEQUENCE':Array}
 
-        for (var key in necessary_keys){
-            if(!gamePackage.hasOwnProperty(key)){
-                console.warn('Verifier error: gamePackage is missing the key', key)
-                verified = false
-                continue
-            }
-            if(gamePackage[key] == undefined){
-                console.warn('Verifier error: gamePackage[\"'+key+'\"]  == undefined')
-                verified = false
-                continue
-            }
-            var correctConstructor = necessary_keys[key]
-            if(gamePackage[key].constructor != correctConstructor){
-                console.warn('Verifier error: gamePackage[\"', key, '\"] is of incorrect type', gamePackage['IMAGEBAGS'].constructor)
-                verified = false 
-                continue
-            }
+        var necessary_keys = [
+            'IMAGEBAGS', 
+            'GAME', 
+            'TASK_SEQUENCE']
 
-            this.verificationLog[key+'_hash'] = JSON.stringify(gamePackage[key]).hashCode()
+        var missing_keys = this.check_key_presence(gamePackage, necessary_keys)
+        if(missing_keys.length > 0){
+            return false
+            // perhaps harsh because GAME could be sensibly replaced 
         }
+
+        return verified
+
+        // TODO
+        if(gamePackage['TASK_SEQUENCE'].length == 0){
+            return false
+        }
+
+        // Perform a cursory check of each task that they have the correct key names
+        var necessary_keys = []
+        for (var k in DEFAULT_HIT['TASK_SEQUENCE'][0]){
+            if(!DEFAULT_HIT['TASK_SEQUENCE'].hasOwnProperty(k)){
+                continue
+            }
+            if(k == 'choiceMap' || k == 'rewardMap'){
+                console.log('Not checking for', k)
+                continue
+            }
+            necessary_keys.push(k)
+        }
+
+        for (var taskNumber in gamePackage['TASK_SEQUENCE']){
+            var tk = gamePackage['TASK_SEQUENCE'][taskNumber]
+            
+            var missing_keys = this.check_key_presence(tk, necessary_keys)
+            if(missing_keys.length > 0){
+                console.log('Task', taskNumber,'is missing ', missing_keys)
+                return false
+            }
+
+            // Check that all samplebag keys referenced in task is in IMAGEBAGS
+            var missing_sampleBagNames = this.check_key_presence(gamePackage['IMAGEBAGS'], tk['sampleBagNames'])
+            if(missing_sampleBagNames.length > 0 ){
+                    verified = false 
+                    console.log('IMAGEBAGS is missing', missing_sampleBagNames)
+                }
+
+            if(tk['choiceMap'] != undefined && tk['taskType'] == 'MTS'){
+                for (var sampleBag in tk['sampleBagNames']){
+                    var missing_choiceBagNames = this.check_key_presence(gamePackage['IMAGEBAGS'], tk['choiceMap'][sampleBag])
+                    if(missing_choiceBagNames.length > 0 ){
+                        verified = false 
+                        console.log('IMAGEBAGS is missing', missing_choiceBagNames)
+                    }
+                }
+                
+            }
+
+        }
+
+        
+
+
         return verified
     }
+
+
+    check_key_presence(testObject, necessaryKeyList){
+        if(necessaryKeyList.constructor != Array){
+            necessaryKeyList = [necessaryKeyList]
+        }
+        // testObject: an object
+        // necessaryKeys: a list
+        var missingKeys = []
+
+        for (var i in necessaryKeyList){
+            var key = necessaryKeyList[i]
+
+            if(!testObject.hasOwnProperty(key)){
+                missingKeys.push(key)
+            }
+        }
+
+        return missingKeys
+    }
+
 
     verify_environment(environment){
         var verified = true 
@@ -196,87 +257,4 @@ class Verifier{
     get_verification_log(){
         return this.verificationLog
     }
-}
-
-// Verify inputs 
-
-class az{
-    constructor(){
-
-    }
-
-    static get_workerId_from_url(url){
-        var workerId = this._extract_url_string(url, 'workerId', 'workerId_not_found')
-        console.log('workerId:', workerId)
-        return workerId
-    }
-
-    static get_assignmentId_from_url(url){
-        var assignmentId = this._extract_url_string(url, 'assignmentId', 'assignmentId_not_found')
-        console.log('assignmentId', assignmentId)
-        return assignmentId
-    }
-
-    static get_hitId_from_url(url){
-        var hitId = this._extract_url_string(url, 'hitId', 'hitId_not_found')
-        console.log('hitId', hitId)
-        return hitId
-    }
-
-
-    static _extract_url_string(url, key, defaultValue){
-        var name = key
-        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regexS = "[\\?&]" + key + "=([^&#]*)";
-        var regex = new RegExp(regexS);
-        var results = regex.exec(url) || ["", defaultValue] 
-
-        return results[1]
-        
-    }
-    static detect_sandbox_mode(url){
-        var submitToURL = this._extract_url_string(url, 'turkSubmitTo', '')
-        console.log('submittoURL', submitToURL)
-        if (submitToURL.indexOf('workersandbox')!=-1){
-            var inSandboxMode = true
-        }
-        else{
-            var inSandboxMode = false
-        }
-
-        return inSandboxMode
-
-    }
-    static async get_ip_address(){
-      
-      var resolveFunc
-      var rejectFunc
-      var p = new Promise(function(resolve, reject){
-          resolveFunc = resolve
-          rejectFunc = reject
-      })
-
-      var xhttp = new XMLHttpRequest(); 
-
-
-      try{
-          xhttp.onreadystatechange = function(){
-              if (this.readyState == 4 && this.status == 200){
-                  resolveFunc(this.responseText)
-              }
-          }
-      }
-      catch(error){
-          console.log(error)
-      }
-      
-      xhttp.open("GET", "https://api.ipify.org?format=json", true);
-
-      xhttp.send();
-      var s = await p
-      s = JSON.parse(s)
-
-      return s['ip']       
-    }
-
 }
