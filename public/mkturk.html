@@ -151,12 +151,11 @@ DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a com
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 
-
 // Attach async data probes 
 DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
 DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
 DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
-
+DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
 
 // Kick off async threads 
 Playspace.start_periodic_rewards()

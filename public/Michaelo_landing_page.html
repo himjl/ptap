@@ -120,14 +120,14 @@
 
     //TASK_SEQUENCE = undefined 
     ENVIRONMENT = {
-                      'playspace_degreesVisualAngle':45,
+                      'playspace_degreesVisualAngle':30,
                       'playspace_verticalOffsetInches':0, 
                       'playspace_viewingDistanceInches':8, 
                       'screen_virtualPixelsPerInch':143.755902965,
                       'primary_reinforcer_type':'juice', 
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'monkeybox', // or monkeybox
-                      'agentID':'Michaelo3',//
+                      'agentID':'Michaelo5',//
                   }
 
     await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))
@@ -139,7 +139,7 @@
     
     // Hacky solution to prevent caching
 
-    window.location.href = "mkturk.html"//?randomid=" +Math.random()
+    window.location.href = "mkturk.html?randomid=" +Math.random()
 
     //https://stackoverflow.com/questions/41041136/avoid-cache-issues-for-web-application-with-iframe
 

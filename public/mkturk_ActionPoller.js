@@ -87,8 +87,8 @@ class ActionPollerClass{
             // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent
             event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.targetTouches[0].pageX - _this.leftbound
-            var y = event.targetTouches[0].pageY - _this.topbound
+            var x = event.targetTouches[0].pageX - _this.leftBound
+            var y = event.targetTouches[0].pageY - _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             
@@ -97,23 +97,23 @@ class ActionPollerClass{
         this.recordTouchEvent = function(event){
             event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.targetTouches[0].pageX - _this.leftbound
-            var y = event.targetTouches[0].pageY - _this.topbound
+            var x = event.targetTouches[0].pageX - _this.leftBound
+            var y = event.targetTouches[0].pageY - _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
         }
 
         this.handleMouseEvent = function(event){
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.pageX - _this.leftbound 
-            var y = event.pageY - _this.topbound
+            var x = event.pageX - _this.leftBound 
+            var y = event.pageY - _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             }
 
         this.recordMouseEvent = function(event){
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.pageX - _this.leftbound 
-            var y = event.pageY - _this.topbound
+            var x = event.pageX - _this.leftBound 
+            var y = event.pageY - _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
         }
     }
@@ -133,10 +133,10 @@ class ActionPollerClass{
     }
 
     calibrateBounds(bounds){
-        this.leftbound = bounds['leftbound']
-        this.rightbound = bounds['rightbound']
-        this.topbound = bounds['topbound']
-        this.bottombound = bounds['bottombound']
+        this.leftBound = bounds['leftBound']
+        this.rightBound = bounds['rightBound']
+        this.topBound = bounds['topBound']
+        this.bottomBound = bounds['bottomBound']
 
     }
     create_action_regions(xCentroidPixels, yCentroidPixels, diameterPixels){

@@ -239,14 +239,32 @@ class PlaySpaceClass{
 
         bounds['height'] = min_dimension
         bounds['width'] = min_dimension 
-        bounds['leftbound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
-        bounds['rightbound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
-        bounds['topbound'] = Math.floor((windowHeight - min_dimension)/2)
-        bounds['bottombound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
+        bounds['leftBound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
+        bounds['rightBound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
+        bounds['topBound'] = Math.floor((windowHeight - min_dimension)/2)
+        bounds['bottomBound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
 
         return bounds
     }
 
+    updateWindowLog(bounds){
+        if (this.playspaceLog == undefined){
+            this.playspaceLog = {}
+
+            for (var k in bounds){
+                if(!bounds.hasOwnProperty(k)){
+                    continue
+                }
+                this.playspaceLog[k] = []
+            }
+        }
+        for (var k in bounds){
+            if(!bounds.hasOwnProperty(k)){
+                    continue
+            }
+            this.playspaceLog[k].push(bounds[k])
+        }
+    }
     attachWindowResizeMonitor(){
   
         var _this = this
@@ -264,26 +282,26 @@ class PlaySpaceClass{
 
             _this.height = min_dimension
             _this.width = min_dimension 
-            _this.leftbound = Math.floor((windowWidth - _this.width)/2) // in units of window
-            _this.rightbound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
-            _this.topbound = Math.floor((windowHeight - _this.height)/2)
-            _this.bottombound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
+            _this.leftBound = Math.floor((windowWidth - _this.width)/2) // in units of window
+            _this.rightBound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
+            _this.topBound = Math.floor((windowHeight - _this.height)/2)
+            _this.bottomBound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
 
             bounds['height'] = _this.height
             bounds['width'] = _this.width
-            bounds['leftbound'] = _this.leftbound
-            bounds['rightbound'] = _this.rightbound
-            bounds['topbound'] = _this.topbound
-            bounds['bottombound'] = _this.bottombound
+            bounds['leftBound'] = _this.leftBound
+            bounds['rightBound'] = _this.rightBound
+            bounds['topBound'] = _this.topBound
+            bounds['bottomBound'] = _this.bottomBound
+            bounds['windowWidth'] = windowWidth
+            bounds['windowHeight'] = windowHeight
+            bounds['t'] = Math.round(performance.now()*1000)/1000
 
             _this.ScreenDisplayer.calibrateBounds(bounds)
             _this.ActionPoller.calibrateBounds(bounds)
+            _this.updateWindowLog(bounds) 
 
-            // https://stackoverflow.com/questions/5489946/jquery-how-to-wait-for-the-end-of-resize-event-and-only-then-perform-an-ac
-            // TODO: rebuffer frames on resize (needs to be controlled by Playspace?) - retranslate canvas 
-            //_this.ScreenDisplayer.requestRefreshCurrentFrames()
-
-            console.log('onWindowResize():', bounds['leftbound'], bounds['topbound'])
+            console.log('onWindowResize():', bounds['leftBound'], bounds['topBound'])
         }
 
         onWindowResize()

@@ -36,10 +36,10 @@ class ScreenDisplayer{
         this.height = bounds['height']
         this.width = bounds['width'] 
 
-        this.leftbound = bounds['leftbound']
-        this.rightbound = bounds['rightbound']
-        this.topbound = bounds['topbound']
-        this.bottombound = bounds['bottombound']
+        this.leftBound = bounds['leftBound']
+        this.rightBound = bounds['rightBound']
+        this.topBound = bounds['topBound']
+        this.bottomBound = bounds['bottomBound']
 
     }   
 
