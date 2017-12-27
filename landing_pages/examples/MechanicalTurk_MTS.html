@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 
 <head>
@@ -8,10 +10,10 @@
 
 
 <script>
-// ******* The experimenter fills out IMAGEBAGS, GAME, TASK_SEQUENCE, AND ENVIRONMENT ********* 
+// ******* The experimenter fills out GAME_PACKAGE AND ENVIRONMENT ********* 
 async function setupSession(){
-  try{
-          IMAGEBAGS = {"stimulus_objectome_flute":["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_flute_e0aed0e2c3f0c3cb7a7e235bd931f193a536391d_ty-0.85987_tz-0.38018_rxy-36.131_rxz152.6439_ryz28.9932_s1.4314.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_flute_2012a31313faa422b2623460d0c33a9f5eb3b238_ty-0.33547_tz-0.0026731_rxy-38.2159_rxz-115.311_ryz90.0954_s1.3508.png"], 
+
+    IMAGEBAGS = {"stimulus_objectome_flute":["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_flute_e0aed0e2c3f0c3cb7a7e235bd931f193a536391d_ty-0.85987_tz-0.38018_rxy-36.131_rxz152.6439_ryz28.9932_s1.4314.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_flute_2012a31313faa422b2623460d0c33a9f5eb3b238_ty-0.33547_tz-0.0026731_rxy-38.2159_rxz-115.311_ryz90.0954_s1.3508.png"], 
     "token_objectome_flute": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome_tokens/images/objectomeTokens_objectome_flute.png"], 
     "stimulus_objectome_dog": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_dog_e1ed016de5e47e8a6567123ce134d72b7187db73_ty0.43294_tz-0.29943_rxy-112.6794_rxz75.5665_ryz127.211_s1.6328.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_dog_28ebb7db56691da21fa6d640f5ef719f916cb7ff_ty-0.48998_tz-0.20078_rxy-84.7937_rxz-117.8076_ryz175.5429_s1.3151.png"], 
     "token_objectome_dog": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome_tokens/images/objectomeTokens_objectome_dog.png"], 
@@ -70,51 +72,57 @@ async function setupSession(){
                       'rigEnvironment':'mechanicalturk', // or monkeybox
                       'agentID':'Turkboy0',//
                   }   
+  
+
+  try{
+    GAME_PACKAGE = GAME_PACKAGE
   }
   catch(error){
-    // Default to failsafe HIT
     console.log(error)
     GAME_PACKAGE = undefined
+  }
+
+  try{
+    ENVIRONMENT = ENVIRONMENT    
+  }
+  catch(error){
+    console.log(error)
     ENVIRONMENT = undefined    
   }
 
-    var sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
-    await concludeLandingPage(sessionPackage)
+  try{
+    // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
+    // Fill in for upstairs task; e.g. 'Zico'
+    agentID = ''
+  }
+  catch(error){
+    console.log(error)
+    agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+  }
 
+  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT, 'agentID':agentID}
+  await concludeLandingPage(localSavePackage)
 }
 
 </script>
 
 <script>
 // ******** Util functions ********
-async function concludeLandingPage(sessionPackage){
+async function concludeLandingPage(localSavePackage){
     
-    GAME_PACKAGE = sessionPackage['GAME_PACKAGE']
-    ENVIRONMENT = sessionPackage['ENVIRONMENT']
+    GAME_PACKAGE = localSavePackage['GAME_PACKAGE']
+    ENVIRONMENT = localSavePackage['ENVIRONMENT']
 
     console.log('landing page url', window.location.href)
 
-    if(ENVIRONMENT != undefined){
-        ENVIRONMENT['workerId'] = az.get_workerId_from_url()
-        ENVIRONMENT['hitId'] = az.get_hitId_from_url()
-        ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url()
-        ENVIRONMENT['ipAddress'] = await az.get_ip_address()
-        ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode() // todo: detect from URL?
-        ENVIRONMENT['species'] = 'human'
-        ENVIRONMENT['url'] = window.location.href
-
-        if(ENVIRONMENT['rigEnvironment'] != 'monkeybox'){
-            console.log('ENVIRONMENT', ENVIRONMENT)
-            ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
-        }
-    }
-
     await localStorage.setItem("GAME_PACKAGE", btoa(JSON.stringify(GAME_PACKAGE)))
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
+    await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))
+    await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))
+
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));
     go_to_main_page()
-    
 }
 
 function go_to_main_page(){
@@ -127,55 +135,9 @@ function go_to_main_page(){
     }
 }
 
-class az{
-    constructor(){
+async function get_ip_address(){
+      // need to do here or can do in main?
 
-    }
-
-    static get_workerId_from_url(){
-        var workerId = this._extract_url_string('workerId', 'workerId_not_found')
-        console.log('workerId:', workerId)
-        return workerId
-    }
-
-    static get_assignmentId_from_url(){
-        var assignmentId = this._extract_url_string('assignmentId', 'assignmentId_not_found')
-        console.log('assignmentId', assignmentId)
-        return assignmentId
-    }
-
-    static get_hitId_from_url(){
-        var hitId = this._extract_url_string('hitId', 'hitId_not_found')
-        console.log('hitId', hitId)
-        return hitId
-    }
-
-
-    static _extract_url_string(key, defaultValue){
-        var name = key
-        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-        var regexS = "[\\?&]" + key + "=([^&#]*)";
-        var regex = new RegExp(regexS);
-        var results = regex.exec(window.location.href) || ["", defaultValue] 
-
-        return results[1]
-        
-    }
-    static detect_sandbox_mode(){
-        var submitToURL = this._extract_url_string('turkSubmitTo', '')
-        console.log('submittoURL', submitToURL)
-        if (submitToURL.indexOf('workersandbox')!=-1){
-            var inSandboxMode = true
-        }
-        else{
-            var inSandboxMode = false
-        }
-
-        return inSandboxMode
-
-    }
-    static async get_ip_address(){
-      
       var resolveFunc
       var rejectFunc
       var p = new Promise(function(resolve, reject){
@@ -204,10 +166,10 @@ class az{
       s = JSON.parse(s)
 
       return s['ip']       
-    }
-
 }
+
 </script>
+
 
 <script>
 (async function(){

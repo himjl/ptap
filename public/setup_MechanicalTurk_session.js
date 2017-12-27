@@ -18,7 +18,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   sessionMeta['species'] = 'human_turker'
   sessionMeta['url'] = window.location.href
   sessionMeta['landingPageURL'] = landingPageURL
-  sessionMeta['agentID']  = ENVIRONMENT['workerId']
+  sessionMeta['agentID']  = sessionMeta['workerId']
   sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
   SIO = new S3_IO() 

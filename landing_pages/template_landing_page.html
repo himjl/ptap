@@ -25,8 +25,18 @@ async function setupSession(){
     console.log(error)
     ENVIRONMENT = undefined    
   }
-  
-  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
+
+  try{
+    // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
+    // Fill in for upstairs task; e.g. 'Zico'
+    agentID = __AGENTID_GOES_HERE__
+  }
+  catch(error){
+    console.log(error)
+    agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+  }
+
+  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT, 'agentID':agentID}
   await concludeLandingPage(localSavePackage)
 }
 
@@ -44,6 +54,7 @@ async function concludeLandingPage(localSavePackage){
     await localStorage.setItem("GAME_PACKAGE", btoa(JSON.stringify(GAME_PACKAGE)))
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
     await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))
+    await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))
 
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -62,7 +73,7 @@ function go_to_main_page(){
 
 async function get_ip_address(){
       // need to do here or can do in main?
-      
+
       var resolveFunc
       var rejectFunc
       var p = new Promise(function(resolve, reject){

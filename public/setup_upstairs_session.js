@@ -8,18 +8,13 @@ async function setup_upstairs_session(sessionPackage){
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
 
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
-  var sessionMeta = {}
-  sessionMeta['workerId'] = az.get_workerId_from_url(landingPageURL)
+  sessionMeta = {}
   sessionMeta['ipAddress'] = await az.get_ip_address()
   sessionMeta['species'] = 'monkey'
   sessionMeta['url'] = window.location.href
   sessionMeta['landingPageURL'] = landingPageURL
-  if(ENVIRONMENT['agentID']!=undefined){
-    sessionMeta['agentID']  = ENVIRONMENT['agentID']
-  }
-  else{
-    sessionMeta['agentID'] = 'unknown_monkey'
-  }
+  sessionMeta['agentID'] = await LocalStorageIO.load_string('agentID')
+
   sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
     UX = new MonkeyUX()
@@ -27,17 +22,17 @@ async function setup_upstairs_session(sessionPackage){
    DIO = new DropboxIO()
    await DIO.build(window.location.href)
 
-   var saveDir = join([INSTALL_SETTINGS.dataDirPath, ENVIRONMENT['agentID']])
-   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, ENVIRONMENT['agentID']])
-   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, ENVIRONMENT['agentID'])
+   var saveDir = join([INSTALL_SETTINGS.dataDirPath, sessionMeta['agentID']])
+   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, sessionMeta['agentID']])
+   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, sessionMeta['agentID'])
 
-   CheckPointer = new DropboxCheckPointer(DIO, ENVIRONMENT['agentID'], GAME, TASK_SEQUENCE)
+   CheckPointer = new DropboxCheckPointer(DIO, sessionMeta['agentID'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
    SIO = new S3_IO() 
    IB = new ImageBuffer(SIO)
 
-   UX.updateSessionTextbox(ENVIRONMENT['agentID'], GAME['gameID'])
+   UX.updateSessionTextbox(sessionMeta['agentID'], GAME['gameID'])
 
    TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
 

@@ -65,7 +65,6 @@ async function setupSession(){
                     'primary_reinforcer_type':'juice', 
                     'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                     'rigEnvironment':'monkeybox', // or monkeybox
-                    'agentID':'Inlab_MatchToSample_Worker',//
                 }  
 
   try{
@@ -84,7 +83,17 @@ async function setupSession(){
     ENVIRONMENT = undefined    
   }
   
-  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
+  try{
+    // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
+    // Fill in for upstairs task; e.g. 'Zico'
+    agentID = 'Inlab_MatchToSample_Worker'
+  }
+  catch(error){
+    console.log(error)
+    agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+  }
+
+  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT, 'agentID':agentID}
   await concludeLandingPage(localSavePackage)
 }
 
@@ -102,6 +111,7 @@ async function concludeLandingPage(localSavePackage){
     await localStorage.setItem("GAME_PACKAGE", btoa(JSON.stringify(GAME_PACKAGE)))
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
     await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))
+    await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))
 
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));

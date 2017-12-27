@@ -45,7 +45,6 @@ DEFAULT_HIT = {
               'primary_reinforcer_type':'juice', 
               'action_event_type':['mouseup', 'touchstart', 'touchmove'],
               'rigEnvironment':'mechanicalturk', // or monkeybox
-              'agentID':'failsafeAgent_'+window.performance.timing.navigationStart/1000,//
           },
 'IMAGEBAGS':{
             "stimulus_objectome_airplane": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_airplane_2a39383d3eddfb796bf983863250a16048ba4b6a_ty0.14205_tz-0.05294_rxy-0.92832_rxz102.862_ryz15.4007_s0.7418.png",
