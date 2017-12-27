@@ -5,6 +5,19 @@ async function setup_mechanicalturk_session(sessionPackage){
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
   TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
 
+  var landingPageURL = sessionPackage['LANDING_PAGE_URL']
+  
+  ENVIRONMENT['workerId'] = az.get_workerId_from_url(landingPageURL)
+  ENVIRONMENT['hitId'] = az.get_hitId_from_url(landingPageURL)
+  ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
+  ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL) // todo: detect from URL?
+  ENVIRONMENT['ipAddress'] = await az.get_ip_address()
+  ENVIRONMENT['species'] = 'human'
+  ENVIRONMENT['url'] = window.location.href
+  ENVIRONMENT['landingPageURL'] = landingPageURL
+  ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
+  
+
   SIO = new S3_IO() 
   IB = new ImageBuffer(SIO)
   CheckPointer = new MechanicalTurkCheckPointer(GAME, TASK_SEQUENCE)

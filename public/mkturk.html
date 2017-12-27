@@ -109,20 +109,13 @@
 <script>
 var FLAGS = {}; // todo: get rid of
 
+
+
 (async function(){
 
 // Load inputs from local storage, web, or Dropbox.
 var SBS = new SessionBootStrapper()
-IMAGEBAGS = await SBS.get('IMAGEBAGS')
-GAME = await SBS.get('GAME')
-ENVIRONMENT = await SBS.get('ENVIRONMENT')
-TASK_SEQUENCE = await SBS.get('TASK_SEQUENCE')
-
-var sessionPackage = {}
-sessionPackage['IMAGEBAGS'] = IMAGEBAGS 
-sessionPackage['GAME'] = GAME 
-sessionPackage['ENVIRONMENT'] = ENVIRONMENT 
-sessionPackage['TASK_SEQUENCE'] = TASK_SEQUENCE
+var sessionPackage = await SBS.build()
 
 // Verify inputs
 VF = new Verifier()
@@ -147,7 +140,7 @@ DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME'])
 DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['TASK_SEQUENCE'])
 DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.idx2bag)
-DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
+//DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 

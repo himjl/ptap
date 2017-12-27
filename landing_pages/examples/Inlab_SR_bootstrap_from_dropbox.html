@@ -1,4 +1,36 @@
-async function concludeTurkerLandingPage(sessionPackage){
+<!doctype html>
+
+<head>
+<meta name="mobile-web-app-capable" content="yes"> <!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+<script>
+// ******* The experimenter fills out IMAGEBAGS, GAME, TASK_SEQUENCE, AND ENVIRONMENT ********* 
+async function setupSession(){
+  try{
+        GAME_PACKAGE = '/MonkeyTurk_upstairs/GameResources/GamePackages/MutatorSR_Training/test.json'
+        ENVIRONMENT = '/MonkeyTurk_upstairs/GameResources/Environments/MichaeloUpstairsBox.json'    
+  }
+  catch(error){
+    // Default to failsafe HIT
+    console.log(error)
+    GAME_PACKAGE = undefined
+    ENVIRONMENT = undefined    
+  }
+
+    var sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
+    await concludeLandingPage(sessionPackage)
+
+}
+
+</script>
+
+<script>
+// ******** Util functions ********
+async function concludeLandingPage(sessionPackage){
     
     GAME = sessionPackage['GAME']
     TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
@@ -7,20 +39,26 @@ async function concludeTurkerLandingPage(sessionPackage){
 
     console.log('landing page url', window.location.href)
 
-    ENVIRONMENT['workerId'] = az.get_workerId_from_url()
-    ENVIRONMENT['hitId'] = az.get_hitId_from_url()
-    ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url()
-    ENVIRONMENT['ipAddress'] = await az.get_ip_address()
-    ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode() // todo: detect from URL?
-    ENVIRONMENT['species'] = 'human'
-    ENVIRONMENT['url'] = window.location.href
-    ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
+    if(ENVIRONMENT != undefined){
+        ENVIRONMENT['workerId'] = az.get_workerId_from_url()
+        ENVIRONMENT['hitId'] = az.get_hitId_from_url()
+        ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url()
+        ENVIRONMENT['ipAddress'] = await az.get_ip_address()
+        ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode() // todo: detect from URL?
+        ENVIRONMENT['species'] = 'human'
+        ENVIRONMENT['url'] = window.location.href
+
+        if(ENVIRONMENT['rigEnvironment'] != 'monkeybox'){
+            console.log('ENVIRONMENT', ENVIRONMENT)
+            ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
+        }
+    }
 
     await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))
     await localStorage.setItem("TASK_SEQUENCE", btoa(JSON.stringify(TASK_SEQUENCE)))
     await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
     await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
-
+    console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));
     go_to_main_page()
     
@@ -116,3 +154,18 @@ class az{
     }
 
 }
+</script>
+
+<script>
+(async function(){
+    await setupSession();
+}
+)()
+</script>
+
+</head>
+
+<body>
+    Loading HIT...
+</body>
+</html>

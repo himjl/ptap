@@ -1,0 +1,111 @@
+<!doctype html>
+
+<head>
+<meta name="mobile-web-app-capable" content="yes"> <!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+<script>
+// ******* The experimenter fills out GAME_PACKAGE AND ENVIRONMENT ********* 
+async function setupSession(){
+  try{
+    GAME_PACKAGE = __GAME_PACKAGE_GOES_HERE__
+  }
+  catch(error){
+    console.log(error)
+    GAME_PACKAGE = undefined
+  }
+
+  try{
+    ENVIRONMENT = __ENVIRONMENT_GOES_HERE__    
+  }
+  catch(error){
+    console.log(error)
+    ENVIRONMENT = undefined    
+  }
+
+  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
+  await concludeLandingPage(localSavePackage)
+}
+
+</script>
+
+<script>
+// ******** Util functions ********
+async function concludeLandingPage(localSavePackage){
+    
+    GAME_PACKAGE = localSavePackage['GAME_PACKAGE']
+    ENVIRONMENT = localSavePackage['ENVIRONMENT']
+
+    console.log('landing page url', window.location.href)
+
+    await localStorage.setItem("GAME_PACKAGE", btoa(JSON.stringify(GAME_PACKAGE)))
+    await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
+    await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))
+
+    console.log('All items stored. Redirecting...')
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    go_to_main_page()
+}
+
+function go_to_main_page(){
+  var currentURL = window.location.href 
+    if(currentURL.indexOf('localhost')!=-1){
+        window.location.href = '/public/mkturk.html?randomid=' +Math.random()
+    }
+    else{
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?randomid="+Math.random()
+    }
+}
+
+async function get_ip_address(){
+      // need to do here or can do in main?
+      
+      var resolveFunc
+      var rejectFunc
+      var p = new Promise(function(resolve, reject){
+          resolveFunc = resolve
+          rejectFunc = reject
+      })
+
+      var xhttp = new XMLHttpRequest(); 
+
+
+      try{
+          xhttp.onreadystatechange = function(){
+              if (this.readyState == 4 && this.status == 200){
+                  resolveFunc(this.responseText)
+              }
+          }
+      }
+      catch(error){
+          console.log(error)
+      }
+      
+      xhttp.open("GET", "https://api.ipify.org?format=json", true);
+
+      xhttp.send();
+      var s = await p
+      s = JSON.parse(s)
+
+      return s['ip']       
+}
+
+</script>
+
+
+<script>
+(async function(){
+    await setupSession();
+}
+)()
+</script>
+
+</head>
+
+<body>
+    Loading HIT...
+</body>
+</html>

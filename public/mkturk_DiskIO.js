@@ -192,8 +192,6 @@ class DropboxIO{
     }
     async build(DBX_REDIRECT_URI){
 
-        
-
         if(window.location.href.split('access_token').length>1){
             var accessToken = utils.parseQueryString(window.location.hash).access_token
             localStorage.setItem('_dbxAccessToken', btoa(accessToken))
