@@ -27,7 +27,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   await CheckPointer.build()
   TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
   await TaskStreamer.build(5)
-  DataWriter = new MechanicalTurkDataWriter(ENVIRONMENT['assignmentId'], ENVIRONMENT['hitId'], ENVIRONMENT['inSandboxMode'])
+  DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode'])
 
   var playspacePackage = {
     'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
@@ -78,12 +78,12 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   
   if(show_hand_selection == true){
-    ENVIRONMENT['handedness'] = await UX.run_hand_selection_dialogue()
+    SESSION['handedness'] = await UX.run_hand_selection_dialogue()
   }
 
   
   if(show_device_selection){    
-    ENVIRONMENT['inputDevice'] = await UX.run_device_selection_dialogue()
+    SESSION['inputDevice'] = await UX.run_device_selection_dialogue()
   }
 
   
@@ -92,13 +92,13 @@ async function setup_mechanicalturk_session(sessionPackage){
   DataWriter.debug2record()
   UX.debug2record()
 
-  var gamePackage = {}
-  gamePackage['TaskStreamer'] = TaskStreamer
-  gamePackage['DataWriter'] = DataWriter 
-  gamePackage['Playspace'] = Playspace 
-  gamePackage['UX'] = UX 
-  gamePackage['SESSION'] = SESSION
-  return gamePackage
+  var freturn = {}
+  freturn['TaskStreamer'] = TaskStreamer
+  freturn['DataWriter'] = DataWriter 
+  freturn['Playspace'] = Playspace 
+  freturn['UX'] = UX 
+  freturn['SESSION'] = SESSION
+  return freturn
 }
 
 
