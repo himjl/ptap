@@ -262,6 +262,9 @@ class PlaySpaceClass{
             if(!bounds.hasOwnProperty(k)){
                     continue
             }
+            if(!this.playspaceLog.hasOwnProperty(k)){
+                this.playspaceLog[k] = []
+            }
             this.playspaceLog[k].push(bounds[k])
         }
     }

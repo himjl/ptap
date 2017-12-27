@@ -6,8 +6,8 @@ class UXclass{
         var elem = document.getElementById('TrialCounter')
         elem.innerHTML = s; // text
     }
-
 }
+
 class MonkeyUX extends UXclass{
     constructor(){
         super()

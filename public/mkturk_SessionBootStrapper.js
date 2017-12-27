@@ -7,7 +7,7 @@ class SessionBootStrapper{
         this.bootstrapLog['inputLocations'] = {}
     }   
     async get(key){
-        // key: IMAGEBAGS, GAME, ENVIRONMENT, TASK_SEQUENCE
+        // key can be: IMAGEBAGS, GAME, ENVIRONMENT, TASK_SEQUENCE
         var k = await LocalStorageIO.load_string(key)
         if (k.startsWith('\'') || k.startsWith('\"')){
             k = k.slice(1)
@@ -26,7 +26,7 @@ class SessionBootStrapper{
         }
 
 
-        // Log .get operation
+        // Log the .get operation
         this.bootstrapLog['loadMethods'][key] = loadMethod
         if(loadMethod != 'localstorage'){
             this.bootstrapLog['inputLocations'][key] = k

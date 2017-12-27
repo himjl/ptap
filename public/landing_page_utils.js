@@ -1,0 +1,118 @@
+async function concludeTurkerLandingPage(sessionPackage){
+    
+    GAME = sessionPackage['GAME']
+    TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
+    ENVIRONMENT = sessionPackage['ENVIRONMENT']
+    IMAGEBAGS = sessionPackage['IMAGEBAGS']
+
+    console.log('landing page url', window.location.href)
+
+    ENVIRONMENT['workerId'] = az.get_workerId_from_url()
+    ENVIRONMENT['hitId'] = az.get_hitId_from_url()
+    ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url()
+    ENVIRONMENT['ipAddress'] = await az.get_ip_address()
+    ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode() // todo: detect from URL?
+    ENVIRONMENT['species'] = 'human'
+    ENVIRONMENT['url'] = window.location.href
+    ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
+
+    await localStorage.setItem("GAME", btoa(JSON.stringify(GAME)))
+    await localStorage.setItem("TASK_SEQUENCE", btoa(JSON.stringify(TASK_SEQUENCE)))
+    await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
+    await localStorage.setItem("IMAGEBAGS", btoa(JSON.stringify(IMAGEBAGS)))
+
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    go_to_main_page()
+    
+}
+
+function go_to_main_page(){
+  var currentURL = window.location.href 
+    if(currentURL.indexOf('localhost')!=-1){
+        window.location.href = '/public/mkturk.html?randomid=' +Math.random()
+    }
+    else{
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?randomid="+Math.random()
+    }
+}
+
+class az{
+    constructor(){
+
+    }
+
+    static get_workerId_from_url(){
+        var workerId = this._extract_url_string('workerId', 'workerId_not_found')
+        console.log('workerId:', workerId)
+        return workerId
+    }
+
+    static get_assignmentId_from_url(){
+        var assignmentId = this._extract_url_string('assignmentId', 'assignmentId_not_found')
+        console.log('assignmentId', assignmentId)
+        return assignmentId
+    }
+
+    static get_hitId_from_url(){
+        var hitId = this._extract_url_string('hitId', 'hitId_not_found')
+        console.log('hitId', hitId)
+        return hitId
+    }
+
+
+    static _extract_url_string(key, defaultValue){
+        var name = key
+        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regexS = "[\\?&]" + key + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(window.location.href) || ["", defaultValue] 
+
+        return results[1]
+        
+    }
+    static detect_sandbox_mode(){
+        var submitToURL = this._extract_url_string('turkSubmitTo', '')
+        console.log('submittoURL', submitToURL)
+        if (submitToURL.indexOf('workersandbox')!=-1){
+            var inSandboxMode = true
+        }
+        else{
+            var inSandboxMode = false
+        }
+
+        return inSandboxMode
+
+    }
+    static async get_ip_address(){
+      
+      var resolveFunc
+      var rejectFunc
+      var p = new Promise(function(resolve, reject){
+          resolveFunc = resolve
+          rejectFunc = reject
+      })
+
+      var xhttp = new XMLHttpRequest(); 
+
+
+      try{
+          xhttp.onreadystatechange = function(){
+              if (this.readyState == 4 && this.status == 200){
+                  resolveFunc(this.responseText)
+              }
+          }
+      }
+      catch(error){
+          console.log(error)
+      }
+      
+      xhttp.open("GET", "https://api.ipify.org?format=json", true);
+
+      xhttp.send();
+      var s = await p
+      s = JSON.parse(s)
+
+      return s['ip']       
+    }
+
+}
