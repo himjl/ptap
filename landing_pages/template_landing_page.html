@@ -25,7 +25,7 @@ async function setupSession(){
     console.log(error)
     ENVIRONMENT = undefined    
   }
-
+  
   var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
   await concludeLandingPage(localSavePackage)
 }

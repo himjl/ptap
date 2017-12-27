@@ -1,28 +1,31 @@
 async function setup_mechanicalturk_session(sessionPackage){
  
-  IMAGEBAGS = sessionPackage['IMAGEBAGS']
-  GAME = sessionPackage['GAME'] 
-  ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
-  TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
+  GAME_PACKAGE = sessionPackage['GAME_PACKAGE']
+  GAME = GAME_PACKAGE['GAME']
+  IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']
+  TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']
 
+  ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
+  
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
   
-  ENVIRONMENT['workerId'] = az.get_workerId_from_url(landingPageURL)
-  ENVIRONMENT['hitId'] = az.get_hitId_from_url(landingPageURL)
-  ENVIRONMENT['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
-  ENVIRONMENT['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL) // todo: detect from URL?
-  ENVIRONMENT['ipAddress'] = await az.get_ip_address()
-  ENVIRONMENT['species'] = 'human'
-  ENVIRONMENT['url'] = window.location.href
-  ENVIRONMENT['landingPageURL'] = landingPageURL
-  ENVIRONMENT['agentID']  = ENVIRONMENT['workerId']
-  
+  var sessionMeta = {}
+  sessionMeta['workerId'] = az.get_workerId_from_url(landingPageURL)
+  sessionMeta['hitId'] = az.get_hitId_from_url(landingPageURL)
+  sessionMeta['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
+  sessionMeta['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL)
+  sessionMeta['ipAddress'] = await az.get_ip_address()
+  sessionMeta['species'] = 'human_turker'
+  sessionMeta['url'] = window.location.href
+  sessionMeta['landingPageURL'] = landingPageURL
+  sessionMeta['agentID']  = ENVIRONMENT['workerId']
+  sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
   SIO = new S3_IO() 
   IB = new ImageBuffer(SIO)
-  CheckPointer = new MechanicalTurkCheckPointer(GAME, TASK_SEQUENCE)
+  CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)
   await CheckPointer.build()
-  TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
+  TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
   await TaskStreamer.build(5)
   DataWriter = new MechanicalTurkDataWriter(ENVIRONMENT['assignmentId'], ENVIRONMENT['hitId'], ENVIRONMENT['inSandboxMode'])
 
@@ -40,9 +43,6 @@ async function setup_mechanicalturk_session(sessionPackage){
   await Playspace.build()
 
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
-
-
-
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
@@ -97,9 +97,9 @@ async function setup_mechanicalturk_session(sessionPackage){
   gamePackage['DataWriter'] = DataWriter 
   gamePackage['Playspace'] = Playspace 
   gamePackage['UX'] = UX 
+  gamePackage['sessionMeta'] = sessionMeta
   return gamePackage
 }
-
 
 
 

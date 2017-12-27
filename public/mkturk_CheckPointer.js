@@ -1,11 +1,11 @@
 class CheckPointerClass{
-    constructor(game, taskSequence){
-        this.game = game 
-        this.taskSequence = taskSequence
+    constructor(gamePackage){
+        this.gamePackage = gamePackage
+
     }
 
     generate_hash(){
-        var hash = JSON.stringify(this.game) + JSON.stringify(this.taskSequence)
+        var hash = JSON.stringify(this.gamePackage)
         hash = hash.hashCode()
         return hash
     }
@@ -13,8 +13,8 @@ class CheckPointerClass{
 
 class DropboxCheckPointer extends CheckPointerClass{ 
 
-constructor(DIO, agentID, game, taskSequence){
-    super(game, taskSequence)
+constructor(DIO, agentID, gamePackage){
+    super(gamePackage)
 
     this.DIO = DIO
     this.agentID = agentID
@@ -151,8 +151,8 @@ get_task_action_history(){
 
 class MechanicalTurkCheckPointer extends CheckPointerClass{ 
 
-    constructor(game, taskSequence){
-        super(game, taskSequence)
+    constructor(gamePackage){
+        super(gamePackage)
 
     }
 

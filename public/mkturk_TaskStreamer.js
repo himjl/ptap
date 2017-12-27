@@ -1,8 +1,8 @@
 class TaskStreamerClass{
-    constructor(Game, taskSequence, ImageBags, IB, CheckPointer){
-        this.game = Game
-        this.taskSequence = taskSequence
-        this.imageBags = ImageBags
+    constructor(gamePackage, IB, CheckPointer){
+        this.game = gamePackage['GAME']
+        this.taskSequence = gamePackage['TASK_SEQUENCE']
+        this.imageBags = gamePackage['IMAGEBAGS']
         this.IB = IB 
         this.CheckPointer = CheckPointer
         

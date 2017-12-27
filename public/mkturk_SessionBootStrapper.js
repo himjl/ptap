@@ -8,12 +8,9 @@ class SessionBootStrapper{
 
     async build(){
         
-        var gamePackage = await this.unpack_game_package() 
 
         var sessionPackage = {}
-        sessionPackage['IMAGEBAGS'] = gamePackage['IMAGEBAGS']
-        sessionPackage['TASK_SEQUENCE'] = gamePackage['TASK_SEQUENCE']
-        sessionPackage['GAME'] = gamePackage['GAME']
+        sessionPackage['GAME_PACKAGE'] = await this.unpack_game_package() 
         sessionPackage['ENVIRONMENT'] = await this.unpack_environment()
         sessionPackage['LANDING_PAGE_URL'] = await LocalStorageIO.load_string('LANDING_PAGE_URL')
 
@@ -140,40 +137,50 @@ class Verifier{
         return sessionPackage
     }
 
-    verify_session_package(sessionPackage){
+    verify_game_package(gamePackage){
         var verified = true
-        var use_default_HIT = false
-        
-
-        // Check that all keys exist 
         var necessary_keys = {
             'IMAGEBAGS':Object, 
             'GAME':Object, 
-            'ENVIRONMENT':Object, 
             'TASK_SEQUENCE':Array}
 
         for (var key in necessary_keys){
-            if(!sessionPackage.hasOwnProperty(key)){
-                console.warn('Verifier error: sessionPackage is missing the key', key)
+            if(!gamePackage.hasOwnProperty(key)){
+                console.warn('Verifier error: gamePackage is missing the key', key)
                 verified = false
                 continue
             }
-            if(sessionPackage[key] == undefined){
-                console.warn('Verifier error: sessionPackage[\"'+key+'\"]  == undefined')
+            if(gamePackage[key] == undefined){
+                console.warn('Verifier error: gamePackage[\"'+key+'\"]  == undefined')
                 verified = false
                 continue
             }
             var correctConstructor = necessary_keys[key]
-            if(sessionPackage[key].constructor != correctConstructor){
-                console.warn('Verifier error: sessionPackage[\"', key, '\"] is of incorrect type', sessionPackage['IMAGEBAGS'].constructor)
+            if(gamePackage[key].constructor != correctConstructor){
+                console.warn('Verifier error: gamePackage[\"', key, '\"] is of incorrect type', gamePackage['IMAGEBAGS'].constructor)
                 verified = false 
                 continue
             }
 
-            this.verificationLog[key+'_hash'] = JSON.stringify(sessionPackage[key]).hashCode()
+            this.verificationLog[key+'_hash'] = JSON.stringify(gamePackage[key]).hashCode()
         }
+        return verified
+    }
 
-        // Check that all imagebags referenced in TASK_SEQUENCE are in IMAGEBAGS with at least one entry
+    verify_environment(environment){
+        var verified = true 
+        if(environment.constructor!=Object){
+            verified = false
+        }
+        return verified
+    }
+    verify_session_package(sessionPackage){
+        var verified = true
+        var use_default_HIT = false
+        
+        verified = this.verify_game_package(sessionPackage['GAME_PACKAGE'])
+        verified = this.verify_environment(sessionPackage['ENVIRONMENT'])
+
         if(verified == false){
             sessionPackage = this.on_verification_fail()
         }

@@ -1,11 +1,27 @@
 async function setup_upstairs_session(sessionPackage){
 
-    IMAGEBAGS = sessionPackage['IMAGEBAGS']
-    GAME = sessionPackage['GAME'] 
-    ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
-    TASK_SEQUENCE = sessionPackage['TASK_SEQUENCE']
+  GAME_PACKAGE = sessionPackage['GAME_PACKAGE']
+  GAME = GAME_PACKAGE['GAME']
+  IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']
+  TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']
+  
+  ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
 
-    // Button callbacks
+  var landingPageURL = sessionPackage['LANDING_PAGE_URL']
+  var sessionMeta = {}
+  sessionMeta['workerId'] = az.get_workerId_from_url(landingPageURL)
+  sessionMeta['ipAddress'] = await az.get_ip_address()
+  sessionMeta['species'] = 'monkey'
+  sessionMeta['url'] = window.location.href
+  sessionMeta['landingPageURL'] = landingPageURL
+  if(ENVIRONMENT['agentID']!=undefined){
+    sessionMeta['agentID']  = ENVIRONMENT['agentID']
+  }
+  else{
+    sessionMeta['agentID'] = 'unknown_monkey'
+  }
+  sessionMeta['unixTimestampPageLoad'] = window.performance.timing.navigationStart
+
     UX = new MonkeyUX()
    
    DIO = new DropboxIO()
@@ -23,7 +39,7 @@ async function setup_upstairs_session(sessionPackage){
 
    UX.updateSessionTextbox(ENVIRONMENT['agentID'], GAME['gameID'])
 
-   TaskStreamer = new TaskStreamerClass(GAME, TASK_SEQUENCE, IMAGEBAGS, IB, CheckPointer)
+   TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
 
    await TaskStreamer.build(5)
    var playspacePackage = {
@@ -50,6 +66,6 @@ async function setup_upstairs_session(sessionPackage){
     gamePackage['DataWriter'] = DataWriter 
     gamePackage['Playspace'] = Playspace 
     gamePackage['UX'] = UX 
-
+    gamePackage['sessionMeta'] = sessionMeta
     return gamePackage
 }
