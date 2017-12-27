@@ -34,7 +34,6 @@ class SessionBootStrapper{
             else{
                 unpackedGame[k] = undefined
             }
-            
         }
 
         return unpackedGame
