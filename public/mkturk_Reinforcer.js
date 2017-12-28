@@ -19,8 +19,14 @@ class MonetaryReinforcer{
 
 
 class JuiceReinforcer{
-    constructor(){
-
+    constructor(juiceRewardPer1000){
+      if (juiceRewardPer1000 != undefined){
+        this.juiceRewardPer1000 = juiceRewardPer1000  
+      }
+      else{
+        this.juiceRewardPer1000 = 300
+      }
+      
     }
 
     async deliver_reinforcement(nreward){
@@ -47,7 +53,7 @@ class JuiceReinforcer{
 
       var pumpNumber = 1
       var liquidNumber = 1
-      var rewardPer1000 = 300
+      var rewardPer1000 = this.juiceRewardPer1000 
       if (pumpNumber == 1){
         // m = 1.13; b = 15.04;
         m = 0.99; b = 14.78;

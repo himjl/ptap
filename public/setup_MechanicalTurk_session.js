@@ -38,11 +38,12 @@ async function setup_mechanicalturk_session(sessionPackage){
     'action_event_type':ENVIRONMENT['action_event_type'], 
     'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], 
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
-    'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }
+    'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], 
+    'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
   Playspace = new PlaySpaceClass(playspacePackage)
   await Playspace.build()
 
-  UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])
+  UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], ENVIRONMENT['bonusUSDPerCorrect'])
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){

@@ -46,7 +46,8 @@ async function setup_upstairs_session(sessionPackage){
     'action_event_type':ENVIRONMENT['action_event_type'], 
     'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], 
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
-    'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }
+    'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],
+    'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
 
    Playspace = new PlaySpaceClass(playspacePackage)
    await Playspace.build()

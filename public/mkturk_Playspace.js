@@ -10,7 +10,7 @@ class PlaySpaceClass{
         var periodicRewardIntervalMsec = playspacePackage['periodicRewardIntervalMsec'] 
         var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
-
+        var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
         this.viewingDistanceInches = playspace_viewingDistanceInches
         this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet 
         this.playspaceSizeDegrees = playspace_degreesVisualAngle
@@ -22,7 +22,7 @@ class PlaySpaceClass{
         this.ScreenDisplayer = new ScreenDisplayer(bounds)
         
         if (primary_reinforcer_type == 'juice'){
-            this.Reinforcer = new JuiceReinforcer()
+            this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)
         }
         else if(
             primary_reinforcer_type == 'monetary' 
@@ -174,7 +174,7 @@ class PlaySpaceClass{
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
-        
+
 
         trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
