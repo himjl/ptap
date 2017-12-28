@@ -192,6 +192,8 @@ class DropboxIO{
     }
     async build(DBX_REDIRECT_URI){
 
+        
+
         if(window.location.href.split('access_token').length>1){
             var accessToken = utils.parseQueryString(window.location.hash).access_token
             localStorage.setItem('_dbxAccessToken', btoa(accessToken))
@@ -219,6 +221,7 @@ class DropboxIO{
         this.changed_on_disk = this._changed_on_disk.bind(this)
         this.get_rev = this._get_rev.bind(this)
         this.get_meta = this._get_meta.bind(this)
+        this.get_modification_timestamp = this._get_modification_timestamp.bind(this)
         // Need to .bind, because "this" changes its meaning depending on the context in which 
         // a DIO function (or any function) is called. Binding makes it so that "this"
         // always refers to the DIO object, not the "this" of the particular moment (context). 
@@ -394,6 +397,19 @@ class DropboxIO{
         catch(error){
             console.log(error)
             wdm('DIO.get_rev error', error)
+        }
+    }
+
+    async _get_modification_timestamp(filepath){
+        try{
+            var filemeta = await this.dbx.filesGetMetadata({path: filepath})
+            var date = new Date(filemeta.client_modified)
+            var unix_timestamp = Math.round(date.getTime())
+            return unix_timestamp
+        }
+        catch(error){
+            console.log(error)
+            wdm('DIO._get_modification_date error', error)
         }
     }
 
