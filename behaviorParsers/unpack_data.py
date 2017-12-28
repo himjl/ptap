@@ -2,7 +2,9 @@ import json
 import pandas as pd 
 import numpy as np 
 import os 
+import urllib2
 
+DROPBOX_ROOT = '/Users/michaellee/Dropbox (MIT)'
 
 def uB(blurb):
     print blurb+'\nPress enter to continue.'
@@ -14,7 +16,7 @@ def compile_data(behaviorDirectoryPath):
     filePaths = filter(lambda s: not s.startswith('.') and (s.endswith('.txt') or s.endswith('.json')), filePaths)
     filePaths = map(lambda s: os.path.join(behaviorDirectoryPath, s), filePaths)
 
-    uB('Found %d files in %s.'%(len(filePaths), behaviorDirectoryPath))
+    #uB('Found %d files in %s.'%(len(filePaths), behaviorDirectoryPath))
     blist = []
     slist = []
     for f in filePaths: 
@@ -32,6 +34,19 @@ def compile_data(behaviorDirectoryPath):
             
             # Translate i_choiceBag
             dfb['choiceBag'] = translate_ichoice_bag(dfb['i_choiceBag'], imagebags_mapping)
+            
+            # Translate i_id to actual id 
+            loadMethod = d['BOOTSTRAP_LOG']['IMAGEBAGS']['loadMethod']
+            
+            
+            if loadMethod == 'dropbox' or loadMethod == 'url':
+                print loadMethod
+                imagebagsConstructor = d['BOOTSTRAP_LOG']['IMAGEBAGS']['constructor']
+                imagebags = download_imagebags(loadMethod, imagebagsConstructor)
+
+                dfb['sampleId'] = translate_image_id(dfb['sampleBag'], dfb['i_sampleId'], imagebags)
+                dfb['choiceId'] = translate_image_id(dfb['choiceBag'], dfb['i_choiceId'], imagebags)
+            
             
             # Create references to gamePackage row 
             sessionID = d['SESSION'][u'unixTimestampPageLoad']
@@ -76,12 +91,62 @@ def compile_data(behaviorDirectoryPath):
     df_session = pd.concat(slist)
     return {'behavior':df_behavior, 'session':df_session}
 
-
-def download_imagebags(imagebags):
+def download_imagebags(loadMethod, imagebagsConstructor):
+    # TODO: except in cases where imagebags are supplied literally to the landing page, 
+    # grab the imagebag from dropbox or from the web
     
-def translate_image_id(i_bag, i_id, imagebags_mapping, imagebags):
+    if(loadMethod not in ['dropbox', 'url']): 
+        print 'Cannot download imagebags with loadMethod of ', loadMethod
+        raise NotImplementedError
+    
+    if loadMethod == 'dropbox':
+        if(imagebagsConstructor[0] == '/'): 
+            imagebagsConstructor = imagebagsConstructor[1:]
+        location = os.path.join(DROPBOX_ROOT, imagebagsConstructor)
+        print location
+        assert os.path.exists(location)
+        with open(location) as f: 
+            imagebags = json.load(f)
 
+        return imagebags 
+    if loadMethod == 'url': 
+        # todo: verify
+        data = urllib2.urlopen(imagebagsConstructor)
+        imagebags = json.load(data)
+        return imagebags
+    
     return
+    
+def translate_image_id(bag, i_id, imagebags):
+
+    assert len(bag) == len(i_id)
+    
+    translated_ids = []
+    for i in range(len(bag)):
+        entry_bag = bag.iloc[i]
+        entry_idx = i_id.iloc[i]
+            
+        if(type(entry_bag) != list): 
+            entry_bag = [entry_bag]
+        if(type(entry_idx) != list): 
+            entry_idx = [entry_idx]
+        
+        translated_entry = []
+        sorted_bags = {}
+        
+        for e_bag, e_idx in zip(entry_bag, entry_idx):
+            if e_bag is None: 
+                translated_entry.append(None)
+                continue
+            if e_bag not in sorted_bags: 
+                sorted_bags[e_bag] = sorted(imagebags[e_bag])
+            target_bag = sorted_bags[e_bag]
+            translated_entry.append(target_bag[e_idx])
+        
+        if(len(translated_entry) == 1): 
+            translated_entry = translated_entry[0]
+        translated_ids.append(translated_entry)
+    return translated_ids
 
 
 def translate_ichoice_bag(i_choiceBag, imagebags_mapping): 
