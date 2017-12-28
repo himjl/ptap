@@ -2,8 +2,6 @@ class SessionBootStrapper{
     constructor(){
         this.SIO = new S3_IO()
         this.bootstrapLog = {}
-        this.bootstrapLog['loadMethods'] = {}
-        this.bootstrapLog['inputLocations'] = {}
     }   
 
     async build(){
@@ -39,6 +37,21 @@ class SessionBootStrapper{
             else{
                 unpackedGame[k] = undefined
             }
+
+            // Log the game package location
+            
+            var loadMethod = this.infer_load_method(gamePackage[k])
+            this.bootstrapLog[k] = {}
+
+            this.bootstrapLog[k]['loadMethod'] = loadMethod
+
+            if(loadMethod != 'localstorage' && loadMethod != 'literal'){
+                this.bootstrapLog[k]['constructor'] = gamePackage[k]
+            }
+            else{
+                this.bootstrapLog[k]['constructor'] = undefined
+            }
+            
         }
 
         return unpackedGame
