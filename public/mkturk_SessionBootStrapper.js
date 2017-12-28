@@ -8,18 +8,23 @@ class SessionBootStrapper{
 
     async build(){
         
+        var local_val_session = await this.load_localstorage_val('SESSION_PACKAGE')
+        var sessionPackage = await this.download(local_val_session)
 
-        var sessionPackage = {}
-        sessionPackage['GAME_PACKAGE'] = await this.unpack_game_package() 
-        sessionPackage['ENVIRONMENT'] = await this.unpack_environment()
-        sessionPackage['LANDING_PAGE_URL'] = await LocalStorageIO.load_string('LANDING_PAGE_URL')
+        var gamePackage = await this.unpack_game_package(sessionPackage['GAME_PACKAGE'])
+        var environment = await this.unpack_environment(sessionPackage['ENVIRONMENT'])
 
-        return sessionPackage
+        var unpackedSession = {}
+        unpackedSession['GAME_PACKAGE'] = gamePackage 
+        unpackedSession['ENVIRONMENT'] = environment
+        unpackedSession['LANDING_PAGE_URL'] = sessionPackage['LANDING_PAGE_URL']
+
+        return unpackedSession
     }
 
-    async unpack_game_package(){
-        var local_val_game = await this.load_localstorage_val('GAME_PACKAGE')
-        var gamePackage = await this.download(local_val_game) 
+
+    async unpack_game_package(game_package_key){
+        var gamePackage = await this.download(game_package_key) 
 
         var gamePackageKeys = ['IMAGEBAGS', 'TASK_SEQUENCE', 'GAME']
 
@@ -39,9 +44,8 @@ class SessionBootStrapper{
         return unpackedGame
     }
 
-    async unpack_environment(){
-        var ENVIRONMENT = await this.load_localstorage_val('ENVIRONMENT')
-        ENVIRONMENT = await this.download(ENVIRONMENT)
+    async unpack_environment(environment){
+        var ENVIRONMENT = await this.download(environment)
         return ENVIRONMENT
     }
 

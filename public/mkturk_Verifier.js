@@ -8,7 +8,31 @@ class Verifier{
         this.verificationLog['ENVIRONMENT_hash'] = undefined 
         this.verificationLog['TASK_SEQUENCE_hash'] = undefined 
     }
+    verify_session_package(sessionPackage){
+        var verified = true
+        var use_default_HIT = false
+        
+        verified = this.verify_game_package(sessionPackage['GAME_PACKAGE'])
+        verified = this.verify_environment(sessionPackage['ENVIRONMENT'])
 
+        if(verified == false){
+            sessionPackage = this.on_verification_fail()
+        }
+        if(verified == true){
+            console.log("sessionPackage PASSED all tests.")
+        }
+
+        // Log .check_session_package call
+        this.verificationLog['verified'] = verified
+
+        // Hash 
+        this.verificationLog['ENVIRONMENT_hash'] = JSON.stringify(sessionPackage['ENVIRONMENT']).hashCode()
+        this.verificationLog['GAME_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['GAME']).hashCode()
+        this.verificationLog['IMAGEBAGS_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['IMAGEBAGS']).hashCode()
+        this.verificationLog['TASK_SEQUENCE_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']).hashCode()
+        return sessionPackage
+    }
+    
     on_verification_fail(){
         console.warn("Verification FAILED. Using failsafe game...")
         var sessionPackage = DEFAULT_HIT
@@ -112,30 +136,7 @@ class Verifier{
         }
         return verified
     }
-    verify_session_package(sessionPackage){
-        var verified = true
-        var use_default_HIT = false
-        
-        verified = this.verify_game_package(sessionPackage['GAME_PACKAGE'])
-        verified = this.verify_environment(sessionPackage['ENVIRONMENT'])
-
-        if(verified == false){
-            sessionPackage = this.on_verification_fail()
-        }
-        if(verified == true){
-            console.log("sessionPackage PASSED all tests.")
-        }
-
-        // Log .check_session_package call
-        this.verificationLog['verified'] = verified
-
-        // Hash 
-        this.verificationLog['ENVIRONMENT_hash'] = JSON.stringify(sessionPackage['ENVIRONMENT']).hashCode()
-        this.verificationLog['GAME_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['GAME']).hashCode()
-        this.verificationLog['IMAGEBAGS_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['IMAGEBAGS']).hashCode()
-        this.verificationLog['TASK_SEQUENCE_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']).hashCode()
-        return sessionPackage
-    }
+    
 
     get_verification_log(){
         return this.verificationLog

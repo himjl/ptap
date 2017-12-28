@@ -13,8 +13,7 @@ class MonetaryReinforcer{
             console.log('Running monetary bonus amount',
               Math.round(this.bonus_total*1000)/1000)
           }
-    }
-       
+    }       
 }
 
 

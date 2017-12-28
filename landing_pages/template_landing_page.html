@@ -8,22 +8,14 @@
 
 
 <script>
-// ******* The experimenter fills out GAME_PACKAGE AND ENVIRONMENT ********* 
+// ******* The experimenter fills out SESSION_PACKAGE ********* 
 async function setupSession(){
   try{
-    GAME_PACKAGE = __GAME_PACKAGE_GOES_HERE__
+    SESSION_PACKAGE = __SESSION_PACKAGE_GOES_HERE__
   }
   catch(error){
     console.log(error)
-    GAME_PACKAGE = undefined
-  }
-
-  try{
-    ENVIRONMENT = __ENVIRONMENT_GOES_HERE__    
-  }
-  catch(error){
-    console.log(error)
-    ENVIRONMENT = undefined    
+    SESSION_PACKAGE = undefined
   }
 
   try{
@@ -36,7 +28,7 @@ async function setupSession(){
     agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
   }
 
-  var localSavePackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT, 'agentID':agentID}
+  var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentID':agentID, 'LANDING_PAGE_URL':window.location.href}
   await concludeLandingPage(localSavePackage)
 }
 
@@ -46,15 +38,15 @@ async function setupSession(){
 // ******** Util functions ********
 async function concludeLandingPage(localSavePackage){
     
-    GAME_PACKAGE = localSavePackage['GAME_PACKAGE']
-    ENVIRONMENT = localSavePackage['ENVIRONMENT']
+    SESSION_PACKAGE = localSavePackage['SESSION_PACKAGE']
+    agentID = localSavePackage['agentID']
+    LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL']
 
     console.log('landing page url', window.location.href)
 
-    await localStorage.setItem("GAME_PACKAGE", btoa(JSON.stringify(GAME_PACKAGE)))
-    await localStorage.setItem("ENVIRONMENT", btoa(JSON.stringify(ENVIRONMENT)))
-    await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))
-    await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))
+    await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)))
+    await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
+    await localStorage.setItem('agentID', btoa(agentID))
 
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -64,10 +56,10 @@ async function concludeLandingPage(localSavePackage){
 function go_to_main_page(){
   var currentURL = window.location.href 
     if(currentURL.indexOf('localhost')!=-1){
-        window.location.href = '/public/mkturk.html?randomid=' +Math.random()
+        window.location.href = '/public/mkturk.html?loadtime=' +Math.round(window.performance.timing.navigationStart)
     }
     else{
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?randomid="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?loadtime="+Math.round(window.performance.timing.navigationStart)
     }
 }
 
