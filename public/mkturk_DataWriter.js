@@ -3,6 +3,7 @@ class DataWriter{
         this.trialData = {}
         this.pollPeriodMsec = 60000 * 5
         this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
+        this.lastTrialTimestamp = performance.now() 
         this.lastSaveTimestamp = performance.now()
         this.probeFunctions = {}
         this.keyData = {}
@@ -22,6 +23,7 @@ class DataWriter{
             }
             this.trialData[key].push(trialOutcome[key])
         }
+        this.lastTrialTimestamp = performance.now()
     }
 
     attach_probe(object, propertyName, probeName){
@@ -105,15 +107,49 @@ class DropboxDataWriter extends DataWriter{
     }
 
     start_polling(){
+
+        // If no trial has been done in the past T1 seconds, write out once. 
+
+        // Then after that, write out periodically every T2 seconds. 
+        console.log('Called DataWriter.start_polling')
         if (this.pollPeriodMsec < 0 || this.pollPeriodMsec == undefined){
+            console.log("Not polling.")
             return
         }
 
-        this.pollPeriodMsec = Math.max(5000, this.pollPeriodMsec) // Save at most every 5000 msec
-
+        this.pollPeriodMsec = 30000
+        this.latentSaveModeTimeoutMsec = 60000 // If it's been this.latentSaveModeTimeout msec, start saving every 
+        this.latentSavePeriodMsec = 3 * 60000
+        this.inLatentMode = false
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/this
         var _this = this
-        window.setInterval(function(){console.log('calling poll save');_this.write_out.apply(_this)}, this.pollPeriodMsec)
+
+        var pollFunction = function(){
+            // If it's been latentSaveModeTimeoutMsec since the last trial, save and enter latent mode.
+            if(performance.now() - _this.lastTrialTimestamp >= _this.latentSaveModeTimeoutMsec){
+                if(_this.inLatentMode == false){
+                    console.log('Entering latent save mode.')
+                }
+                _this.inLatentMode = true
+            }
+            else{
+                if(_this.inLatentMode == true){
+                    console.log('Exiting latent save mode.')
+                }
+                _this.inLatentMode = false
+            }            
+
+            if(_this.inLatentMode == true){
+                var lastSaveMsecAgo = performance.now() - _this.lastSaveTimestamp
+                if(lastSaveMsecAgo >= _this.latentSavePeriodMsec){
+                    console.log('Executing latent save. Last save was ', lastSaveMsecAgo/1000, 'sec ago.')
+                    _this.write_out.apply(_this)
+                }
+            }
+        }
+
+        window.setInterval(pollFunction, this.pollPeriodMsec)
+
     }
   
     async write_out(){
@@ -128,7 +164,7 @@ class DropboxDataWriter extends DataWriter{
         var savedMsecAgo = Math.round(performance.now() - this.lastSaveTimestamp)
         this.lastSaveTimestamp = performance.now()
         await this.DIO.write_string(dataString, this.savePath)
-        console.log('Saved. Size:', memorySizeOf(dataString, 1), 'Last save (msec ago):', savedMsecAgo)
+        console.log('Saved. Size:', memorySizeOf(dataString, 1), '(Last save', savedMsecAgo/1000,'sec ago):', )
         
     }
 }
