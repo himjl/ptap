@@ -2,7 +2,7 @@ import boto
 
 MKTURK_PUBLIC_DIRECTORY_PATH = '../ptap/public/'
 MKTURK_LANDINGPAGES_DIRECTORY_PATH = '../ptap/landingPages/'
-split_start = '/ptap' # references above
+split_start = '/ptap/' # references above
 
 # Upload to s3 monkeyturksandbox
 from boto.s3.key import Key
