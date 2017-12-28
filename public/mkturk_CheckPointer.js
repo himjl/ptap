@@ -123,11 +123,10 @@ async save_checkpoint(){
 
 async request_checkpoint_save(){
 
-    if(performance.now() - this.lastCheckpointSave <= this.saveTimeoutMsec){
+    if(performance.now() - this.lastCheckpointSave >= this.saveTimeoutMsec){
         await this.save_checkpoint()
         this.lastCheckpointSave = performance.now()
     }
-
 }
 
 

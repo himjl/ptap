@@ -21,7 +21,6 @@ class PlaySpaceClass{
         var bounds = this.getPlayspaceBounds()    
         this.ScreenDisplayer = new ScreenDisplayer(bounds)
         
-
         if (primary_reinforcer_type == 'juice'){
             this.Reinforcer = new JuiceReinforcer()
         }
@@ -57,7 +56,6 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.build()
         
     }
-
 
     async run_trial(trialPackage){
 
@@ -176,6 +174,7 @@ class PlaySpaceClass{
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
+        
 
         trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 

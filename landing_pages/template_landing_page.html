@@ -67,7 +67,7 @@ function go_to_main_page(){
         window.location.href = '/public/mkturk.html?randomid=' +Math.random()
     }
     else{
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?randomid="+Math.random()
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?randomid="+Math.round(window.performance.timing.navigationStart)
     }
 }
 

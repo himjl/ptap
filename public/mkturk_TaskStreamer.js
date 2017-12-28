@@ -6,7 +6,6 @@ class TaskStreamerClass{
         this.IB = IB 
         this.CheckPointer = CheckPointer
         
-
         // State info
         this.taskNumber = CheckPointer.get_task_number()  
         this.trialNumberTask = CheckPointer.get_trial_number_task() 
@@ -17,7 +16,6 @@ class TaskStreamerClass{
         this.monitoring = true
         this.punishStreak = 0
         this.lastTrialPackage = undefined
-
 
         this.onLoadState = {
             'taskNumber': this.taskNumber,

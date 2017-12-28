@@ -87,7 +87,6 @@ class DropboxDataWriter extends DataWriter{
     }
     generate_filename(prefix){
         
-
         var saveFilename = prefix
         var curDate = new Date()
         saveFilename+='_'
