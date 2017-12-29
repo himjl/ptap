@@ -10,7 +10,7 @@ constructor(DIO){
 	this.cache_members = []; // earliest image_path -> latest image_path 
 	// Todo: double buffer. Currently do not do anything.
 	this.num_elements_in_cache = 0; // tracking variable
-	this.max_buffer_size = 1000; // (for now, arbitrary) number of unique images to keep in buffer
+	this.max_buffer_size = 2400; // (for now, arbitrary) number of unique images to keep in buffer
 }
 
 // ------- Image blob getting functions ----------------------------

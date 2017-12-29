@@ -30,3 +30,13 @@ async function fillUpDataWriter(){
     var x = np.zeros(5000000)
     DataWriter.deposit_key_data(x)
 }
+
+async function overloadTrialBuffer(){
+    var maxLoad = 10000
+
+    for (var i = 0; i < maxLoad; i++){
+        TaskStreamer.buffer_trial(0)
+    }
+
+
+}

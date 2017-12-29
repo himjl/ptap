@@ -19,10 +19,9 @@ class TaskStreamerClass{
 
         // Queue 
         this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
-        this.maxTrialsInQueue = 300 
+        this.maxTrialsInQueuePerTask = 300 
         this.numTrialsInQueue = 0
-        this.enterLatentModeMsec = 30000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
-        this.lastTrialTimestamp = performance.now()
+        
 
         this.onLoadState = {
             'taskNumber': this.taskNumber,
@@ -63,7 +62,7 @@ class TaskStreamerClass{
         num_trials_per_stage_to_prebuffer = num_trials_per_stage_to_prebuffer || 5
 
         var trial_requests = []
-        for (var t = 0; t<this.taskSequence.length; t++){
+        for (var t = this.taskNumber; t<this.taskSequence.length; t++){
             for (var i_trial = 0; i_trial < num_trials_per_stage_to_prebuffer; i_trial++){
                 trial_requests.push(this.buffer_trial(t))
             }
@@ -142,7 +141,6 @@ class TaskStreamerClass{
         }
 
         var tP = this.trialq[this.taskNumber].shift() // .shift() removes first element and returns
-        this.numTrialsInQueue--
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         this.lastTrialPackage = tP
         return tP
@@ -274,7 +272,6 @@ class TaskStreamerClass{
             this.trialq[taskNumber] = []
         }
         this.trialq[taskNumber].push(tP)
-        this.numTrialsInQueue++
     }
 
 
@@ -385,6 +382,9 @@ class TaskStreamerClass{
         // Not used.
         var _this = this
         this.latentMode = false
+        this.enterLatentModeMsec = 30000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
+        this.lastTrialTimestamp = performance.now()
+
         var bufferMonitor = async function(){
             if(performance.now() - _this.lastTrialTimestamp >= _this.enterLatentModeMsec){
                 if(_this.latentMode == false){
@@ -401,16 +401,7 @@ class TaskStreamerClass{
             }
 
             if(_this.latentMode == true){
-                if(_this.numTrialsInQueue < _this.maxTrialsInQueue){
-
-                    var trialRequests = []
-                    var numTrialsToBuffer = Math.min(Math.round((_this.maxTrialsInQueue - _this.numTrialsInQueue)/2), 10)
-                    for (var t = 0; t < numTrialsToBuffer; t++){
-                        trialRequests.push(_this.buffer_trial(_this.taskNumber))
-                    }
-                    console.log('Buffering', trialRequests.length, 'trials')
-                    await Promise.all(trialRequests)
-                }
+                // Buffer
             }
         }
         // when the task is inactive, buffer trials (up to a point)
@@ -421,19 +412,47 @@ class TaskStreamerClass{
     async start_buffering_continuous(){
         var _this = this 
 
-        
+        this.currently_buffering = false
         var bufferTrials = async function(){
       
-            if(_this.numTrialsInQueue < _this.maxTrialsInQueue){
+            if (_this.currently_buffering == true){
+                console.log('Currently buffering. Skipping...')
+                return 
+            }
 
+            var numTrialsInTaskQueue = _this.trialq[_this.taskNumber].length
+            if(numTrialsInTaskQueue < _this.maxTrialsInQueuePerTask){
+                // Lock (only one buffer process at a time)
+                _this.currently_buffering = true
                 var trialRequests = []
-                var numTrialsToBuffer = 10 // Math.min(Math.round((_this.maxTrialsInQueue - _this.numTrialsInQueue)/2), 10)
+                var numTrialsToBuffer = 100 // Math.min(Math.round((_this.maxTrialsInQueuePerTask - numTrialsInTaskQueue)/2), 10)
                 for (var t = 0; t < numTrialsToBuffer; t++){
                     trialRequests.push(_this.buffer_trial(_this.taskNumber))
                 }
                 console.log('Buffering', trialRequests.length, 'trials')
                 await Promise.all(trialRequests)
+                
+                // Unlock
+                _this.currently_buffering = false
             }
+            else{
+                console.log('Trial buffer is FILLED with ', _this.trialq[_this.taskNumber].length, 'trials. Continuing...')
+            }
+
+            // Manage queues for other tasks 
+            if (_this.game['onFinish'] != 'loop'){
+                // Delete queues for previous taskNumbers
+                for(var t = 0; t<_this.taskNumber; t++){
+                    if(_this.trialq[t]== undefined){
+                        continue
+                    }
+
+                    if(_this.trialq[t].length>0){
+                        console.log('Clearing queue for taskNumber', taskNumber)
+                        _this.trialq[t] = undefined
+                    }
+                }
+            } 
         }
 
         // when the task is inactive, buffer trials (up to a point)
