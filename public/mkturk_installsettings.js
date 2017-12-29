@@ -4,9 +4,9 @@
 // You must include '/' as the first character. 
 
 INSTALL_SETTINGS = {
-    'checkpointDirPath':"/MonkeyTurk_upstairs/Checkpoints/",
+    'checkpointDirPath':"/MonkeyTurk_upstairs/logs/Checkpoints/",
     'dataDirPath':"/MonkeyTurk_upstairs/Behavior/",
-    'debugDataDirPath':"/MonkeyTurk_upstairs/debug/Behavior/", 
-    'debugCheckpointDirPath':"/MonkeyTurk_upstairs/debug/Checkpoints/",
+    'debugDataDirPath':"/MonkeyTurk_upstairs/logs/debug/Behavior/", 
+    'debugCheckpointDirPath':"/MonkeyTurk_upstairs/logs/debug/Checkpoints/",
     "dropboxClientId":"scx9xahpjofx5q0"
 }

@@ -59,7 +59,7 @@ def makeInLabMTS():
     return 
 
 def makeInLabSR():
-    sessionPackage = '/MonkeyTurk_upstairs/Subjects/examples/exampleSR.json'
+    sessionPackage = '/MonkeyTurk_upstairs/Subjects/exampleSR.json'
     c.write_landing_page(sessionPackage, agentID = 'example_inlab_worker', landingPageName = 'landingPage_InlabSR.html', saveDirectoryPath = SAVE_LOCATION) 
     return
 

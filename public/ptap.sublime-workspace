@@ -559,7 +559,7 @@
 			"file": "mkturk_Reinforcer.js",
 			"settings":
 			{
-				"buffer_size": 2152,
+				"buffer_size": 2361,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -586,7 +586,7 @@
 			"file": "mkturk_DiskIO.js",
 			"settings":
 			{
-				"buffer_size": 12529,
+				"buffer_size": 13055,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -595,7 +595,7 @@
 			"file": "mkturk_CheckPointer.js",
 			"settings":
 			{
-				"buffer_size": 4881,
+				"buffer_size": 4880,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -613,7 +613,7 @@
 			"file": "mkturk_installsettings.js",
 			"settings":
 			{
-				"buffer_size": 566,
+				"buffer_size": 483,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -622,7 +622,16 @@
 			"file": "mkturk_SessionBootStrapper.js",
 			"settings":
 			{
-				"buffer_size": 8233,
+				"buffer_size": 3941,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_Verifier.js",
+			"settings":
+			{
+				"buffer_size": 4854,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -637,19 +646,10 @@
 			}
 		},
 		{
-			"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html",
-			"settings":
-			{
-				"buffer_size": 7368,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "mkturk_ImageBuffer.js",
 			"settings":
 			{
-				"buffer_size": 6699,
+				"buffer_size": 6027,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -658,7 +658,7 @@
 			"file": "setup_upstairs_session.js",
 			"settings":
 			{
-				"buffer_size": 2578,
+				"buffer_size": 2655,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -667,17 +667,16 @@
 			"file": "setup_MechanicalTurk_session.js",
 			"settings":
 			{
-				"buffer_size": 3628,
+				"buffer_size": 3713,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/template_landing_page.html",
+			"file": "landing_pages/landing_page_template.html",
 			"settings":
 			{
-				"buffer_size": 3133,
-				"encoding": "UTF-8",
+				"buffer_size": 3123,
 				"line_ending": "Unix"
 			}
 		},
@@ -691,19 +690,19 @@
 			}
 		},
 		{
-			"file": "mkturk_TaskStreamer.js",
+			"file": "mkturk_Playspace.js",
 			"settings":
 			{
-				"buffer_size": 12885,
+				"buffer_size": 19714,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "mkturk_Playspace.js",
+			"file": "mkturk.html",
 			"settings":
 			{
-				"buffer_size": 19620,
+				"buffer_size": 8876,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -714,14 +713,6 @@
 			{
 				"buffer_size": 45734,
 				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html",
-			"settings":
-			{
-				"buffer_size": 7165,
 				"line_ending": "Unix"
 			}
 		},
@@ -738,9 +729,19 @@
 			"file": "mkturk_DataWriter.js",
 			"settings":
 			{
-				"buffer_size": 5290,
+				"buffer_size": 6751,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Searching 27 files for \"window.setInterval\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n  145          }\n  146  \n  147:         window.setInterval(pollFunction, this.pollPeriodMsec)\n  148  \n  149      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n  214  \n  215  \n  216:         window.setInterval(periodic_reward, this.periodicRewardIntervalMsec)\n  217          \n  218      }\n\n2 matches across 2 files\n\n\nSearching 28 files for \"bonusUSDPerCorrect\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html:\n   23            \"periodicRewardIntervalMsec\":60000,\n   24            \"periodicRewardAmount\":1,\n   25:           \"bonusUSDPerCorrect\":0, \n   26            \"onFinish\":\"continue\", // terminate, continue\n   27            \"randomSeed\":'none',\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html:\n   25              \"periodicRewardIntervalMsec\":0,\n   26              \"periodicRewardAmount\":0,\n   27:             \"bonusUSDPerCorrect\":0.0005, \n   28              \"onFinish\":\"loop\", // terminate, continue\n   29              \"minimumTrials\":2,\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   10          var periodicRewardIntervalMsec = playspacePackage['periodicRewardIntervalMsec'] \n   11          var periodicRewardAmount = playspacePackage['periodicRewardAmount'] \n   12:         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] \n   13  \n   14          this.viewingDistanceInches = playspace_viewingDistanceInches\n   ..\n   30              || primary_reinforcer_type == 'money'\n   31              || primary_reinforcer_type == 'dollars'){\n   32:             this.Reinforcer = new MonetaryReinforcer(bonusUSDPerCorrect)\n   33          }\n   34  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   73  \n   74  class MechanicalTurkUX extends UXclass{\n   75:     constructor(minimumTrials, maximumTrials, bonusUSDPerCorrect){\n   76          super()\n   77          this.minimumTrials = minimumTrials // for enabling early turn-in\n   78          this.maximumTrials = maximumTrials\n   79:         this.bonusUSDPerCorrect = bonusUSDPerCorrect\n   80          this.bonusEarned = 0\n   81      }\n   ..\n  155          var trialNumberSession = trialOutcome['trialNumberSession']+1\n  156          this.writeToTrialCounterDisplay(trialNumberSession)\n  157:         this.bonusEarned+=(trialOutcome['return'] * this.bonusUSDPerCorrect)\n  158  \n  159          var minimum_trials_left = Math.max(this.minimumTrials - trialNumberSession, 0)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n    8          \"periodicRewardIntervalMsec\":0,\n    9          \"periodicRewardAmount\":0,\n   10:         \"bonusUSDPerCorrect\":0.0005, \n   11          \"onFinish\":\"terminate\", // terminate, continue\n   12          \"minimumTrials\":50,\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   39      'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], \n   40      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   41:     'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }\n   42    Playspace = new PlaySpaceClass(playspacePackage)\n   43    await Playspace.build()\n   44  \n   45:   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])\n   46  \n   47    // Convenience - if debugging on my machine, skip instructions etc. \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   47      'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], \n   48      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   49:     'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }\n   50  \n   51     Playspace = new PlaySpaceClass(playspacePackage)\n\n15 matches across 7 files\n\n\nSearching 28 files for \"GAME['bonusUSDPerCorrect']\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   39      'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], \n   40      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   41:     'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }\n   42    Playspace = new PlaySpaceClass(playspacePackage)\n   43    await Playspace.build()\n   44  \n   45:   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], GAME['bonusUSDPerCorrect'])\n   46  \n   47    // Convenience - if debugging on my machine, skip instructions etc. \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   47      'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], \n   48      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   49:     'bonusUSDPerCorrect':GAME['bonusUSDPerCorrect'], }\n   50  \n   51     Playspace = new PlaySpaceClass(playspacePackage)\n\n3 matches across 2 files\n\n\nSearching 28 files for \"JuiceReinforcer\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   23          \n   24          if (primary_reinforcer_type == 'juice'){\n   25:             this.Reinforcer = new JuiceReinforcer()\n   26          }\n   27          else if(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   19  \n   20  \n   21: class JuiceReinforcer{\n   22      constructor(juiceRewardPer1000){\n   23        if (juiceRewardPer1000 != undefined){\n\n2 matches across 2 files\n\n\nSearching 28 files for \"localStorage\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html:\n  109      console.log('landing page url', window.location.href)\n  110  \n  111:     await localStorage.setItem(\"GAME_PACKAGE\", btoa(JSON.stringify(GAME_PACKAGE)))\n  112:     await localStorage.setItem(\"ENVIRONMENT\", btoa(JSON.stringify(ENVIRONMENT)))\n  113:     await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))\n  114:     await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))\n  115  \n  116      console.log('All items stored. Redirecting...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_SR_bootstrap_from_dropbox.html:\n   45      console.log('landing page url', window.location.href)\n   46  \n   47:     await localStorage.setItem(\"SESSION_PACKAGE\", btoa(JSON.stringify(SESSION_PACKAGE)))\n   48:     await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))\n   49:     await localStorage.setItem('agentID', btoa(agentID))\n   50  \n   51      console.log('All items stored...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html:\n  116      console.log('landing page url', window.location.href)\n  117  \n  118:     await localStorage.setItem(\"GAME_PACKAGE\", btoa(JSON.stringify(GAME_PACKAGE)))\n  119:     await localStorage.setItem(\"ENVIRONMENT\", btoa(JSON.stringify(ENVIRONMENT)))\n  120:     await localStorage.setItem('LANDING_PAGE_URL', btoa(window.location.href))\n  121:     await localStorage.setItem('agentID', btoa(localSavePackage['agentID']))\n  122  \n  123      console.log('All items stored. Redirecting...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/template_landing_page.html:\n   47      console.log('landing page url', window.location.href)\n   48  \n   49:     await localStorage.setItem(\"SESSION_PACKAGE\", btoa(JSON.stringify(SESSION_PACKAGE)))\n   50:     await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))\n   51:     await localStorage.setItem('agentID', btoa(agentID))\n   52  \n   53      console.log('All items stored. Redirecting...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n  158      async build(){\n  159          // Try loading checkpoint if it exists \n  160:         //this.checkpoint = await LocalStorageIO.load_string('ptap_checkpoint')\n  161  \n  162      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  197          if(window.location.href.split('access_token').length>1){\n  198              var accessToken = utils.parseQueryString(window.location.hash).access_token\n  199:             localStorage.setItem('_dbxAccessToken', btoa(accessToken))\n  200          }\n  201  \n  202:         var accessToken = await LocalStorageIO.load_string('_dbxAccessToken')\n  203          \n  204          if(accessToken.length<4){ // need a better check for nonsense; add dialogue \n  ...\n  428  \n  429  \n  430: class LocalStorageIO{\n  431      constructor(){\n  432  \n  433      }\n  434      static async load_string(key){\n  435:       var string = await localStorage.getItem(key)\n  436        string = atob(string)\n  437:       //localStorage.removeItem(key);\n  438        return string\n  439      }\n  440  \n  441      static async load_json(key){\n  442:       var string = await localStorage.getItem(key)\n  443        string = atob(string)\n  444:       //localStorage.removeItem(key);\n  445        return JSON.parse(string)\n  446      }\n  ...\n  450              datastr = JSON.stringify(datastr)\n  451          }\n  452:         await localStorage.setItem(key, btoa(datastr))\n  453  \n  454      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n    9      async build(){\n   10          \n   11:         var local_val_session = await this.load_localstorage_val('SESSION_PACKAGE')\n   12          var sessionPackage = await this.download(local_val_session)\n   13  \n   ..\n   50      }\n   51  \n   52:     async load_localstorage_val(localStorageKey){\n   53:         var local_val = await LocalStorageIO.load_string(localStorageKey)\n   54          \n   55          if (local_val.startsWith('\\'') || local_val.startsWith('\\\"')){\n   ..\n   68          }\n   69  \n   70:         if(loadMethod == 'localstorage'){\n   71              return JSON.parse(local_val)\n   72          }\n   ..\n  108          }\n  109          else if(s.startsWith('{') || s.startsWith('[')){\n  110:             loadMethod = 'localstorage'\n  111          }\n  112          else{\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   14    SESSION['url'] = window.location.href\n   15    SESSION['landingPageURL'] = landingPageURL\n   16:   SESSION['agentID'] = await LocalStorageIO.load_string('agentID')\n   17  \n   18    SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart\n\n31 matches across 8 files\n\n\nSearching 28 files for \"unixTimestamp\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n  109  \n  110  async save_checkpoint(){\n  111:     this.checkpoint['lastSaveUnixTimestamp'] = (window.performance.timing.navigationStart + performance.now())/1000\n  112      var checkpointString = JSON.stringify(this.checkpoint, null, 2)\n  113  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n  356          this.deviceLog.navigator_vendor = navigator.vendor\n  357          this.deviceLog.navigator_language = navigator.language\n  358:         this.deviceLog.unixTimestampPageLoad = window.performance.timing.navigationStart\n  359          this.deviceLog.currentDate = new Date;\n  360          this.deviceLog.url = window.location.href\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   20    SESSION['landingPageURL'] = landingPageURL\n   21    SESSION['agentID']  = SESSION['workerId']\n   22:   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart\n   23  \n   24    SIO = new S3_IO() \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   16    SESSION['agentID'] = await LocalStorageIO.load_string('agentID')\n   17  \n   18:   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart\n   19  \n   20      UX = new MonkeyUX()\n\n4 matches across 4 files\n",
+			"settings":
+			{
+				"buffer_size": 11545,
+				"line_ending": "Unix",
+				"name": "Find Results",
+				"scratch": true
 			}
 		}
 	],
@@ -789,9 +790,19 @@
 	},
 	"file_history":
 	[
-		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/InlabMTS_fromurl.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/Inlab_SR_bootstrap_from_dropbox.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/InlabMTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/inlabSR.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/MechanicalTurk_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/template_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/behaviorParsers/unpack_data.py",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/template_landing_page.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_SR_bootstrap_from_dropbox.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_page_utils.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/landing_page_templates/landing_page_template_mechanicalturker.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/Zico_landing_page.html",
@@ -906,17 +917,7 @@
 		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/TD_RLModels.py",
 		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/RLModels_Continuous.py",
 		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Science/Localization/RegressionTask.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/XYModelsRewardMap.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/XYBasisNull.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/XYBasisRL.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/RandomModel.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Science/Allocation/AllocationExperiment.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Science/Localization/LocalizationContinuous.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Science/Localization/Localization.py",
-		"/Volumes/mil/ModelTurk/Science/Allocation/Run_SpecificAllocation.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/Model.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Science/Allocation/Run_AllocationSim.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/TaskStreams/Experiment.py"
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/XYModelsRewardMap.py"
 	],
 	"find":
 	{
@@ -932,9 +933,24 @@
 	},
 	"find_state":
 	{
-		"case_sensitive": true,
+		"case_sensitive": false,
 		"find_history":
 		[
+			"FullVarWithBgSetA_batch0obj",
+			"FullVarWithBgSetA_batch0obj0",
+			"unixTimestamp",
+			"localStorage",
+			"JuiceReinforcer",
+			"GAME['bonusUSDPerCorrect']",
+			"bonusUSDPerCorrect",
+			"window.setInterval",
+			"pollPeriodMsec",
+			"checkpoint",
+			"request",
+			"debugMode",
+			"debugMode\n",
+			"checkpoint",
+			"punishTimeOutMsec",
 			"ENVIRONMENT",
 			"SESSION",
 			"MechanicalTurkDataWriter",
@@ -1047,22 +1063,7 @@
 			"periodicRewardIntervalMsec",
 			"recordMouseEvent",
 			"recordActionEvent",
-			"loggingActions",
-			"start_action_tracking",
-			"IMAGEBAGS",
-			"nway",
-			"_read_textfile",
-			"load_string",
-			"\":",
-			":",
-			"loadjson",
-			"loadStringFromLocalStorage",
-			"loadJSONFromLocalStorage",
-			"MechanicalTurk_TrialBar",
-			"MechanicalTurk_ProgressBar",
-			"conclude_session",
-			"concludesession",
-			"sleep"
+			"loggingActions"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1101,13 +1102,13 @@
 		"reverse": false,
 		"show_context": true,
 		"use_buffer2": true,
-		"whole_word": true,
+		"whole_word": false,
 		"wrap": true
 	},
 	"groups":
 	[
 		{
-			"selected": 16,
+			"selected": 17,
 			"sheets":
 			[
 				{
@@ -1129,13 +1130,22 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 1048.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 24,
+					"stack_index": 19,
 					"type": "text"
 				},
 				{
@@ -1157,15 +1167,23 @@
 						],
 						"settings":
 						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 5622.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 22,
+					"stack_index": 18,
 					"type": "text"
 				},
 				{
@@ -1195,7 +1213,7 @@
 						"translation.y": 753.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 18,
+					"stack_index": 22,
 					"type": "text"
 				},
 				{
@@ -1217,34 +1235,6 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 23,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "mkturk_Reinforcer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2152,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								543,
-								543
-							]
-						],
-						"settings":
-						{
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1253,7 +1243,45 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 19,
+					"stack_index": 24,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "mkturk_Reinforcer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2361,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								850,
+								850
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 198.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 16,
 					"type": "text"
 				},
 				{
@@ -1283,7 +1311,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 20,
+					"stack_index": 23,
 					"type": "text"
 				},
 				{
@@ -1305,13 +1333,23 @@
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 21,
+					"stack_index": 7,
 					"type": "text"
 				},
 				{
@@ -1320,15 +1358,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 12529,
+						"buffer_size": 13055,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4134,
-								4134
+								12328,
+								12328
 							]
 						],
 						"settings":
@@ -1346,10 +1384,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 6642.0,
+						"translation.y": 6691.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -1358,15 +1396,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4881,
+						"buffer_size": 4880,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								353,
-								353
+								2836,
+								2836
 							]
 						],
 						"settings":
@@ -1379,13 +1417,15 @@
 								"status": -1,
 								"syntax": "javascript"
 							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2210.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 17,
 					"type": "text"
 				},
 				{
@@ -1423,7 +1463,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 16,
+					"stack_index": 21,
 					"type": "text"
 				},
 				{
@@ -1432,15 +1472,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 566,
+						"buffer_size": 483,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								563,
-								563
+								273,
+								273
 							]
 						],
 						"settings":
@@ -1459,7 +1499,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 17,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
@@ -1468,15 +1508,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8233,
+						"buffer_size": 3941,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								731,
-								731
+								2264,
+								2264
 							]
 						],
 						"settings":
@@ -1489,17 +1529,58 @@
 								"status": -1,
 								"syntax": "javascript"
 							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 646.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "mkturk_Verifier.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4854,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								984,
+								984
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 0,
+								"count": 0,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 85.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 5,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 13,
 					"file": "mkturk_amazon_utils.js",
 					"semi_transient": false,
 					"settings":
@@ -1534,46 +1615,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7368,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5156,
-								5156
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": 179,
-								"count": 143,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 465.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
+					"stack_index": 6,
 					"type": "text"
 				},
 				{
@@ -1582,15 +1624,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 6699,
+						"buffer_size": 6027,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								530,
-								530
+								307,
+								307
 							]
 						],
 						"settings":
@@ -1610,7 +1652,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 15,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
@@ -1619,15 +1661,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2578,
+						"buffer_size": 2655,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1112,
-								1112
+								312,
+								328
 							]
 						],
 						"settings":
@@ -1648,7 +1690,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 15,
 					"type": "text"
 				},
 				{
@@ -1657,15 +1699,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3628,
+						"buffer_size": 3713,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3532,
-								3532
+								778,
+								792
 							]
 						],
 						"settings":
@@ -1683,35 +1725,35 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 959.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
 					"buffer": 17,
-					"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/template_landing_page.html",
+					"file": "landing_pages/landing_page_template.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3133,
+						"buffer_size": 3123,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2270,
-								2270
+								730,
+								730
 							]
 						],
 						"settings":
 						{
 							"WordCount":
 							{
-								"changes": 1149,
-								"count": 122,
+								"changes": 0,
+								"count": 118,
 								"modified": false,
 								"selection": false,
 								"status": -1,
@@ -1725,7 +1767,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -1763,45 +1805,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 19,
-					"file": "mkturk_TaskStreamer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12885,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								217,
-								217
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 3519.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
+					"stack_index": 20,
 					"type": "text"
 				}
 			]
@@ -1811,20 +1815,20 @@
 			"sheets":
 			[
 				{
-					"buffer": 20,
+					"buffer": 19,
 					"file": "mkturk_Playspace.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 19620,
+						"buffer_size": 19714,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1149,
-								1149
+								1279,
+								1279
 							]
 						],
 						"settings":
@@ -1849,6 +1853,45 @@
 					"type": "text"
 				},
 				{
+					"buffer": 20,
+					"file": "mkturk.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8876,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6738,
+								6738
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 24,
+								"count": 176,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2221.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
 					"buffer": 21,
 					"file": "mkturk_defaultHIT_failsafe.js",
 					"semi_transient": false,
@@ -1861,8 +1904,8 @@
 						"selection":
 						[
 							[
-								1068,
-								1068
+								991,
+								991
 							]
 						],
 						"settings":
@@ -1875,56 +1918,19 @@
 								"status": -1,
 								"syntax": "javascript"
 							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 7,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 22,
-					"file": "/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7165,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2040,
-								2040
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": 0,
-								"count": 140,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 408.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 23,
 					"file": "mkturk_UX.js",
 					"semi_transient": false,
 					"settings":
@@ -1958,24 +1964,24 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
-					"buffer": 24,
+					"buffer": 23,
 					"file": "mkturk_DataWriter.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5290,
+						"buffer_size": 6751,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1373,
-								1373
+								5406,
+								5406
 							]
 						],
 						"settings":
@@ -1996,7 +2002,287 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 24,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11545,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										151,
+										169
+									],
+									[
+										323,
+										341
+									],
+									[
+										684,
+										702
+									],
+									[
+										1011,
+										1029
+									],
+									[
+										1404,
+										1422
+									],
+									[
+										1443,
+										1461
+									],
+									[
+										1733,
+										1751
+									],
+									[
+										1945,
+										1963
+									],
+									[
+										2139,
+										2157
+									],
+									[
+										2160,
+										2178
+									],
+									[
+										2442,
+										2460
+									],
+									[
+										2744,
+										2762
+									],
+									[
+										3102,
+										3120
+									],
+									[
+										3128,
+										3146
+									],
+									[
+										3338,
+										3356
+									],
+									[
+										3672,
+										3690
+									],
+									[
+										3698,
+										3716
+									],
+									[
+										4122,
+										4148
+									],
+									[
+										4332,
+										4358
+									],
+									[
+										4692,
+										4718
+									],
+									[
+										5037,
+										5052
+									],
+									[
+										5192,
+										5207
+									],
+									[
+										5537,
+										5549
+									],
+									[
+										5627,
+										5639
+									],
+									[
+										5715,
+										5727
+									],
+									[
+										5801,
+										5813
+									],
+									[
+										6124,
+										6136
+									],
+									[
+										6220,
+										6232
+									],
+									[
+										6302,
+										6314
+									],
+									[
+										6579,
+										6591
+									],
+									[
+										6669,
+										6681
+									],
+									[
+										6757,
+										6769
+									],
+									[
+										6843,
+										6855
+									],
+									[
+										7147,
+										7159
+									],
+									[
+										7243,
+										7255
+									],
+									[
+										7325,
+										7337
+									],
+									[
+										7630,
+										7642
+									],
+									[
+										7946,
+										7958
+									],
+									[
+										8069,
+										8081
+									],
+									[
+										8258,
+										8270
+									],
+									[
+										8395,
+										8407
+									],
+									[
+										8471,
+										8483
+									],
+									[
+										8621,
+										8633
+									],
+									[
+										8697,
+										8709
+									],
+									[
+										8876,
+										8888
+									],
+									[
+										9111,
+										9123
+									],
+									[
+										9279,
+										9291
+									],
+									[
+										9296,
+										9308
+									],
+									[
+										9351,
+										9363
+									],
+									[
+										9378,
+										9390
+									],
+									[
+										9553,
+										9565
+									],
+									[
+										9754,
+										9766
+									],
+									[
+										10013,
+										10025
+									],
+									[
+										10358,
+										10371
+									],
+									[
+										10760,
+										10773
+									],
+									[
+										11136,
+										11149
+									],
+									[
+										11412,
+										11425
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								10174,
+								10174
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 42,
+								"count": 286,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"detect_indentation": false,
+							"line_numbers": false,
+							"output_tag": 6,
+							"result_base_dir": "",
+							"result_file_regex": "^([^ \t].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4505.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
 					"type": "text"
 				}
 			]
@@ -2030,7 +2316,7 @@
 		"cols":
 		[
 			0.0,
-			0.380738788163,
+			0.413911285147,
 			1.0
 		],
 		"rows":
