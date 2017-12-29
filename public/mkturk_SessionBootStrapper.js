@@ -20,7 +20,6 @@ class SessionBootStrapper{
         return unpackedSession
     }
 
-
     async unpack_game_package(game_package_key){
         var gamePackage = await this.download(game_package_key) 
 

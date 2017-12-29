@@ -17,6 +17,9 @@ class TaskStreamerClass{
         this.punishStreak = 0
         this.lastTrialPackage = undefined
 
+        // Queue 
+        this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
+
         this.onLoadState = {
             'taskNumber': this.taskNumber,
             'trialNumberTask': this.trialNumberTask,
@@ -49,6 +52,18 @@ class TaskStreamerClass{
                 this.id2idx[bag][idAlphabetized[i_id]] = parseInt(i_id)
             }
         }
+
+        // Prebuffer some trials 
+        num_trials_per_stage_to_prebuffer = num_trials_per_stage_to_prebuffer || 5
+
+        var trial_requests = []
+        for (var t = 0; t<this.taskSequence.length; t++){
+            for (var i_trial = 0; i_trial < num_trials_per_stage_to_prebuffer; i_trial++){
+                trial_requests.push(this.buffer_trial(t))
+            }
+        }
+        console.log('Prebuffering ', this.taskSequence.length * num_trials_per_stage_to_prebuffer, ' trials')
+        await Promise.all(trial_requests)
     }
 
     debug2record(){
@@ -100,47 +115,50 @@ class TaskStreamerClass{
 
     async get_trial(i){
         
-        var trial_idx = i || this.trialNumberTask
+        var tk = this.taskSequence[this.taskNumber]
+        
+        var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
+        // ...if available, repeat the last trial with some probability (and any applicable punish streak)
+
+        if(this.repeatLastTrial){
+            if (this.lastTrialPackage != undefined){
+                var tP = this.lastTrialPackage 
+                tP['punishTimeOutMsec'] = punishTimeOutMsec
+                return tP
+            }
+            else{
+                console.log('Was going to repeat but not available. Generating new trial...')
+            }
+        }
+
+        if(this.trialq[this.taskNumber] == undefined || this.trialq[this.taskNumber].length == 0){
+            await this.buffer_trial(this.taskNumber)
+        }
+
+        var tP = this.trialq[this.taskNumber].shift() // .shift() removes first element and returns
+        tP['punishTimeOutMsec'] = punishTimeOutMsec
+        this.lastTrialPackage = tP
+        return tP
+    }
+
+    async buffer_trial(taskNumber){
+        // 
         // Seed random
         if(this.game['randomSeed'] == undefined || this.game['randomSeed'].constructor != Number){
             //console.log('no random seed specified')
             var trialSeed = undefined 
         }
         else{
-            //var trialSeed = cantor(trial_idx, this.game['randomSeed'])
+            var trialSeed = cantor(trial_idx, this.game['randomSeed'])
             console.log('trialSeed', trialSeed)
         }
         
         Math.seedrandom(trialSeed)
 
         var tP = {}
-        var tk = this.taskSequence[this.taskNumber]
-
-
-        // If last trial was wrong...
-        if(this.taskReturnHistory[this.taskReturnHistory.length-1] == 0){
-            // ...apply punish streak multiplier 
-            this.punishStreak++
-            var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
-
-            // ...if available, repeat the last trial with some probability (and any applicable punish streak)
-            if(Math.random() <= tk['probabilityRepeatWhenWrong']){
-                console.log('REPEATING LAST TRIAL.')
-                if(this.lastTrialPackage != undefined){
-                    tP = this.lastTrialPackage 
-                    tP['punishTimeOutMsec'] = punishTimeOutMsec
-                    return tP
-                }
-                else{
-                    console.log('Last trial not available. Generating new trial..')
-                }
-            }
-        }
-
-        else{
-            this.punishStreak = 0
-            var punishTimeOutMsec = tk['punishTimeOutMsec'] 
-        }
+        var tk = this.taskSequence[taskNumber]
+        var punishTimeOutMsec = tk['punishTimeOutMsec'] 
+        
 
         // Select sample bag
         var samplePool = tk['sampleBagNames']
@@ -148,11 +166,10 @@ class TaskStreamerClass{
         var sampleId = np.choice(this.imageBags[sampleBag])
         var sampleIdx = this.get_image_idx(sampleBag, sampleId)
 
-        // SR - select choice
+        // SR - use white dots 
+        // TODO: use custom tokens 
         if (tk['taskType'] == 'SR'){
             var rewardMap = tk['rewardMap'][sampleBag]
-
-            // if custom tokens are specified, use those 
 
             var choiceId = rewardMap.map(function(entry){return 'dot'})
             var choiceIdx = {'bag':np.nans(choiceId.length),
@@ -246,9 +263,13 @@ class TaskStreamerClass{
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         tP['rewardTimeOutMsec'] = tk['rewardTimeOutMsec']
 
-        this.lastTrialPackage = tP
-        return tP
+        if(this.trialq[taskNumber] == undefined){
+            this.trialq[taskNumber] = []
+        }
+        this.trialq[taskNumber].push(tP)
+
     }
+
 
     update_state(current_trial_outcome){
        // trial_behavior: the just-finished trial's behavior. 
@@ -264,9 +285,28 @@ class TaskStreamerClass{
         this.taskActionHistory.push(action)
         this.trialNumberTask++
         this.trialNumberSession++
-        // TODO - probability repeat if wrong
-        //var probabilityRepeatWhenWrong = tk['probabilityRepeatWhenWrong'] || 0
         
+
+        // Update punish streak
+        this.repeatLastTrial = false 
+
+        if(r == 0){
+            // ...apply punish streak multiplier 
+            this.punishStreak++
+            if(Math.random() <= tk['probabilityRepeatWhenWrong']){
+                console.log('WILL REPEAT LAST TRIAL.')
+                this.repeatLastTrial = true
+            }
+        }
+
+        else{
+            this.punishStreak = 0
+        }
+
+
+
+
+
         if (this.monitoring == false){
             return
         }

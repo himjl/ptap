@@ -20,7 +20,6 @@ class ActionPollerClass{
         this.eventType2eventCode = {'mousemove':'mmv', 'mouseup':'mclk', 'touchmove':'dg', 'touchstart':'tp'}
         this.supportedEventTypes = ['mousemove', 'mouseup', 'touchmove', 'touchstart']
 
-
         this.loggingActions = false
         this.listening = false
         this.attached = false 
