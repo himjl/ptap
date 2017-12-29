@@ -11,7 +11,7 @@
 // ******* The experimenter fills out SESSION_PACKAGE ********* 
 async function setupSession(){
   try{
-    SESSION_PACKAGE = '/MonkeyTurk_upstairs/Subjects/example_session.json'
+    SESSION_PACKAGE = "/MonkeyTurk_upstairs/Subjects/examples/exampleSR.json"
   }
   catch(error){
     console.log(error)
@@ -21,11 +21,13 @@ async function setupSession(){
   try{
     // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
     // Fill in for upstairs task; e.g. 'Zico'
-    agentID = 'example_inlab_worker'
+    agentID = "example_inlab_worker"
   }
   catch(error){
     console.log(error)
     agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+    agentID = 'unknown_agent_ip_'
+    agentID+=await get_ip_address()
   }
 
   var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentID':agentID, 'LANDING_PAGE_URL':window.location.href}
@@ -48,9 +50,9 @@ async function concludeLandingPage(localSavePackage){
     await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
     await localStorage.setItem('agentID', btoa(agentID))
 
-    console.log('All items stored...')
+    console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    go_to_main_page()
 }
 
 function go_to_main_page(){
@@ -102,7 +104,6 @@ async function get_ip_address(){
 <script>
 (async function(){
     await setupSession();
-    go_to_main_page()
 }
 )()
 </script>

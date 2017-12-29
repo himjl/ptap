@@ -8,64 +8,90 @@
 
 
 <script>
-// ******* The experimenter fills out GAME_PACKAGE AND ENVIRONMENT ********* 
+// ******* The experimenter fills out SESSION_PACKAGE ********* 
 async function setupSession(){
   try{
-  
-
-  IMAGEBAGS = 'https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json'
-
-  GAME = {'gameID':'example_inlab_MTS',
-          "periodicRewardIntervalMsec":60000,
-          "periodicRewardAmount":1,
-          "bonusUSDPerCorrect":0, 
-          "onFinish":"continue", // terminate, continue
-          "randomSeed":'none',
-  }
-
-  TASK_SEQUENCE = [{
-                  "taskType":"MTS", 
-                  "sampleBagNames":['FullVarWithBGSetA_batch0obj0', 'FullVarWithBGSetA_batch0obj1', 
-                  'FullVarWithBGSetA_batch0obj2'], 
-                  "fixationXCentroid":0.5,
-                  "fixationYCentroid":0.8,
-                  "fixationDiameterDegrees":3,
-                  "sampleXCentroid":0.5,
-                  "sampleYCentroid":0.5,
-                  "sampleDiameterDegrees":8,
-                  "actionXCentroid":[0.2, 0.8], 
-                  "actionYCentroid":[0.8, 0.8],
-                  "actionDiameterDegrees":[6, 6],
-                  "choiceXCentroid":[0.2, 0.8],
-                  "choiceYCentroid":[0.8, 0.8],
-                  "choiceDiameterDegrees":[6, 6],
-                  "choiceMap":{"FullVarWithBGSetA_batch0obj0":"FullVarWithBGSetA_batch0obj0", 
-                  "FullVarWithBGSetA_batch0obj1":"FullVarWithBGSetA_batch0obj1", 
-                  'FullVarWithBGSetA_batch0obj2':"FullVarWithBGSetA_batch0obj2"}, 
-                  "sampleOnMsec":200, 
-                  "sampleOffMsec":0,
-                  "choiceTimeLimitMsec":5000,
-                  "punishTimeOutMsec":100,
-                  "punishStreakTimeOutMultiplier":1,
-                  "rewardTimeOutMsec":150,
-                  "probabilityRepeatWhenWrong":0,
-                  "averageReturnCriterion":0.8, 
-                  "minTrialsCriterion":5,
-                  }]
-
-  ENVIRONMENT = {
-                    'playspace_degreesVisualAngle':30,
-                    'playspace_verticalOffsetInches':0, 
-                    'playspace_viewingDistanceInches':8, 
-                    'screen_virtualPixelsPerInch':143.755902965,
-                    'primary_reinforcer_type':'juice', 
-                    'action_event_type':['mouseup', 'touchstart', 'touchmove'],
-                    'rigEnvironment':'monkeybox', // or monkeybox
-                }  
-
-  SESSION_PACKAGE = {'GAME_PACKAGE':{'IMAGEBAGS':IMAGEBAGS, 'TASK_SEQUENCE':TASK_SEQUENCE, 'GAME':GAME}, 
-'ENVIRONMENT':ENVIRONMENT}
+    SESSION_PACKAGE = {
+    "ENVIRONMENT": {
+        "action_event_type": [
+            "mouseup", 
+            "touchstart", 
+            "touchmove"
+        ], 
+        "playspace_degreesVisualAngle": 30, 
+        "playspace_verticalOffsetInches": 0, 
+        "playspace_viewingDistanceInches": 8, 
+        "primary_reinforcer_type": "juice", 
+        "rigEnvironment": "monkeybox", 
+        "screen_virtualPixelsPerInch": 143.755902965
+    }, 
+    "GAME_PACKAGE": {
+        "GAME": {
+            "bonusUSDPerCorrect": 0, 
+            "gameID": "example_inlab_MTS", 
+            "onFinish": "continue", 
+            "periodicRewardAmount": 1, 
+            "periodicRewardIntervalMsec": 60000, 
+            "randomSeed": "none"
+        }, 
+        "IMAGEBAGS": "https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json", 
+        "TASK_SEQUENCE": [
+            {
+                "actionDiameterDegrees": [
+                    6, 
+                    6
+                ], 
+                "actionXCentroid": [
+                    0.2, 
+                    0.8
+                ], 
+                "actionYCentroid": [
+                    0.8, 
+                    0.8
+                ], 
+                "averageReturnCriterion": 0.8, 
+                "choiceDiameterDegrees": [
+                    6, 
+                    6
+                ], 
+                "choiceMap": {
+                    "FullVarWithBGSetA_batch0obj0": "FullVarWithBGSetA_batch0obj0", 
+                    "FullVarWithBGSetA_batch0obj1": "FullVarWithBGSetA_batch0obj1", 
+                    "FullVarWithBGSetA_batch0obj2": "FullVarWithBGSetA_batch0obj2"
+                }, 
+                "choiceTimeLimitMsec": 5000, 
+                "choiceXCentroid": [
+                    0.2, 
+                    0.8
+                ], 
+                "choiceYCentroid": [
+                    0.8, 
+                    0.8
+                ], 
+                "fixationDiameterDegrees": 3, 
+                "fixationXCentroid": 0.5, 
+                "fixationYCentroid": 0.8, 
+                "minTrialsCriterion": 5, 
+                "probabilityRepeatWhenWrong": 0, 
+                "punishStreakTimeOutMultiplier": 1, 
+                "punishTimeOutMsec": 100, 
+                "rewardTimeOutMsec": 150, 
+                "sampleBagNames": [
+                    "FullVarWithBGSetA_batch0obj0", 
+                    "FullVarWithBGSetA_batch0obj1", 
+                    "FullVarWithBGSetA_batch0obj2"
+                ], 
+                "sampleDiameterDegrees": 8, 
+                "sampleOffMsec": 0, 
+                "sampleOnMsec": 200, 
+                "sampleXCentroid": 0.5, 
+                "sampleYCentroid": 0.5, 
+                "taskType": "MTS"
+            }
+        ]
+    }
 }
+  }
   catch(error){
     console.log(error)
     SESSION_PACKAGE = undefined
@@ -74,7 +100,7 @@ async function setupSession(){
   try{
     // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
     // Fill in for upstairs task; e.g. 'Zico'
-    agentID = 'example_worker'
+    agentID = "example_inlab_worker"
   }
   catch(error){
     console.log(error)
