@@ -93,6 +93,24 @@ class ActionPollerClass{
             
         }  
 
+        this.handleKeyPressEvent = function(event){
+            if(_this.listening != true){
+                return
+            }
+
+            var t = Math.round(performance.now() * 1000)/1000 
+            var actionIndex = _this.keyCode2actionIndex[event.keyCode]
+            if(actionIndex == undefined){
+                return
+            }
+
+            var outcome = {'actionIndex':actionIndex, 
+                        'timestamp':t, 
+                        'x':undefined,
+                        'y':undefined,}
+            _this._resolveFunc(outcome)
+        }
+
         this.recordTouchEvent = function(event){
             event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
@@ -157,9 +175,14 @@ class ActionPollerClass{
             this.actionCentroids.push([xCentroidPixels[i], yCentroidPixels[i]])
             this.actionRadii.push(diameterPixels[i]/2)
         }
-        
-        
-        
+    }
+
+    create_button_mappings(keyCode2actionIndex){
+        // keyCode2actionIndex: {ascii key code : action index}
+        this.keyCode2actionIndex = keyCode2actionIndex
+        if(this.attached = false){
+            // todo
+        }
     }
 
     Promise_wait_until_active_response(){
