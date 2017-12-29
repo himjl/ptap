@@ -21,8 +21,7 @@ class TaskStreamerClass{
         this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
         this.maxTrialsInQueue = 300 
         this.numTrialsInQueue = 0
-        this.enterLatentModeMsec = 10000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
-        this.latentModePollPeriodMsec = 10000 // 
+        this.enterLatentModeMsec = 30000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
         this.lastTrialTimestamp = performance.now()
 
         this.onLoadState = {
@@ -196,7 +195,7 @@ class TaskStreamerClass{
             var distractorBagIdxPool = [] 
             for (var potentialSampleBag in tk['choiceMap']){
                 if (potentialSampleBag == sampleBag){
-                    console.log(potentialSampleBag)
+                    //console.log(potentialSampleBag)
                     continue
                 }
                 distractorBagIdxPool.push(this.bag2idx[tk['choiceMap'][potentialSampleBag]])
@@ -227,9 +226,9 @@ class TaskStreamerClass{
             // Construct reward map
             var rewardMap = np.zeros(choiceId.length)
             rewardMap[choiceId.indexOf(correctId)] = 1 
-            console.log(choiceId)
-            console.log(rewardMap)
-            console.log(choiceIdx)
+            //console.log(choiceId)
+            //console.log(rewardMap)
+            //console.log(choiceIdx)
         }
         
         // Construct image request 
@@ -382,8 +381,8 @@ class TaskStreamerClass{
         return 
     }
 
-    async start_buffering(){
-
+    async start_buffering_latent(){
+        // Not used.
         var _this = this
         this.latentMode = false
         var bufferMonitor = async function(){
@@ -415,11 +414,32 @@ class TaskStreamerClass{
             }
         }
         // when the task is inactive, buffer trials (up to a point)
-        window.setInterval(bufferMonitor, this.latentModePollPeriodMsec)
+        window.setInterval(bufferMonitor, this.enterLatentModeMsec)
 
     }
 
+    async start_buffering_continuous(){
+        var _this = this 
+
+        
+        var bufferTrials = async function(){
+      
+            if(_this.numTrialsInQueue < _this.maxTrialsInQueue){
+
+                var trialRequests = []
+                var numTrialsToBuffer = 10 // Math.min(Math.round((_this.maxTrialsInQueue - _this.numTrialsInQueue)/2), 10)
+                for (var t = 0; t < numTrialsToBuffer; t++){
+                    trialRequests.push(_this.buffer_trial(_this.taskNumber))
+                }
+                console.log('Buffering', trialRequests.length, 'trials')
+                await Promise.all(trialRequests)
+            }
+        }
+
+        // when the task is inactive, buffer trials (up to a point)
+        window.setInterval(bufferTrials, 10000)
     
+    }
 }
 
 

@@ -64,7 +64,7 @@ class ActionPollerClass{
                                         'timestamp':t, 
                                         'x':x, 
                                         'y':y}
-                        console.log('Resolved', event_type, outcome)
+                        //console.log('Resolved', event_type, outcome)
                         this._resolveFunc(outcome)
                     }
                 }
@@ -76,7 +76,7 @@ class ActionPollerClass{
                         'timestamp':t, 
                         'x':x, 
                         'y':y}
-                        console.log('Resolved2',event_type, outcome)
+                        //console.log('Resolved2',event_type, outcome)
                     this._resolveFunc(outcome)
                 }   
             }
