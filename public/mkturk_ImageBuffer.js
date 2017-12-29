@@ -10,7 +10,7 @@ constructor(DIO){
 	this.cache_members = []; // earliest image_path -> latest image_path 
 	// Todo: double buffer. Currently do not do anything.
 	this.num_elements_in_cache = 0; // tracking variable
-	this.max_buffer_size = 100; // (for now, arbitrary) number of unique images to keep in buffer
+	this.max_buffer_size = 1000; // (for now, arbitrary) number of unique images to keep in buffer
 }
 
 // ------- Image blob getting functions ----------------------------
@@ -38,8 +38,14 @@ async get_by_name(filename){
 // ------- Buffer-related functions --------------------------------
 // Add specific image, or list of images, to cache before moving on.
 async remove_image_from_cache(filename){
-	window.URL.revokeObjectURL(this.cache_dict[filename].src)
-	delete this.cache_dict[filename];
+
+	try{
+		window.URL.revokeObjectURL(this.cache_dict[filename].src)
+		delete this.cache_dict[filename];
+	}
+	catch(error){
+		console.log('removal of', filename, 'failed with:', error)
+	}
 	return
 }
 

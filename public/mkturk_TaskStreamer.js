@@ -19,6 +19,11 @@ class TaskStreamerClass{
 
         // Queue 
         this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
+        this.maxTrialsInQueue = 300 
+        this.numTrialsInQueue = 0
+        this.enterLatentModeMsec = 10000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
+        this.latentModePollPeriodMsec = 10000 // 
+        this.lastTrialTimestamp = performance.now()
 
         this.onLoadState = {
             'taskNumber': this.taskNumber,
@@ -32,6 +37,8 @@ class TaskStreamerClass{
             'lastTrialPackage':this.lastTrialPackage,
         }
     }
+
+
     async build(num_trials_per_stage_to_prebuffer){
         this.bag2idx = {}
         this.idx2bag = {}
@@ -136,6 +143,7 @@ class TaskStreamerClass{
         }
 
         var tP = this.trialq[this.taskNumber].shift() // .shift() removes first element and returns
+        this.numTrialsInQueue--
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         this.lastTrialPackage = tP
         return tP
@@ -267,7 +275,7 @@ class TaskStreamerClass{
             this.trialq[taskNumber] = []
         }
         this.trialq[taskNumber].push(tP)
-
+        this.numTrialsInQueue++
     }
 
 
@@ -275,6 +283,7 @@ class TaskStreamerClass{
        // trial_behavior: the just-finished trial's behavior. 
         // called at the end of every trial. 
         // Update trial object 
+        this.lastTrialTimestamp = performance.now()
 
         var tk = this.taskSequence[this.taskNumber]
         var b = current_trial_outcome
@@ -285,7 +294,6 @@ class TaskStreamerClass{
         this.taskActionHistory.push(action)
         this.trialNumberTask++
         this.trialNumberSession++
-        
 
         // Update punish streak
         this.repeatLastTrial = false 
@@ -302,10 +310,6 @@ class TaskStreamerClass{
         else{
             this.punishStreak = 0
         }
-
-
-
-
 
         if (this.monitoring == false){
             return
@@ -378,7 +382,44 @@ class TaskStreamerClass{
         return 
     }
 
+    async start_buffering(){
 
+        var _this = this
+        this.latentMode = false
+        var bufferMonitor = async function(){
+            if(performance.now() - _this.lastTrialTimestamp >= _this.enterLatentModeMsec){
+                if(_this.latentMode == false){
+                    console.log('Entering TaskStreamer latent mode')
+                }
+
+                _this.latentMode = true
+            }
+            else{
+                if(_this.latentMode == true){
+                    console.log('Exiting TaskStreamer latent mode')
+                }
+                _this.latentMode = false
+            }
+
+            if(_this.latentMode == true){
+                if(_this.numTrialsInQueue < _this.maxTrialsInQueue){
+
+                    var trialRequests = []
+                    var numTrialsToBuffer = Math.min(Math.round((_this.maxTrialsInQueue - _this.numTrialsInQueue)/2), 10)
+                    for (var t = 0; t < numTrialsToBuffer; t++){
+                        trialRequests.push(_this.buffer_trial(_this.taskNumber))
+                    }
+                    console.log('Buffering', trialRequests.length, 'trials')
+                    await Promise.all(trialRequests)
+                }
+            }
+        }
+        // when the task is inactive, buffer trials (up to a point)
+        window.setInterval(bufferMonitor, this.latentModePollPeriodMsec)
+
+    }
+
+    
 }
 
 
