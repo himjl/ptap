@@ -11,7 +11,7 @@ def uB(blurb):
     raw_input()
 def compile_data(behaviorDirectoryPath): 
     # Saves behavior as a pandas dataframe
-    # Save gamePackage table
+    # Save everything else in sessionID: table
     filePaths = os.listdir(behaviorDirectoryPath)
     filePaths = filter(lambda s: not s.startswith('.') and (s.endswith('.txt') or s.endswith('.json')), filePaths)
     filePaths = map(lambda s: os.path.join(behaviorDirectoryPath, s), filePaths)
