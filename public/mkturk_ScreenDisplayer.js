@@ -406,36 +406,36 @@ togglePlayspaceBorder(on_or_off){
       canvasobj.width = this.width * _ratio;
       canvasobj.height = this.height * _ratio;
 
-    // Center canvas 
-    // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
-    canvasobj.style.padding = 0
+        // Center canvas 
+        // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+        canvasobj.style.padding = 0
 
-    canvasobj.style.margin = 'auto'
-    canvasobj.style.display="block"; //visible
-    canvasobj.style.position = 'absolute'
-    canvasobj.style.top = 0
-    canvasobj.style.bottom = 0
-    canvasobj.style.left = 0  
-    canvasobj.style.right = 0
-    canvasobj.style.border='1px dotted #E6E6E6' 
-    
-    canvasobj.style.width=this.width+'px'; // Set browser canvas display style to be workspace_width
-    canvasobj.style.height=this.height+'px';
+        canvasobj.style.margin = 'auto'
+        canvasobj.style.display="block"; //visible
+        canvasobj.style.position = 'absolute'
+        canvasobj.style.top = 0
+        canvasobj.style.bottom = 0
+        canvasobj.style.left = 0  
+        canvasobj.style.right = 0
+        canvasobj.style.border='1px dotted #E6E6E6' 
+        
+        canvasobj.style.width=this.width+'px'; // Set browser canvas display style to be workspace_width
+        canvasobj.style.height=this.height+'px';
 
-    // Draw blank gray 
-    context.fillStyle="#7F7F7F"; 
-    context.fillRect(0,0,canvasobj.width,canvasobj.height);
-    
+        // Draw blank gray 
+        context.fillStyle="#7F7F7F"; 
+        context.fillRect(0,0,canvasobj.width,canvasobj.height);
+        
 
-    // Remove overflow?
-    //https://www.w3schools.com/cssref/pr_pos_overflow.asp
+        // Remove overflow?
+        //https://www.w3schools.com/cssref/pr_pos_overflow.asp
 
-    context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
+        context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
 
 
-    if(_ratio !== 1){
-      scaleContext(context)
-  }
+        if(_ratio !== 1){
+          scaleContext(context)
+      }
 } 
 
 
