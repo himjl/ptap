@@ -16,13 +16,14 @@ class TaskStreamerClass{
         this.monitoring = true
         this.punishStreak = 0
         this.lastTrialPackage = undefined
+        this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen
+        this.eligibleSamplePool = this.calculate_eligible_sample_pool(this.samplesSeen) // 
 
         // Queue 
         this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
         this.maxTrialsInQueuePerTask = 300 
         this.numTrialsInQueue = 0
         
-
         this.onLoadState = {
             'taskNumber': this.taskNumber,
             'trialNumberTask': this.trialNumberTask,
@@ -33,10 +34,37 @@ class TaskStreamerClass{
             'monitoring': this.monitoring,
             'punishStreak':this.punishStreak,
             'lastTrialPackage':this.lastTrialPackage,
+            'samplesSeen':this.samplesSeen, 
+            'eligibleSamplePool':this.eligibleSamplePool
         }
     }
 
+    calculate_eligible_sample_pool(samplesSeen){
+        var eligibleSamplePool = JSON.parse(JSON.stringify(this.imageBags))
 
+        for (var k in this.samplesSeen){
+            if(!this.samplesSeen.hasOwnProperty(k)){
+                continue
+            }
+
+            // alphabetize 
+            eligibleSamplePool[k] = (eligibleSamplePool[k]).sort()
+
+            for(var i in this.samplesSeen[k]){
+                if(!this.samplesSeen[k].hasOwnProperty(i)){
+                    continue
+                } 
+                if(i == -1){
+                    continue
+                }
+                if(i == undefined){
+                    continue
+                }
+                eligibleSamplePool[k].splice(i, 1)
+            }
+        }
+        return eligibleSamplePool
+    }
     async build(num_trials_per_stage_to_prebuffer){
         this.bag2idx = {}
         this.idx2bag = {}
@@ -72,16 +100,16 @@ class TaskStreamerClass{
     }
 
     debug2record(){
-        this.taskNumber = this.onLoadState['taskNumber']
-        this.trialNumberTask = this.onLoadState['trialNumberTask']
-        this.trialNumberSession = this.onLoadState['trialNumberSession']
-        this.taskReturnHistory = this.onLoadState['taskReturnHistory']
-        this.taskActionHistory = this.onLoadState['taskActionHistory']
-        this.TERMINAL_STATE = this.onLoadState['TERMINAL_STATE']
-        this.monitoring = this.onLoadState['monitoring']
         this.CheckPointer.debug2record()
-        this.punishStreak = this.onLoadState['punishStreak']
-        this.lastTrialPackage = this.onLoadState['lastTrialPackage']
+
+        for (var k in this.onLoadState){
+            if(!this.onLoadState.hasOwnProperty(k)){
+                continue
+            }
+            console.log('restoring ', k)
+            this[k] = this.onLoadState[k]
+        }
+        ]
         console.log('debug2record: TaskStreamer reverted to state on load')
     }
 
@@ -147,8 +175,8 @@ class TaskStreamerClass{
     }
 
     async buffer_trial(taskNumber){
-        // 
-        // Seed random
+
+        // Seed 
         if(this.game['randomSeed'] == undefined || this.game['randomSeed'].constructor != Number){
             //console.log('no random seed specified')
             var trialSeed = undefined 
@@ -160,6 +188,7 @@ class TaskStreamerClass{
         
         Math.seedrandom(trialSeed)
 
+        // Assemble
         var tP = {}
         var tk = this.taskSequence[taskNumber]
         var punishTimeOutMsec = tk['punishTimeOutMsec'] 
@@ -168,8 +197,19 @@ class TaskStreamerClass{
         // Select sample bag
         var samplePool = tk['sampleBagNames']
         var sampleBag = np.choice(samplePool)
-        var sampleId = np.choice(this.imageBags[sampleBag])
-        var sampleIdx = this.get_image_idx(sampleBag, sampleId)
+
+        if(this.taskSequence[this.taskNumber]['sampleSampleWithReplacement'] == false){
+            // Perform round robin sampling 
+            var sampleId = np.choice(this.eligibleSamplePool[sampleBag])
+            var sampleIdx = this.get_image_idx(sampleBag, sampleId)
+            this.eligibleSamplePool.splice(sampleIdx, 1)
+        }
+        else{
+            var sampleId = np.choice(this.imageBags[sampleBag])
+            var sampleIdx = this.get_image_idx(sampleBag, sampleId)
+        }
+        
+        
 
         // SR - use white dots 
         // TODO: use custom tokens 
@@ -291,6 +331,9 @@ class TaskStreamerClass{
         this.trialNumberTask++
         this.trialNumberSession++
 
+
+        
+
         // Update punish streak
         this.repeatLastTrial = false 
 
@@ -372,6 +415,8 @@ class TaskStreamerClass{
             'trialNumberTask': this.trialNumberTask, 
             'return':r, 
             'action':action
+            'sampleBag':sampleBag,
+            'i_sampleId':current_trial_outcome['i_sampleId']
         }
         this.CheckPointer.update(checkpointPackage)
         this.CheckPointer.request_checkpoint_save()

@@ -38,6 +38,7 @@ DEFAULT_HIT = {
                 "probabilityRepeatWhenWrong":0,
                 "averageReturnCriterion":0, 
                 "minTrialsCriterion":50,
+                "sampleSampleWithReplacement":true, // true / false  
             }],
 'ENVIRONMENT':{
               'playspace_degreesVisualAngle':45,
