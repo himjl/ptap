@@ -41,6 +41,7 @@ def makeInLabMTS():
                   "probabilityRepeatWhenWrong":0,
                   "averageReturnCriterion":0.8, 
                   "minTrialsCriterion":5,
+                  "sampleSampleWithReplacement":True,
                   }]
 
     ENVIRONMENT = {
@@ -107,6 +108,7 @@ def makeMechanicalTurkSR():
                     "probabilityRepeatWhenWrong":0,
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
+                    "sampleSampleWithReplacement":True,
                     }]
 
     GAME_PACKAGE = {'IMAGEBAGS':IMAGEBAGS, 'GAME':GAME, 'TASK_SEQUENCE':TASK_SEQUENCE}
@@ -141,7 +143,7 @@ def makeMechanicalTurkMTS():
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
             "bonusUSDPerCorrect":0.0005, 
-            "onFinish":"loop",
+            "onFinish":"continue",
             "minimumTrials":2,
             "maximumTrials":800,
     }
@@ -174,6 +176,7 @@ def makeMechanicalTurkMTS():
                     "probabilityRepeatWhenWrong":0,
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
+                    "sampleSampleWithReplacement":False,
                     }]
 
     GAME_PACKAGE = {'IMAGEBAGS':IMAGEBAGS, 'GAME':GAME, 'TASK_SEQUENCE':TASK_SEQUENCE}

@@ -77,7 +77,6 @@ class TaskStreamerClass{
             this.bag2idx[bag] = parseInt(i_bag)
             this.idx2bag[parseInt(i_bag)] = bag
             i_bag++
-
              
             var idAlphabetized = (this.imageBags[bag]).sort()
             this.id2idx[bag] = {}
@@ -106,10 +105,9 @@ class TaskStreamerClass{
             if(!this.onLoadState.hasOwnProperty(k)){
                 continue
             }
-            console.log('restoring ', k)
             this[k] = this.onLoadState[k]
         }
-        ]
+        
         console.log('debug2record: TaskStreamer reverted to state on load')
     }
 
@@ -192,19 +190,37 @@ class TaskStreamerClass{
         var tP = {}
         var tk = this.taskSequence[taskNumber]
         var punishTimeOutMsec = tk['punishTimeOutMsec'] 
-        
 
         // Select sample bag
-        var samplePool = tk['sampleBagNames']
-        var sampleBag = np.choice(samplePool)
-
         if(this.taskSequence[this.taskNumber]['sampleSampleWithReplacement'] == false){
-            // Perform round robin sampling 
+            var samplePool = tk['sampleBagNames']
+            var eligibleSampleBagNames = []
+            for (var i_p in samplePool){
+                if(!samplePool.hasOwnProperty(i_p)){
+                    continue
+                }
+                var bag = samplePool[i_p]
+                if(this.eligibleSamplePool[bag].length == 0){
+                    continue
+                    // Out of
+                }
+                eligibleSampleBagNames.push(bag)
+            }
+            if(eligibleSampleBagNames.length == 0){
+                // reup
+                console.log('Ran out of eligible samples, reupping')
+                this.eligibleSamplePool = JSON.parse(JSON.stringify(this.imageBags))
+                eligibleSampleBagNames = tk['sampleBagNames']
+            }
+
+            var sampleBag = np.choice(eligibleSampleBagNames)
             var sampleId = np.choice(this.eligibleSamplePool[sampleBag])
             var sampleIdx = this.get_image_idx(sampleBag, sampleId)
-            this.eligibleSamplePool.splice(sampleIdx, 1)
+            this.eligibleSamplePool[sampleBag].splice(this.eligibleSamplePool[sampleBag].indexOf(sampleId), 1)
         }
         else{
+            var samplePool = tk['sampleBagNames']
+            var sampleBag = np.choice(samplePool)
             var sampleId = np.choice(this.imageBags[sampleBag])
             var sampleIdx = this.get_image_idx(sampleBag, sampleId)
         }
@@ -378,6 +394,7 @@ class TaskStreamerClass{
             var nextTaskActionHistory = []
             var nextTrialNumberTask = 0 
             var nextLastTrialPackage = undefined 
+            var nextEligibleSamplePool = this.imageBags
 
             // Check termination condition
             if(this.taskNumber >= this.taskSequence.length-1){
@@ -398,6 +415,7 @@ class TaskStreamerClass{
                     nextTaskActionHistory = this.taskActionHistory 
                     nextTrialNumberTask = this.trialNumberTask
                     nextLastTrialPackage = this.lastTrialPackage
+                    nextEligibleSamplePool = this.eligibleSamplePool
                 }
             }
 
@@ -407,14 +425,16 @@ class TaskStreamerClass{
             this.taskActionHistory = nextTaskActionHistory
             this.trialNumberTask = nextTrialNumberTask
             this.lastTrialPackage = nextLastTrialPackage
+            this.eligibleSamplePool = nextEligibleSamplePool
         }
 
         // Update checkpoint 
+        var sampleBag = this.get_bag_from_idx(current_trial_outcome['i_sampleBag'])
         var checkpointPackage = {
             'taskNumber': this.taskNumber, 
             'trialNumberTask': this.trialNumberTask, 
             'return':r, 
-            'action':action
+            'action':action,
             'sampleBag':sampleBag,
             'i_sampleId':current_trial_outcome['i_sampleId']
         }

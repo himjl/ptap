@@ -201,6 +201,9 @@ class MechanicalTurkCheckPointer extends CheckPointerClass{
     get_task_action_history(){
       return []
     }
+    get_samples_seen_history(){
+        return {}
+    }
 }
 
 
