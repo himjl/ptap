@@ -33,6 +33,7 @@ class MonkeyUX extends UXclass{
         toggleElement(0, "SessionTextBox")
         toggleElement(0, "myProgress")
         toggleElement(0, "DebugMessageTextBox")
+        document.body.style['background-color'] = '#7F7F7F'
         var progressbar_names = [
                             'AutomatorLoadBar',
                             'StageBar',]

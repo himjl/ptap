@@ -56,7 +56,8 @@ async function setup_upstairs_session(sessionPackage){
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
-
+    
+    
     var gamePackage = {}
     gamePackage['TaskStreamer'] = TaskStreamer
     gamePackage['DataWriter'] = DataWriter 
