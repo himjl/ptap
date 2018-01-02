@@ -77,7 +77,7 @@ def makeMechanicalTurkSR():
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
             "bonusUSDPerCorrect":0.0005, 
-            "onFinish":"loop",
+            "onFinish":"continue",
             "minimumTrials":2,
             "maximumTrials":800,
     }
@@ -108,7 +108,7 @@ def makeMechanicalTurkSR():
                     "probabilityRepeatWhenWrong":0,
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
-                    "sampleSampleWithReplacement":True,
+                    "sampleSampleWithReplacement":False,
                     }]
 
     GAME_PACKAGE = {'IMAGEBAGS':IMAGEBAGS, 'GAME':GAME, 'TASK_SEQUENCE':TASK_SEQUENCE}

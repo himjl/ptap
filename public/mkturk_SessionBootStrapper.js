@@ -73,6 +73,8 @@ class SessionBootStrapper{
     }
 
     async download(local_val){
+
+        
         var loadMethod = this.infer_load_method(local_val)
 
         if(loadMethod == 'literal'){

@@ -21,7 +21,7 @@ class TaskStreamerClass{
 
         // Queue 
         this.trialq = {} // taskNumber : [trialPackage, trialPackage...]
-        this.maxTrialsInQueuePerTask = 300 
+        this.maxTrialsInQueuePerTask = 50 
         this.numTrialsInQueue = 0
         
         this.onLoadState = {
@@ -217,6 +217,7 @@ class TaskStreamerClass{
             var sampleId = np.choice(this.eligibleSamplePool[sampleBag])
             var sampleIdx = this.get_image_idx(sampleBag, sampleId)
             this.eligibleSamplePool[sampleBag].splice(this.eligibleSamplePool[sampleBag].indexOf(sampleId), 1)
+
         }
         else{
             var samplePool = tk['sampleBagNames']
@@ -347,9 +348,6 @@ class TaskStreamerClass{
         this.trialNumberTask++
         this.trialNumberSession++
 
-
-        
-
         // Update punish streak
         this.repeatLastTrial = false 
 
@@ -389,7 +387,7 @@ class TaskStreamerClass{
 
         // Perform transition
         if(transition == true){
-            var nextTaskNumber = 0 
+            var nextTaskNumber = this.taskNumber + 1 
             var nextTaskReturnHistory = []
             var nextTaskActionHistory = []
             var nextTrialNumberTask = 0 
