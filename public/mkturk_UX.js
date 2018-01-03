@@ -180,7 +180,7 @@ class MechanicalTurkUX extends UXclass{
         }
 
         if(trialNumberSession >= this.maximumTrials){
-            TERMINAL_STATE = true
+            TaskStreamer.TERMINAL_STATE = true
         }
     }
 

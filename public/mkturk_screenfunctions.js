@@ -11,7 +11,6 @@ function setDeviceSelection(element, devicename){
 	var continue_button = document.getElementById('CloseDeviceSelectionButton')
 	continue_button.innerHTML = 'Continue'
 	continue_button.disabled = false
-
 }
 
 function setHandSelection(element, handedness){
@@ -27,9 +26,7 @@ function setHandSelection(element, handedness){
     var continue_button = document.getElementById('CloseHandSelectionButton')
     continue_button.innerHTML = 'Continue'
     continue_button.disabled = false
-
 }
-
 
 function toggleElement(on_or_off, element_id){
 		var elem = document.getElementById(element_id)
@@ -59,7 +56,6 @@ function toggleProgressbar(on_or_off, bar_id){
 		elem.style.visibility = 'visible'
 	}
 }
-
 
 function updateCashInButtonText(trials, bonus_earned, cash_in_option){
 	var elem = document.querySelector("button[name=WorkerCashInButton]")
