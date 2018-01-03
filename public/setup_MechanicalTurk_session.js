@@ -9,7 +9,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
   console.log('Detected landing page URL', landingPageURL)
-  
+
   SESSION = {}
   SESSION['workerId'] = az.get_workerId_from_url(landingPageURL)
   SESSION['hitId'] = az.get_hitId_from_url(landingPageURL)
@@ -44,6 +44,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   Playspace = new PlaySpaceClass(playspacePackage)
   await Playspace.build()
 
+  console.log(ENVIRONMENT)
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], ENVIRONMENT['bonusUSDPerCorrect'])
 
   // Convenience - if debugging on my machine, skip instructions etc. 

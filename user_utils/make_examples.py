@@ -8,7 +8,6 @@ def makeInLabMTS():
     GAME = {'gameID':'example_inlab_MTS',
           "periodicRewardIntervalMsec":60000,
           "periodicRewardAmount":1,
-          "bonusUSDPerCorrect":0, 
           "onFinish":"continue",
           "randomSeed":'none',
     }
@@ -52,6 +51,9 @@ def makeInLabMTS():
                     'primary_reinforcer_type':'juice', 
                     'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                     'rigEnvironment':'monkeybox', 
+                    "bonusUSDPerCorrect":0.0005,
+                    "juiceRewardPer1000Trials":250,
+
                 }  
 
     SESSION_PACKAGE = {'GAME_PACKAGE':{'IMAGEBAGS':IMAGEBAGS, 'TASK_SEQUENCE':TASK_SEQUENCE, 'GAME':GAME}, 
@@ -76,7 +78,6 @@ def makeMechanicalTurkSR():
     GAME = {'gameID':'example_MechanicalTurk_SR',
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
-            "bonusUSDPerCorrect":0.0005, 
             "onFinish":"continue",
             "minimumTrials":2,
             "maximumTrials":800,
@@ -119,6 +120,8 @@ def makeMechanicalTurkSR():
                       'primary_reinforcer_type':'monetary', 
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'mechanicalturk', 
+                      "bonusUSDPerCorrect":0.0005,
+                      "juiceRewardPer1000Trials":250
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
@@ -141,7 +144,6 @@ def makeMechanicalTurkMTS():
     GAME = {'gameID':'example_MechanicalTurk_MTS',
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
-            "bonusUSDPerCorrect":0.0005, 
             "onFinish":"continue",
             "minimumTrials":2,
             "maximumTrials":800,
@@ -186,6 +188,8 @@ def makeMechanicalTurkMTS():
                       'primary_reinforcer_type':'monetary', 
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'mechanicalturk', 
+                      "bonusUSDPerCorrect":0.0005, 
+                      "juiceRewardPer1000Trials":250
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}

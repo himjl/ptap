@@ -160,7 +160,10 @@ class MechanicalTurkUX extends UXclass{
         var minimum_trials_left = Math.max(this.minimumTrials - trialNumberSession, 0)
         if(minimum_trials_left > 0){
             updateProgressbar(trialNumberSession/this.minimumTrials*100, 'MechanicalTurk_TrialBar', '', 100, ' ')
-            updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
+            if(this.bonusEarned != NaN){
+                updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
+            }
+            
         }
         else{
 
@@ -171,7 +174,9 @@ class MechanicalTurkUX extends UXclass{
 
             toggleCashInButtonClickability(1)
             var num_bonus_trials_performed = trialNumberSession-this.minimumTrials
-            updateCashInButtonText(num_bonus_trials_performed, this.bonusEarned, true)
+            if(this.bonusEarned != NaN){
+                updateCashInButtonText(num_bonus_trials_performed, this.bonusEarned, true)
+            }
         }
 
         if(trialNumberSession >= this.maximumTrials){
