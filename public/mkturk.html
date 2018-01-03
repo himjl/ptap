@@ -121,7 +121,7 @@ var sessionPackage = await SBS.build()
 // Verify inputs
 VF = new Verifier()
 sessionPackage = VF.verify_session_package(sessionPackage)
-
+console.log('sessionPackage', sessionPackage)
 // Construct session
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
   var freturn = await setup_mechanicalturk_session(sessionPackage)

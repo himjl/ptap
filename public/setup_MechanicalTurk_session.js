@@ -8,7 +8,8 @@ async function setup_mechanicalturk_session(sessionPackage){
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
   
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
-
+  console.log('Detected landing page URL', landingPageURL)
+  
   SESSION = {}
   SESSION['workerId'] = az.get_workerId_from_url(landingPageURL)
   SESSION['hitId'] = az.get_hitId_from_url(landingPageURL)

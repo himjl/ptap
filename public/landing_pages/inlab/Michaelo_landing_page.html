@@ -51,7 +51,7 @@ async function concludeLandingPage(localSavePackage){
     await localStorage.setItem('agentID', btoa(agentID))
 
     console.log('All items stored. Redirecting...')
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     go_to_main_page()
 }
 
@@ -61,7 +61,7 @@ function go_to_main_page(){
         window.location.href = '/public/mkturk.html?loadtime=' +Math.round(window.performance.timing.navigationStart)
     }
     else{
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "https://s3.amazonaws.com/ptapupstairs/public/mkturk.html?loadtime="+Math.round(window.performance.timing.navigationStart)
     }
 }
 

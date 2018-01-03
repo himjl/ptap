@@ -1,8 +1,8 @@
 import boto 
 
-
 MKTURK_PUBLIC_DIRECTORY_PATH = '../ptap/public/'
-split_start = '/ptap' # references above
+MKTURK_LANDINGPAGES_DIRECTORY_PATH = '../ptap/landingPages/'
+split_start = '/ptap/' # references above
 
 # Upload to s3 monkeyturksandbox
 from boto.s3.key import Key
@@ -12,7 +12,7 @@ import numpy as np
 
 def upload_public_to_sandbox():
 
-    bucket_name = 'monkeyturksandbox'
+    bucket_name = 'ptapmechanicalturk'
     conn = boto.connect_s3()
     bucket = conn.get_bucket(bucket_name)
     k = Key(bucket)
@@ -30,6 +30,8 @@ def upload_public_to_sandbox():
             print 'Uploaded %s'%fkey
             k.set_acl('public-read')
 
+    
+            
 if __name__ == '__main__': 
     print 'hello'
     upload_public_to_sandbox()

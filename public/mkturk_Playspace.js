@@ -443,7 +443,7 @@ class PlaySpaceClass{
         // BUFFER STIMULUS
         var stimulusXCentroidPixels = this.xprop2pixels(0.1 + 0.8 * Math.random())
         var stimulusYCentroidPixels = this.yprop2pixels(0.6 * Math.random())
-        var stimulusDiameterPixels = this.deg2pixels(4)
+        var stimulusDiameterPixels = this.deg2pixels(6)
         
         var stimulusCanvas = this.ScreenDisplayer.getSequenceCanvas('tutorial_sequence', 0)
         await this.ScreenDisplayer.renderBlank(stimulusCanvas)

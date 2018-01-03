@@ -15,7 +15,7 @@ class SessionBootStrapper{
         var unpackedSession = {}
         unpackedSession['GAME_PACKAGE'] = gamePackage 
         unpackedSession['ENVIRONMENT'] = environment
-        unpackedSession['LANDING_PAGE_URL'] = sessionPackage['LANDING_PAGE_URL']
+        unpackedSession['LANDING_PAGE_URL'] = await this.load_localstorage_val('LANDING_PAGE_URL')
 
         return unpackedSession
     }
