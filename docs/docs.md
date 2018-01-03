@@ -3,13 +3,26 @@
 You can run match-to-sample (MTS) and stimulus-response (SR) sessions out-of-the-box. Here's what you need to do: 
 
 ## Installation 
-* Change mkturk_install_settings.js (e.g. to use your local Dropbox app key; to specify where you would like to save things) 
+* Change mkturk_install_settings.js appropriately (e.g. to use your local Dropbox app key; to specify where you would like to save things) 
+* Upload ptap to a webserver (e.g. a local one for messing around, or a public one for everything else, like on Amazon s3)
+* If you're doing inlab stuff, go to Dropbox developers and make a Dropbox app. Get the app key (and put it into mkturk_install_settings.js) and put down allowable redirect URIs (i.e. to wherever you uploaded ptap/public/mkturk.html)
 
 ## Defining your task 
 
 A task is defined by a text file in a format called "JSON". A JSON-structured file looks like a bunch of dictionaries (e.g. key-value pairs, like {'some_key':'some_value'}) and lists (['element1', 'element2']). 
 
 To run a session in ptap, you need to give ptap a single text file called a "sessionPackage". 
+
+Before we get into the contents of the sessionPackage, here is the space of tasks that you could define, and the terms that are used in ptap to describe each kind of task: 
+
+## **ptap** concepts
+* "task": a set of images and a rule that tells you what happens if you do something for each image (e.g., always poke left if you see image 'A', but poke left if you see image 'B')
+* "game": a sequence of tasks and the rules that govern transitions between them (e.g. how many trials you must do for a task and at what performance before going onto the next task), as well as what happens at the end of the sequence of tasks
+* "imagebag": a group of images that are functionally identical in the context of the task; i.e. where the same outcome occurs if you do the same things to them. A common imagebag structure is a set of images with different views of a single 3D object
+
+Together, these three concepts comprehensively express a space of behavioral tasks (using the term 'task' loosely here, now that we have a more formal definition for it).  
+
+# How to fill out a sessionPackage
 
 A sessionPackage has two keys: 
 * **GAME_PACKAGE**
@@ -19,15 +32,6 @@ We'll go through each key and talk about what it should consist of:
 
 ## GAME_PACKAGE 
 The GAME_PACKAGE is a dictionary that defines the logical structure and contents of the behavioral task. Here, you will tell ptap which images, rules (i.e. SR vs. MTS), rewards, punishments (e.g. timeout lengths), etc. you would like to use in the session. 
-
-Before we get into the contents of the GAME_PACKAGE, here is the space of tasks that you could define, and the terms that are used in ptap to describe each kind of task: 
-
-**ptap terms**
-* "task": a set of images and a rule that tells you what happens if you do something for each image (e.g., always poke left if you see image 'A', but poke left if you see image 'B')
-* "game": a sequence of tasks and the rules that govern transitions between them (e.g. how many trials you must do for a task and at what performance before going onto the next task), as well as what happens at the end of the sequence of tasks
-* "imagebag": a group of images that are functionally identical in the context of the task; i.e. where the same outcome occurs if you do the same things to them. A common imagebag structure is a set of images with different views of a single 3D object
-
-Together, these three concepts comprehensively express a space of behavioral tasks (using the term 'task' loosely here, now that we have a more formal definition for it).  
 
 Along these lines, the GAME_PACKAGE consists of 3 keys: 
 
@@ -93,6 +97,16 @@ This is a dictionary with
 
     {'bagname':[url_or_dropbox_path_to_image0, url_or_dropbox_path_to_image1 ...]}
 
+
+### Wrapping them up in a single dictionary: 
+
+That concludes the contents of the GAME_PACKAGE, which should then look like: 
+
+    gamePackage = {'IMAGEBAGS':*your_imagebags_here*, 
+                                      'GAME':*your_game_here*, 
+                                      'TASK_SEQUENCE':*your_task_sequence_here*}
+
+
 ## ENVIRONMENT 
 The ENVIRONMENT is where you tell ptap about where it is being run (e.g. for monkeys or for humans on mechanical turk). These are details that are necessary to run the task correctly, but not necessary to define the task. 
 
@@ -108,7 +122,7 @@ The ENVIRONMENT is where you tell ptap about where it is being run (e.g. for mon
                         "juiceRewardPer1000Trials":250,
                     }  
 
-## Putting it all together
+# Putting it all together
 
 So, your sessionPackage should look like: 
 
@@ -127,7 +141,7 @@ Once you've done that, there are only three easy things left to do:
 Then you're done!
 
 
-## Beyond copying and pasting 
+# Beyond copying and pasting 
 
 In the sessionPackage above, you can replace any of the ingredients with a url or relative dropbox path (where '/' is the Dropbox folder) to a textfile containing the necessary information. 
 
