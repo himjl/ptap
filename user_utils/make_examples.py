@@ -5,7 +5,7 @@ SAVE_LOCATION = '../public/landing_pages/examples/'
 def makeInLabMTS(): 
     IMAGEBAGS = 'https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json'
 
-    GAME = {'gameID':'example_inlab_MTS',
+    GAME = {'gameId':'example_inlab_MTS',
           "periodicRewardIntervalMsec":60000,
           "periodicRewardAmount":1,
           "onFinish":"continue",
@@ -58,12 +58,12 @@ def makeInLabMTS():
 
     SESSION_PACKAGE = {'GAME_PACKAGE':{'IMAGEBAGS':IMAGEBAGS, 'TASK_SEQUENCE':TASK_SEQUENCE, 'GAME':GAME}, 
     'ENVIRONMENT':ENVIRONMENT}
-    c.write_landing_page(SESSION_PACKAGE, agentID = 'example_inlab_worker', landingPageName = 'landingPage_InlabMTS.html', saveDirectoryPath = SAVE_LOCATION) 
+    c.write_landing_page(SESSION_PACKAGE, agentId = 'example_inlab_worker', landingPageName = 'landingPage_InlabMTS.html', saveDirectoryPath = SAVE_LOCATION) 
     return 
 
 def makeInLabSR():
     sessionPackage = '/MonkeyTurk_upstairs/Subjects/exampleSR.json'
-    c.write_landing_page(sessionPackage, agentID = 'example_inlab_worker', landingPageName = 'landingPage_InlabSR.html', saveDirectoryPath = SAVE_LOCATION) 
+    c.write_landing_page(sessionPackage, agentId = 'example_inlab_worker', landingPageName = 'landingPage_InlabSR.html', saveDirectoryPath = SAVE_LOCATION) 
     return
 
 def makeMechanicalTurkSR(): 
@@ -75,7 +75,7 @@ def makeMechanicalTurkSR():
     "stimulus_objectome_pineapple": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_5946318bc2cdd1947534ae15d43aa7a0d820506e_ty-0.64759_tz0.33642_rxy-5.6836_rxz-71.4586_ryz62.4466_s1.169.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_c50790daa826f1d3fbed5580820c6c91fdded273_ty-0.57074_tz0.84081_rxy-157.3224_rxz64.5421_ryz167.7568_s0.86084.png"]
     }
 
-    GAME = {'gameID':'example_MechanicalTurk_SR',
+    GAME = {'gameId':'example_MechanicalTurk_SR',
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
             "onFinish":"continue",
@@ -125,7 +125,7 @@ def makeMechanicalTurkSR():
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
-    c.write_landing_page(sessionPackage, agentID = None, landingPageName = 'landingPage_MechanicalTurkSR.html', saveDirectoryPath = SAVE_LOCATION) 
+    c.write_landing_page(sessionPackage, agentId = None, landingPageName = 'landingPage_MechanicalTurkSR.html', saveDirectoryPath = SAVE_LOCATION) 
 
     
     return
@@ -141,7 +141,7 @@ def makeMechanicalTurkMTS():
     "stimulus_objectome_pineapple": ["https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_5946318bc2cdd1947534ae15d43aa7a0d820506e_ty-0.64759_tz0.33642_rxy-5.6836_rxz-71.4586_ryz62.4466_s1.169.png", "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_pineapple_c50790daa826f1d3fbed5580820c6c91fdded273_ty-0.57074_tz0.84081_rxy-157.3224_rxz64.5421_ryz167.7568_s0.86084.png"]
     }
 
-    GAME = {'gameID':'example_MechanicalTurk_MTS',
+    GAME = {'gameId':'example_MechanicalTurk_MTS',
             "periodicRewardIntervalMsec":0,
             "periodicRewardAmount":0,
             "onFinish":"continue",
@@ -193,7 +193,7 @@ def makeMechanicalTurkMTS():
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
-    c.write_landing_page(sessionPackage, agentID = None, landingPageName = 'landingPage_MechanicalTurkMTS.html', saveDirectoryPath = SAVE_LOCATION) 
+    c.write_landing_page(sessionPackage, agentId = None, landingPageName = 'landingPage_MechanicalTurkMTS.html', saveDirectoryPath = SAVE_LOCATION) 
     return 
 
 

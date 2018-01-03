@@ -21,16 +21,16 @@ async function setupSession(){
   try{
     // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
     // Fill in for upstairs task; e.g. 'Zico'
-    agentID = __AGENTID_GOES_HERE__
+    agentId = __AGENTID_GOES_HERE__
   }
   catch(error){
     console.log(error)
-    agentID = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
-    agentID = 'unknown_agent_ip_'
-    agentID+=await get_ip_address()
+    agentId = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+    agentId = 'unknown_agent_ip_'
+    agentId+=await get_ip_address()
   }
 
-  var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentID':agentID, 'LANDING_PAGE_URL':window.location.href}
+  var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}
   await concludeLandingPage(localSavePackage)
 }
 
@@ -41,14 +41,14 @@ async function setupSession(){
 async function concludeLandingPage(localSavePackage){
     
     SESSION_PACKAGE = localSavePackage['SESSION_PACKAGE']
-    agentID = localSavePackage['agentID']
+    agentId = localSavePackage['agentId']
     LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL']
 
     console.log('landing page url', window.location.href)
 
     await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)))
     await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
-    await localStorage.setItem('agentID', btoa(agentID))
+    await localStorage.setItem('agentId', btoa(agentId))
 
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 1000));

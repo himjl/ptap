@@ -13,18 +13,18 @@ class CheckPointerClass{
 
 class DropboxCheckPointer extends CheckPointerClass{ 
 
-constructor(DIO, agentID, gamePackage){
+constructor(DIO, agentId, gamePackage){
     super(gamePackage)
 
     this.DIO = DIO
-    this.agentID = agentID
+    this.agentId = agentId
     this.saveTimeoutMsec = 5000 
     this.debugMode = true
 }
 
 async build(){
-    this.checkpointSavePath = join([INSTALL_SETTINGS.checkpointDirPath, 'Checkpoint_'+this.agentID+'.ckpt'])
-    this.debugCheckpointSavePath = join([INSTALL_SETTINGS.debugCheckpointDirPath, 'debug_Checkpoint_'+this.agentID+'.ckpt'])
+    this.checkpointSavePath = join([INSTALL_SETTINGS.checkpointDirPath, 'Checkpoint_'+this.agentId+'.ckpt'])
+    this.debugCheckpointSavePath = join([INSTALL_SETTINGS.debugCheckpointDirPath, 'debug_Checkpoint_'+this.agentId+'.ckpt'])
 
     var exists = await DIO.exists(this.checkpointSavePath)
     if(exists == true){
@@ -84,7 +84,7 @@ verify_checkpoint(checkpoint){
 
 generate_default_checkpoint(){
     var checkpoint = {}
-    checkpoint['agentID'] = this.agentID
+    checkpoint['agentId'] = this.agentId
     checkpoint['gameHash'] = this.generate_hash()
     checkpoint['taskNumber'] = 0 
     checkpoint['trialNumberTask'] = 0

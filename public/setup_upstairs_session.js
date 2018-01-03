@@ -13,7 +13,7 @@ async function setup_upstairs_session(sessionPackage){
   SESSION['species'] = 'monkey'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL
-  SESSION['agentID'] = await LocalStorageIO.load_string('agentID')
+  SESSION['agentId'] = await LocalStorageIO.load_string('agentId')
 
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
@@ -22,17 +22,17 @@ async function setup_upstairs_session(sessionPackage){
    DIO = new DropboxIO()
    await DIO.build(window.location.href)
 
-   var saveDir = join([INSTALL_SETTINGS.dataDirPath, SESSION['agentID']])
-   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, SESSION['agentID']])
-   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentID'])
+   var saveDir = join([INSTALL_SETTINGS.dataDirPath, SESSION['agentId']])
+   var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, SESSION['agentId']])
+   DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentId'])
 
-   CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentID'], GAME, TASK_SEQUENCE)
+   CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
    SIO = new S3_IO() 
    IB = new ImageBuffer(SIO)
 
-   UX.updateSessionTextbox(SESSION['agentID'], GAME['gameID'])
+   UX.updateSessionTextbox(SESSION['agentId'], GAME['gameId'])
 
    TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
 

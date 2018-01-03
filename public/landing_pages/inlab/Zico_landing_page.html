@@ -48,7 +48,7 @@ async function concludeLandingPage(localSavePackage){
 
     await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)))
     await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
-    await localStorage.setItem('agentID', btoa(agentID))
+    await localStorage.setItem('agentId', btoa(agentID))
 
     console.log('All items stored. Redirecting...')
     await new Promise(resolve => setTimeout(resolve, 500));

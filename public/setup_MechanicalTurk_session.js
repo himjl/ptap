@@ -19,7 +19,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   SESSION['species'] = 'human_turker'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL
-  SESSION['agentID']  = SESSION['workerId']
+  SESSION['agentId']  = SESSION['workerId']
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
   SIO = new S3_IO() 

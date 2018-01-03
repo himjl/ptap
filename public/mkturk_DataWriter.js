@@ -1,7 +1,7 @@
 class DataWriter{
     constructor(){
         this.trialData = {}
-        this.pollPeriodMsec = 60000 * 5
+        this.pollPeriodMsec = 60000
         this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds
         this.lastTrialTimestamp = performance.now() 
         this.lastSaveTimestamp = performance.now()
@@ -66,7 +66,6 @@ class DataWriter{
         console.log("DataWriter.write_out NOT IMPLEMENTED")
     }
     
-
     async conclude_session(){
         console.log("DataWriter.conclude_session NOT IMPLEMENTED")
         return
@@ -113,7 +112,7 @@ class DropboxDataWriter extends DataWriter{
         // Then after that, write out periodically every T2 seconds. 
         console.log('Called DataWriter.start_polling')
         if (this.pollPeriodMsec < 0 || this.pollPeriodMsec == undefined){
-            console.log("Not polling.")
+            console.log("Will not poll.")
             return
         }
 

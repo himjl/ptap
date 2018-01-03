@@ -4,7 +4,7 @@
 DEFAULT_HIT = {
 
 'GAME': {
-        'gameID':'failsafeGameSettings',
+        'gameId':'failsafeGameSettings',
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
         "bonusUSDPerCorrect":0.0005, 
