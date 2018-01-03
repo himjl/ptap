@@ -7,7 +7,6 @@ DEFAULT_HIT = {
         'gameId':'failsafeGameSettings',
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
-        "bonusUSDPerCorrect":0.0005, 
         "onFinish":"terminate", // terminate, continue
         "minimumTrials":50,
         "maximumTrials":200,

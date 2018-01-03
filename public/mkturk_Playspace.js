@@ -200,6 +200,14 @@ class PlaySpaceClass{
             return
         }
 
+        if(this.periodicRewardAmount == undefined){
+            return
+        }
+
+        if(this.periodicRewardIntervalMsec == undefined){
+            return 
+        }
+
         console.log('Called auto reinforcer:',this.periodicRewardAmount, 'reward(s) every', this.periodicRewardIntervalMsec/1000, 'seconds')
         // https://stackoverflow.com/questions/12587977/html5-audio-chrome-on-android-doesnt-automatically-play-song-vs-chrome-on-pc-d/24842152#24842152
         this.SoundPlayer.play_sound('reward_sound')
