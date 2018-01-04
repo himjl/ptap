@@ -38,13 +38,18 @@ class az{
     static detect_sandbox_mode(url){
         var submitToURL = this._extract_url_string(url, 'turkSubmitTo', '')
         console.log('submittoURL', submitToURL)
-        if (submitToURL.indexOf('workersandbox')!=-1){
-            var inSandboxMode = true
+        try{ 
+          if (submitToURL.indexOf('workersandbox')!=-1){
+              var inSandboxMode = true
+          }
+          else{
+              var inSandboxMode = false
+          }
         }
-        else{
-            var inSandboxMode = false
+        catch(error){
+          console.log(error)
+          var inSandboxMode = false
         }
-
         return inSandboxMode
 
     }

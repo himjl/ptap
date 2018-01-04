@@ -172,7 +172,7 @@ class MechanicalTurkDataWriter extends DataWriter{
     constructor(assignmentId, hitId, inSandboxMode){
         super()
         console.log(this)
-        this.inSandboxMode = inSandboxMode || true
+        this.inSandboxMode = inSandboxMode || false
         this.assignmentId = assignmentId
         this.hitId = hitId
     }
@@ -193,6 +193,8 @@ class MechanicalTurkDataWriter extends DataWriter{
         document.getElementById("hitId").value = this.hitId
         document.getElementById("submission_data").value = result_str;
 
+        var submit_url = "https://www.mturk.com/mturk/externalSubmit"
+        
         if(this.inSandboxMode == true){
             var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit" 
         }
