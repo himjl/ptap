@@ -29,7 +29,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   await CheckPointer.build()
   TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
   await TaskStreamer.build(5)
-  DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode'])
+  DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode']) 
 
   var playspacePackage = {
     'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
@@ -90,7 +90,6 @@ async function setup_mechanicalturk_session(sessionPackage){
     SESSION['inputDevice'] = await UX.run_device_selection_dialogue()
   }
 
-  
   TaskStreamer.debug2record()
   Playspace.debug2record()
   DataWriter.debug2record()

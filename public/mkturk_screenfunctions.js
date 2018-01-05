@@ -60,12 +60,14 @@ function toggleProgressbar(on_or_off, bar_id){
 function updateCashInButtonText(trials, bonus_earned, cash_in_option){
 	var elem = document.querySelector("button[name=WorkerCashInButton]")
 
-	if(cash_in_option == false){
-		var button_string = 'Bonus: &cent'+(100*bonus_earned).toFixed(3)
-	}
-	else if(cash_in_option == true){
-		var button_string = 'Bonus: &cent'+(100*bonus_earned).toFixed(3)+'<br>Turn in early'
-	}
+	var button_string = 'Bonus cents: '+(100*bonus_earned).toFixed(3)
+
+	//if(cash_in_option == false){
+		
+	//}
+	//else if(cash_in_option == true){
+	//	var button_string = 'Bonus cents: '+(100*bonus_earned).toFixed(3)+'<br>Turn in early'
+	//}
 	elem.innerHTML = button_string
 
 }	

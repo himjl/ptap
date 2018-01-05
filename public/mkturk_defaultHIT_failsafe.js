@@ -8,8 +8,8 @@ DEFAULT_HIT = {
         "periodicRewardIntervalMsec":0,
         "periodicRewardAmount":0,
         "onFinish":"terminate", // terminate, continue
-        "minimumTrials":50,
-        "maximumTrials":200,
+        "minimumTrials":10,
+        "maximumTrials":10,
         "randomSeed":undefined,
         }, 
 'TASK_SEQUENCE':[{

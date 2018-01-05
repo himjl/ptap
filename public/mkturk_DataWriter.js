@@ -188,7 +188,9 @@ class MechanicalTurkDataWriter extends DataWriter{
     
         var dataobj = this.package_data()
         var result_str = JSON.stringify({'SESSION_DATA':dataobj})
-        //console.log('Packaged data of size', memorySizeOf(result_str, 1), 'for submission to Amazon.')
+ 
+
+        console.log('Packaged data of size', memorySizeOf(result_str, 1), 'for submission to Amazon.')
         document.getElementById("assignmentId").value = this.assignmentId; 
         //document.getElementById("hitId").value = this.hitId
         document.getElementById("submission_data").value = result_str;

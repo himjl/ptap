@@ -172,7 +172,7 @@ class MechanicalTurkUX extends UXclass{
             
             updateProgressbar(trialNumberSession/this.minimumTrials*100, 'MechanicalTurk_TrialBar', '', 100)
 
-            toggleCashInButtonClickability(1)
+            //toggleCashInButtonClickability(1)
             var num_bonus_trials_performed = trialNumberSession-this.minimumTrials
             if(this.bonusEarned != NaN){
                 updateCashInButtonText(num_bonus_trials_performed, this.bonusEarned, true)
