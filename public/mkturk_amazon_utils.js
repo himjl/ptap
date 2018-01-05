@@ -15,6 +15,7 @@ class az{
     static get_assignmentId_from_url(url){
         var assignmentId = this._extract_url_string(url, 'assignmentId', 'assignmentId_not_found')
         console.log('assignmentId', assignmentId)
+
         return assignmentId
     }
 
@@ -35,8 +36,10 @@ class az{
         return results[1]
         
     }
+
+
     static detect_sandbox_mode(url){
-        var submitToURL = this._extract_url_string(url, 'turkSubmitTo', '')
+        var submitToURL = this._extract_url_string(url, 'turkSubmitTo', 'https://www.mturk.com')
         console.log('submittoURL', submitToURL)
         try{ 
           if (submitToURL.indexOf('workersandbox')!=-1){

@@ -10,6 +10,9 @@
 <script>
 // ******* The experimenter fills out SESSION_PACKAGE ********* 
 async function setupSession(){
+  await localStorage.clear();
+
+
   try{
     SESSION_PACKAGE = "/MonkeyTurk_upstairs/Subjects/exampleSR.json"
   }

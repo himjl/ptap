@@ -22,6 +22,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   SESSION['agentId']  = SESSION['workerId']
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
+  console.log('SESSION', SESSION)
   SIO = new S3_IO() 
   IB = new ImageBuffer(SIO)
   CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)
