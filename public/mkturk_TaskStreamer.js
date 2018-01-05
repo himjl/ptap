@@ -488,7 +488,7 @@ class TaskStreamerClass{
                 // Lock (only one buffer process at a time)
                 _this.currently_buffering = true
                 var trialRequests = []
-                var numTrialsToBuffer = 100 // Math.min(Math.round((_this.maxTrialsInQueuePerTask - numTrialsInTaskQueue)/2), 10)
+                var numTrialsToBuffer = 5 // Math.min(Math.round((_this.maxTrialsInQueuePerTask - numTrialsInTaskQueue)/2), 10)
                 for (var t = 0; t < numTrialsToBuffer; t++){
                     trialRequests.push(_this.buffer_trial(_this.taskNumber))
                 }
