@@ -38,6 +38,7 @@ class SoundPlayerClass{
 
   async play_sound(name){
 
+    // example of WebAudioAPI: https://www.html5rocks.com/en/tutorials/webaudio/intro/
     if(this.is_built == false){
       await this.build()
     }

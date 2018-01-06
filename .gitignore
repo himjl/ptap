@@ -15,3 +15,7 @@ hellodropbox.html
 
 .DS_Store
 
+
+upload_ptap_to_mturk.py
+upload_ptap_to_scratch.py
+upload_ptap_to_upstairs.py
