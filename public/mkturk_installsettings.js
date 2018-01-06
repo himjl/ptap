@@ -8,5 +8,5 @@ INSTALL_SETTINGS = {
     'dataDirPath':"/MonkeyTurk_upstairs/Behavior/",
     'debugDataDirPath':"/MonkeyTurk_upstairs/logs/debug/Behavior/", 
     'debugCheckpointDirPath':"/MonkeyTurk_upstairs/logs/debug/Checkpoints/",
-    "dropboxClientId":"scx9xahpjofx5q0"
+    "dropboxClientId":"1ouzvu3qd09oddw"
 }

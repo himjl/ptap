@@ -62,6 +62,7 @@ class PlaySpaceClass{
         // ************ Prebuffer trial assets ***************
 
         // Fixation
+        wdm('Buffering fixation...')
         console.log(trialPackage)
         var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
         var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
@@ -75,6 +76,7 @@ class PlaySpaceClass{
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
 
         // Stimulus sequence
+        wdm('Buffering stimulus...')
         var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
         var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
         var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees'])
@@ -101,6 +103,7 @@ class PlaySpaceClass{
         // *************** Run trial *************************
 
         // SHOW BLANK
+        wdm('Running fixation...')
         await this.ScreenDisplayer.displayBlank()
 
         // RUN FIXATION
@@ -113,6 +116,7 @@ class PlaySpaceClass{
         var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
 
         // RUN STIMULUS SEQUENCE
+        wdm('Running stimulus...')
         var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence()
 
         var actionXCentroidPixels = this.xprop2pixels(trialPackage['actionXCentroid'])
@@ -133,10 +137,12 @@ class PlaySpaceClass{
             var actionPromise = this.ActionPoller.Promise_wait_until_active_response()
         }
 
+        wdm('Awaiting choice...')
         var actionOutcome = await actionPromise
         var rewardAmount = trialPackage['choiceRewardMap'][actionOutcome['actionIndex']]
 
         // Deliver reinforcement
+        wdm('Delivering reinforcement...')
         if (rewardAmount > 0){
             var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var p_sound = this.SoundPlayer.play_sound('reward_sound')
@@ -157,6 +163,7 @@ class PlaySpaceClass{
         this.rewardLog['n'].push(rewardAmount)
 
         // *************** Write down trial outcome *************************
+        wdm('Writing down trial outcome...')
         var trialOutcome = {}
         trialOutcome['return'] = rewardAmount 
         trialOutcome['action'] = actionOutcome['actionIndex']

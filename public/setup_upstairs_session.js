@@ -17,8 +17,9 @@ async function setup_upstairs_session(sessionPackage){
 
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
+
     UX = new MonkeyUX()
-   
+   wdm('Starting dropbox connection...')
    DIO = new DropboxIO()
    await DIO.build(window.location.href)
 
@@ -26,6 +27,7 @@ async function setup_upstairs_session(sessionPackage){
    var debugDir = join([INSTALL_SETTINGS.debugDataDirPath, SESSION['agentId']])
    DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentId'])
 
+   wdm('Starting checkpointer...')
    CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
@@ -35,7 +37,7 @@ async function setup_upstairs_session(sessionPackage){
    UX.updateSessionTextbox(SESSION['agentId'], GAME['gameId'])
 
    TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
-
+   wdm('Building taskstreamer...')
    await TaskStreamer.build(5)
    var playspacePackage = {
     'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
@@ -48,7 +50,8 @@ async function setup_upstairs_session(sessionPackage){
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
     'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
-
+  
+    wdm('Building playspace...')
    Playspace = new PlaySpaceClass(playspacePackage)
    await Playspace.build()
    Playspace.toggleBorder(1)
@@ -64,5 +67,6 @@ async function setup_upstairs_session(sessionPackage){
     gamePackage['Playspace'] = Playspace 
     gamePackage['UX'] = UX 
     gamePackage['SESSION'] = SESSION
+    wdm('Done building session components...')
     return gamePackage
 }

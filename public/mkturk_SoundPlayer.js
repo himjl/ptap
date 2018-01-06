@@ -6,6 +6,7 @@ class SoundPlayerClass{
       'punish_sound':'sounds/bad_doot.wav', // punish sound
       'blip':'sounds/frog.wav'}
 
+      this.is_buffered = {'reward_sound':false, 'punish_sound':false}
       this.current_sound_counter = 0
 
       this.is_built = false
@@ -13,52 +14,86 @@ class SoundPlayerClass{
 
       // https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/createBuffer
 
-
 }
 
   async build(){
    
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    this.soundInstances = {} // name : preloaded sound
+    this.bufferedSounds = []
     var _this = this
+    
+    
     console.log('build soundplayer')
-    var finishedLoading = function(bufferList){
+    var finishedLoading = async function(bufferList){
       _this.bufferedSounds = bufferList 
+      
+      for (var i = 0; i < bufferList.length; i++){  
+        if (i == 0){
+          var name = 'reward_sound'
+        }
+        else if( i == 1){
+          var name = 'punish_sound'
+        }
+        else{
+          continue
+        }
+
+        var s = _this.audioContext.createBufferSource()
+        s.buffer = bufferList[i] 
+        s.connect(_this.audioContext.destination)
+        _this.soundInstances[name] == s
+        _this.is_buffered[name] = true
+      }
+
       return 
     }
 
     var soundRequests = [] 
 
     var bufferLoader = new BufferLoader(this.audioContext, ['sounds/chime.wav', 'sounds/bad_doot.wav'], finishedLoading)
-    bufferLoader.load();
+    await bufferLoader.load();
+    
     this.is_built = true
 
     return 
 
   }
 
+  async buffer_sound(name){
+
+    var s = this.audioContext.createBufferSource()
+
+    if(name == 'reward_sound'){
+      var bufferEntry = this.bufferedSounds[0] 
+    }
+    else if(name == 'punish_sound'){
+      var bufferEntry = this.bufferedSounds[1] 
+    }
+    else{
+      return 
+    }
+    
+    s.buffer = bufferEntry
+    s.connect(this.audioContext.destination)
+    this.soundInstances[name] = s
+
+  }
+
   async play_sound(name){
 
-    // example of WebAudioAPI: https://www.html5rocks.com/en/tutorials/webaudio/intro/
     if(this.is_built == false){
       await this.build()
     }
-
-    if (name == 'reward_sound'){
-      var bufferEntry = this.bufferedSounds[0]
+    if(this.soundInstances[name] == undefined){
+      this.buffer_sound(name)
     }
-    else if(name == 'punish_sound'){
-      var bufferEntry = this.bufferedSounds[1]
+    if(this.is_buffered[name] == false){
+      this.buffer_sound(name)
     }
-    else{
-      return
-    }
-    var s = this.audioContext.createBufferSource()
-    s.buffer = bufferEntry 
-    s.connect(this.audioContext.destination)
-    s.start(0)
-    //
-    return 
-
+    this.soundInstances[name].start()
+    this.is_buffered[name] = false
+    this.buffer_sound(name) // Load up for next call
     
   }
 }

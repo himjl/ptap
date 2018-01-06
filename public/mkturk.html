@@ -113,6 +113,8 @@ var FLAGS = {}; // todo: get rid of
 
 (async function(){
 
+console.time('Done setting up')
+
 // Load inputs from local storage, web, or Dropbox.
 var SBS = new SessionBootStrapper()
 var sessionPackage = await SBS.build()
@@ -128,7 +130,6 @@ if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
 else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
   var freturn = await setup_upstairs_session(sessionPackage)
 }
-
 // Unpack objects
 var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
@@ -137,6 +138,7 @@ var UX = freturn['UX']
 var SESSION = freturn['SESSION']
 
 // Attach static data objects 
+wdm('Attaching static data probes...')
 DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
@@ -147,12 +149,15 @@ DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 
 // Attach async data probes 
+wdm('Attaching async data probes...')
+
 DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
 DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
 DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
 DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
 
 // Kick off async threads 
+wdm('Kicking off async threads...')
 Playspace.start_periodic_rewards()
 Playspace.start_action_tracking()
 Playspace.start_device_tracking()
@@ -162,6 +167,9 @@ TaskStreamer.start_buffering_continuous()
 
 // Main trial loop
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
+console.timeEnd('Done setting up')
+wdm('Entering main trial loop...')
+
 while(TaskStreamer.TERMINAL_STATE == false){
   var trialPackage = await TaskStreamer.get_trial()
 	var trialOutcome = await Playspace.run_trial(trialPackage) 
@@ -169,6 +177,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
   UX.poll(trialOutcome)
   DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk
   DataWriter.write_out()
+  wdm('Starting next trial...')
 }
 
 await DataWriter.conclude_session()

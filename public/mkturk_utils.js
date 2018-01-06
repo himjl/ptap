@@ -12,7 +12,6 @@ function getWindowHeight(){
       || document.documentElement.clientHeight
       || document.body.clientHeight;
     return w
-
 }
 
 function _dpr(){
@@ -23,10 +22,8 @@ function _dpr(){
 function wdm(s){
   // Write debug message
   console.log(s)
-  if(FLAGS.debug_mode == 1){
-    var elem = document.getElementById('DebugMessageTextBox')
-    elem.innerHTML = s; // text
-  }
+  var elem = document.getElementById('DebugMessageTextBox')
+  elem.innerHTML = s; // text
 }
 
 class np{
