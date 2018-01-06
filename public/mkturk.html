@@ -37,7 +37,7 @@
 <button id="drive_juice_button" onclick="writepumpdurationtoBLE(500)">Send juice signal</button>
 
 <div id="TrialCounter">-</div>
-<div id="DebugMessageTextBox">0</div>
+<div id="DebugMessageTextBox">Loading...</div>
 <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
 <div id="PreviewModeSplash">
   <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>. The HIT will take around 15 minutes to complete. 
@@ -116,14 +116,19 @@ var FLAGS = {}; // todo: get rid of
 console.time('Done setting up')
 
 // Load inputs from local storage, web, or Dropbox.
+wdm('Running bootstrapper...')
 var SBS = new SessionBootStrapper()
 var sessionPackage = await SBS.build()
 
 // Verify inputs
+wdm('Verifying inputs...')
+
 VF = new Verifier()
 sessionPackage = VF.verify_session_package(sessionPackage)
 console.log('sessionPackage', sessionPackage)
 // Construct session
+wdm('Setting up session...')
+
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
   var freturn = await setup_mechanicalturk_session(sessionPackage)
 }

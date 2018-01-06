@@ -155,7 +155,7 @@
    z-index:102;
    font-family: 'Helvetica Neue';
    color:white;
-   visibility:hidden;
+   visibility:visible;
 }
 
 #SessionTextBox {

@@ -6,15 +6,20 @@ class SessionBootStrapper{
 
     async build(){
         
+        wdm('Unpacking SESSION_PACKAGE...')
         var local_val_session = await this.load_localstorage_val('SESSION_PACKAGE')
+        wdm('Downloading SESSION_PACKAGE...')
         var sessionPackage = await this.download(local_val_session)
 
+        wdm('Unpacking GAME_PACKAGE...')
         var gamePackage = await this.unpack_game_package(sessionPackage['GAME_PACKAGE'])
+        wdm('Unpacking ENVIRONMENT...')
         var environment = await this.unpack_environment(sessionPackage['ENVIRONMENT'])
 
         var unpackedSession = {}
         unpackedSession['GAME_PACKAGE'] = gamePackage 
         unpackedSession['ENVIRONMENT'] = environment
+        wdm('Unpacking LANDING_PAGE_URL...')
         unpackedSession['LANDING_PAGE_URL'] = await this.load_localstorage_val('LANDING_PAGE_URL')
 
         return unpackedSession
@@ -29,7 +34,9 @@ class SessionBootStrapper{
         for (var i in gamePackageKeys){
 
             var k = gamePackageKeys[i]
+
             console.log('Loading', k)
+            wdm('Unpacking '+k+'...')
             if(gamePackage!=undefined){
                 unpackedGame[k] = await this.download(gamePackage[k])
             }
