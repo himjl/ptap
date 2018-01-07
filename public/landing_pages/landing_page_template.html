@@ -27,8 +27,8 @@ async function setupSession(){
   catch(error){
     console.log(error)
     agentId = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
-    agentId = 'unknown_agent_ip_'
-    agentId+=await get_ip_address()
+    //agentId = 'unknown_agent_ip_'
+    //agentId+=await get_ip_address()
   }
 
   var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}

@@ -15,7 +15,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   SESSION['hitId'] = az.get_hitId_from_url(landingPageURL)
   SESSION['assignmentId'] = az.get_assignmentId_from_url(landingPageURL)
   SESSION['inSandboxMode'] = az.detect_sandbox_mode(landingPageURL)
-  SESSION['ipAddress'] = await az.get_ip_address()
+  //SESSION['ipAddress'] = await az.get_ip_address()
   SESSION['species'] = 'human_turker'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL

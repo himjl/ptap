@@ -9,7 +9,7 @@ async function setup_upstairs_session(sessionPackage){
 
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
   SESSION = {}
-  SESSION['ipAddress'] = await az.get_ip_address()
+  //SESSION['ipAddress'] = await az.get_ip_address()
   SESSION['species'] = 'monkey'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL

@@ -40,7 +40,7 @@
 <div id="DebugMessageTextBox">Loading...</div>
 <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
 <div id="PreviewModeSplash">
-  <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>. The HIT will take around 15 minutes to complete. 
+  <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>.  
   </span>
 </div>
 
@@ -146,7 +146,6 @@ var UX = freturn['UX']
 var SESSION = freturn['SESSION']
 
 
-
 // Attach static data objects 
 wdm('Attaching static data probes...')
 DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
@@ -229,15 +228,13 @@ finally{
   document.getElementById("assignmentId").value = assignmentId; // SESSION['assignmentId']; 
     
   var submit_url = "https://www.mturk.com/mturk/externalSubmit"
+  var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
 
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
-  if(window.location.href.indexOf('localhost')!=-1){
-      console.log('simulated submission to turk')
-  }
-  else{
-    document.getElementById("MechanicalTurk_SubmissionForm").submit();
-  }
+  
+  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  
   
 }
 
