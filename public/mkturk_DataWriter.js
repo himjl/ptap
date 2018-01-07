@@ -205,15 +205,14 @@ class MechanicalTurkDataWriter extends DataWriter{
         }
         document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
 
-        await sleep(1500)
-
         try{
-            document.getElementById("MechanicalTurk_SubmissionForm").submit();
-            console.log('SIMULATED SUBMISSION TO TURK')
+            await document.getElementById("MechanicalTurk_SubmissionForm").submit();
+            console.log('EXECUTED SUBMISSION TO TURK')
         }
         catch(error){
             console.log(error)
             // todo: write out to localstorage the data
         }
+        await sleep(1500)
     }
 }

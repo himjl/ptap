@@ -203,30 +203,32 @@ finally{
   // Should not get here unless an error took place
   // Assume failure took place in mechanical turk session (this code is irrelevant for inlab)
   // Submit the error message
+  await sleep(1500)
 
   try{
     var dataobj = DataWriter.package_data()
   }
   catch(error){
-    var dataobj = {'ERROR_DataWriter.package_data()':error}
+    var dataobj = {'ERROR_DataWriter.package_data()':String(error)}
   }
   try{
     var s = JSON.stringify(errorMessage)
     dataobj['ERROR_main_loop'] = s
   }
   catch(error){
-    dataobj['ERROR_main_loop_not_found'] = JSON.stringify(error)
+    dataobj['ERROR_main_loop_not_found'] = JSON.stringify(String(error))
   }
+  dataobj = {'SESSION_DATA':dataobj}
   document.getElementById("submission_data").value = JSON.stringify(dataobj);
   
   // Extract assignmentId from localstorage 
   var landingPageURL = await localStorage.getItem('LANDING_PAGE_URL')
   landingPageURL = atob(landingPageURL)
   var assignmentId = az.get_assignmentId_from_url(landingPageURL)
-  document.getElementById("assignmentId").value = assignmentId; // SESSION['assignmentId']; 
+  document.getElementById("assignmentId").value = assignmentId; 
     
   var submit_url = "https://www.mturk.com/mturk/externalSubmit"
-  var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
+  //var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
 
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
