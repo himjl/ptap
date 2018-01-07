@@ -193,8 +193,6 @@ await DataWriter.conclude_session()
 }// End try
 
 
-
-
 // ******* FAILSAFE HANDLING FOR MECHANICAL TURK *******
 catch(error){
   console.log('ptap failed with the following error:')
@@ -233,7 +231,7 @@ finally{
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
   
-  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  document.getElementById("MechanicalTurk_SubmissionForm").submit();
   
   
 }
