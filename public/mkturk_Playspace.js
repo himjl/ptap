@@ -334,23 +334,31 @@ class PlaySpaceClass{
         
         // ******** Battery ******** 
         // http://www.w3.org/TR/battery-status/
+
         this.deviceLog['battery'] = {} 
         this.deviceLog['battery']['level'] = [] 
         this.deviceLog['battery']['dischargingTime'] = [] 
         this.deviceLog['battery']['timestamp'] = [] 
 
-        var _this = this
-        navigator.getBattery().then(function(batteryobj){
-            _this.deviceLog['battery']['level'].push(batteryobj.level)
-            _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
-            _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
-
-            batteryobj.addEventListener('levelchange',function(){
+        try{
+            var _this = this
+            navigator.getBattery().then(function(batteryobj){
                 _this.deviceLog['battery']['level'].push(batteryobj.level)
                 _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
                 _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
-            })
-          });
+
+                batteryobj.addEventListener('levelchange',function(){
+                    _this.deviceLog['battery']['level'].push(batteryobj.level)
+                    _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime)
+                    _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now()*1000)/1000)
+                })
+              });
+        }
+        catch(error){
+            console.log('Battery logging error:', error)
+        }
+
+        
 
         // ******** Window resize ****
         this.deviceLog['window'] = {}
