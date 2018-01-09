@@ -169,6 +169,15 @@ class TaskStreamerClass{
         var tP = this.trialq[this.taskNumber].shift() // .shift() removes first element and returns
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         this.lastTrialPackage = tP
+        
+        if(this.trialq[this.taskNumber+1][0]['sampleImage'] == undefined){
+            console.log(this)
+
+        }
+        if ((tP['sampleImage']) == undefined){
+            console.log(this)
+        }
+        console.log(this.trialq[this.taskNumber+1][0])
         return tP
     }
 
@@ -295,7 +304,10 @@ class TaskStreamerClass{
             imageRequests.push(this.IB.get_by_name(choiceId[i]))
         }
     
-        var images = await Promise.all(imageRequests)        
+        var images = await Promise.all(imageRequests)
+        if(images[0] == undefined){
+            console.log(this)
+        }        
         tP['sampleImage'] = images[0]
         tP['choiceImage'] = images.slice(1)
         
@@ -392,7 +404,7 @@ class TaskStreamerClass{
             var nextTaskActionHistory = []
             var nextTrialNumberTask = 0 
             var nextLastTrialPackage = undefined 
-            var nextEligibleSamplePool = this.imageBags
+            var nextEligibleSamplePool = JSON.parse(JSON.stringify(this.imageBags))
 
             // Check termination condition
             if(this.taskNumber >= this.taskSequence.length-1){

@@ -60,7 +60,6 @@ async function setup_upstairs_session(sessionPackage){
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
     
-    
     var gamePackage = {}
     gamePackage['TaskStreamer'] = TaskStreamer
     gamePackage['DataWriter'] = DataWriter 
@@ -68,5 +67,16 @@ async function setup_upstairs_session(sessionPackage){
     gamePackage['UX'] = UX 
     gamePackage['SESSION'] = SESSION
     wdm('Done building session components...')
+
+    // Playspace.Reinforcer.juiceRewardPer1000 = 175
+    // wdm('20sec')
+    // await sleep(20000)
+    // ub = 500
+    // for (i = 0; i < ub; i++) {
+    //   await sleep(1500)
+    //   Playspace.Reinforcer.deliver_reinforcement(1)
+    //   wdm(i + ' of ' + ub + '. juicerewardper1000=' + Playspace.Reinforcer.juiceRewardPer1000)
+    // }
+    // return
     return gamePackage
 }
