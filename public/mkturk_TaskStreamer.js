@@ -170,14 +170,9 @@ class TaskStreamerClass{
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         this.lastTrialPackage = tP
         
-        if(this.trialq[this.taskNumber+1][0]['sampleImage'] == undefined){
-            console.log(this)
-
-        }
         if ((tP['sampleImage']) == undefined){
             console.log(this)
         }
-        console.log(this.trialq[this.taskNumber+1][0])
         return tP
     }
 
