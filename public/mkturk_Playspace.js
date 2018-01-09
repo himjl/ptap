@@ -63,7 +63,7 @@ class PlaySpaceClass{
 
         // Fixation
         wdm('Buffering fixation...')
-        console.log(trialPackage)
+        //console.log(trialPackage)
         var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
         var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
         var fixationDiameterPixels = this.deg2pixels(trialPackage['fixationDiameterDegrees'] )

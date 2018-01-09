@@ -27,8 +27,6 @@ async function setupSession(){
   catch(error){
     console.log(error)
     agentId = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
-    //agentId = 'unknown_agent_ip_'
-    //agentId+=await get_ip_address()
   }
 
   var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}
@@ -75,38 +73,6 @@ function go_to_main_page(){
     
 }
 
-async function get_ip_address(){
-      // need to do here or can do in main?
-
-      var resolveFunc
-      var rejectFunc
-      var p = new Promise(function(resolve, reject){
-          resolveFunc = resolve
-          rejectFunc = reject
-      })
-
-      var xhttp = new XMLHttpRequest(); 
-
-
-      try{
-          xhttp.onreadystatechange = function(){
-              if (this.readyState == 4 && this.status == 200){
-                  resolveFunc(this.responseText)
-              }
-          }
-      }
-      catch(error){
-          console.log(error)
-      }
-      
-      xhttp.open("GET", "https://api.ipify.org?format=json", true);
-
-      xhttp.send();
-      var s = await p
-      s = JSON.parse(s)
-
-      return s['ip']       
-}
 
 </script>
 
@@ -121,6 +87,6 @@ async function get_ip_address(){
 </head>
 
 <body>
-    Loading HIT...
+    Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. 
 </body>
 </html>

@@ -58,10 +58,10 @@ async function concludeLandingPage(localSavePackage){
 function go_to_main_page(){
   var currentURL = window.location.href 
     if(currentURL.indexOf('localhost')!=-1){
-        window.location.href = '/public/mkturk.html?loadtime=' +Math.round(window.performance.timing.navigationStart)
+        window.location.href = '/public/mkturk.html'
     }
     else{
-        window.location.href = "https://s3.amazonaws.com/ptapupstairs/public/mkturk.html?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "https://s3.amazonaws.com/ptapupstairs/public/mkturk.html"
     }
 }
 

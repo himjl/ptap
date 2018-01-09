@@ -261,7 +261,7 @@ async function writepumpdurationtoBLE(num){
       console.log(textstr)
       ble.statustext = textstr
       // 
-      wdm(textstr)
+      //wdm(textstr)
   }
   catch(error) {
       var textstr = 'Could not write pump duration to ble device'
@@ -290,7 +290,7 @@ function onPumpNotificationFromBLE(event){
   console.log(textstr)
   ble.statustext = ble.statustext + "  <---->  " + textstr
   // 
-  wdm(textstr)
+  //wdm(textstr)
 
   let value = event.target.value
   value = value.buffer ? value : new DataView(value)
