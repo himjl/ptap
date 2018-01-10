@@ -38,6 +38,7 @@ DEFAULT_HIT = {
                 "averageReturnCriterion":0, 
                 "minTrialsCriterion":50,
                 "sampleSampleWithReplacement":true, // true / false  
+                "drawEyeFixationDot":true,
             }],
 'ENVIRONMENT':{
               'playspace_degreesVisualAngle':45,

@@ -68,18 +68,25 @@ class PlaySpaceClass{
         var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
         var fixationDiameterPixels = this.deg2pixels(trialPackage['fixationDiameterDegrees'] )
 
+
+        var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
+        var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
+        var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees'])
+
         var fixationFramePackage = {
             'fixationXCentroidPixels':fixationXCentroidPixels,
             'fixationYCentroidPixels':fixationYCentroidPixels, 
             'fixationDiameterPixels':fixationDiameterPixels,
+            'eyeFixationXCentroidPixels':sampleXCentroidPixels, 
+            'eyeFixationYCentroidPixels':sampleYCentroidPixels, 
+            'eyeFixationDiameterPixels':Math.max(this.deg2pixels(0.2),4),
+            'drawEyeFixationDot': trialPackage['drawEyeFixationDot'] || false, 
         }
+        
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
 
         // Stimulus sequence
         wdm('Buffering stimulus...')
-        var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
-        var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
-        var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees'])
 
         var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid'])
         var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid'])

@@ -41,6 +41,7 @@ def makeInLabMTS():
                   "averageReturnCriterion":0.8, 
                   "minTrialsCriterion":5,
                   "sampleSampleWithReplacement":True,
+                  "drawEyeFixationDot":True
                   }]
 
     ENVIRONMENT = {
@@ -109,6 +110,7 @@ def makeMechanicalTurkSR():
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
                     "sampleSampleWithReplacement":False,
+                    "drawEyeFixationDot":True
                     }]
 
     GAME_PACKAGE = {'IMAGEBAGS':IMAGEBAGS, 'GAME':GAME, 'TASK_SEQUENCE':TASK_SEQUENCE}
@@ -177,6 +179,7 @@ def makeMechanicalTurkMTS():
                     "averageReturnCriterion":0.8, 
                     "minTrialsCriterion":5,
                     "sampleSampleWithReplacement":False,
+                    "drawEyeFixationDot":True
                     }]
 
     GAME_PACKAGE = {'IMAGEBAGS':IMAGEBAGS, 'GAME':GAME, 'TASK_SEQUENCE':TASK_SEQUENCE}

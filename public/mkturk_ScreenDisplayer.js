@@ -174,13 +174,26 @@ async bufferFixation(fixationFramePackage){
     }
 
     await this.renderBlank(this.canvas_fixation)
-    await this.drawDot(
-        xcentroid_pixel, 
-        ycentroid_pixel, 
-        fixationDiameter_pixels, 
-        'white', 
-        this.canvas_fixation)
 
+    // Draw touch initiation dot
+    await this.drawDot(
+                    xcentroid_pixel, 
+                    ycentroid_pixel, 
+                    fixationDiameter_pixels, 
+                    'white', 
+                    this.canvas_fixation)
+
+    // Draw eye fixation dot 
+    if(fixationFramePackage['drawEyeFixationDot'] == true){
+        await this.drawDot(
+                            fixationFramePackage['eyeFixationXCentroidPixels'], 
+                            fixationFramePackage['eyeFixationYCentroidPixels'], 
+                            fixationFramePackage['eyeFixationDiameterPixels'], 
+                            'black', 
+                            this.canvas_fixation
+                        )
+    } 
+   
 
     this.last_fixation_xcentroid = xcentroid_pixel
     this.last_fixation_ycentroid = ycentroid_pixel

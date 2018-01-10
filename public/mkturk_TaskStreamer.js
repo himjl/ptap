@@ -309,6 +309,7 @@ class TaskStreamerClass{
         tP['fixationXCentroid'] = tk['fixationXCentroid']
         tP['fixationYCentroid'] = tk['fixationYCentroid']
         tP['fixationDiameterDegrees'] = tk['fixationDiameterDegrees']
+        tP['drawEyeFixationDot'] = tk['drawEyeFixationDot'] || false
 
         tP['i_sampleBag'] = sampleIdx['bag']
         tP['i_sampleId'] = sampleIdx['id']
