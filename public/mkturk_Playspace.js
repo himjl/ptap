@@ -189,7 +189,6 @@ class PlaySpaceClass{
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
 
-
         trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
         trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession

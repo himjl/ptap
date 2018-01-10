@@ -5,6 +5,11 @@ class ScreenDisplayer{
         this.last_fixation_xcentroid = undefined 
         this.last_fixation_ycentroid = undefined
         this.last_fixation_diameter = undefined 
+        
+        this.last_eyeFixation_xcentroid = undefined
+        this.last_eyeFixation_ycentroid = undefined
+        this.last_eyeFixation_diameter = undefined
+        this.last_eyeFixation_drawn = undefined
 
         this._sequence_canvases = {} // key: sequence. key: frame. value: canvas 
         this.canvas_sequences = {} // key: sequence_id
@@ -170,6 +175,10 @@ async bufferFixation(fixationFramePackage){
     if (this.last_fixation_xcentroid == xcentroid_pixel 
         && this.last_fixation_ycentroid == ycentroid_pixel
         && this.last_fixation_diameter == fixationDiameter_pixels
+        && this.last_eyeFixation_xcentroid == fixationFramePackage['eyeFixationXCentroidPixels']
+        && this.last_eyeFixation_ycentroid == fixationFramePackage['eyeFixationYCentroidPixels']
+        && this.last_eyeFixation_diameter == fixationFramePackage['eyeFixationDiameterPixels']
+        && this.last_eyeFixation_drawn == fixationFramePackage['drawEyeFixationDot']
         ){
         // TODO also check for changes to eye fixation
         return 
@@ -200,7 +209,10 @@ async bufferFixation(fixationFramePackage){
     this.last_fixation_xcentroid = xcentroid_pixel
     this.last_fixation_ycentroid = ycentroid_pixel
     this.last_fixation_diameter = fixationDiameter_pixels
-
+    this.last_eyeFixation_xcentroid = fixationFramePackage['eyeFixationXCentroidPixels']
+    this.last_eyeFixation_ycentroid = fixationFramePackage['eyeFixationYCentroidPixels']
+    this.last_eyeFixation_diameter = fixationFramePackage['eyeFixationDiameterPixels']
+    this.last_eyeFixation_drawn = fixationFramePackage['drawEyeFixationDot']
 }
 
 async drawText(textString, fontSize, color, xcentroid_pixel, ycentroid_pixel, canvasobj){
