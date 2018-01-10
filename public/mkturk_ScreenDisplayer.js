@@ -203,6 +203,16 @@ async bufferFixation(fixationFramePackage){
 
 }
 
+async drawText(textString, fontSize, color, xcentroid_pixel, ycentroid_pixel, canvasobj){
+    var context = canvasobj.getContext('2d')
+    fontSize = fontSize || 8
+    color = color || 'black'
+    context.font = fontSize+"px Arial"
+    context.fillStyle = color
+    context.fillText(textString, xcentroid_pixel, ycentroid_pixel)
+    context.fill()
+
+}
 
 async drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixel, color, canvasobj){
     var context=canvasobj.getContext('2d');
