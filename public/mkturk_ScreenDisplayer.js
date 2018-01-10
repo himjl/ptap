@@ -169,7 +169,9 @@ async bufferFixation(fixationFramePackage){
     // Clear canvas if different 
     if (this.last_fixation_xcentroid == xcentroid_pixel 
         && this.last_fixation_ycentroid == ycentroid_pixel
-        && this.last_fixation_diameter == fixationDiameter_pixels){
+        && this.last_fixation_diameter == fixationDiameter_pixels
+        ){
+        // TODO also check for changes to eye fixation
         return 
     }
 
@@ -189,7 +191,7 @@ async bufferFixation(fixationFramePackage){
                             fixationFramePackage['eyeFixationXCentroidPixels'], 
                             fixationFramePackage['eyeFixationYCentroidPixels'], 
                             fixationFramePackage['eyeFixationDiameterPixels'], 
-                            'black', 
+                            '#2d2d2d', 
                             this.canvas_fixation
                         )
     } 
