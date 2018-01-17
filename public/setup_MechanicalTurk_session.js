@@ -50,7 +50,7 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
-    var show_instructions = false
+    var show_instructions = true
     var show_hand_selection = false 
     var show_device_selection = false 
     var run_preview_mode = false
@@ -77,7 +77,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   }
 
   if(show_instructions == true){
-    await UX.run_instructions_dialogue()
+    await UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])
   }
 
   

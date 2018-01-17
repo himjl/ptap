@@ -55,6 +55,7 @@ def makeInLabMTS():
                     "bonusUSDPerCorrect":0.0005,
                     "juiceRewardPer1000Trials":250,
 
+
                 }  
 
     SESSION_PACKAGE = {'GAME_PACKAGE':{'IMAGEBAGS':IMAGEBAGS, 'TASK_SEQUENCE':TASK_SEQUENCE, 'GAME':GAME}, 
@@ -123,7 +124,8 @@ def makeMechanicalTurkSR():
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'mechanicalturk', 
                       "bonusUSDPerCorrect":0.0005,
-                      "juiceRewardPer1000Trials":250
+                      "juiceRewardPer1000Trials":250, 
+                      "instructionsDialogueString":"<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>"
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
@@ -192,7 +194,8 @@ def makeMechanicalTurkMTS():
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'mechanicalturk', 
                       "bonusUSDPerCorrect":0.0005, 
-                      "juiceRewardPer1000Trials":250
+                      "juiceRewardPer1000Trials":250, 
+                      "instructionsDialogueString":"<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>"
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}
@@ -288,7 +291,8 @@ def makeMechanicalTurkSwitcher():
                       'action_event_type':['mouseup', 'touchstart', 'touchmove'],
                       'rigEnvironment':'mechanicalturk', 
                       "bonusUSDPerCorrect":0.0005, 
-                      "juiceRewardPer1000Trials":250
+                      "juiceRewardPer1000Trials":250, 
+                      "instructionsDialogueString":"<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>"
                   }   
 
     sessionPackage = {'GAME_PACKAGE':GAME_PACKAGE, 'ENVIRONMENT':ENVIRONMENT}

@@ -93,7 +93,14 @@ class MechanicalTurkUX extends UXclass{
 
         return
     }
-    async run_instructions_dialogue(){
+    async run_instructions_dialogue(instructionsDialogueString){
+        if(instructionsDialogueString != undefined){
+            if (instructionsDialogueString.constructor == String){
+                await this.showMechanicalTurkInstructions(instructionsDialogueString)
+                return
+            }
+        }
+        
         var screen1_instructions =  "" 
         screen1_instructions += "<ul>"
         screen1_instructions +='<p><text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at MIT!</text>'
