@@ -88,7 +88,7 @@ class ActionPollerClass{
             var t = Math.round(performance.now()*1000)/1000
             var x = event.targetTouches[0].pageX - _this.leftBound
             var y = event.targetTouches[0].pageY - _this.topBound
-            _this.recordActionEvent(x, y, t, event.type)
+            //_this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             
         }  

@@ -135,10 +135,10 @@ class PlaySpaceClass{
             actionYCentroidPixels, 
             actionDiameterPixels)
 
-        if(trialPackage['choiceTimeLimit'] > 0){
+        if(trialPackage['choiceTimeLimitMsec'] > 0){
             var actionPromise = Promise.race([
                                 this.ActionPoller.Promise_wait_until_active_response(), 
-                                this.ActionPoller.timeout(trialPackage['choiceTimeLimit'])]) 
+                                this.ActionPoller.timeout(trialPackage['choiceTimeLimitMsec'])]) 
         }
         else{
             var actionPromise = this.ActionPoller.Promise_wait_until_active_response()
@@ -163,6 +163,12 @@ class PlaySpaceClass{
             var p_sound = this.SoundPlayer.play_sound('punish_sound')
             var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOutMsec'])
             await Promise.all([p_sound, p_visual]) 
+            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
+        }
+        if(rewardAmount == undefined){
+            // Timeout
+            rewardAmount = 0
+            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var t_reinforcementOff = Math.round(performance.now()*1000)/1000
         }
 

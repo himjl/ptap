@@ -185,8 +185,10 @@ class MechanicalTurkUX extends UXclass{
             }
         }
 
-        if(trialNumberSession >= this.maximumTrials){
+        if(trialNumberSession >= this.minimumTrials){ //if(trialNumberSession >= this.maximumTrials){
+            // TODO: TEMPORARY while cash in listener is fixed - switch back to this.maximumTrials 
             TaskStreamer.TERMINAL_STATE = true
+
         }
     }
 
