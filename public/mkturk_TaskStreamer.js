@@ -1,8 +1,18 @@
 class TaskStreamerClass{
     constructor(gamePackage, IB, CheckPointer){
         this.game = gamePackage['GAME']
-        this.taskSequence = gamePackage['TASK_SEQUENCE']
         this.imageBags = gamePackage['IMAGEBAGS']
+
+        if (gamePackage['TASK_SEQUENCE'].constructor == Object){
+            this.taskSequence = [gamePackage['TASK_SEQUENCE']]
+        }
+        else if (gamePackage['TASK_SEQUENCE'].constructor == Array){
+            this.taskSequence = gamePackage['TASK_SEQUENCE']
+        }
+        
+
+
+
         this.IB = IB 
         this.CheckPointer = CheckPointer
         
@@ -78,7 +88,14 @@ class TaskStreamerClass{
             this.idx2bag[parseInt(i_bag)] = bag
             i_bag++
              
-            var idAlphabetized = (this.imageBags[bag]).sort()
+
+            if (this.imageBags[bag].constructor != Array){
+                var idAlphabetized = [this.imageBags[bag]]
+            }
+            else{
+                var idAlphabetized = (this.imageBags[bag]).sort()
+            }
+            
             this.id2idx[bag] = {}
             for (var i_id in idAlphabetized){
                 this.id2idx[bag][idAlphabetized[i_id]] = parseInt(i_id)

@@ -202,12 +202,12 @@ class DropboxIO{
         var accessToken = await LocalStorageIO.load_string('_dbxAccessToken')
         
         if(accessToken.length<4){ // need a better check for nonsense; add dialogue 
-            var dbx = new Dropbox({clientId: INSTALL_SETTINGS.dropboxClientId});
+            var dbx = new Dropbox.Dropbox({clientId: INSTALL_SETTINGS.dropboxClientId});
             var dbx_authUrl = dbx.getAuthenticationUrl(DBX_REDIRECT_URI);    
             window.location.href = dbx_authUrl //send to Dropbox sign-in screen
         }
         else{
-            var dbx = new Dropbox({accessToken: accessToken})
+            var dbx = new Dropbox.Dropbox({accessToken: accessToken})
         }
         
 
