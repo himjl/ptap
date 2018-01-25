@@ -2,14 +2,8 @@ class TaskStreamerClass{
     constructor(gamePackage, IB, CheckPointer){
         this.game = gamePackage['GAME']
         this.imageBags = gamePackage['IMAGEBAGS']
-
-        if (gamePackage['TASK_SEQUENCE'].constructor == Object){
-            this.taskSequence = [gamePackage['TASK_SEQUENCE']]
-        }
-        else if (gamePackage['TASK_SEQUENCE'].constructor == Array){
-            this.taskSequence = gamePackage['TASK_SEQUENCE']
-        }
-        
+        this.taskSequence = gamePackage['TASK_SEQUENCE']
+    
 
 
 
