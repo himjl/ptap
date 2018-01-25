@@ -530,7 +530,7 @@ class TaskStreamerClass{
                     }
 
                     if(_this.trialq[t].length>0){
-                        console.log('Clearing queue for taskNumber', taskNumber)
+                        console.log('Clearing queue for taskNumber', _this.taskNumber)
                         _this.trialq[t] = undefined
                     }
                 }
