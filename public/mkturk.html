@@ -197,7 +197,7 @@ await DataWriter.conclude_session()
 catch(error){
   console.log('ptap failed with the following error:')
   console.error(error)
-  errorMessage = String(error)
+  var errorMessage = String(error)
 }
 finally{
   // Should not get here unless an error took place
