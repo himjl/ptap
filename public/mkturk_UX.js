@@ -197,6 +197,9 @@ class MechanicalTurkUX extends UXclass{
             TaskStreamer.TERMINAL_STATE = true
 
         }
+        if(trialNumberSession >= this.maximumTrials){
+            TaskStreamer.TERMINAL_STATE = true
+        }
     }
 
     async cash_in_listener(event){

@@ -49,12 +49,13 @@ class SessionBootStrapper{
 
         console.log('Loading IMAGEBAGS')
         var imagebags = await this.download_from_string(imagebags_bootstrap)
-
+        var loadMethods = []
         var unpacked_imagebags = {}
         if (imagebags.constructor == Array){
             // Unpack additional levels
             for (var i in imagebags){
                 var x = await this.download_from_string(imagebags[i])
+                loadMethods.push(this.infer_load_method(imagebags[i]))
                 for (var j in x){
                     if(!x.hasOwnProperty(j)){
                         continue
@@ -66,6 +67,7 @@ class SessionBootStrapper{
         }
         else if(imagebags.constructor == Object){
             unpacked_imagebags = imagebags
+            loadMethods.push(this.infer_load_method(imagebags_bootstrap))
         }
         else{
             return undefined
@@ -81,6 +83,27 @@ class SessionBootStrapper{
             }
         }
 
+        // Log 
+        this.bootstrapLog['IMAGEBAGS'] = {}
+
+        console.log('imagebgas load method', loadMethods)
+        console.log('imagebags_bootstrap', imagebags_bootstrap)
+        
+
+        var constructors = []
+        for (var k in loadMethods){
+            var lM = loadMethods[k]
+            if (lM == 'dropbox' || lM == 'url'){
+                constructors.push(imagebags[k])
+            } 
+            else{
+                constructors.push(undefined)
+            }
+        }
+
+        this.bootstrapLog['IMAGEBAGS']['constructor'] = constructors
+        this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods
+        
         return unpacked_imagebags
     }
 
@@ -88,6 +111,10 @@ class SessionBootStrapper{
         console.log('Loading GAME')
 
         var game = await this.download_from_string(game_bootstrap)
+
+        this.bootstrapLog['GAME'] = {}
+        this.bootstrapLog['GAME']['constructor'] = this.infer_load_method(game_bootstrap)
+
         return game
     }
 
@@ -101,6 +128,9 @@ class SessionBootStrapper{
         if (task_sequence.constructor == Object){
             task_sequence = [task_sequence]
         }
+
+        this.bootstrapLog['TASK_SEQUENCE'] = {}
+        this.bootstrapLog['TASK_SEQUENCE']['constructor'] = this.infer_load_method(task_sequence_bootstrap)
         return task_sequence
 
 
