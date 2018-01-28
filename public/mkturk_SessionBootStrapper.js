@@ -66,13 +66,15 @@ class SessionBootStrapper{
             }
         }
         else if(imagebags.constructor == Object){
-            unpacked_imagebags = imagebags
+            imagebags = [imagebags]
+            unpacked_imagebags = imagebags[0]
             loadMethods.push(this.infer_load_method(imagebags_bootstrap))
         }
         else{
             return undefined
         }
 
+        // Convert singleton bags into length-1 arrays
         for (var bagName in unpacked_imagebags){
             if(!unpacked_imagebags.hasOwnProperty(bagName)){
                 continue
@@ -86,24 +88,33 @@ class SessionBootStrapper{
         // Log 
         this.bootstrapLog['IMAGEBAGS'] = {}
 
-        console.log('imagebgas load method', loadMethods)
+        console.log('imagebags load method', loadMethods)
         console.log('imagebags_bootstrap', imagebags_bootstrap)
         
 
-        var constructors = []
-        for (var k in loadMethods){
-            var lM = loadMethods[k]
-            if (lM == 'dropbox' || lM == 'url'){
-                constructors.push(imagebags[k])
-            } 
-            else{
-                constructors.push(undefined)
+        if (loadMethods.length == 1){
+            this.bootstrapLog['IMAGEBAGS']['constructor'] = imagebags_bootstrap
+            this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods[0]
+        }
+        
+        else{
+
+
+            var constructors = []
+            for (var k in loadMethods){
+                var lM = loadMethods[k]
+                if (lM == 'dropbox' || lM == 'url'){
+                    constructors.push(imagebags[k])
+                } 
+                else{
+                    constructors.push(undefined)
+                }
             }
+
+            this.bootstrapLog['IMAGEBAGS']['constructor'] = constructors
+            this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods
         }
 
-        this.bootstrapLog['IMAGEBAGS']['constructor'] = constructors
-        this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods
-        
         return unpacked_imagebags
     }
 
@@ -113,7 +124,7 @@ class SessionBootStrapper{
         var game = await this.download_from_string(game_bootstrap)
 
         this.bootstrapLog['GAME'] = {}
-        this.bootstrapLog['GAME']['constructor'] = this.infer_load_method(game_bootstrap)
+        this.bootstrapLog['GAME']['loadMethod'] = this.infer_load_method(game_bootstrap)
 
         return game
     }
@@ -130,7 +141,7 @@ class SessionBootStrapper{
         }
 
         this.bootstrapLog['TASK_SEQUENCE'] = {}
-        this.bootstrapLog['TASK_SEQUENCE']['constructor'] = this.infer_load_method(task_sequence_bootstrap)
+        this.bootstrapLog['TASK_SEQUENCE']['loadMethod'] = this.infer_load_method(task_sequence_bootstrap)
         return task_sequence
 
 
