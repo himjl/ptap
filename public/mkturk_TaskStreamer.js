@@ -41,6 +41,8 @@ class TaskStreamerClass{
             'samplesSeen':this.samplesSeen, 
             'eligibleSamplePool':this.eligibleSamplePool
         }
+
+        this.onLoadState = JSON.parse(JSON.stringify(this.onLoadState))
     }
 
     calculate_eligible_sample_pool(samplesSeen){
@@ -110,7 +112,7 @@ class TaskStreamerClass{
     }
 
     debug2record(){
-        this.CheckPointer.debug2record()
+        
 
         for (var k in this.onLoadState){
             if(!this.onLoadState.hasOwnProperty(k)){
@@ -120,6 +122,7 @@ class TaskStreamerClass{
         }
         
         console.log('debug2record: TaskStreamer reverted to state on load')
+        this.CheckPointer.debug2record()
     }
 
 

@@ -96,8 +96,10 @@ class MechanicalTurkUX extends UXclass{
     async run_instructions_dialogue(instructionsDialogueString){
         if(instructionsDialogueString != undefined){
             if (instructionsDialogueString.constructor == String){
-                await this.showMechanicalTurkInstructions(instructionsDialogueString)
-                return
+                if(instructionsDialogueString.length > 0){
+                    await this.showMechanicalTurkInstructions(instructionsDialogueString)
+                    return
+                }
             }
         }
         
