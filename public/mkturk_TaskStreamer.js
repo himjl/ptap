@@ -112,7 +112,6 @@ class TaskStreamerClass{
     }
 
     debug2record(){
-        
 
         for (var k in this.onLoadState){
             if(!this.onLoadState.hasOwnProperty(k)){
@@ -386,11 +385,25 @@ class TaskStreamerClass{
             this.punishStreak = 0
         }
 
+
+        // Update checkpoint 
+        var sampleBag = this.get_bag_from_idx(current_trial_outcome['i_sampleBag'])
+        var checkpointPackage = {
+            'taskNumber': this.taskNumber, 
+            'trialNumberTask': this.trialNumberTask, 
+            'return':r, 
+            'action':action,
+            'sampleBag':sampleBag,
+            'i_sampleId':current_trial_outcome['i_sampleId']
+        }
+        this.CheckPointer.update(checkpointPackage)
+        this.CheckPointer.request_checkpoint_save()
+
+        // If monitoring, check transition criterion.
         if (this.monitoring == false){
             return
         }
 
-        // Check transition criterion 
         var averageReturnCriterion = tk['averageReturnCriterion']
         var minTrialsCriterion = tk['minTrialsCriterion']
 
@@ -448,18 +461,7 @@ class TaskStreamerClass{
             this.eligibleSamplePool = nextEligibleSamplePool
         }
 
-        // Update checkpoint 
-        var sampleBag = this.get_bag_from_idx(current_trial_outcome['i_sampleBag'])
-        var checkpointPackage = {
-            'taskNumber': this.taskNumber, 
-            'trialNumberTask': this.trialNumberTask, 
-            'return':r, 
-            'action':action,
-            'sampleBag':sampleBag,
-            'i_sampleId':current_trial_outcome['i_sampleId']
-        }
-        this.CheckPointer.update(checkpointPackage)
-        this.CheckPointer.request_checkpoint_save()
+        
         return 
     }
 
