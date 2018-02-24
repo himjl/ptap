@@ -43,7 +43,23 @@ class np{
     return total
   }
 
-  static choice(arr, n, replace){
+  static argclosest(arr, x){
+    // Returns index with minimum absolute difference 
+    // If there's a tie between two indices, return the lower index. 
+    var diffMagnitude = undefined 
+    var minIdx = 0
+
+    for (var i = 0; i < arr.length; i++){
+      diffMagnitude = Math.abs(arr[i] - x)
+      if (diffMagnitude < Math.abs(arr[minIdx] - x)){
+        minIdx = i 
+      }
+    }
+
+    return minIdx
+
+  }
+  static choice(arr, n, replace, p){
     
     if(n == undefined){
       n = 1 
@@ -53,16 +69,77 @@ class np{
       replace = true
     }
 
+
     if(arr.constructor != Array){
       arr = [arr]
     }
 
-    var idxs = this.arange(arr.length)
-    idxs = shuffle(idxs)
+    var L = arr.length
+    if(p == undefined){
+      // Execute uniform 
+      p = []
+      
+      for (var i = 0; i < L; i ++){
+        p.push(1/L)
+      }
+    }
+
+    // Construct rejection sampling space
+    var ubs = []
+    
+    var region_ub = 0 
+    var region_width = 0
+    for (var i = 0; i < L; i++){
+      
+      if (p[i] == undefined){
+        region_width = 0
+      }
+      else{
+        region_width = p[i]
+      }
+      region_ub += region_width
+      ubs.push(region_ub)
+    }
+    var regionTotalWidth = ubs[ubs.length-1]
+    
 
     var result = []
+    var locSample = 0
+
+    var whichSide = undefined
+    var iClosest = undefined 
+    var iSample = undefined 
+
+
     for(var i = 0; i < n; i++){
-      result.push(arr[idxs[i]])
+      locSample = Math.random() * regionTotalWidth
+
+      // Find closest entry 
+      iClosest = this.argclosest(ubs, locSample)
+
+      whichSide = locSample - ubs[iClosest]
+
+      if (whichSide > 0){
+
+        // Get the next nonzero width region
+        for (var j = iClosest + 1; j < ubs.length; j++){
+          if (ubs[j] != ubs[iClosest]){
+            iSample = j
+            break
+          }
+        }
+      }
+      else if(whichSide < 0){
+        iSample = iClosest
+      }
+      else if(whichSide == 0){
+        iSample = iClosest 
+      }
+      else{
+        console.log('Hmm....should not be here')
+        console.log(iSample, iClosest, whichSide)
+      }
+      result.push(arr[iSample])
     }
     
     if(result.length == 1){

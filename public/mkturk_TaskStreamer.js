@@ -6,7 +6,6 @@ class TaskStreamerClass{
     
 
 
-
         this.IB = IB 
         this.CheckPointer = CheckPointer
         
@@ -157,36 +156,16 @@ class TaskStreamerClass{
         return i
     }
 
-    async get_trial(i){
+    async get_trial(){
         
-        var tk = this.taskSequence[this.taskNumber]
-        
-        var punishTimeOutMsec = tk['punishTimeOutMsec'] * Math.pow(tk['punishStreakTimeOutMultiplier'], this.punishStreak)
-        // ...if available, repeat the last trial with some probability (and any applicable punish streak)
-
-        if(this.repeatLastTrial){
-            if (this.lastTrialPackage != undefined){
-                var tP = this.lastTrialPackage 
-                tP['punishTimeOutMsec'] = punishTimeOutMsec
-                return tP
-            }
-            else{
-                console.log('Was going to repeat but not available. Generating new trial...')
-            }
-        }
-
         if(this.trialq[this.taskNumber] == undefined || this.trialq[this.taskNumber].length == 0){
             await this.buffer_trial(this.taskNumber)
         }
 
         var tP = this.trialq[this.taskNumber].shift() // .shift() removes first element and returns
-        tP['punishTimeOutMsec'] = punishTimeOutMsec
         this.lastTrialPackage = tP
-        
-        if ((tP['sampleImage']) == undefined){
-            console.log(this)
-        }
-        return tP
+
+        return tP 
     }
 
     async buffer_trial(taskNumber){
@@ -465,37 +444,6 @@ class TaskStreamerClass{
         return 
     }
 
-    async start_buffering_latent(){
-        // Not used.
-        var _this = this
-        this.latentMode = false
-        this.enterLatentModeMsec = 30000 //3 * 60000 // If it's been this long since the last trial, start buffering trials 
-        this.lastTrialTimestamp = performance.now()
-
-        var bufferMonitor = async function(){
-            if(performance.now() - _this.lastTrialTimestamp >= _this.enterLatentModeMsec){
-                if(_this.latentMode == false){
-                    console.log('Entering TaskStreamer latent mode')
-                }
-
-                _this.latentMode = true
-            }
-            else{
-                if(_this.latentMode == true){
-                    console.log('Exiting TaskStreamer latent mode')
-                }
-                _this.latentMode = false
-            }
-
-            if(_this.latentMode == true){
-                // Buffer
-            }
-        }
-        // when the task is inactive, buffer trials (up to a point)
-        window.setInterval(bufferMonitor, this.enterLatentModeMsec)
-
-    }
-
     async start_buffering_continuous(){
         var _this = this 
 
@@ -544,7 +492,6 @@ class TaskStreamerClass{
 
         // when the task is inactive, buffer trials (up to a point)
         window.setInterval(bufferTrials, 10000)
-    
     }
 }
 
