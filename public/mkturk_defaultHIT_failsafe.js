@@ -39,6 +39,10 @@ DEFAULT_HIT = {
                 "minTrialsCriterion":50,
                 "sampleSampleWithReplacement":true, // true / false  
                 "drawEyeFixationDot":true,
+                'defaultSampleBagProbabilities':undefined, 
+                'useCorrectionLoop':undefined, 
+                'correctionLoopViewingWindowLength':undefined,
+                'correctionLoopPerformanceModulation':undefined,
             }],
 'ENVIRONMENT':{
               'playspace_degreesVisualAngle':45,

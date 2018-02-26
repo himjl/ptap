@@ -40,3 +40,9 @@ async function overloadTrialBuffer(){
 
 
 }
+
+async function guessRandomly(ntrials, bias){
+    // Does trials 
+
+}
+
