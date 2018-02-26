@@ -90,6 +90,7 @@ generate_default_checkpoint(){
     checkpoint['trialNumberTask'] = 0
     checkpoint['taskReturnHistory'] = []
     checkpoint['taskActionHistory'] = []
+    checkpoint['taskBagHistory'] = []
     checkpoint['samplesSeen'] = {}
     
     return checkpoint
@@ -106,7 +107,7 @@ update(checkpointPackage){
     this.checkpoint['trialNumberTask'] = checkpointPackage['trialNumberTask']
     this.checkpoint['taskReturnHistory'].push(checkpointPackage['return'])
     this.checkpoint['taskActionHistory'].push(checkpointPackage['action'])
-
+    this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])
 
     if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){
         this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []
@@ -151,6 +152,9 @@ get_task_return_history(){
 }
 get_task_action_history(){
   return this.checkpoint['taskActionHistory']
+}
+get_task_bag_history(){
+    return this.checkpoint['taskBagHistory']
 }
 
 get_samples_seen_history(){
@@ -203,6 +207,10 @@ class MechanicalTurkCheckPointer extends CheckPointerClass{
     }
     get_samples_seen_history(){
         return {}
+    }
+
+    get_task_bag_history(){
+        return []
     }
 }
 

@@ -15,9 +15,11 @@ class TaskStreamerClass{
         this.trialNumberSession = 0
         this.taskReturnHistory = CheckPointer.get_task_return_history()  
         this.taskActionHistory = CheckPointer.get_task_action_history() 
+        this.taskBagHistory = CheckPointer.get_task_bag_history() 
+
+
         this.TERMINAL_STATE = false
         this.monitoring = true
-        this.punishStreak = 0
         this.lastTrialPackage = undefined
         this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen
         this.eligibleSamplePool = this.calculate_eligible_sample_pool(this.samplesSeen) // 
@@ -33,9 +35,9 @@ class TaskStreamerClass{
             'trialNumberSession': this.trialNumberSession,
             'taskReturnHistory': this.taskReturnHistory,
             'taskActionHistory': this.taskActionHistory,
+            'taskBagHistory': this.taskBagHistory,
             'TERMINAL_STATE': this.TERMINAL_STATE,
             'monitoring': this.monitoring,
-            'punishStreak':this.punishStreak,
             'lastTrialPackage':this.lastTrialPackage,
             'samplesSeen':this.samplesSeen, 
             'eligibleSamplePool':this.eligibleSamplePool
@@ -209,7 +211,8 @@ class TaskStreamerClass{
                 eligibleSampleBagNames = tk['sampleBagNames']
             }
 
-            var sampleBag = np.choice(eligibleSampleBagNames)
+            var samplingWeights = np.xvec(eligibleSampleBagNames.length, 1/eligibleSampleBagNames.length)  
+            var sampleBag = np.choice(eligibleSampleBagNames, 1, undefined, samplingWeights)
             var sampleId = np.choice(this.eligibleSamplePool[sampleBag])
             var sampleIdx = this.get_image_idx(sampleBag, sampleId)
             this.eligibleSamplePool[sampleBag].splice(this.eligibleSamplePool[sampleBag].indexOf(sampleId), 1)
@@ -217,13 +220,13 @@ class TaskStreamerClass{
         }
         else{
             var samplePool = tk['sampleBagNames']
-            var sampleBag = np.choice(samplePool)
+
+            var samplingWeights = np.xvec(samplePool.length, 1/samplePool.length)            
+            var sampleBag = np.choice(samplePool, 1, undefined, samplingWeights)
             var sampleId = np.choice(this.imageBags[sampleBag])
             var sampleIdx = this.get_image_idx(sampleBag, sampleId)
         }
         
-        
-
         // SR - use white dots 
         // TODO: use custom tokens 
         if (tk['taskType'] == 'SR'){
@@ -333,7 +336,7 @@ class TaskStreamerClass{
 
 
     update_state(current_trial_outcome){
-       // trial_behavior: the just-finished trial's behavior. 
+        // trial_behavior: the just-finished trial's behavior. 
         // called at the end of every trial. 
         // Update trial object 
         this.lastTrialTimestamp = performance.now()
@@ -345,24 +348,28 @@ class TaskStreamerClass{
 
         this.taskReturnHistory.push(r)
         this.taskActionHistory.push(action)
+        this.taskBagHistory.push(current_trial_outcome['i_sampleBag'])
+
         this.trialNumberTask++
         this.trialNumberSession++
 
-        // Update punish streak
-        this.repeatLastTrial = false 
 
-        if(r == 0){
-            // ...apply punish streak multiplier 
-            this.punishStreak++
-            if(Math.random() <= tk['probabilityRepeatWhenWrong']){
-                console.log('WILL REPEAT LAST TRIAL.')
-                this.repeatLastTrial = true
-            }
-        }
 
-        else{
-            this.punishStreak = 0
-        }
+        // ************Correction Loop ***************************
+
+        // Calculate biases via Welch's t-test
+        // Null hypothesis: Pr(action correct | category i) is the same for all i 
+        // The null is violated when, for example, the subject always chooses one option regardless of the category presented
+
+        var viewingWindowWidth = 50 
+
+        var returnSamps = this.taskReturnHistory.slice(-1 * viewingWindowWidth)
+        var bagSamps = this.taskBagHistory.slice(-1 * viewingWindowWidth)
+
+        var samplingWeights = get_sampling_weights(tk['sampleBagNames'], this.idx2bag, viewingWindowWidth, returnSamps, bagSamps)
+    
+        
+        // ***************************************
 
 
         // Update checkpoint 
@@ -373,6 +380,7 @@ class TaskStreamerClass{
             'return':r, 
             'action':action,
             'sampleBag':sampleBag,
+            'i_sampleBag':current_trial_outcome['i_sampleBag'],
             'i_sampleId':current_trial_outcome['i_sampleId']
         }
         this.CheckPointer.update(checkpointPackage)
@@ -494,6 +502,7 @@ class TaskStreamerClass{
         window.setInterval(bufferTrials, 10000)
     }
 }
+
 
 
 
