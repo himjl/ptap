@@ -91,7 +91,6 @@ generate_default_checkpoint(){
     checkpoint['taskReturnHistory'] = []
     checkpoint['taskActionHistory'] = []
     checkpoint['taskBagHistory'] = []
-    checkpoint['samplesSeen'] = {}
     
     return checkpoint
 }
@@ -109,11 +108,7 @@ update(checkpointPackage){
     this.checkpoint['taskActionHistory'].push(checkpointPackage['action'])
     this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])
 
-    if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){
-        this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []
-    }
-    
-    this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']].push(checkpointPackage['i_sampleId'])
+ 
 }
 
 async save_checkpoint(){
@@ -157,9 +152,6 @@ get_task_bag_history(){
     return this.checkpoint['taskBagHistory']
 }
 
-get_samples_seen_history(){
-    return this.checkpoint['samplesSeen']
-}
 
 }
 

@@ -74,7 +74,12 @@ class TrialGeneratorClass{
             await this.buffer_trial(taskNumber, sampleBagName)
         }
 
+        if (this.trialBuffer[taskNumber][sampleBagName].length == 0){
+            await this.buffer_trial(taskNumber, sampleBagName)
+        }
+
         var tP = this.trialBuffer[taskNumber][sampleBagName].shift() // .shift() removes first element and returns
+
 
         return tP 
     }

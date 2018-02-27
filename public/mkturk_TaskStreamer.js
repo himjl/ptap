@@ -5,7 +5,6 @@ class TaskStreamerClass{
         this.taskSequence = gamePackage['TASK_SEQUENCE']
 
         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])
-        this.IB = IB 
 
         this.CheckPointer = CheckPointer
         
@@ -19,9 +18,6 @@ class TaskStreamerClass{
 
         this.TERMINAL_STATE = false
         this.monitoring = true
-        this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen
-
-        // Queue 
         
         
         this.onLoadState = {
@@ -33,50 +29,29 @@ class TaskStreamerClass{
             'taskBagHistory': this.taskBagHistory,
             'TERMINAL_STATE': this.TERMINAL_STATE,
             'monitoring': this.monitoring,
-            'samplesSeen':this.samplesSeen, 
         }
 
         this.onLoadState = JSON.parse(JSON.stringify(this.onLoadState))
 
         this.bagSamplingWeights = undefined
     }
-
     
     async build(num_trials_per_stage_to_prebuffer){
+
         await this.TG.build(this.taskNumber, num_trials_per_stage_to_prebuffer)
     }
 
-    debug2record(){
-
-        for (var k in this.onLoadState){
-            if(!this.onLoadState.hasOwnProperty(k)){
-                continue
-            }
-            this[k] = this.onLoadState[k]
-        }
-        
-        console.log('debug2record: TaskStreamer reverted to state on load')
-        this.CheckPointer.debug2record()
-    }
-
-    
     async get_trial(){
 
-        var tP = this.TG.get_trial(this.taskNumber, this.bagSamplingWeights)
+        var tP = await this.TG.get_trial(this.taskNumber, this.bagSamplingWeights)
 
         return tP 
     }
 
-
     update_state(current_trial_outcome){
-        // trial_behavior: the just-finished trial's behavior. 
-        // called at the end of every trial. 
-        // Update trial object 
-        this.lastTrialTimestamp = performance.now()
 
         var tk = this.taskSequence[this.taskNumber]
-        var b = current_trial_outcome
-        var r = b['return']
+        var r = current_trial_outcome['return']
         var action = current_trial_outcome['action']
 
         this.taskReturnHistory.push(r)
@@ -86,24 +61,41 @@ class TaskStreamerClass{
         this.trialNumberTask++
         this.trialNumberSession++
 
-
-
         // ************Correction Loop ***************************
 
         // Calculate biases via Welch's t-test
         // Null hypothesis: Pr(action correct | category i) is the same for all i 
         // The null is violated when, for example, the subject always chooses one option regardless of the category presented
 
-        var viewingWindowWidth = 50 
+        var viewingWindowWidth = tk['correctionLoopViewingWindowLength'] || 20
+        var performanceModulationFactor = tk['correctionLoopPerformanceModulationFactor'] || 0.25 
+        if (performanceModulationFactor > 1){
+            performanceModulationFactor = 1
+        }
+        if (performanceModulationFactor < 0){
+            performanceModulationFactor = 0 
+        }
 
         var returnSamps = this.taskReturnHistory.slice(-1 * viewingWindowWidth)
         var bagSamps = this.taskBagHistory.slice(-1 * viewingWindowWidth)
 
-        this.bagSamplingWeights = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, returnSamps, bagSamps)
-    
-        
-        // ***************************************
+        var freturn = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, returnSamps, bagSamps, performanceModulationFactor)
 
+        this.bagSamplingWeights = freturn['samplingWeights']
+        this.performancePerBag = freturn['performancePerBag']
+        this.tStatistic = freturn['tStatistic']
+        this.empiricalEffectSize = freturn['empiricalEffectSize']
+        this.a = freturn['a']
+        this.b = freturn['b']
+        this.c = freturn['c']
+        this.d = freturn['d']
+        this.tStatistic_criticalUb = freturn['tStatistic_criticalUb']
+        this.tStatistic_criticalLb = freturn['tStatistic_criticalLb']
+
+        console.log(this.bagSamplingWeights)   
+        console.log('t-statistic = ', freturn['tStatistic'], '. abcd = ', this.a, this.b, this.c, this.d)
+
+        // ***************************************
 
         // Update checkpoint 
         var sampleBag = this.TG.get_bag_from_idx(current_trial_outcome['i_sampleBag'])
@@ -177,8 +169,22 @@ class TaskStreamerClass{
 
         return 
     }
+
     async start_buffering_continuous(){
         this.TG.start_buffering_continuous()
+    }
+
+    debug2record(){
+
+        for (var k in this.onLoadState){
+            if(!this.onLoadState.hasOwnProperty(k)){
+                continue
+            }
+            this[k] = this.onLoadState[k]
+        }
+        
+        console.log('debug2record: TaskStreamer reverted to state on load')
+        this.CheckPointer.debug2record()
     }
 }
 

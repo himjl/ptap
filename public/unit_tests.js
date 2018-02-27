@@ -21,7 +21,7 @@ async function overloadImageBuffer(){
             //promise_array.push(TaskStreamer.IB.get_by_name(imageNames[i+j]))
 
         }
-        await TaskStreamer.IB.get_by_name(imageRequests)
+        await TaskStreamer.TG.IB.get_by_name(imageRequests)
         
     }
 }

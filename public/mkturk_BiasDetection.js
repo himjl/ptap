@@ -1,10 +1,10 @@
-function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, returnSamps, bagSamps){
+
+function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, returnSamps, bagSamps, performanceModulationFactor){
     var numBags = sampleBagNames.length 
 
     var minLength = Math.min(returnSamps.length, bagSamps.length)
     if (minLength < viewingWindowWidth){
-        var uniformWeights = np.xvec(numBags, 1 / numBags)
-        return uniformWeights
+        var samplingWeights = np.xvec(numBags, 1 / numBags)
     }
     returnSamps = returnSamps.slice(-1 * minLength)
     bagSamps = bagSamps.slice(-1 * minLength)
@@ -33,10 +33,10 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
 
     // Compress table
     var abcd_worstBag = compressTable(returnsPerBag, trialsPerBag)
-    var a = abcd_worstBag[0]
-    var b = abcd_worstBag[1]
-    var c = abcd_worstBag[2]
-    var d = abcd_worstBag[3]
+    var a = abcd_worstBag[0] // num corrects | worst bag
+    var b = abcd_worstBag[1] // num incorrects | rest bags
+    var c = abcd_worstBag[2] // num incorrects | worst bag 
+    var d = abcd_worstBag[3] // num corrects | rest bags
     var worstBag = abcd_worstBag[4]
     var performancePerBag = abcd_worstBag[5]
 
@@ -51,14 +51,19 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
     var lb = -3.500 // For df = 49, alpha = 0.999 
     var ub = 3.500 // 
 
+    var lb = - 3.8834 // for df = 19, alpha = 0.999
+    var ub = 3.8834
+
     // Determine whether to enter correction loop 
     var rejectNull = t < lb || t > ub 
+    var empiricalEffectSize = d / (b + d) - a / (a + c) 
 
     // Change sampling weights
-    if (rejectNull == true){
+    if (rejectNull == true && (minLength >= viewingWindowWidth)){
+        console.log('REJECTING NULL. t = ', t, '. abcd = ', a, b, c, d, '. performance per bag = ', performancePerBag)
         var worstBagIdx = sampleBagNames.indexOf(idx2bag[worstBag])
         // Indexes tk['sampleBagNames']
-        var h = 0.125 // Drop from balanced performance 
+        var h = performanceModulationFactor // Drop from balanced performance 
         var designProb = design_worstbag_sampling_rate(h, numBags) // todo: check for validity in multiclass case
         var samplingWeights = np.xvec(numBags, designProb['designPrest'])
         samplingWeights[worstBagIdx] = designProb['designPmin']
@@ -71,7 +76,24 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
         var samplingWeights = np.xvec(numBags, 1 / numBags)
     }
 
-    return samplingWeights
+    var r = {
+        'samplingWeights':samplingWeights, 
+        'empiricalEffectSize':empiricalEffectSize, 
+        'worstBag':worstBag, 
+        'performancePerBag':performancePerBag, 
+        'tStatistic':t, 
+        'rejectNull':rejectNull, 
+        'a':a, 
+        'b':b,
+        'c':c,
+        'd':d,
+        'numObservations':minLength,
+        'viewingWindowWidth': viewingWindowWidth, 
+        'tStatistic_criticalLb':lb, 
+        'tStatistic_criticalUb':ub, 
+    }
+
+    return r
 }
 
 

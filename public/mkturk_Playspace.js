@@ -195,9 +195,20 @@ class PlaySpaceClass{
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
 
+        // todo: remove these internal references to TaskStreamer (violates modularity of main objects)
         trialOutcome['taskNumber'] = TaskStreamer.taskNumber
         trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
         trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession
+        trialOutcome['sampleBagProbabilities'] = TaskStreamer.bagSamplingWeights
+        trialOutcome['tStatistic'] = TaskStreamer.tStatistic 
+        trialOutcome['empiricalEffectSize'] = TaskStreamer.empiricalEffectSize
+        trialOutcome['a'] = TaskStreamer.a
+        trialOutcome['b'] = TaskStreamer.b
+        trialOutcome['c'] = TaskStreamer.c
+        trialOutcome['d'] = TaskStreamer.d
+        trialOutcome['tStatistic_criticalUb'] = TaskStreamer.tStatistic_criticalUb
+        trialOutcome['tStatistic_criticalLb'] = TaskStreamer.tStatistic_criticalLb
+
         trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
         trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
         trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag']

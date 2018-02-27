@@ -154,7 +154,7 @@ DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
-DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.idx2bag)
+DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.TG.idx2bag)
 //DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
@@ -173,7 +173,7 @@ Playspace.start_periodic_rewards()
 Playspace.start_action_tracking()
 Playspace.start_device_tracking()
 DataWriter.start_polling()
-TaskStreamer.start_buffering_continuous()
+//TaskStreamer.start_buffering_continuous()
 
 
 // Main trial loop

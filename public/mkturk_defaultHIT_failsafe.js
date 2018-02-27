@@ -42,7 +42,7 @@ DEFAULT_HIT = {
                 'defaultSampleBagProbabilities':undefined, 
                 'useCorrectionLoop':undefined, 
                 'correctionLoopViewingWindowLength':undefined,
-                'correctionLoopPerformanceModulation':undefined,
+                'correctionLoopPerformanceModulationFactor':undefined,
             }],
 'ENVIRONMENT':{
               'playspace_degreesVisualAngle':45,
