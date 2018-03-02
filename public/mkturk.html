@@ -173,7 +173,7 @@ Playspace.start_periodic_rewards()
 Playspace.start_action_tracking()
 Playspace.start_device_tracking()
 DataWriter.start_polling()
-//TaskStreamer.start_buffering_continuous()
+TaskStreamer.start_buffering_continuous()
 
 
 // Main trial loop
@@ -235,7 +235,7 @@ finally{
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
   
-  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  document.getElementById("MechanicalTurk_SubmissionForm").submit();
   
   
 }

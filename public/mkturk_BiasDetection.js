@@ -2,6 +2,10 @@
 function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, returnSamps, bagSamps, performanceModulationFactor){
     var numBags = sampleBagNames.length 
 
+
+    returnSamps = returnSamps.slice(-1 * viewingWindowWidth)
+    bagSamps = bagSamps.slice(-1 * viewingWindowWidth)
+
     var minLength = Math.min(returnSamps.length, bagSamps.length)
     if (minLength < viewingWindowWidth){
         var samplingWeights = np.xvec(numBags, 1 / numBags)
@@ -96,6 +100,8 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
     return r
 }
 
+
+ 
 
 
 function compressTable(returnsPerBag, trialsPerBag){

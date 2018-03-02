@@ -68,7 +68,7 @@ class TaskStreamerClass{
         // The null is violated when, for example, the subject always chooses one option regardless of the category presented
 
         var viewingWindowWidth = tk['correctionLoopViewingWindowLength'] || 20
-        var performanceModulationFactor = tk['correctionLoopPerformanceModulationFactor'] || 0.25 
+        var performanceModulationFactor = tk['correctionLoopPerformanceModulationFactor'] || 0.5 
         if (performanceModulationFactor > 1){
             performanceModulationFactor = 1
         }
@@ -76,10 +76,9 @@ class TaskStreamerClass{
             performanceModulationFactor = 0 
         }
 
-        var returnSamps = this.taskReturnHistory.slice(-1 * viewingWindowWidth)
-        var bagSamps = this.taskBagHistory.slice(-1 * viewingWindowWidth)
+        
 
-        var freturn = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, returnSamps, bagSamps, performanceModulationFactor)
+        var freturn = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, this.taskReturnHistory, this.taskBagHistory, performanceModulationFactor)
 
         this.bagSamplingWeights = freturn['samplingWeights']
         this.performancePerBag = freturn['performancePerBag']
@@ -93,7 +92,7 @@ class TaskStreamerClass{
         this.tStatistic_criticalLb = freturn['tStatistic_criticalLb']
 
         console.log(this.bagSamplingWeights)   
-        console.log('t-statistic = ', freturn['tStatistic'], '. abcd = ', this.a, this.b, this.c, this.d)
+        console.log('t-statistic = ', freturn['tStatistic'], '. ', this.performancePerBag,'abcd = ', this.a, this.b, this.c, this.d)
 
         // ***************************************
 
