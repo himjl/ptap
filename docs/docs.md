@@ -22,7 +22,7 @@
 
 ### 4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
 
- This will bring you to a "landing page", which is basically a webpage where the inputs to ptap are stored in the user's "local storage", which is a modern version of the browser cache. 
+ This will bring you to a "landing page", which is basically a webpage where the inputs to ptap are stored in the user's "local storage", which is a modern version of cookies. 
 
  The landing page then redirects you to the main mkturk.html webpage. 
 
