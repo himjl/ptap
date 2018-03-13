@@ -58,6 +58,13 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
     var lb = - 3.8834 // for df = 19, alpha = 0.999
     var ub = 3.8834
 
+    var lb = -2.09302 // for df = 19, alpha = 0.95
+    var ub = 2.09302
+
+    var lb = -1.7291 // for df = 19, alpha = 0.90
+    var ub = 1.7291
+
+
     // Determine whether to enter correction loop 
     var rejectNull = t < lb || t > ub 
     var empiricalEffectSize = d / (b + d) - a / (a + c) 
