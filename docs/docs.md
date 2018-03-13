@@ -1,6 +1,6 @@
 # Running an example ptap session 
 
-1. Start a local webserver on your machine. I use one that is run by a Python function. 
+## 1. Start a local webserver on your machine. I use one that is run by a Python function. 
 
  'cd' to your ptap install directory, run the following command in your terminal, based on Python version:
 
@@ -12,15 +12,15 @@
     
     python -m http.server [port number here; e.g. 7800]
 
-2. Open Google Chrome and navigate to 
+## 2. Open Google Chrome and navigate to 
 
- http://localhost:7800/
+    http://localhost:7800/
 
-3. Click on the links to bring you to the following folder: 
+## 3. Click on the links to bring you to the following folder: 
 
- public/landing_pages/examples/
+    public/landing_pages/examples/
 
-4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
+## 4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
 
  This will bring you to a "landing page", which is basically a webpage where the inputs to ptap are stored in the user's "local storage", which is a modern version of the browser cache. 
 
@@ -28,11 +28,9 @@
 
  The Javascript in mkturk.html then looks inside of local storage, retrieves the inputs the landing page stored, and constructs the session. 
 
-5. In the case that ptap detects that it is running a session for Mechanical Turk, once the session is concluded (e.g. after a predetermined number of trials or a performance criterion being reached - whichever one happens first), the code sends the session data as a POST request to Amazon's webservers. When running an example on our own machine, Amazon does not accept this POST, so Amazon's webservers should display an error page upon POST submit and redirect.
+* In the case that ptap detects that it is running a session for Mechanical Turk, once the session is concluded (e.g. after a predetermined number of trials or a performance criterion being reached - whichever one happens first), the code sends the session data as a POST request to Amazon's webservers. When running an example on our own machine, Amazon does not accept this POST, so Amazon's webservers should display an error page upon POST submit and redirect. The POST should work when ptap is run in the context of an actual HIT. At that point, __TurkMonitor__ can be used to retrieve the data from Amazon. 
 
- The POST should work when ptap is run in the context of an actual HIT. At that point, TurkMonitor can be used to retrieve the data from Amazon. 
-
-6. In the case that ptap detects it is running a session for an inlab session, behavioral data is fed continuously to a Dropbox folder.
+* In the case that ptap detects it is running a session for an inlab session, behavioral data is fed continuously to a Dropbox folder.
 
 # Making your first task 
 
