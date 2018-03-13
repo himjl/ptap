@@ -1,6 +1,6 @@
 # Running an example ptap session 
 
-## 1. Start a local webserver on your machine. I use one that is run by a Python function. 
+### 1. Start a local webserver on your machine. I use one that is run by a Python function. 
 
  'cd' to your ptap install directory, run the following command in your terminal, based on Python version:
 
@@ -12,15 +12,15 @@
     
     python -m http.server [port number here; e.g. 7800]
 
-## 2. Open Google Chrome and navigate to 
+### 2. Open Google Chrome and navigate to 
 
     http://localhost:7800/
 
-## 3. Click on the links to bring you to the following folder: 
+### 3. Click on the links to bring you to the following folder: 
 
     public/landing_pages/examples/
 
-## 4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
+### 4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
 
  This will bring you to a "landing page", which is basically a webpage where the inputs to ptap are stored in the user's "local storage", which is a modern version of the browser cache. 
 
