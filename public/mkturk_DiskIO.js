@@ -143,10 +143,12 @@ class S3_IO{
         }
         
         xhttp.open("GET", text_url, true);
-        console.log("xhttp", xhttp)
+        //console.log("xhttp", xhttp)
 
+        console.time('Downloaded textfile at ' + text_url)
         xhttp.send();
         var s = await p
+        console.timeEnd('Downloaded textfile at ' + text_url)
         return s
     }
 

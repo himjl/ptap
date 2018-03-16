@@ -49,6 +49,7 @@ class SessionBootStrapper{
 
         console.log('Loading IMAGEBAGS')
         var imagebags = await this.download_from_string(imagebags_bootstrap)
+        console.log('Done downloading imagebags. Unpacking...')
         var loadMethods = []
         var unpacked_imagebags = {}
         if (imagebags.constructor == Array){

@@ -42,8 +42,14 @@ class TaskStreamerClass{
     }
 
     async get_trial(){
-
-        var tP = await this.TG.get_trial(this.taskNumber, this.bagSamplingWeights)
+        if (this.taskSequence[this.taskNumber]['taskType'] == 'SR'){
+            console.log('Executing with sampling weights')
+            var tP = await this.TG.get_trial(this.taskNumber, this.bagSamplingWeights)
+        }
+        else{
+            var tP = await this.TG.get_trial(this.taskNumber)
+        }
+        
 
         return tP 
     }
