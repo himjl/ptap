@@ -57,8 +57,59 @@ class PlaySpaceClass{
         
     }
 
+    async step(frameData, actionRegions, rewardFunction){
+        // Run frames
+        var frameTimestamps = await this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])
+
+        // Wait for eligible agent action
+        var action = await this.ActionPoller.poll(actionRegions)
+
+        // Calculate and deliver reward
+        var reward = rewardFunction(action)
+        await this.Reinforcer.deliver_reinforcement(reward)
+
+        // Return
+        return frameTimestamps, action, reward
+    }
+
     async run_trial(trialPackage){
 
+        var frameData = trialPackage['frameData']
+        var rewardFunction = trialPackage['rewardFunction']
+        var actionRegions = trialPackage['actionRegions']
+
+
+
+        var agentActionSequence = []
+
+        frameData = {}
+        frameData['assetSeq'] = []
+        frameData['placementSeq'] = []
+        frameData['timingSeq'] = []
+
+
+        // Draw trial
+        await this.ScreenDisplayer.buffer_trial_frames(frameData)
+        
+        // Execute frame sequences
+        for (var i = 0; i < frameData['assetSeq'].length; i++){
+            await this.ScreenDisplayer.execute_frame_sequence(i)
+            var action = await this.ActionPoller.poll(actionRegions[i])
+            agentActionSequence.push(action)
+        }
+        // Compute and deliver reward
+        var reward = rewardFunction(agentActionSequence)
+        await this.Reinforcer.deliver_reinforcement(reward)
+
+        // Package data
+        var trialOutcome = {}
+        trialOutcome['frameOutcomes'] = frameOutcomes
+        trialOutcome['reward'] = reward 
+        trialOutcome['actionOutcomes'] = agentActionSequence
+        return trialOutcome
+
+        // old input: 
+        var trialPackage
         // ************ Prebuffer trial assets ***************
 
         // Fixation
