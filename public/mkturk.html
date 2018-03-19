@@ -166,18 +166,18 @@ DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 // Attach async data probes 
 wdm('Attaching async data probes...')
 
-DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
-DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
-DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
-DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
+// DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
+// DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
+// DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
+// DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
 
 // Kick off async threads 
 wdm('Kicking off async threads...')
-Playspace.start_periodic_rewards()
-Playspace.start_action_tracking()
-Playspace.start_device_tracking()
-DataWriter.start_polling()
-TaskStreamer.start_buffering_continuous()
+// Playspace.start_periodic_rewards()
+// Playspace.start_action_tracking()
+// Playspace.start_device_tracking()
+//DataWriter.start_polling()
+//TaskStreamer.start_buffering_continuous()
 
 
 // Main trial loop
@@ -185,21 +185,27 @@ console.log('ENTERING MAIN TRIAL STATE MACHINE')
 console.timeEnd('Done setting up')
 wdm('Entering main trial loop...')
 
-while(TaskStreamer.TERMINAL_STATE == false){
-  var stepPackage = await TaskStreamer.get_step()
-  var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['rewardFunction'])
 
-  await TaskStreamer.deposit_action_reward(stepOutcome['action'], stepOutcome['reward'])
+// Invariant to window size
+var viewingDistanceInches = 8 
+var playspaceHeightDegreesVisualAngle = 24
+var playspaceWidthDegreesVisualAngle = 24
+var virtualPixelsPerInch = 143.755 // todo: how to best estimate this value?
+
+TaskStreamer2 = new TaskStreamerClass2(
+  viewingDistanceInches, 
+  playspaceWidthDegreesVisualAngle, 
+  playspaceHeightDegreesVisualAngle, 
+  virtualPixelsPerInch)
+
+while(TaskStreamer2.TERMINAL_STATE == false){
+  var stepPackage = await TaskStreamer2.get_step()
+  var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
+
+  TaskStreamer2.deposit_action_reward(stepOutcome['action'], stepOutcome['reward'])
   
   continue 
 
-  // 1.0
-  var trialPackage = await TaskStreamer.get_trial()
-	var trialOutcome = await Playspace.run_trial(trialPackage) 
-  TaskStreamer.update_state(trialOutcome)
-  UX.poll(trialOutcome)
-  DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk
-  DataWriter.write_out()
   wdm('Starting next trial...')
 }
 

@@ -1,9 +1,8 @@
 class ActionPollerClass{
-    constructor(event_types, bounds){
+    constructor(event_types){
         // ['mousemove', 'touchmove', 'touchstart', 'onclick']
 
         this.event_types = event_types    
-        this.calibrateBounds(bounds)    
         this._response_promise
 
         this._resolveFunc
@@ -44,10 +43,9 @@ class ActionPollerClass{
             }
         }
 
-
-
         this.handleActionEvent = function(x, y, t, event_type){
-            
+            console.log(x, y, t)
+
             var inside = false
             
             if(_this.listening == true){
@@ -84,11 +82,20 @@ class ActionPollerClass{
         }
 
         this.handleTouchEvent = function(event){
+            console.log(event)
             // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent
+
+            // https://stackoverflow.com/questions/6073505/what-is-the-difference-between-screenx-y-clientx-y-and-pagex-y
             event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
+
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.targetTouches[0].pageX - _this.leftBound
-            var y = event.targetTouches[0].pageY - _this.topBound
+
+            var boundingClientRect = event.target.getBoundingClientRect()
+            var leftBound = boundingClientRect['left']
+            var topBound = boundingClientRect['top']
+
+            var x = event.targetTouches[0].clientX - leftBound
+            var y = event.targetTouches[0].clientY - topBound
             //_this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             
@@ -115,23 +122,29 @@ class ActionPollerClass{
         this.recordTouchEvent = function(event){
             event.preventDefault() // prevents downstream call of click listener (default for browsers to ensure compatibility with mouse-only websites)
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.targetTouches[0].pageX - _this.leftBound
-            var y = event.targetTouches[0].pageY - _this.topBound
+            var x = event.targetTouches[0].pageX //- _this.leftBound
+            var y = event.targetTouches[0].pageY //- _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
         }
 
         this.handleMouseEvent = function(event){
+            console.log(event)
+
+            var boundingClientRect = event.target.getBoundingClientRect()
+            var leftBound = boundingClientRect['left']
+            var topBound = boundingClientRect['top']
+
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.pageX - _this.leftBound 
-            var y = event.pageY - _this.topBound
+            var x = event.clientX - leftBound 
+            var y = event.clientY - topBound
             _this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             }
 
         this.recordMouseEvent = function(event){
             var t = Math.round(performance.now()*1000)/1000
-            var x = event.pageX - _this.leftBound 
-            var y = event.pageY - _this.topBound
+            var x = event.pageX //- _this.leftBound 
+            var y = event.pageY //- _this.topBound
             _this.recordActionEvent(x, y, t, event.type)
         }
     }
@@ -166,13 +179,6 @@ class ActionPollerClass{
         }
     }
 
-    calibrateBounds(bounds){
-        this.leftBound = bounds['leftBound']
-        this.rightBound = bounds['rightBound']
-        this.topBound = bounds['topBound']
-        this.bottomBound = bounds['bottomBound']
-
-    }
     create_action_regions(xCentroidPixels, yCentroidPixels, diameterPixels){
         // assumes circular 
         this.actionRadii = []
@@ -231,6 +237,31 @@ class ActionPollerClass{
 
 
     add_event_listener(){
+        if(this.attached == true){
+            console.log('already attached.')
+            return
+        }
+        if(typeof(this.event_types) == "string"){
+            var event_types = [this.event_types]
+        }
+        else{
+            var event_types = this.event_types
+        }
+
+        for(var i = 0; i < event_types.length; i++){
+            if(event_types[i] == 'touchmove' || event_types[i] == 'touchstart' || event_types[i] == 'touchend'){
+                $("#actionField").on(event_types[i], this.handleTouchEvent) // , {passive:false})
+            }
+            else if(event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
+                $("#actionField").on(event_types[i], this.handleMouseEvent)
+            }
+            
+            //console.log('Added ', event_types[i])
+        }   
+
+        // Record all the rest of the events
+
+        return 
 
         if(this.attached == true){
             console.log('already attached.')

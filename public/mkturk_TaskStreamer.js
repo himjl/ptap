@@ -39,31 +39,10 @@ class TaskStreamerClass{
     async build(num_trials_per_stage_to_prebuffer){
 
         await this.TG.build(this.taskNumber, num_trials_per_stage_to_prebuffer)
-        this.canvas1 = cf.new_canvas('test1', 500, 500, true)
-        this.canvas2 = cf.new_canvas('test2', 300, 300, true)
-        cf.draw_circle(250, 250, 100, 'green', this.canvas1)
-        cf.draw_circle(250, 250, 100, 'red', this.canvas2)
+
     }
 
-    
-    async get_step(){
-        cf.fill_canvas(this.canvas1, '#7F7F7F')
-        cf.fill_canvas(this.canvas2, '#7F7F7F')
-        cf.draw_circle(250, 250, Math.random() * 250, 'green', this.canvas1)
-        cf.draw_circle(250, 250, Math.random() * 100, 'red', this.canvas2)
 
-        var frameData = {'canvasSequence':[this.canvas1, this.canvas2], 'durationSequence':[500, 0]}
-        var actionRegions = {'x':0.5, 'y':0.5, 'diameter':2}
-        var rewardFunction = function(action){return 0}
-
-        var stepPackage = {
-            'frameData':frameData, 
-            'actionRegions':actionRegions, 
-            'actionTimeoutMsec':2000,
-            'rewardFunction':rewardFunction}
-
-        return stepPackage
-    }
     async get_trial(){
         if (this.taskSequence[this.taskNumber]['taskType'] == 'SR'){
             console.log('Executing with sampling weights')

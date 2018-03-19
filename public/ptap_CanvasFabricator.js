@@ -64,52 +64,54 @@ class cf{ // "Canvas Fabricator"
     }
 
     static setupCanvas(canvasobj, width, height, use_image_smoothing){
-          use_image_smoothing =  use_image_smoothing || false 
-          var context = canvasobj.getContext('2d')
 
-          var devicePixelRatio = window.devicePixelRatio || 1
-          var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-          context.mozBackingStorePixelRatio ||
-          context.msBackingStorePixelRatioproportion2pixels ||
-          context.oBackingStorePixelRatio ||
-          context.backingStorePixelRatio || 1 // /1 by default for chrome?
+        // Returns a horizontally (and vertically?) centered canvas 
 
-          var _ratio = devicePixelRatio / backingStoreRatio
+        use_image_smoothing =  use_image_smoothing || false 
+        var context = canvasobj.getContext('2d')
+
+        var devicePixelRatio = window.devicePixelRatio || 1
+        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+        context.mozBackingStorePixelRatio ||
+        context.msBackingStorePixelRatioproportion2pixels ||
+        context.oBackingStorePixelRatio ||
+        context.backingStorePixelRatio || 1 // /1 by default for chrome?
+
+        var _ratio = devicePixelRatio / backingStoreRatio
+
+        canvasobj.width = width * _ratio;
+        canvasobj.height = height * _ratio;
+
+        // Center canvas 
+        // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+        canvasobj.style.padding = 0
+
+        canvasobj.style.margin = 'auto'
+        canvasobj.style.display="block"; //visible
+        canvasobj.style.position = 'absolute'
+        canvasobj.style.top = 0
+        canvasobj.style.bottom = 0
+        canvasobj.style.left = 0  
+        canvasobj.style.right = 0
+        canvasobj.style.border='1px dotted #E6E6E6' 
+
+        canvasobj.style.width=width+'px'; // Set browser canvas display style to be workspace_width
+        canvasobj.style.height=height+'px';
+
+        // Draw blank gray 
+        //context.fillStyle="#7F7F7F"; 
+        //context.fillRect(0,0,canvasobj.width,canvasobj.height);
 
 
-          canvasobj.width = width * _ratio;
-          canvasobj.height = height * _ratio;
+        // Remove overflow?
+        //https://www.w3schools.com/cssref/pr_pos_overflow.asp
 
-            // Center canvas 
-            // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
-            canvasobj.style.padding = 0
+        context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
 
-            canvasobj.style.margin = 'auto'
-            canvasobj.style.display="block"; //visible
-            canvasobj.style.position = 'absolute'
-            canvasobj.style.top = 0
-            canvasobj.style.bottom = 0
-            canvasobj.style.left = 0  
-            canvasobj.style.right = 0
-            canvasobj.style.border='1px dotted #E6E6E6' 
-            
-            canvasobj.style.width=width+'px'; // Set browser canvas display style to be workspace_width
-            canvasobj.style.height=height+'px';
-
-            // Draw blank gray 
-            context.fillStyle="#7F7F7F"; 
-            context.fillRect(0,0,canvasobj.width,canvasobj.height);
-            
-
-            // Remove overflow?
-            //https://www.w3schools.com/cssref/pr_pos_overflow.asp
-
-            context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
-
-            if(_ratio !== 1){
-              scaleContext(context)
-          }
-        } 
+        if(_ratio !== 1){
+          scaleContext(context)
+        }
+    } 
 
     static async _drawImage(image, xcentroid_pixel, ycentroid_pixel, diameter_pixels, canvasobj){
 

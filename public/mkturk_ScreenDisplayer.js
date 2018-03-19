@@ -1,7 +1,9 @@
 class ScreenDisplayer{
-constructor(bounds){
+constructor(){
     
-    this.canvas_blank = cf.new_canvas('canvas_blank', bounds['height'], bounds['width'], true)
+    // Placeholder
+    this.canvas_blank = document.createElement('canvas')
+    this.canvas_blank.id = 'blank'
     this.canvas_blank.style['z-index'] = 50
 
     this.canvas_front = this.canvas_blank

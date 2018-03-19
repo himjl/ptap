@@ -81,6 +81,9 @@ class SoundPlayerClass{
   }
 
   async play_sound(name){
+    if (name == undefined){
+      return 
+    }
 
     if(this.is_built == false){
       await this.build()

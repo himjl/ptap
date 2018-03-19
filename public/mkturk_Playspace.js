@@ -1,25 +1,32 @@
 class PlaySpaceClass{
-    constructor(playspacePackage){
 
-        var playspace_degreesVisualAngle = playspacePackage['playspace_degreesVisualAngle'] 
-        var playspace_verticalOffsetInches = playspacePackage['playspace_verticalOffsetInches']
-        var playspace_viewingDistanceInches = playspacePackage['playspace_viewingDistanceInches']
-        var screen_virtualPixelsPerInch = playspacePackage['screen_virtualPixelsPerInch']
+    // The agent-task interface. Responsible for executing:
+    // sounds
+    // canvas sequences with temporal precision 
+    // the polling of agent actions 
+    // delivering reinforcement 
+
+    // Responsible for tracking meta-step info: 
+    // device log (move to datawriter)
+    // reward log 
+    // action log
+
+    // Specify input arguments in units of 
+    // pixels (where 0, 0 is pageX, pageY @ top left corner of rendered page)
+    // msec (1000 = one second)
+
+
+    constructor(playspacePackage){
+        
         var primary_reinforcer_type = playspacePackage['primary_reinforcer_type'] 
         var action_event_type = playspacePackage['action_event_type'] 
         var periodicRewardIntervalMsec = playspacePackage['periodicRewardIntervalMsec'] 
         var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
-        this.viewingDistanceInches = playspace_viewingDistanceInches
-        this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet 
-        this.playspaceSizeDegrees = playspace_degreesVisualAngle
-        this.virtualPixelsPerInch = screen_virtualPixelsPerInch
 
-        this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)
 
-        var bounds = this.getPlayspaceBounds()    
-        this.ScreenDisplayer = new ScreenDisplayer(bounds)
+        this.ScreenDisplayer = new ScreenDisplayer()
         
         if (primary_reinforcer_type == 'juice'){
             this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)
@@ -32,7 +39,7 @@ class PlaySpaceClass{
             this.Reinforcer = new MonetaryReinforcer(bonusUSDPerCorrect)
         }
 
-        this.ActionPoller = new ActionPollerClass(action_event_type, bounds)
+        this.ActionPoller = new ActionPollerClass(action_event_type)
         this.SoundPlayer = new SoundPlayerClass()
         this.periodicRewardIntervalMsec = periodicRewardIntervalMsec 
         this.periodicRewardAmount = periodicRewardAmount
@@ -51,238 +58,41 @@ class PlaySpaceClass{
 
     async build(){
         
-        this.attachWindowResizeMonitor()
         await this.SoundPlayer.build()
         await this.ScreenDisplayer.build()
         
     }
 
-    async step(frameData, actionRegions, actionTimeoutMsec, rewardFunction){
+    async step(frameData, soundData, actionRegions, actionTimeoutMsec, reward){
         // Run frames
-        var frameTimestamps = await this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])
+        this.SoundPlayer.play_sound(soundData['soundName'])
+        
+        var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
 
+        var frameTimestamps = freturn[1]
         // Wait for eligible agent action
-
-        // todo: allow specification of actionRegions in arbitrary units (deg, pixels, proportion) and 
-        // use kwarg to state which unit
-        var actionRegionsPixels = this.actionRegions2pixels(actionRegions)
-        var action = await this.ActionPoller.poll(
-            actionRegionsPixels['x'], 
-            actionRegionsPixels['y'], 
-            actionRegionsPixels['diameter'], 
+        if (actionTimeoutMsec == 0){
+            // No action polled; move directly to next state
+            var action = 'null_state'
+        }
+        else{
+            var action = await this.ActionPoller.poll(
+            actionRegions['xPixels'], 
+            actionRegions['yPixels'], 
+            actionRegions['diameterPixels'],
             actionTimeoutMsec)
-
-
+        }
+        
         // Calculate and deliver reward
         var reward = rewardFunction(action)
-        console.log(reward)
         await this.Reinforcer.deliver_reinforcement(reward)
+        
 
         // Return
-        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward':reward}
+        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action}
         return stepOutcome
     }
 
-    async run_trial(trialPackage){
-
-        var frameData = trialPackage['frameData']
-        var rewardFunction = trialPackage['rewardFunction']
-        var actionRegions = trialPackage['actionRegions']
-
-
-
-        var agentActionSequence = []
-
-        frameData = {}
-        frameData['assetSeq'] = []
-        frameData['placementSeq'] = []
-        frameData['timingSeq'] = []
-
-
-        // Draw trial
-        await this.ScreenDisplayer.buffer_trial_frames(frameData)
-        
-        // Execute frame sequences
-        for (var i = 0; i < frameData['assetSeq'].length; i++){
-            await this.ScreenDisplayer.execute_frame_sequence(i)
-            var action = await this.ActionPoller.poll(actionRegions[i])
-            agentActionSequence.push(action)
-        }
-        // Compute and deliver reward
-        var reward = rewardFunction(agentActionSequence)
-        await this.Reinforcer.deliver_reinforcement(reward)
-
-        // Package data
-        var trialOutcome = {}
-        trialOutcome['frameOutcomes'] = frameOutcomes
-        trialOutcome['reward'] = reward 
-        trialOutcome['actionOutcomes'] = agentActionSequence
-        return trialOutcome
-
-        // old input: 
-        var trialPackage
-        // ************ Prebuffer trial assets ***************
-
-        // Fixation
-        wdm('Buffering fixation...')
-        //console.log(trialPackage)
-        var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )
-        var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid'] )
-        var fixationDiameterPixels = this.deg2pixels(trialPackage['fixationDiameterDegrees'] )
-
-
-        var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid'])
-        var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid'])
-        var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees'])
-
-        var fixationFramePackage = {
-            'fixationXCentroidPixels':fixationXCentroidPixels,
-            'fixationYCentroidPixels':fixationYCentroidPixels, 
-            'fixationDiameterPixels':fixationDiameterPixels,
-            'eyeFixationXCentroidPixels':sampleXCentroidPixels, 
-            'eyeFixationYCentroidPixels':sampleYCentroidPixels, 
-            'eyeFixationDiameterPixels':Math.max(this.deg2pixels(0.2),4),
-            'drawEyeFixationDot': trialPackage['drawEyeFixationDot'] || false, 
-        }
-        
-        await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
-
-        // Stimulus sequence
-        wdm('Buffering stimulus...')
-
-        var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid'])
-        var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid'])
-        var choiceDiameterPixels = this.deg2pixels(trialPackage['choiceDiameterDegrees'])
-
-        var stimulusFramePackage = {
-            'sampleImage':trialPackage['sampleImage'],
-            'sampleOn':trialPackage['sampleOnMsec'],
-            'sampleOff':trialPackage['sampleOffMsec'],
-            'sampleDiameterPixels':sampleDiameterPixels,
-            'sampleXCentroid':sampleXCentroidPixels,
-            'sampleYCentroid':sampleYCentroidPixels,
-            'choiceImage':trialPackage['choiceImage'],
-            'choiceDiameterPixels':choiceDiameterPixels,
-            'choiceXCentroid':choiceXCentroidPixels,
-            'choiceYCentroid':choiceYCentroidPixels,
-        }
-
-        await this.ScreenDisplayer.bufferStimulusSequence(stimulusFramePackage)
-
-        // *************** Run trial *************************
-
-        // SHOW BLANK
-        wdm('Running fixation...')
-        await this.ScreenDisplayer.displayBlank()
-
-        // RUN FIXATION
-        this.ActionPoller.create_action_regions(
-            fixationXCentroidPixels,
-            fixationYCentroidPixels,
-            fixationDiameterPixels)
-
-        var t_fixationOn = await this.ScreenDisplayer.displayFixation()
-        var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
-
-        // RUN STIMULUS SEQUENCE
-        wdm('Running stimulus...')
-        var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence()
-
-        var actionXCentroidPixels = this.xprop2pixels(trialPackage['actionXCentroid'])
-        var actionYCentroidPixels = this.yprop2pixels(trialPackage['actionYCentroid'])
-        var actionDiameterPixels = this.deg2pixels(trialPackage['actionDiameterDegrees'])
-
-        this.ActionPoller.create_action_regions(
-            actionXCentroidPixels, 
-            actionYCentroidPixels, 
-            actionDiameterPixels)
-
-        if(trialPackage['choiceTimeLimitMsec'] > 0){
-            var actionPromise = Promise.race([
-                                this.ActionPoller.Promise_wait_until_active_response(), 
-                                this.ActionPoller.timeout(trialPackage['choiceTimeLimitMsec'])]) 
-        }
-        else{
-            var actionPromise = this.ActionPoller.Promise_wait_until_active_response()
-        }
-
-        wdm('Awaiting choice...')
-        var actionOutcome = await actionPromise
-        var rewardAmount = trialPackage['choiceRewardMap'][actionOutcome['actionIndex']]
-
-        // Deliver reinforcement
-        wdm('Delivering reinforcement...')
-        if (rewardAmount > 0){
-            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
-            var p_sound = this.SoundPlayer.play_sound('reward_sound')
-            var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOutMsec'])
-            var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount)
-            await Promise.all([p_primaryReinforcement, p_visual]) 
-            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
-        }
-        if (rewardAmount <= 0){
-            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
-            var p_sound = this.SoundPlayer.play_sound('punish_sound')
-            var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOutMsec'])
-            await Promise.all([p_sound, p_visual]) 
-            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
-        }
-        if(rewardAmount == undefined){
-            // Timeout
-            rewardAmount = 0
-            var t_reinforcementOn = Math.round(performance.now()*1000)/1000
-            var t_reinforcementOff = Math.round(performance.now()*1000)/1000
-        }
-
-        this.rewardLog['t'].push(t_reinforcementOn)
-        this.rewardLog['n'].push(rewardAmount)
-
-        // *************** Write down trial outcome *************************
-        wdm('Writing down trial outcome...')
-        var trialOutcome = {}
-        trialOutcome['return'] = rewardAmount 
-        trialOutcome['action'] = actionOutcome['actionIndex']
-        trialOutcome['responseX'] = actionOutcome['x']
-        trialOutcome['responseY'] = actionOutcome['y']
-        trialOutcome['fixationX'] = fixationOutcome['x']
-        trialOutcome['fixationY'] = fixationOutcome['y']
-        trialOutcome['timestampStart'] = fixationOutcome['timestamp']
-        trialOutcome['timestampFixationOnset'] = t_fixationOn
-        trialOutcome['timestampFixationAcquired'] = fixationOutcome['timestamp']
-        trialOutcome['timestampResponse'] = actionOutcome['timestamp']
-        trialOutcome['timestampReinforcementOn'] = t_reinforcementOn
-        trialOutcome['timestampReinforcementOff'] = t_reinforcementOff
-        trialOutcome['timestampStimulusOn'] = t_SequenceTimestamps[0]
-        trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1]
-        trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0]
-        trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0])
-
-        // todo: remove these internal references to TaskStreamer (violates modularity of main objects)
-        trialOutcome['taskNumber'] = TaskStreamer.taskNumber
-        trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask 
-        trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession
-        trialOutcome['sampleBagProbabilities'] = TaskStreamer.bagSamplingWeights
-        trialOutcome['tStatistic'] = TaskStreamer.tStatistic 
-        trialOutcome['empiricalEffectSize'] = TaskStreamer.empiricalEffectSize
-        trialOutcome['a'] = TaskStreamer.a
-        trialOutcome['b'] = TaskStreamer.b
-        trialOutcome['c'] = TaskStreamer.c
-        trialOutcome['d'] = TaskStreamer.d
-        trialOutcome['tStatistic_criticalUb'] = TaskStreamer.tStatistic_criticalUb
-        trialOutcome['tStatistic_criticalLb'] = TaskStreamer.tStatistic_criticalLb
-
-        trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
-        trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
-        trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag']
-        trialOutcome['i_choiceId'] = trialPackage['i_choiceId']
-
-        return trialOutcome
-    }
-
-
-    toggleBorder(on_or_off){
-        //this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
-    }
 
     start_periodic_rewards(){
         if (this.periodicRewardAmount <= 0){
@@ -325,27 +135,6 @@ class PlaySpaceClass{
         return this.ActionPoller.actionLog
     }
 
-    getPlayspaceBounds(){
-        var bounds = {}
-        var windowHeight = getWindowHeight()
-        var windowWidth = getWindowWidth()
-
-        var screen_margin = 0.15
-        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
-
-        var min_dimension = Math.min(max_allowable_playspace_dimension, this.playspaceSizePixels)
-        var min_dimension = Math.ceil(min_dimension)
-
-        bounds['height'] = min_dimension
-        bounds['width'] = min_dimension 
-        bounds['leftBound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
-        bounds['rightBound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
-        bounds['topBound'] = Math.floor((windowHeight - min_dimension)/2)
-        bounds['bottomBound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
-
-        return bounds
-    }
-
     updateWindowLog(bounds){
         if (this.playspaceLog == undefined){
             this.playspaceLog = {}
@@ -367,50 +156,7 @@ class PlaySpaceClass{
             this.playspaceLog[k].push(bounds[k])
         }
     }
-    attachWindowResizeMonitor(){
-  
-        var _this = this
-        function onWindowResize(){
-          // on window resize 
-            var bounds = {}
-            var windowHeight = getWindowHeight()
-            var windowWidth = getWindowWidth()
-
-            var screen_margin = 0.15
-            var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
-
-            var min_dimension = Math.min(max_allowable_playspace_dimension, _this.playspaceSizePixels)
-            var min_dimension = Math.ceil(min_dimension)
-
-            _this.height = min_dimension
-            _this.width = min_dimension 
-            _this.leftBound = Math.floor((windowWidth - _this.width)/2) // in units of window
-            _this.rightBound = Math.floor(windowWidth-(windowWidth - _this.width)/2)
-            _this.topBound = Math.floor((windowHeight - _this.height)/2)
-            _this.bottomBound = Math.floor(windowHeight-(windowHeight - _this.height)/2)
-
-            bounds['height'] = _this.height
-            bounds['width'] = _this.width
-            bounds['leftBound'] = _this.leftBound
-            bounds['rightBound'] = _this.rightBound
-            bounds['topBound'] = _this.topBound
-            bounds['bottomBound'] = _this.bottomBound
-            bounds['windowWidth'] = windowWidth
-            bounds['windowHeight'] = windowHeight
-            bounds['t'] = Math.round(performance.now()*1000)/1000
-
-            //_this.ScreenDisplayer.calibrateBounds(bounds)
-            _this.ActionPoller.calibrateBounds(bounds)
-            _this.updateWindowLog(bounds) 
-
-            console.log('onWindowResize():', bounds['leftBound'], bounds['topBound'])
-        }
-
-        onWindowResize()
-        
-        window.addEventListener('resize', onWindowResize)
-        console.log('Attached window resize listener')
-    }
+    
 
     start_device_tracking(){
         // battery
@@ -443,8 +189,6 @@ class PlaySpaceClass{
             console.log('Battery logging error:', error)
         }
 
-        
-
         // ******** Window resize ****
         this.deviceLog['window'] = {}
         this.deviceLog['window']['height'] = []
@@ -466,125 +210,5 @@ class PlaySpaceClass{
         this.deviceLog.unixTimestampPageLoad = window.performance.timing.navigationStart
         this.deviceLog.currentDate = new Date;
         this.deviceLog.url = window.location.href
-    }
-
-    deg2inches(degrees){
-
-        // diameter degrees 
-        // assume centered (center of diameter length at viewing normal to screen surface)
-        if(degrees.constructor == Array){
-            var result = []
-            for (var i = 0; i<degrees.length; i++){
-                var rad = this.deg2rad(degrees[i]/2)
-                result.push(2 * this.viewingDistanceInches * Math.atan(rad))
-            }
-            return result
-        }
-
-        var rad = this.deg2rad(degrees/2)
-        return 2 * this.viewingDistanceInches * Math.atan(rad) 
-    }
-
-    deg2pixels(degrees){
-        // Return virtual pixels 
-        if(degrees.constructor == Array){
-            var result = []
-            for (var i = 0; i<degrees.length; i++){
-                var inches = this.deg2inches(degrees[i])
-                result.push(Math.round(inches * this.virtualPixelsPerInch))
-            }
-            return result
-        }
-
-        var inches = this.deg2inches(degrees)
-        return Math.round(inches * this.virtualPixelsPerInch)
-    }
-
-    actionRegions2pixels(actionRegions){
-        var actionRegionsPixels = {}
-        actionRegionsPixels['x'] = this.xprop2pixels(actionRegions['x'])
-        actionRegionsPixels['y'] = this.yprop2pixels(actionRegions['y'])
-        actionRegionsPixels['diameter'] = this.deg2pixels(actionRegions['diameter'])
-        return actionRegionsPixels
-    }
-    xprop2pixels(xproportion){
-        if(xproportion.constructor == Array){
-            var result = []
-            for (var i = 0; i<xproportion.length; i++){
-                result.push(Math.round(xproportion[i]*this.width))
-            }
-            return result
-        }
-        return Math.round(xproportion*this.width)
-    }
-
-    yprop2pixels(yproportion){
-        if(yproportion.constructor == Array){
-            var result = []
-            for (var i = 0; i<yproportion.length; i++){
-                result.push(Math.round(yproportion[i]*this.height))
-            }
-            return result
-        }
-        return Math.round(yproportion*this.height)
-    }
-
-    deg2rad(deg){
-        if(deg.constructor == Array){
-            var result = []
-            for (var i = 0; i<deg.length; i++){
-                result.push(deg[i] * Math.PI / 180)
-            }
-            return result
-        }
-        return deg * Math.PI / 180
-    }
-
-    
-    async run_tutorial_trial(tutorial_image){
-        var fixationXCentroidPixels = this.xprop2pixels(0.5)
-        var fixationYCentroidPixels = this.yprop2pixels(0.7)
-        var fixationDiameterPixels = this.deg2pixels(3)
-
-        // BUFFER FIXATION
-        var fixationFramePackage = {
-            'fixationXCentroidPixels':fixationXCentroidPixels,
-            'fixationYCentroidPixels':fixationYCentroidPixels, 
-            'fixationDiameterPixels':fixationDiameterPixels,
-        }
-        await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
-
-
-        // BUFFER STIMULUS
-        var stimulusXCentroidPixels = this.xprop2pixels(0.1 + 0.8 * Math.random())
-        var stimulusYCentroidPixels = this.yprop2pixels(0.6 * Math.random())
-        var stimulusDiameterPixels = this.deg2pixels(6)
-        
-        var stimulusCanvas = this.ScreenDisplayer.getSequenceCanvas('tutorial_sequence', 0)
-        await this.ScreenDisplayer.renderBlank(stimulusCanvas)
-        await this.ScreenDisplayer.drawImagesOnCanvas(tutorial_image, stimulusXCentroidPixels, stimulusYCentroidPixels, stimulusDiameterPixels, stimulusCanvas)
-
-        // SHOW BLANK
-        await this.ScreenDisplayer.displayBlank()
-
-        // RUN FIXATION
-        this.ActionPoller.create_action_regions(
-            fixationXCentroidPixels,
-            fixationYCentroidPixels,
-            fixationDiameterPixels)
-
-        await this.ScreenDisplayer.displayFixation()
-        await this.ActionPoller.Promise_wait_until_active_response()
-
-        // RUN STIMULUS SEQUENCE
-        await this.ScreenDisplayer.displayScreenSequence(stimulusCanvas, 0)
-
-        this.ActionPoller.create_action_regions(
-            stimulusXCentroidPixels, 
-            stimulusYCentroidPixels, 
-            stimulusDiameterPixels)
-
-        await this.ActionPoller.Promise_wait_until_active_response()
-        this.SoundPlayer.play_sound('reward_sound')
     }
 }

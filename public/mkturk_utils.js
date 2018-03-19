@@ -1,5 +1,8 @@
 function getWindowWidth(){
     // Reference: https://www.w3schools.com/js/js_window.asp
+
+    return $(window).width()
+
     var w = window.innerWidth
       || document.documentElement.clientWidth
       || document.body.clientWidth;
@@ -8,6 +11,9 @@ function getWindowWidth(){
 
 function getWindowHeight(){
     // Reference: https://www.w3schools.com/js/js_window.asp
+
+    return $(window).height()
+
     var w = window.innerHeight
       || document.documentElement.clientHeight
       || document.body.clientHeight;
