@@ -107,6 +107,7 @@
 <script src="unit_tests.js"></script>
 <script src="mkturk_BiasDetection.js"></script>
 <script src="mkturk_TrialGenerator.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
 
 
 <script>
@@ -115,10 +116,11 @@
 var FLAGS = {}; // todo: get rid of
 
 
-(async function(){
+$(async function(){
 try{
 
 console.time('Done setting up')
+$("MechanicalTurkInstructionsSplash").show()
 
 // Load inputs from local storage, web, or Dropbox.
 wdm('Running bootstrapper...')
@@ -182,6 +184,14 @@ console.timeEnd('Done setting up')
 wdm('Entering main trial loop...')
 
 while(TaskStreamer.TERMINAL_STATE == false){
+  var stepPackage = await TaskStreamer.get_step()
+  var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['actionRegions'], stepPackage['rewardFunction'])
+
+  await TaskStreamer.deposit_action_reward(stepOutcome['action'], stepOutcome['reward'])
+  
+  continue 
+  
+  // 1.0
   var trialPackage = await TaskStreamer.get_trial()
 	var trialOutcome = await Playspace.run_trial(trialPackage) 
   TaskStreamer.update_state(trialOutcome)
@@ -235,7 +245,7 @@ finally{
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
   
-  document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
   
   
 }

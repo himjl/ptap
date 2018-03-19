@@ -62,14 +62,24 @@ class PlaySpaceClass{
         var frameTimestamps = await this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])
 
         // Wait for eligible agent action
-        var action = await this.ActionPoller.poll(actionRegions)
+
+        // todo: allow specification of actionRegions in arbitrary units (deg, pixels, proportion) and 
+        // use kwarg to state which unit
+        var actionRegionsPixels = this.actionRegions2pixels(actionRegions)
+        var action = await this.ActionPoller.poll(
+            actionRegionsPixels['x'], 
+            actionRegionsPixels['y'], 
+            actionRegionsPixels['diameter'])
+
 
         // Calculate and deliver reward
         var reward = rewardFunction(action)
+        console.log(reward)
         await this.Reinforcer.deliver_reinforcement(reward)
 
         // Return
-        return frameTimestamps, action, reward
+        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward':reward}
+        return stepOutcome
     }
 
     async run_trial(trialPackage){
@@ -489,6 +499,13 @@ class PlaySpaceClass{
         return Math.round(inches * this.virtualPixelsPerInch)
     }
 
+    actionRegions2pixels(actionRegions){
+        var actionRegionsPixels = {}
+        actionRegionsPixels['x'] = this.xprop2pixels(actionRegions['x'])
+        actionRegionsPixels['y'] = this.yprop2pixels(actionRegions['y'])
+        actionRegionsPixels['diameter'] = this.deg2pixels(actionRegions['diameter'])
+        return actionRegionsPixels
+    }
     xprop2pixels(xproportion){
         if(xproportion.constructor == Array){
             var result = []

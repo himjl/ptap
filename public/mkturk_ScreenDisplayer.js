@@ -308,171 +308,230 @@ togglePlayspaceBorder(on_or_off){
     }
 
 
-    createCanvas(canvas_id, use_image_smoothing){
-        use_image_smoothing = false || use_image_smoothing
-        var canvasobj = document.createElement('canvas')
-        canvasobj.id = canvas_id
-        this.setupCanvas(canvasobj, use_image_smoothing)
-        document.body.appendChild(canvasobj)
-        return canvasobj 
+createCanvas(canvas_id, use_image_smoothing){
+    use_image_smoothing = false || use_image_smoothing
+    var canvasobj = document.createElement('canvas')
+    canvasobj.id = canvas_id
+    this.setupCanvas(canvasobj, use_image_smoothing)
+    document.body.appendChild(canvasobj)
+    return canvasobj 
+}
+
+execute_canvas_sequence(sequence, t_durations){
+    if(typeof(t_durations) == "number"){
+        t_durations = [t_durations]
+    }
+    if(sequence.constructor != Array){
+        sequence = [sequence]
     }
 
-    displayScreenSequence(sequence, t_durations){
-        //console.log('calling screen sequence. t_durations', t_durations)
-        if(typeof(t_durations) == "number"){
-            t_durations = [t_durations]
+    var resolveFunc
+    var errFunc
+    var p = new Promise(function(resolve,reject){
+        resolveFunc = resolve;
+        errFunc = reject;
+    }).then();
+
+    var lastframe_timestamp = undefined;
+    var frame_unix_timestamps = []
+
+    var prev_canvasobj = this.canvas_front
+    var current_frame_index = -1
+    var frames_left_to_animate = sequence.length
+
+    var _this = this
+
+
+    function updateCanvas(timestamp){
+
+        // If time to show new frame OR first frame, 
+        if (timestamp - lastframe_timestamp >= t_durations[current_frame_index] || lastframe_timestamp == undefined){
+            current_frame_index++;
+            frame_unix_timestamps[current_frame_index] = performance.now() //in milliseconds, rounded to nearest hundredth of a millisecond
+            // Move canvas in front
+            var curr_canvasobj = sequence[current_frame_index]
+            prev_canvasobj.style.zIndex="0";
+            curr_canvasobj.style.zIndex="100";
+            prev_canvasobj = curr_canvasobj;
+
+            lastframe_timestamp = timestamp
+            //console.log('lastframe_timestamp', lastframe_timestamp)
+            frames_left_to_animate--
+            
+        }; 
+        // continue if not all frames shown
+        if (frames_left_to_animate>0){
+            window.requestAnimationFrame(updateCanvas);
         }
-        if(sequence.constructor != Array){
-            sequence = [sequence]
+        else{
+            _this.canvas_front = curr_canvasobj
+            resolveFunc(frame_unix_timestamps);
         }
-        var resolveFunc
-        var errFunc
-        var p = new Promise(function(resolve,reject){
-            resolveFunc = resolve;
-            errFunc = reject;
-        }).then();
-        //console.log('seq', sequence, 'tseq', tsequence)
+    }
 
-        var lastframe_timestamp = undefined;
-        var frame_unix_timestamps = []
+    //requestAnimationFrame advantages: goes on next screen refresh and syncs to browsers refresh rate on separate clock (not js clock)
+    window.requestAnimationFrame(updateCanvas); // kick off async work
+    return p
+
+}
 
 
-        var prev_canvasobj = this.canvas_front
+displayScreenSequence(sequence, t_durations){
+    //console.log('calling screen sequence. t_durations', t_durations)
+    if(typeof(t_durations) == "number"){
+        t_durations = [t_durations]
+    }
+    if(sequence.constructor != Array){
+        sequence = [sequence]
+    }
+    var resolveFunc
+    var errFunc
+    var p = new Promise(function(resolve,reject){
+        resolveFunc = resolve;
+        errFunc = reject;
+    }).then();
+    //console.log('seq', sequence, 'tseq', tsequence)
 
-        var current_frame_index = -1
-        var frames_left_to_animate = sequence.length
-
-        var _this = this
+    var lastframe_timestamp = undefined;
+    var frame_unix_timestamps = []
 
 
-        function updateCanvas(timestamp){
+    var prev_canvasobj = this.canvas_front
 
-            // If time to show new frame OR first frame, 
-            if (timestamp - lastframe_timestamp >= t_durations[current_frame_index] || lastframe_timestamp == undefined){
-                current_frame_index++;
-                frame_unix_timestamps[current_frame_index] = performance.now() //in milliseconds, rounded to nearest hundredth of a millisecond
-                // Move canvas in front
-                var curr_canvasobj = sequence[current_frame_index]
-                prev_canvasobj.style.zIndex="0";
-                curr_canvasobj.style.zIndex="100";
-                prev_canvasobj = curr_canvasobj;
+    var current_frame_index = -1
+    var frames_left_to_animate = sequence.length
 
-                lastframe_timestamp = timestamp
-                //console.log('lastframe_timestamp', lastframe_timestamp)
-                frames_left_to_animate--
-                
-            }; 
-            // continue if not all frames shown
-            if (frames_left_to_animate>0){
-                window.requestAnimationFrame(updateCanvas);
-            }
-            else{
-                _this.canvas_front = curr_canvasobj
-                resolveFunc(frame_unix_timestamps);
-            }
+    var _this = this
+
+
+    function updateCanvas(timestamp){
+
+        // If time to show new frame OR first frame, 
+        if (timestamp - lastframe_timestamp >= t_durations[current_frame_index] || lastframe_timestamp == undefined){
+            current_frame_index++;
+            frame_unix_timestamps[current_frame_index] = performance.now() //in milliseconds, rounded to nearest hundredth of a millisecond
+            // Move canvas in front
+            var curr_canvasobj = sequence[current_frame_index]
+            prev_canvasobj.style.zIndex="0";
+            curr_canvasobj.style.zIndex="100";
+            prev_canvasobj = curr_canvasobj;
+
+            lastframe_timestamp = timestamp
+            //console.log('lastframe_timestamp', lastframe_timestamp)
+            frames_left_to_animate--
+            
+        }; 
+        // continue if not all frames shown
+        if (frames_left_to_animate>0){
+            window.requestAnimationFrame(updateCanvas);
         }
+        else{
+            _this.canvas_front = curr_canvasobj
+            resolveFunc(frame_unix_timestamps);
+        }
+    }
 
-        //requestAnimationFrame advantages: goes on next screen refresh and syncs to browsers refresh rate on separate clock (not js clock)
-        window.requestAnimationFrame(updateCanvas); // kick off async work
-        return p
-    } 
+    //requestAnimationFrame advantages: goes on next screen refresh and syncs to browsers refresh rate on separate clock (not js clock)
+    window.requestAnimationFrame(updateCanvas); // kick off async work
+    return p
+} 
+
+
+drawRectangle(canvasobj, width_pixels, height_pixels, color, alpha){
+    var context=canvasobj.getContext('2d');
+    context.fillStyle=color 
+    context.globalAlpha = alpha
+    var width = parseFloat(canvasobj.style.width)
+    var height = parseFloat(canvasobj.style.height)
+
+    var square_width = width_pixels
+    var square_height = height_pixels
+    context.fillRect(width/2 - square_width/2,height/2 - square_width/2, square_width,square_height);
+
+    context.fill()
+}
+renderReward(canvasobj){
+    var rewardColor =  "#00cc00"
+    var rewardAlpha = 0.5
+    var width_pixels = this.width * 2/3
+    var height_pixels = this.height * 2/3 
+    this.drawRectangle(canvasobj, width_pixels, height_pixels, rewardColor, rewardAlpha)
+}
+
+renderPunish(canvasobj){
+
+    var punishColor = 'black'
+    var punishAlpha = 1
+    
+    var width_pixels = this.width * 2/3
+    var height_pixels = this.height* 2/3 
+
+    this.drawRectangle(canvasobj, width_pixels, height_pixels, punishColor, punishAlpha)
+}
+
+
+async bufferCanvasWithImage(image, canvasobj, dx, dy, dwidth, dheight){
+    // In playspace units
+    var context = canvasobj.getContext('2d')
+    context.fillStyle="#7F7F7F"; 
+    context.fillRect(0,0,canvasobj.width,canvasobj.height);
+
+    context.drawImage(image, dx, dy, dwidth, dheight)
+
+    var _boundingBox = [{}]
+    _boundingBox[0].x = [dx,dx+dwidth]
+    _boundingBox[0].y = [dy, dy+dheight]
+
+    return _boundingBox
+}
+
+setupCanvas(canvasobj, use_image_smoothing){
+  use_image_smoothing =  use_image_smoothing || false 
+  var context = canvasobj.getContext('2d')
+
+  var devicePixelRatio = window.devicePixelRatio || 1
+  var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+  context.mozBackingStorePixelRatio ||
+  context.msBackingStorePixelRatioproportion2pixels ||
+  context.oBackingStorePixelRatio ||
+  context.backingStorePixelRatio || 1 // /1 by default for chrome?
+
+  var _ratio = devicePixelRatio / backingStoreRatio
+
+
+  canvasobj.width = this.width * _ratio;
+  canvasobj.height = this.height * _ratio;
+
+    // Center canvas 
+    // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+    canvasobj.style.padding = 0
+
+    canvasobj.style.margin = 'auto'
+    canvasobj.style.display="block"; //visible
+    canvasobj.style.position = 'absolute'
+    canvasobj.style.top = 0
+    canvasobj.style.bottom = 0
+    canvasobj.style.left = 0  
+    canvasobj.style.right = 0
+    canvasobj.style.border='1px dotted #E6E6E6' 
+    
+    canvasobj.style.width=this.width+'px'; // Set browser canvas display style to be workspace_width
+    canvasobj.style.height=this.height+'px';
+
+    // Draw blank gray 
+    context.fillStyle="#7F7F7F"; 
+    context.fillRect(0,0,canvasobj.width,canvasobj.height);
     
 
-    drawRectangle(canvasobj, width_pixels, height_pixels, color, alpha){
-        var context=canvasobj.getContext('2d');
-        context.fillStyle=color 
-        context.globalAlpha = alpha
-        var width = parseFloat(canvasobj.style.width)
-        var height = parseFloat(canvasobj.style.height)
+    // Remove overflow?
+    //https://www.w3schools.com/cssref/pr_pos_overflow.asp
 
-        var square_width = width_pixels
-        var square_height = height_pixels
-        context.fillRect(width/2 - square_width/2,height/2 - square_width/2, square_width,square_height);
-
-        context.fill()
-    }
-    renderReward(canvasobj){
-        var rewardColor =  "#00cc00"
-        var rewardAlpha = 0.5
-        var width_pixels = this.width * 2/3
-        var height_pixels = this.height * 2/3 
-        this.drawRectangle(canvasobj, width_pixels, height_pixels, rewardColor, rewardAlpha)
-    }
-
-    renderPunish(canvasobj){
-
-        var punishColor = 'black'
-        var punishAlpha = 1
-        
-        var width_pixels = this.width * 2/3
-        var height_pixels = this.height* 2/3 
-
-        this.drawRectangle(canvasobj, width_pixels, height_pixels, punishColor, punishAlpha)
-    }
+    context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
 
 
-    async bufferCanvasWithImage(image, canvasobj, dx, dy, dwidth, dheight){
-        // In playspace units
-        var context = canvasobj.getContext('2d')
-        context.fillStyle="#7F7F7F"; 
-        context.fillRect(0,0,canvasobj.width,canvasobj.height);
-
-        context.drawImage(image, dx, dy, dwidth, dheight)
-
-        var _boundingBox = [{}]
-        _boundingBox[0].x = [dx,dx+dwidth]
-        _boundingBox[0].y = [dy, dy+dheight]
-
-        return _boundingBox
-    }
-
-    setupCanvas(canvasobj, use_image_smoothing){
-      use_image_smoothing =  use_image_smoothing || false 
-      var context = canvasobj.getContext('2d')
-
-      var devicePixelRatio = window.devicePixelRatio || 1
-      var backingStoreRatio = context.webkitBackingStorePixelRatio ||
-      context.mozBackingStorePixelRatio ||
-      context.msBackingStorePixelRatioproportion2pixels ||
-      context.oBackingStorePixelRatio ||
-      context.backingStorePixelRatio || 1 // /1 by default for chrome?
-
-      var _ratio = devicePixelRatio / backingStoreRatio
-
-
-      canvasobj.width = this.width * _ratio;
-      canvasobj.height = this.height * _ratio;
-
-        // Center canvas 
-        // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
-        canvasobj.style.padding = 0
-
-        canvasobj.style.margin = 'auto'
-        canvasobj.style.display="block"; //visible
-        canvasobj.style.position = 'absolute'
-        canvasobj.style.top = 0
-        canvasobj.style.bottom = 0
-        canvasobj.style.left = 0  
-        canvasobj.style.right = 0
-        canvasobj.style.border='1px dotted #E6E6E6' 
-        
-        canvasobj.style.width=this.width+'px'; // Set browser canvas display style to be workspace_width
-        canvasobj.style.height=this.height+'px';
-
-        // Draw blank gray 
-        context.fillStyle="#7F7F7F"; 
-        context.fillRect(0,0,canvasobj.width,canvasobj.height);
-        
-
-        // Remove overflow?
-        //https://www.w3schools.com/cssref/pr_pos_overflow.asp
-
-        context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
-
-
-        if(_ratio !== 1){
-          scaleContext(context)
-      }
+    if(_ratio !== 1){
+      scaleContext(context)
+  }
 } 
 
 

@@ -53,7 +53,19 @@ class TaskStreamerClass{
 
         return tP 
     }
+    async get_step(){
+        var frameData = {'canvasSequence':[Playspace.ScreenDisplayer.canvas_reward, Playspace.ScreenDisplayer.canvas_punish, ], 'durationSequence':[500, 0]}
+        var actionRegions = {'x':0.5, 'y':0.5, 'diameter':2}
+        var rewardFunction = function(action){return 0}
 
+        var stepPackage = {'frameData':frameData, 'actionRegions':actionRegions, 'rewardFunction':rewardFunction}
+
+        return stepPackage
+    }
+
+    async deposit_action_reward(action, reward){
+        console.log(action, reward)
+    }
     update_state(current_trial_outcome){
 
         var tk = this.taskSequence[this.taskNumber]

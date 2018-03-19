@@ -45,6 +45,7 @@ class ActionPollerClass{
         }
 
 
+
         this.handleActionEvent = function(x, y, t, event_type){
             
             var inside = false
@@ -134,7 +135,16 @@ class ActionPollerClass{
             _this.recordActionEvent(x, y, t, event.type)
         }
     }
-     
+    
+    async poll(xCentroidPixels, yCentroidPixels, diameterPixels){
+        this.create_action_regions(
+            xCentroidPixels, 
+            yCentroidPixels, 
+            diameterPixels)
+        var action = await this.Promise_wait_until_active_response()
+        return action
+    }
+
     start_action_tracking(){
         this.loggingActions = true 
         this.actionLog = {}
