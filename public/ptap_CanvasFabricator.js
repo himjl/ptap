@@ -36,6 +36,16 @@ class cf{ // "Canvas Fabricator"
         context.fill();
     }
 
+    static draw_rectangle(canvasobj, color, alpha, xPixels, yPixels, widthPixels, heightPixels){
+        var context=canvasobj.getContext('2d');
+        context.fillStyle=color 
+        context.globalAlpha = alpha
+        
+        context.fillRect(xPixels, yPixels, widthPixels,heightPixels);
+
+        context.fill()
+    }
+
     static fill_canvas(canvasobj, color){
         var context = canvasobj.getContext('2d');
         context.fillStyle = color;
@@ -135,4 +145,105 @@ class cf{ // "Canvas Fabricator"
         return 
     }
 
+    static async drawText(textString, fontSize, color, xcentroid_pixel, ycentroid_pixel, canvasobj){
+        var context = canvasobj.getContext('2d')
+        fontSize = fontSize || 8
+        color = color || 'black'
+        context.font = fontSize+"px Arial"
+        context.fillStyle = color
+        context.fillText(textString, xcentroid_pixel, ycentroid_pixel)
+        context.fill()
+
+    }
+
 }
+
+
+
+
+
+
+function scaleContext(context){
+   var devicePixelRatio = window.devicePixelRatio || 1
+   var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+   context.mozBackingStorePixelRatio ||
+   context.msBackingStorePixelRatio ||
+   context.oBackingStorePixelRatio ||
+    context.backingStorePixelRatio || 1 // /1 by default for chrome?
+    var _ratio = devicePixelRatio / backingStoreRatio
+
+    context.scale(_ratio, _ratio) 
+}
+ 
+async function bufferFixation(fixationFramePackage){
+
+    var xcentroid_pixel = fixationFramePackage['fixationXCentroidPixels'] 
+    var ycentroid_pixel = fixationFramePackage['fixationYCentroidPixels']
+    var fixationDiameter_pixels = fixationFramePackage['fixationDiameterPixels'] 
+    // input arguments in playspace units 
+
+    // Clear canvas if different 
+    if (this.last_fixation_xcentroid == xcentroid_pixel 
+        && this.last_fixation_ycentroid == ycentroid_pixel
+        && this.last_fixation_diameter == fixationDiameter_pixels
+        && this.last_eyeFixation_xcentroid == fixationFramePackage['eyeFixationXCentroidPixels']
+        && this.last_eyeFixation_ycentroid == fixationFramePackage['eyeFixationYCentroidPixels']
+        && this.last_eyeFixation_diameter == fixationFramePackage['eyeFixationDiameterPixels']
+        && this.last_eyeFixation_drawn == fixationFramePackage['drawEyeFixationDot']
+        ){
+        // TODO also check for changes to eye fixation
+        return 
+    }
+
+    await this.renderBlank(this.canvas_fixation)
+
+    // Draw touch initiation dot
+    await this.drawDot(
+                    xcentroid_pixel, 
+                    ycentroid_pixel, 
+                    fixationDiameter_pixels, 
+                    'white', 
+                    this.canvas_fixation)
+
+    // Draw eye fixation dot 
+    if(fixationFramePackage['drawEyeFixationDot'] == true){
+        await this.drawDot(
+                            fixationFramePackage['eyeFixationXCentroidPixels'], 
+                            fixationFramePackage['eyeFixationYCentroidPixels'], 
+                            fixationFramePackage['eyeFixationDiameterPixels'], 
+                            '#2d2d2d', 
+                            this.canvas_fixation
+                        )
+    } 
+   
+
+    this.last_fixation_xcentroid = xcentroid_pixel
+    this.last_fixation_ycentroid = ycentroid_pixel
+    this.last_fixation_diameter = fixationDiameter_pixels
+    this.last_eyeFixation_xcentroid = fixationFramePackage['eyeFixationXCentroidPixels']
+    this.last_eyeFixation_ycentroid = fixationFramePackage['eyeFixationYCentroidPixels']
+    this.last_eyeFixation_diameter = fixationFramePackage['eyeFixationDiameterPixels']
+    this.last_eyeFixation_drawn = fixationFramePackage['drawEyeFixationDot']
+}
+
+function togglePlayspaceBorder(on_or_off){
+        // Turns on / off the dotted border
+        if(on_or_off == 1){
+            var bs = '1px dotted #E6E6E6' // border style 
+        }
+        else{
+            var bs = '0px'
+        }
+        this.canvas_blank.style.border = bs
+        this.canvas_reward.style.border = bs
+        this.canvas_punish.style.border = bs
+        this.canvas_fixation.style.border = bs
+
+        for (var sequence in this._sequence_canvases){
+            if(this._sequence_canvases.hasOwnProperty(sequence)){
+                for (var i = 0; i<this._sequence_canvases[sequence].length; i ++){
+                    this._sequence_canvases[sequence][i].style.border = bs
+                }
+            }
+        }
+    }

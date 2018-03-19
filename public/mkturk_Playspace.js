@@ -45,7 +45,7 @@ class PlaySpaceClass{
         this.rewardLog = {'t':[], 'n':[]}
         this.start_device_tracking()
         this.ActionPoller.start_action_tracking()
-        this.toggleBorder(0)
+        //this.toggleBorder(0)
         console.log('debug2record: Playspace performed a reset of reward, device, and action logs')
     }
 
@@ -281,7 +281,7 @@ class PlaySpaceClass{
 
 
     toggleBorder(on_or_off){
-        this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
+        //this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
     }
 
     start_periodic_rewards(){
@@ -399,7 +399,7 @@ class PlaySpaceClass{
             bounds['windowHeight'] = windowHeight
             bounds['t'] = Math.round(performance.now()*1000)/1000
 
-            _this.ScreenDisplayer.calibrateBounds(bounds)
+            //_this.ScreenDisplayer.calibrateBounds(bounds)
             _this.ActionPoller.calibrateBounds(bounds)
             _this.updateWindowLog(bounds) 
 

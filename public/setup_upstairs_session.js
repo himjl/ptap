@@ -54,7 +54,7 @@ async function setup_upstairs_session(sessionPackage){
     wdm('Building playspace...')
    Playspace = new PlaySpaceClass(playspacePackage)
    await Playspace.build()
-   Playspace.toggleBorder(1)
+   //Playspace.toggleBorder(1)
 
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
