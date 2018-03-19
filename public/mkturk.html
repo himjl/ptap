@@ -185,12 +185,12 @@ wdm('Entering main trial loop...')
 
 while(TaskStreamer.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer.get_step()
-  var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['actionRegions'], stepPackage['rewardFunction'])
+  var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['rewardFunction'])
 
   await TaskStreamer.deposit_action_reward(stepOutcome['action'], stepOutcome['reward'])
   
   continue 
-  
+
   // 1.0
   var trialPackage = await TaskStreamer.get_trial()
 	var trialOutcome = await Playspace.run_trial(trialPackage) 

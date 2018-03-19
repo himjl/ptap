@@ -136,12 +136,19 @@ class ActionPollerClass{
         }
     }
     
-    async poll(xCentroidPixels, yCentroidPixels, diameterPixels){
+    async poll(xCentroidPixels, yCentroidPixels, diameterPixels, actionTimeoutMsec){
         this.create_action_regions(
             xCentroidPixels, 
             yCentroidPixels, 
             diameterPixels)
-        var action = await this.Promise_wait_until_active_response()
+
+        if (actionTimeoutMsec > 0){
+            var action = await Promise.race([this.Promise_wait_until_active_response(), 
+                this.timeout(actionTimeoutMsec)])
+        }
+        else{
+            var action = await this.Promise_wait_until_active_response()
+        }
         return action
     }
 

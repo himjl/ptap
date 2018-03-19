@@ -58,7 +58,11 @@ class TaskStreamerClass{
         var actionRegions = {'x':0.5, 'y':0.5, 'diameter':2}
         var rewardFunction = function(action){return 0}
 
-        var stepPackage = {'frameData':frameData, 'actionRegions':actionRegions, 'rewardFunction':rewardFunction}
+        var stepPackage = {
+            'frameData':frameData, 
+            'actionRegions':actionRegions, 
+            'actionTimeoutMsec':500,
+            'rewardFunction':rewardFunction}
 
         return stepPackage
     }

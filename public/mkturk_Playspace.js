@@ -57,7 +57,7 @@ class PlaySpaceClass{
         
     }
 
-    async step(frameData, actionRegions, rewardFunction){
+    async step(frameData, actionRegions, actionTimeoutMsec, rewardFunction){
         // Run frames
         var frameTimestamps = await this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])
 
@@ -69,7 +69,8 @@ class PlaySpaceClass{
         var action = await this.ActionPoller.poll(
             actionRegionsPixels['x'], 
             actionRegionsPixels['y'], 
-            actionRegionsPixels['diameter'])
+            actionRegionsPixels['diameter'], 
+            actionTimeoutMsec)
 
 
         // Calculate and deliver reward
