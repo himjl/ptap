@@ -64,9 +64,10 @@ class PlaySpaceClass{
     }
 
     async step(frameData, soundData, actionRegions, actionTimeoutMsec, reward){
-        // Run frames
+        // Start playing sound(t), async
         this.SoundPlayer.play_sound(soundData['soundName'])
         
+        // Deliver reward(t) and run frames(t)
         var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
 
         var frameTimestamps = freturn[1]
@@ -83,13 +84,10 @@ class PlaySpaceClass{
             actionTimeoutMsec)
         }
         
-        // Calculate and deliver reward
-        var reward = rewardFunction(action)
-        await this.Reinforcer.deliver_reinforcement(reward)
         
 
         // Return
-        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action}
+        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward': reward}
         return stepOutcome
     }
 

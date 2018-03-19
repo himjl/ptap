@@ -202,7 +202,7 @@ while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
   var stepOutcome = await Playspace.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
 
-  TaskStreamer2.deposit_action_reward(stepOutcome['action'], stepOutcome['reward'])
+  TaskStreamer2.deposit_action(stepOutcome['action'])
   
   continue 
 

@@ -70,7 +70,7 @@ class TaskStreamerClass2{
         var frameData = {}
         var actionRegions = {}
         var soundData = {}
-        var rewardFunction = undefined
+        var reward = 0
         var actionTimeoutMsec = 0
 
         if (this.currentStepNumber == 0){
@@ -82,7 +82,7 @@ class TaskStreamerClass2{
             actionRegions['yPixels'] = this.playspaceHeight * 0.8 
             actionRegions['diameterPixels'] = this.playspaceWidth * 0.1 
             actionTimeoutMsec = undefined
-            rewardFunction = function(){return 0}
+            reward = 0 
 
             this.currentStepNumber+=1
         }
@@ -94,20 +94,13 @@ class TaskStreamerClass2{
             actionRegions['yPixels'] = [this.playspaceHeight * 0.8, this.playspaceHeight * 0.8]
             actionRegions['diameterPixels'] = [this.playspaceWidth * 0.2, this.playspaceWidth * 0.2  ]
             actionTimeoutMsec = 5000
-            rewardFunction = function(action){
-                if (action['actionIndex'] == 0){
-                    return 1
-                }
-                else{
-                    return 0
-                }
-            }
-
+            reward = 0
+       
             this.currentStepNumber +=1
         }
         else if(this.currentStepNumber == 2){
             // Run reinforcement screen (based on user action)
-            if (this.rewardHistory[this.rewardHistory.length-1] > 0){
+            if (this.actionHistory[this.actionHistory.length-1]['actionIndex'] == 0){
                 // Reward screen
                 frameData['canvasSequence'] = [this.canvasReward, this.canvasReward]
                 frameData['durationSequence'] = [200, 0]
@@ -116,11 +109,11 @@ class TaskStreamerClass2{
                 actionRegions['diameterPixels'] = 0
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'reward_sound'
-                rewardFunction = function(){return 0}
+                reward = 1
             }
 
-            else if (this.rewardHistory[this.rewardHistory.length-1] <= 0){
-                // Reward screen
+            else{
+                // Punish screen screen
                 frameData['canvasSequence'] = [this.canvasPunish, this.canvasPunish]
                 frameData['durationSequence'] = [2000, 0]
                 actionRegions['xPixels'] = 0
@@ -128,7 +121,7 @@ class TaskStreamerClass2{
                 actionRegions['diameterPixels'] = 0
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'punish_sound'
-                rewardFunction = function(){return 0}
+                reward = 0
             }
             this.currentStepNumber = 0
         }
@@ -138,14 +131,13 @@ class TaskStreamerClass2{
             'soundData':soundData,
             'actionRegions':actionRegions, 
             'actionTimeoutMsec':actionTimeoutMsec,
-            'rewardFunction':rewardFunction}
-
+            'reward':reward}
+        this.rewardHistory.push(reward)
         return stepPackage
     }
 
-    deposit_action_reward(action, reward){
+    deposit_action(action){
         this.actionHistory.push(action)
-        this.rewardHistory.push(reward)
     }
 
     async get_behavioral_data(){
