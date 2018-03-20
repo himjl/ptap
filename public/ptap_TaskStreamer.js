@@ -44,7 +44,7 @@ class TaskStreamerClass2{
     }
 
     deposit_action(action){
-        this.tasks[taskNumber].deposit_action(action)
+        this.tasks[this.taskNumber].deposit_action(action)
         this.actionHistory.push(action)
     }
 
@@ -65,7 +65,6 @@ class StimulusResponseGenerator{
 
 
         // Canvases needed to run the task
-
         this.canvasFixation = Playspace2.get_new_canvas('SR_fixation')
         this.canvasStimulus = Playspace2.get_new_canvas('SR_stimulus')
         this.canvasDelay = Playspace2.get_new_canvas('SR_delay')
@@ -74,13 +73,31 @@ class StimulusResponseGenerator{
 
         // Fill out what you can
         CanvasTemplates.fill_gray(this.canvasFixation)
-        CanvasTemplates.draw_fixation_button(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], 0.8)
+        CanvasTemplates.fill_gray(this.canvasStimulus)
+        CanvasTemplates.fill_gray(this.canvasDelay)
+        CanvasTemplates.fill_gray(this.canvasChoice)
 
+        // Initiation button and eye fixation dot
+        CanvasTemplates.draw_button(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], 0.15)
+
+        CanvasTemplates.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5, Playspace2.virtualPixelsPerInch, Playspace2.viewingDistanceInches)
+
+        // Choice screen 
+        for (var a in this.taskParams['actionXCentroid']){
+            CanvasTemplates.draw_button(this.canvasChoice, this.taskParams['actionXCentroid'][a], 
+                this.taskParams['actionYCentroid'][a], this.taskParams['actionDiameterDegrees'][a])    
+        }
+        
         this.currentStepNumber = 0 
     }
 
 
     async deposit_action(action){
+        if (this.actionHistory == undefined){
+            this.actionHistory = []
+        }
+
+        this.actionHistory.push(action)
 
     }
 
@@ -91,13 +108,17 @@ class StimulusResponseGenerator{
         var sampleBag = np.random.choice(this.taskParams['sampleBagNames'])
         var sampleId = np.random.choice(this.imageBags[sampleBag])
         var sampleImage = await this.IB.get_by_name(sampleId)
-        cf.draw_image(this.canvasStimulus, sampleImage, this.canvasStimulus.height * 0.5, this.canvasStimulus.width * 0.5, Playspace2.deg2pixels(8))
+        cf.draw_image(this.canvasStimulus, sampleImage, parseFloat(this.canvasStimulus.style.height) * 0.5, parseFloat(this.canvasStimulus.style.width) * 0.5, Playspace2.deg2pixels(8))
 
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
 
     }
 
     async get_step(){
+        if (this.currentStepNumber == undefined){
+            this.currentStepNumber = 0
+        }
+
         var frameData = {}
         var actionRegions = {}
         var soundData = {}
@@ -111,9 +132,9 @@ class StimulusResponseGenerator{
 
             frameData['canvasSequence'] = [this.canvasFixation]
             frameData['durationSequence'] = [0]
-            actionRegions['xPixels'] = this.playspaceWidth * 0.5 
-            actionRegions['yPixels'] = this.playspaceHeight * 0.8 
-            actionRegions['diameterPixels'] = this.playspaceWidth * 0.1 
+            actionRegions['xPixels'] = 0 * 0.5 
+            actionRegions['yPixels'] = 0 * 0.8 
+            actionRegions['diameterPixels'] = 100
             actionTimeoutMsec = undefined
             reward = 0 
 
@@ -171,80 +192,7 @@ class StimulusResponseGenerator{
         return stepPackage
     }
 
-    async buffer_trial(){
-        // Fixation screen 
-
-        // Stimulus screen 
-
-        // (optional) delay screen
-
-        // Choice screen 
-
-    }
 }
 
 
-class CanvasTemplates{
-    // Some commonly used drawing operations. These reflect the personal preferences of author @mil. 
-
-    static fill_gray(canvasobj){
-        // the neutral gray color
-        cf.fill_canvas(canvasobj, '#7F7F7F')
-    }
-    static draw_fixation_button(canvasobj, xProportion, yProportion, diameterProportion){
-        // x = 0.5 
-        // y = 0.85
-        // diameterDegrees = 3 
-
-        var xPixels = canvasobj.width * xProportion 
-        var yPixels = canvasobj.height * yProportion 
-        var diameterPixels = (canvasobj.width + canvasobj.height)/2 * diameterProportion
-
-        cf.draw_circle(canvasobj, xPixels, yPixels, diameterPixels, 'white')
-
-    }
-
-    static draw_eye_fixation_dot(canvasobj, xProportion, yProportion, virtualPixelsPerInch, viewingDistanceInches){
-
-
-        var diameterPixels = Math.max(deg2pixels(0.2, virtualPixelsPerInch, viewingDistanceInches), 4) // at least 4 pixels at its widest 
-        var xPixels = canvasobj.width * xProportion 
-        var yPixels = canvasobj.height * yProportion 
-        cf.draw_circle(canvasobj, xPixels, yPixels, diameterPixels, '#2d2d2d')
-    }
-
-    static draw_eye_fixation_cross(canvasobj, xProportion, yProportion, diameterProportion){
-        return 
-    }
-
-    static draw_punish(canvasobj, playspaceWidth, playspaceHeight, ){
-        var punishColor = 'black'
-        var punishAlpha = 1
-        
-        var widthPixels = playspaceWidth * 2/3
-        var heightPixels = playspaceHeight * 2/3 
-
-
-        var x = playspaceWidth/2 - widthPixels/2
-        var y = playspaceHeight/2 - heightPixels/2
-
-        cf.draw_rectangle(canvasobj, punishColor, punishAlpha, x, y, widthPixels, heightPixels)
-
-    }
-
-    static draw_reward(canvasobj, playspaceWidth, playspaceHeight, ){
-        var punishColor = '#00cc00'
-        var punishAlpha = 0.5
-        
-        var widthPixels = playspaceWidth * 2/3
-        var heightPixels = playspaceHeight * 2/3 
-
-        var x = playspaceWidth/2 - widthPixels/2
-        var y = playspaceHeight/2 - heightPixels/2
-
-        cf.draw_rectangle(canvasobj, punishColor, punishAlpha, x, y, widthPixels, heightPixels)
-
-    }
-
-}
 

@@ -156,3 +156,28 @@ async function run_tutorial_trial(tutorial_image){
         await this.ActionPoller.Promise_wait_until_active_response()
         this.SoundPlayer.play_sound('reward_sound')
     }
+
+
+
+    function togglePlayspaceBorder(on_or_off){
+            // Turns on / off the dotted border
+            if(on_or_off == 1){
+                var bs = '1px dotted #E6E6E6' // border style 
+            }
+            else{
+                var bs = '0px'
+            }
+            this.canvas_blank.style.border = bs
+            this.canvas_reward.style.border = bs
+            this.canvas_punish.style.border = bs
+            this.canvas_fixation.style.border = bs
+
+            for (var sequence in this._sequence_canvases){
+                if(this._sequence_canvases.hasOwnProperty(sequence)){
+                    for (var i = 0; i<this._sequence_canvases[sequence].length; i ++){
+                        this._sequence_canvases[sequence][i].style.border = bs
+                    }
+                }
+            }
+        }
+        

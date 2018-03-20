@@ -1,4 +1,5 @@
 class Playspace2{
+    // An object that is instantiated with the viewing parameters of the environnment (i.e. viewing distance, virtual pixels, desired playspace dimensions), and then provides canvas creation and drawing operations that are requested in units of degrees and playspace proportions
 
     constructor(
         virtualPixelsPerInch, 
@@ -12,86 +13,290 @@ class Playspace2{
         this.heightVisualAngle = playspaceHeightVisualAngle
         this.virtualPixelsPerInch = virtualPixelsPerInch
 
-
         this.height = this.deg2pixels(this.heightVisualAngle)
         this.width = this.deg2pixels(this.widthVisualAngle)
+
+        this.canvasPointers = {}
     }
 
     get_new_canvas(canvasId){
-        
+        // returns new, transparent canvas object with dimensions of Playspace
         var canvasobj = cf.new_canvas(canvasId, this.width, this.height, true)
-        // returns new, transparent canvas object with appropriate dimensions
+        this.canvasPointers[canvasId] = canvasobj
         return canvasobj
     }
 
+
+    // ******* Drawing functions ******************
+    draw_image(canvasobj, image, xCentroidProportion, yCentroidProportion, diameterProportion){
+        // diameterProportion: the diameter of the largest dimension of the image, in units of Playspace proportions
+        
+        var xCentroidPixels = xCentroidProportion * this.width 
+        var yCentroidPixels = yCentroidProportion * this.height
+
+        if (image.naturalWidth > image.naturalHeight){
+            var diameterPixels = diameterProportion * this.width
+        }
+        else{
+            var diameterPixels = diameterProportion * this.height
+        }
+
+        cf.draw_image(canvasobj, image, xCentroidPixels, yCentroidPixels, diameterPixels)
+    }
+
+    draw_button(canvasobj, xCentroidProportion, yCentroidProportion, diameterProportion, color){
+        // diameterProportion: the diameter of the circle, in units of the smallest dimension of the playspace 
+        if(this.height < this.width){
+            var diameterPixels = this.height * diameterProportion
+        }
+        else{
+            var diameterPixels = this.width * diameterProportion
+        }
+
+        var xPixels = xCentroidProportion * this.width 
+        var yPixels = yCentroidProportion * this.height 
+
+        cf.draw_circle(canvasobj, xPixels, yPixels, diameterPixels, color)
+    }
+
+    draw_rectangle(canvasobj, xCentroidProportion, yCentroidProportion, widthProportion, heightProportion, color){
+        var xPixels = this.width * xCentroidProportion
+        var yPixels = this.height * yCentroidProportion
+        var widthPixels = this.width * widthProportion
+        var heightPixels = this.height * heightProportion
+        cf.draw_rectangle(canvasobj, color, alpha, xPixels, yPixels, widthPixels, heightPixels)
+    }
+
+    fill_canvas(canvasobj, color){
+        cf.fill_canvas(canvasobj, color)
+
+    }
+
+    clear_canvas(canvasobj){
+        cf.clear_canvas(canvasobj)
+    }
+
+
+    // ******* Spatial conversion functions *******
     deg2pixels(degrees){
-        return deg2pixels(degrees, this.virtualPixelsPerInch, this.viewingDistanceInches)
+        return deg2pixels_core(degrees, this.virtualPixelsPerInch, this.viewingDistanceInches)
     }
+    pixels2deg(px){
+        // assume centered about gaze todo
+
+        throw "Not implemented yet"
+    }
+
+    deg2propX(degrees){
+        // Degrees of visual angle to Playspace proportion (x dimension)
+        var px = this.deg2pixels(degrees)
+        return px / this.width
+
+    }
+    deg2propY(degrees){
+        // Degrees of visual angle to Playspace proportion (y dimension)
+        var px = this.deg2pixels(degrees)
+        return px / this.height
+    }
+    propY2deg(propY){
+        var px = propY * this.height
+
+    }
+    propX2deg(propX){
+        var px = propX * this.width
+    }
+
+    // ********************************************
 }
 
 
-function deg2inches(degrees, viewingDistanceInches){
 
-        // diameter degrees 
-        // assume centered (center of diameter length at viewing normal to screen surface)
-        if(degrees.constructor == Array){
-            var result = []
-            for (var i = 0; i<degrees.length; i++){
-                var rad = deg2rad(degrees[i]/2)
-                result.push(2 * viewingDistanceInches * Math.atan(rad))
+//// End playspace
+
+
+
+// Canvas drawing operations. Utilized by Playspace to draw on canvases with correct spatial units
+class cf{ // "Canvas Fabricator"
+    static async draw_image(
+        canvasobj, 
+        images, 
+        xcentroids_pixels, 
+        ycentroids_pixels,
+        diameter_pixels,
+        ){
+
+        if(images.constructor == Array){
+                // Iterate over the images in this frame and draw them all
+                for (var i_image = 0; i_image<images.length; i_image++){
+
+                    await this._drawImage(
+                        images[i_image], 
+                        xcentroids_pixels[i_image], 
+                        ycentroids_pixels[i_image], 
+                        diameter_pixels[i_image], 
+                        canvasobj)
+                }
             }
-            return result
+
+            else{
+                await this._drawImage(images, xcentroids_pixels, 
+                    ycentroids_pixels,
+                    diameter_pixels,
+                    canvasobj)
+            }
         }
 
-        var rad = deg2rad(degrees/2)
-        return 2 * viewingDistanceInches * Math.atan(rad) 
+    static draw_circle(canvasobj, xPixels, yPixels, diameterPixels, color){
+
+        var context=canvasobj.getContext('2d');
+
+        context.beginPath();
+        context.arc(xPixels,yPixels,diameterPixels/2,0*Math.PI,2*Math.PI);
+        context.fillStyle=color; 
+        context.fill();
     }
 
-function deg2pixels(degrees, virtualPixelsPerInch, viewingDistanceInches){
-    // Return virtual pixels 
-    if(degrees.constructor == Array){
-        var result = []
-        for (var i = 0; i<degrees.length; i++){
-            var inches = deg2inches(degrees[i], viewingDistanceInches)
-            result.push(Math.round(inches * virtualPixelsPerInch))
+    static draw_rectangle(canvasobj, color, alpha, xPixels, yPixels, widthPixels, heightPixels){
+        var context=canvasobj.getContext('2d');
+        context.fillStyle=color 
+        context.globalAlpha = alpha
+        
+        context.fillRect(xPixels, yPixels, widthPixels,heightPixels);
+
+        context.fill()
+    }
+
+    static fill_canvas(canvasobj, color){
+        var context = canvasobj.getContext('2d');
+        context.fillStyle = color;
+        context.fillRect(0, 0, parseFloat(canvasobj.style.width), parseFloat(canvasobj.style.height));
+        context.fill();
+
+    }
+    static clear_canvas(canvasobj){
+        var context = canvasobj.getContext('2d')
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    static new_canvas(canvas_id, width, height, use_image_smoothing){
+        use_image_smoothing = false || use_image_smoothing
+        var canvasobj = document.createElement('canvas')
+        canvasobj.id = canvas_id
+        this.setupCanvas(canvasobj, width, height, use_image_smoothing)
+        document.body.appendChild(canvasobj)
+        return canvasobj 
+    }
+
+    static setupCanvas(canvasobj, width, height, use_image_smoothing){
+
+        // Returns a horizontally (and vertically?) centered canvas 
+
+        use_image_smoothing =  use_image_smoothing || false 
+        var context = canvasobj.getContext('2d')
+
+        var devicePixelRatio = window.devicePixelRatio || 1
+        var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+        context.mozBackingStorePixelRatio ||
+        context.msBackingStorePixelRatioproportion2pixels ||
+        context.oBackingStorePixelRatio ||
+        context.backingStorePixelRatio || 1 // /1 by default for chrome?
+
+        var _ratio = devicePixelRatio / backingStoreRatio
+
+        canvasobj.width = width * _ratio;
+        canvasobj.height = height * _ratio;
+
+        // Center canvas 
+        // https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+        canvasobj.style.padding = 0
+
+        canvasobj.style.margin = 'auto'
+        canvasobj.style.display="block"; //visible
+        canvasobj.style.position = 'absolute'
+        canvasobj.style.top = 0
+        canvasobj.style.bottom = 0
+        canvasobj.style.left = 0  
+        canvasobj.style.right = 0
+        canvasobj.style.border='1px dotted #E6E6E6' 
+
+        canvasobj.style.width=width+'px'; // Set browser canvas display style to be workspace_width
+        canvasobj.style.height=height+'px';
+
+        // Draw blank gray 
+        //context.fillStyle="#7F7F7F"; 
+        //context.fillRect(0,0,canvasobj.width,canvasobj.height);
+
+
+        // Remove overflow?
+        //https://www.w3schools.com/cssref/pr_pos_overflow.asp
+
+        context.imageSmoothingEnabled = use_image_smoothing // then nearest neighbor?
+
+        if(_ratio !== 1){
+          this.scaleContext(context)
         }
-        return result
+    } 
+
+    static async _drawImage(image, xcentroid_pixel, ycentroid_pixel, diameter_pixels, canvasobj){
+
+        // Special cases for 'image'
+        if(image == 'dot'){
+            await this.drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixels, 'white', canvasobj)
+            return
+        }
+        if(image == 'blank'){
+            await this.renderBlank(canvasobj)
+            return
+        }
+
+        var nativeWidth = image.naturalWidth 
+        var nativeHeight = image.naturalHeight
+
+        if (nativeHeight > nativeWidth){
+            var drawHeight = diameter_pixels
+            var drawWidth = diameter_pixels * nativeWidth / nativeHeight
+        }
+        else{
+            var drawWidth = diameter_pixels 
+            var drawHeight = diameter_pixels * nativeHeight / nativeWidth
+        }
+
+        // in units of window
+        var original_left_start = xcentroid_pixel - diameter_pixels/2 // in virtual pixel coordinates
+        var original_top_start = ycentroid_pixel - diameter_pixels/2
+
+        var context = canvasobj.getContext('2d')
+        await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight)
+
+        return 
     }
 
-    var inches = deg2inches(degrees, viewingDistanceInches)
-    return Math.round(inches * virtualPixelsPerInch)
+    static async drawText(textString, fontSize, color, xcentroid_pixel, ycentroid_pixel, canvasobj){
+        var context = canvasobj.getContext('2d')
+        fontSize = fontSize || 8
+        color = color || 'black'
+        context.font = fontSize+"px Arial"
+        context.fillStyle = color
+        context.fillText(textString, xcentroid_pixel, ycentroid_pixel)
+        context.fill()
+
+    }
+
+
+    static scaleContext(context){
+       var devicePixelRatio = window.devicePixelRatio || 1
+       var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+       context.mozBackingStorePixelRatio ||
+       context.msBackingStorePixelRatio ||
+       context.oBackingStorePixelRatio ||
+        context.backingStorePixelRatio || 1 // /1 by default for chrome?
+        var _ratio = devicePixelRatio / backingStoreRatio
+
+        context.scale(_ratio, _ratio)  // x, y
+    }
+
+
 }
 
 
-function xprop2pixels(xproportion){
-    if(xproportion.constructor == Array){
-        var result = []
-        for (var i = 0; i<xproportion.length; i++){
-            result.push(Math.round(xproportion[i]*this.width))
-        }
-        return result
-    }
-    return Math.round(xproportion*this.width)
-}
 
-function yprop2pixels(yproportion){
-    if(yproportion.constructor == Array){
-        var result = []
-        for (var i = 0; i<yproportion.length; i++){
-            result.push(Math.round(yproportion[i]*this.height))
-        }
-        return result
-    }
-    return Math.round(yproportion*this.height)
-}
-
-function deg2rad(deg){
-    if(deg.constructor == Array){
-        var result = []
-        for (var i = 0; i<deg.length; i++){
-            result.push(deg[i] * Math.PI / 180)
-        }
-        return result
-    }
-    return deg * Math.PI / 180
-}

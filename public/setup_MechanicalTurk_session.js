@@ -4,7 +4,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   GAME = GAME_PACKAGE['GAME']
   IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']
   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']
-  
+
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
   
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
@@ -50,7 +50,7 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
-    var show_instructions = true
+    var show_instructions = false
     var show_hand_selection = false 
     var show_device_selection = false 
     var run_preview_mode = false

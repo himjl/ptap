@@ -111,8 +111,10 @@
 
 <script src="ptap_TaskStreamer.js"></script>
 <script src="ptap_CanvasFabricator.js"></script>
+<script src="ptap_CanvasTemplates.js"></script>
 <script src="ptap_Playspace.js"></script>
 <script src="ptap_HumanEnvironmentInterface.js"></script>
+<script src="ptap_spatialunits.js"></script>
 
 <script>
 
@@ -225,10 +227,10 @@ var playspacePackage = {
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
 
 
-HEE = new HumanEnvironmentInterface(playspacePackage)
+HEI = new HumanEnvironmentInterface(playspacePackage)
 while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
-  var stepOutcome = await HEE.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
+  var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
 
   TaskStreamer2.deposit_action(stepOutcome['action'])
   
