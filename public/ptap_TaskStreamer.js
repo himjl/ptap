@@ -1,10 +1,4 @@
 class TaskStreamerClass2{
-    // todo: factor out into...
-
-    // "task" component (specifying trial info); units of playspace.
-    
-    // "screen"-dependent component (constructing canvases, buffering); units of pixels.
-
     constructor(
         ImageBuffer, 
         taskSequence,
@@ -14,9 +8,6 @@ class TaskStreamerClass2{
         this.IB = ImageBuffer
         this.imageBags = imageBags
         this.taskSequence = taskSequence 
-
-        this.canvasBank = [] // Increase as needed
-
         // Viewing information (for rendering canvases of appropriate size)
         this.TERMINAL_STATE = false 
 
@@ -46,6 +37,14 @@ class TaskStreamerClass2{
     deposit_action(action){
         this.tasks[this.taskNumber].deposit_action(action)
         this.actionHistory.push(action)
+        if(this.tasks[this.taskNumber].can_transition()){
+            this.taskNumber+=1
+            if(this.taskNumber > this.taskSequence.length){
+                this.TERMINAL_STATE = true
+
+            }
+        }
+
     }
 
     async get_behavioral_data(){
@@ -54,15 +53,12 @@ class TaskStreamerClass2{
 }
 
 class StimulusResponseGenerator{
-    constructor(IB, imageBags, taskParams, canvasList){
+    constructor(IB, imageBags, taskParams, state){
         // taskParams: entry of TASK_SEQUENCE
 
         this.IB = IB // Imagebuffer
         this.imageBags = imageBags
         this.taskParams = taskParams 
-
-
-
 
         // Canvases needed to run the task
         this.canvasFixation = Playspace2.get_new_canvas('SR_fixation')
@@ -71,7 +67,6 @@ class StimulusResponseGenerator{
         this.canvasChoice = Playspace2.get_new_canvas('SR_choice')
         this.canvasPunish = Playspace2.get_new_canvas('SR_punish')
         this.canvasReward = Playspace2.get_new_canvas("SR_reward")
-
 
         // Fill out what you can
         Playspace2.fill_gray(this.canvasFixation)
@@ -88,14 +83,16 @@ class StimulusResponseGenerator{
 
         // Choice screen 
         for (var a in this.taskParams['actionXCentroid']){
-            Playspace2.draw_circle(this.canvasChoice, this.taskParams['actionXCentroid'][a], 
-                this.taskParams['actionYCentroid'][a], Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'][a]), 'white')    
+            Playspace2.draw_circle(this.canvasChoice, this.taskParams['choiceXCentroid'][a], 
+                this.taskParams['choiceYCentroid'][a], Playspace2.deg2propX(this.taskParams['choiceDiameterDegrees'][a]), 'white')    
         }
         
         this.currentStepNumber = 0 
     }
 
-
+    can_transition(){
+        return false
+    }
     async deposit_action(action){
         if (this.actionHistory == undefined){
             this.actionHistory = []

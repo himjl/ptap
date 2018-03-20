@@ -124,9 +124,6 @@ var FLAGS = {}; // todo: get rid of
 $(async function(){
 try{
 
-console.time('Done setting up')
-$("MechanicalTurkInstructionsSplash").show()
-
 // Load inputs from local storage, web, or Dropbox.
 wdm('Running bootstrapper...')
 var SBS = new SessionBootStrapper()
@@ -138,6 +135,7 @@ wdm('Verifying inputs...')
 VF = new Verifier()
 sessionPackage = VF.verify_session_package(sessionPackage)
 console.log('sessionPackage', sessionPackage)
+
 // Construct session
 wdm('Setting up session...')
 
@@ -150,7 +148,7 @@ else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
 // Unpack objects
 var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
-var Playspace = freturn['Playspace']
+var HEI = freturn['HEI']
 var UX = freturn['UX']
 var SESSION = freturn['SESSION']
 
@@ -199,12 +197,7 @@ var virtualPixelsPerInch = 143.755 // todo: how to best estimate this value?
 SIO = new S3_IO()
 var IB = new ImageBuffer(SIO)
 
-Playspace2 = new Playspace2(
-  virtualPixelsPerInch, 
-  viewingDistanceInches, 
-  playspaceWidthDegreesVisualAngle, 
-  playspaceHeightDegreesVisualAngle
-  )
+
 
 TaskStreamer2 = new TaskStreamerClass2(
   IB, 
@@ -212,20 +205,6 @@ TaskStreamer2 = new TaskStreamerClass2(
   sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
 
 
-var playspacePackage = {
-    'playspace_degreesVisualAngle':ENVIRONMENT['playspace_degreesVisualAngle'], 
-    'playspace_verticalOffsetInches':ENVIRONMENT['playspace_verticalOffsetInches'],
-    'playspace_viewingDistanceInches':ENVIRONMENT['playspace_viewingDistanceInches'],
-    'screen_virtualPixelsPerInch':ENVIRONMENT['screen_virtualPixelsPerInch'],
-    'primary_reinforcer_type':ENVIRONMENT['primary_reinforcer_type'], 
-    'action_event_type':ENVIRONMENT['action_event_type'], 
-    'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], 
-    'periodicRewardAmount':GAME['periodicRewardAmount'], 
-    'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], 
-    'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
-
-
-HEI = new HumanEnvironmentInterface(playspacePackage)
 while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
   var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])

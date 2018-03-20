@@ -10,6 +10,15 @@ async function setup_mechanicalturk_session(sessionPackage){
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
   console.log('Detected landing page URL', landingPageURL)
 
+
+  Playspace2 = new Playspace2(
+    ENVIRONMENT['screen_virtualPixelsPerInch'], 
+    ENVIRONMENT['playspace_viewingDistanceInches'], 
+    ENVIRONMENT['playspace_degreesVisualAngle'], 
+    ENVIRONMENT['playspace_degreesVisualAngle']
+  )
+
+
   SESSION = {}
   SESSION['workerId'] = az.get_workerId_from_url(landingPageURL)
   SESSION['hitId'] = az.get_hitId_from_url(landingPageURL)
@@ -42,8 +51,7 @@ async function setup_mechanicalturk_session(sessionPackage){
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
     'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], 
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
-  Playspace = new PlaySpaceClass(playspacePackage)
-  await Playspace.build()
+  HEI = new HumanEnvironmentInterface(playspacePackage)
 
   console.log(ENVIRONMENT)
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], ENVIRONMENT['bonusUSDPerCorrect'])
@@ -91,14 +99,14 @@ async function setup_mechanicalturk_session(sessionPackage){
   }
 
   TaskStreamer.debug2record()
-  Playspace.debug2record()
+  //Playspace.debug2record()
   DataWriter.debug2record()
   UX.debug2record()
 
   var freturn = {}
   freturn['TaskStreamer'] = TaskStreamer
   freturn['DataWriter'] = DataWriter 
-  freturn['Playspace'] = Playspace 
+  freturn['HEI'] = HEI 
   freturn['UX'] = UX 
   freturn['SESSION'] = SESSION
   return freturn

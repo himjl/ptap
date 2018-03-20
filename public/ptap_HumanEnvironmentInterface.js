@@ -19,9 +19,6 @@ class HumanEnvironmentInterface{
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
 
-
-
-
         this.ScreenDisplayer = new ScreenDisplayer()
         
         if (primary_reinforcer_type == 'juice'){
@@ -37,7 +34,7 @@ class HumanEnvironmentInterface{
 
 
         this.actionCanvasObj = Playspace2.get_new_canvas('actionField')
-        this.actionCanvasObj.style.zIndex = 200
+        this.actionCanvasObj.style.zIndex = 101
         
         this.ActionPoller = new ActionPollerClass(action_event_type, this.actionCanvasObj)
         this.SoundPlayer = new SoundPlayerClass()

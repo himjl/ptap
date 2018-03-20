@@ -4,21 +4,25 @@ async function setup_upstairs_session(sessionPackage){
   GAME = GAME_PACKAGE['GAME']
   IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']
   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']
-  
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
 
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']
   SESSION = {}
-  //SESSION['ipAddress'] = await az.get_ip_address()
+
   SESSION['species'] = 'monkey'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL
   SESSION['agentId'] = await LocalStorageIO.load_string('agentId')
-
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
+  Playspace2 = new Playspace2(
+    ENVIRONMENT['screen_virtualPixelsPerInch'], 
+    ENVIRONMENT['playspace_viewingDistanceInches'], 
+    ENVIRONMENT['playspace_degreesVisualAngle'], 
+    ENVIRONMENT['playspace_degreesVisualAngle']
+  )
 
-    UX = new MonkeyUX()
+  UX = new MonkeyUX()
    wdm('Starting dropbox connection...')
    DIO = new DropboxIO()
    await DIO.build(window.location.href)
@@ -52,9 +56,7 @@ async function setup_upstairs_session(sessionPackage){
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
   
     wdm('Building playspace...')
-   Playspace = new PlaySpaceClass(playspacePackage)
-   await Playspace.build()
-   //Playspace.toggleBorder(1)
+   HEI = new HumanEnvironmentInterface(playspacePackage)
 
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
@@ -63,20 +65,10 @@ async function setup_upstairs_session(sessionPackage){
     var gamePackage = {}
     gamePackage['TaskStreamer'] = TaskStreamer
     gamePackage['DataWriter'] = DataWriter 
-    gamePackage['Playspace'] = Playspace 
+    gamePackage['HEI'] = HEI 
     gamePackage['UX'] = UX 
     gamePackage['SESSION'] = SESSION
     wdm('Done building session components...')
 
-    // Playspace.Reinforcer.juiceRewardPer1000 = 175
-    // wdm('20sec')
-    // await sleep(20000)
-    // ub = 500
-    // for (i = 0; i < ub; i++) {
-    //   await sleep(1500)
-    //   Playspace.Reinforcer.deliver_reinforcement(1)
-    //   wdm(i + ' of ' + ub + '. juicerewardper1000=' + Playspace.Reinforcer.juiceRewardPer1000)
-    // }
-    // return
     return gamePackage
 }
