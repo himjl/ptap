@@ -69,23 +69,27 @@ class StimulusResponseGenerator{
         this.canvasStimulus = Playspace2.get_new_canvas('SR_stimulus')
         this.canvasDelay = Playspace2.get_new_canvas('SR_delay')
         this.canvasChoice = Playspace2.get_new_canvas('SR_choice')
+        this.canvasPunish = Playspace2.get_new_canvas('SR_punish')
+        this.canvasReward = Playspace2.get_new_canvas("SR_reward")
 
 
         // Fill out what you can
-        CanvasTemplates.fill_gray(this.canvasFixation)
-        CanvasTemplates.fill_gray(this.canvasStimulus)
-        CanvasTemplates.fill_gray(this.canvasDelay)
-        CanvasTemplates.fill_gray(this.canvasChoice)
+        Playspace2.fill_gray(this.canvasFixation)
+        Playspace2.fill_gray(this.canvasStimulus)
+        Playspace2.fill_gray(this.canvasDelay)
+        Playspace2.fill_gray(this.canvasChoice)
+        Playspace2.draw_reward(this.canvasReward)
+        Playspace2.draw_punish(this.canvasPunish)
 
         // Initiation button and eye fixation dot
-        CanvasTemplates.draw_button(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], 0.15)
+        Playspace2.draw_circle(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], 0.15, 'white')
 
-        CanvasTemplates.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5, Playspace2.virtualPixelsPerInch, Playspace2.viewingDistanceInches)
+        Playspace2.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
 
         // Choice screen 
         for (var a in this.taskParams['actionXCentroid']){
-            CanvasTemplates.draw_button(this.canvasChoice, this.taskParams['actionXCentroid'][a], 
-                this.taskParams['actionYCentroid'][a], this.taskParams['actionDiameterDegrees'][a])    
+            Playspace2.draw_circle(this.canvasChoice, this.taskParams['actionXCentroid'][a], 
+                this.taskParams['actionYCentroid'][a], Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'][a]), 'white')    
         }
         
         this.currentStepNumber = 0 
@@ -105,10 +109,10 @@ class StimulusResponseGenerator{
 
         // Called before fixation is presented. 
 
-        var sampleBag = np.random.choice(this.taskParams['sampleBagNames'])
-        var sampleId = np.random.choice(this.imageBags[sampleBag])
+        var sampleBag = np.choice(this.taskParams['sampleBagNames'])
+        var sampleId = np.choice(this.imageBags[sampleBag])
         var sampleImage = await this.IB.get_by_name(sampleId)
-        cf.draw_image(this.canvasStimulus, sampleImage, parseFloat(this.canvasStimulus.style.height) * 0.5, parseFloat(this.canvasStimulus.style.width) * 0.5, Playspace2.deg2pixels(8))
+        Playspace2.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace2.deg2propX(8))
 
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
 

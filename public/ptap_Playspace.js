@@ -27,7 +27,7 @@ class Playspace2{
     }
 
 
-    // ******* Drawing functions ******************
+    // ******* Fundamental drawing functions ******************
     draw_image(canvasobj, image, xCentroidProportion, yCentroidProportion, diameterProportion){
         // diameterProportion: the diameter of the largest dimension of the image, in units of Playspace proportions
         
@@ -44,7 +44,7 @@ class Playspace2{
         cf.draw_image(canvasobj, image, xCentroidPixels, yCentroidPixels, diameterPixels)
     }
 
-    draw_button(canvasobj, xCentroidProportion, yCentroidProportion, diameterProportion, color){
+    draw_circle(canvasobj, xCentroidProportion, yCentroidProportion, diameterProportion, color){
         // diameterProportion: the diameter of the circle, in units of the smallest dimension of the playspace 
         if(this.height < this.width){
             var diameterPixels = this.height * diameterProportion
@@ -75,6 +75,53 @@ class Playspace2{
     clear_canvas(canvasobj){
         cf.clear_canvas(canvasobj)
     }
+
+    // ******* Some common canvas operations ******************
+    // reflects standard settings of author @mil; provided for convenience.
+    fill_gray(canvasobj){
+        // the neutral gray color
+        cf.fill_canvas(canvasobj, '#7F7F7F')
+    }
+
+    draw_punish(canvasobj){
+        var punishColor = 'black'
+        var punishAlpha = 1
+        
+        var widthPixels = this.width * 2/3
+        var heightPixels = this.height * 2/3 
+
+
+        var x = this.width/2 - widthPixels/2
+        var y = this.height/2 - heightPixels/2
+
+        this.fill_gray(canvasobj)
+        cf.draw_rectangle(canvasobj, punishColor, punishAlpha, x, y, widthPixels, heightPixels)
+    }
+
+    draw_reward(canvasobj){
+        var punishColor = '#00cc00'
+        var punishAlpha = 0.5
+        
+        var widthPixels = this.width * 2/3
+        var heightPixels = this.height * 2/3 
+
+        var x = this.width/2 - widthPixels/2
+        var y = this.height/2 - heightPixels/2
+        this.fill_gray(canvasobj)
+        cf.draw_rectangle(canvasobj, punishColor, punishAlpha, x, y, widthPixels, heightPixels)
+    }
+
+    draw_eye_fixation_dot(canvasobj, xCentroidProportion, yCentroidProportion){
+
+        var width = parseFloat(canvasobj.style.width)
+        var height = parseFloat(canvasobj.style.height)
+
+        var diameterPixels = Math.max(this.deg2pixels(0.2), 4) // at least 4 pixels at its widest 
+        var xPixels = width * xCentroidProportion 
+        var yPixels = height * yCentroidProportion 
+        cf.draw_circle(canvasobj, xPixels, yPixels, diameterPixels, '#2d2d2d')
+    }
+
 
 
     // ******* Spatial conversion functions *******
@@ -108,8 +155,6 @@ class Playspace2{
 
     // ********************************************
 }
-
-
 
 //// End playspace
 
@@ -187,6 +232,9 @@ class cf{ // "Canvas Fabricator"
         return canvasobj 
     }
 
+
+
+
     static setupCanvas(canvasobj, width, height, use_image_smoothing){
 
         // Returns a horizontally (and vertically?) centered canvas 
@@ -217,7 +265,7 @@ class cf{ // "Canvas Fabricator"
         canvasobj.style.bottom = 0
         canvasobj.style.left = 0  
         canvasobj.style.right = 0
-        canvasobj.style.border='1px dotted #E6E6E6' 
+        //canvasobj.style.border='1px dotted #E6E6E6' 
 
         canvasobj.style.width=width+'px'; // Set browser canvas display style to be workspace_width
         canvasobj.style.height=height+'px';
@@ -235,6 +283,14 @@ class cf{ // "Canvas Fabricator"
         if(_ratio !== 1){
           this.scaleContext(context)
         }
+    } 
+
+    static draw_border(canvasobj){
+        canvasobj.style.border = '1px dotted #E6E6E6' 
+    }
+    
+    static remove_border(canvasobj){
+        canvasobj.style.border = 'none'
     } 
 
     static async _drawImage(image, xcentroid_pixel, ycentroid_pixel, diameter_pixels, canvasobj){
