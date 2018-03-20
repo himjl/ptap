@@ -1,7 +1,7 @@
 class ActionPollerClass{
-    constructor(event_types){
+    constructor(event_types, actionCanvasObj){
         // ['mousemove', 'touchmove', 'touchstart', 'onclick']
-
+        this.actionCanvasObj = actionCanvasObj
         this.event_types = event_types    
         this._response_promise
 
@@ -250,10 +250,10 @@ class ActionPollerClass{
 
         for(var i = 0; i < event_types.length; i++){
             if(event_types[i] == 'touchmove' || event_types[i] == 'touchstart' || event_types[i] == 'touchend'){
-                $("#actionField").on(event_types[i], this.handleTouchEvent) // , {passive:false})
+                $(this.actionCanvasObj).on(event_types[i], this.handleTouchEvent) // , {passive:false})
             }
             else if(event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
-                $("#actionField").on(event_types[i], this.handleMouseEvent)
+                $(this.actionCanvasObj).on(event_types[i], this.handleMouseEvent)
             }
             
             //console.log('Added ', event_types[i])

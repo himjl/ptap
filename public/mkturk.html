@@ -197,7 +197,7 @@ var virtualPixelsPerInch = 143.755 // todo: how to best estimate this value?
 
 
 SIO = new S3_IO()
-var ImageBuffer = new ImageBuffer(SIO)
+var IB = new ImageBuffer(SIO)
 
 Playspace2 = new Playspace2(
   virtualPixelsPerInch, 
@@ -207,7 +207,8 @@ Playspace2 = new Playspace2(
   )
 
 TaskStreamer2 = new TaskStreamerClass2(
-  ImageBuffer, 
+  IB, 
+  sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'], 
   sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
 
 
@@ -222,7 +223,7 @@ var playspacePackage = {
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
     'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], 
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
-    
+
 
 HEE = new HumanEnvironmentInterface(playspacePackage)
 while(TaskStreamer2.TERMINAL_STATE == false){

@@ -39,7 +39,7 @@ class HumanEnvironmentInterface{
         this.actionCanvasObj = Playspace2.get_new_canvas('actionField')
         this.actionCanvasObj.style.zIndex = 200
         
-        this.ActionPoller = new ActionPollerClass(action_event_type, actionCanvasObj)
+        this.ActionPoller = new ActionPollerClass(action_event_type, this.actionCanvasObj)
         this.SoundPlayer = new SoundPlayerClass()
         this.periodicRewardIntervalMsec = periodicRewardIntervalMsec 
         this.periodicRewardAmount = periodicRewardAmount
