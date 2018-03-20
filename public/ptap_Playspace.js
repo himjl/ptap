@@ -136,21 +136,46 @@ class Playspace2{
 
     deg2propX(degrees){
         // Degrees of visual angle to Playspace proportion (x dimension)
+        if(degrees.constructor == Array){
+            var _this = this
+            return degrees.map(x => _this.deg2pixels(x)/_this.width)
+        }
         var px = this.deg2pixels(degrees)
         return px / this.width
 
     }
     deg2propY(degrees){
         // Degrees of visual angle to Playspace proportion (y dimension)
+        if(degrees.constructor == Array){
+            var _this = this
+            return degrees.map(x => _this.deg2pixels(x)/_this.height)
+        }
+
         var px = this.deg2pixels(degrees)
         return px / this.height
     }
-    propY2deg(propY){
-        var px = propY * this.height
+    propY2pixels(propY){
 
+        if(propY.constructor == Array){
+            var pxSeq = []
+            for (var i = 0; i < propY.length; i ++){
+                pxSeq.push(propY[i] * this.height)
+            }
+            return pxSeq
+        }
+        var px = propY * this.height
+        return px
     }
-    propX2deg(propX){
+    propX2pixels(propX){
+        if(propX.constructor == Array){
+            var pxSeq = []
+            for (var i = 0; i < propX.length; i ++){
+                pxSeq.push(propX[i] * this.width)
+            }
+            return pxSeq
+        }
         var px = propX * this.width
+        return px
     }
 
     // ********************************************

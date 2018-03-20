@@ -82,7 +82,7 @@ class StimulusResponseGenerator{
         Playspace2.draw_punish(this.canvasPunish)
 
         // Initiation button and eye fixation dot
-        Playspace2.draw_circle(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], 0.15, 'white')
+        Playspace2.draw_circle(this.canvasFixation, this.taskParams['fixationXCentroid'], this.taskParams['fixationYCentroid'], Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
 
         Playspace2.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
 
@@ -129,6 +129,8 @@ class StimulusResponseGenerator{
         var reward = 0
         var actionTimeoutMsec = 0
 
+
+
         if (this.currentStepNumber == 0){
 
             await this.buffer_trial() // Buffer before presenting the fixation
@@ -136,9 +138,9 @@ class StimulusResponseGenerator{
 
             frameData['canvasSequence'] = [this.canvasFixation]
             frameData['durationSequence'] = [0]
-            actionRegions['xPixels'] = 0 * 0.5 
-            actionRegions['yPixels'] = 0 * 0.8 
-            actionRegions['diameterPixels'] = 100
+            actionRegions['x'] = this.taskParams['fixationXCentroid']  // playspace units
+            actionRegions['y'] = this.taskParams['fixationYCentroid']  // playspace units
+            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees'])
             actionTimeoutMsec = undefined
             reward = 0 
 
@@ -150,9 +152,9 @@ class StimulusResponseGenerator{
             frameData['canvasSequence'] = [this.canvasStimulus, this.canvasChoice]
             frameData['durationSequence'] = [200, 0]
 
-            actionRegions['xPixels'] = [this.playspaceWidth * 0.3, this.playspaceWidth * 0.7]  
-            actionRegions['yPixels'] = [this.playspaceHeight * 0.8, this.playspaceHeight * 0.8]
-            actionRegions['diameterPixels'] = [this.playspaceWidth * 0.2, this.playspaceWidth * 0.2  ]
+            actionRegions['x'] = this.taskParams['actionXCentroid']  // playspace units
+            actionRegions['y'] = this.taskParams['actionYCentroid']  // playspace units
+            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'])
             actionTimeoutMsec = 5000
             reward = 0
        
@@ -165,9 +167,9 @@ class StimulusResponseGenerator{
                 // Reward screen
                 frameData['canvasSequence'] = [this.canvasReward, this.canvasReward]
                 frameData['durationSequence'] = [200, 0]
-                actionRegions['xPixels'] = 0
-                actionRegions['yPixels'] = 0
-                actionRegions['diameterPixels'] = 0
+                actionRegions['x'] = 0
+                actionRegions['y'] = 0
+                actionRegions['diameter'] = 0
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'reward_sound'
                 reward = 1
@@ -177,9 +179,9 @@ class StimulusResponseGenerator{
                 // Punish screen screen
                 frameData['canvasSequence'] = [this.canvasPunish, this.canvasPunish]
                 frameData['durationSequence'] = [2000, 0]
-                actionRegions['xPixels'] = 0
-                actionRegions['yPixels'] = 0
-                actionRegions['diameterPixels'] = 0
+                actionRegions['x'] = 0
+                actionRegions['y'] = 0
+                actionRegions['diameter'] = 0
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'punish_sound'
                 reward = 0

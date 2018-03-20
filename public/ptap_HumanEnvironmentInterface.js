@@ -78,9 +78,9 @@ class HumanEnvironmentInterface{
         }
         else{
             var action = await this.ActionPoller.poll(
-            actionRegions['xPixels'], 
-            actionRegions['yPixels'], 
-            actionRegions['diameterPixels'],
+            actionRegions['x'], 
+            actionRegions['y'], 
+            actionRegions['diameter'],
             actionTimeoutMsec)
         }
         
