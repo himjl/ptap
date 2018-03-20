@@ -4,7 +4,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   GAME = GAME_PACKAGE['GAME']
   IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']
   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']
-
+  
   ENVIRONMENT = sessionPackage['ENVIRONMENT'] 
   
   var landingPageURL = sessionPackage['LANDING_PAGE_URL']

@@ -1,9 +1,9 @@
 class cf{ // "Canvas Fabricator"
-    static async draw_image(images, 
+    static async draw_image(canvasobj, images, 
         xcentroids_pixels, 
         ycentroids_pixels,
         diameter_pixels,
-        canvasobj){
+        ){
 
         if(images.constructor == Array){
                 // Iterate over the images in this frame and draw them all
@@ -26,7 +26,7 @@ class cf{ // "Canvas Fabricator"
             }
         }
 
-    static draw_circle(xPixels, yPixels, diameterPixels, color, canvasobj){
+    static draw_circle(canvasobj, xPixels, yPixels, diameterPixels, color){
 
         var context=canvasobj.getContext('2d');
 
