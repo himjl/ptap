@@ -62,6 +62,7 @@ class TaskStreamerClass2{
     }
 
     async get_step(){
+        console.log('tasknumber', this.taskNumber)
         var stepPackage = await this.tasks[this.taskNumber].get_step()
         this.lastStepPackage = stepPackage 
 
@@ -109,7 +110,7 @@ class TaskStreamerClass2{
         // Check if current generator determined that the transition criterion was met
         if(this.tasks[this.taskNumber].can_transition()){
             this.taskNumber+=1
-            this.stateHashSequence.push(this.tasks[this.taskNumber].get_state_table())
+            //this.stateHashSequence.push(this.tasks[this.taskNumber].get_state_table())
             if(this.taskNumber > this.taskSequence.length){
                 this.TERMINAL_STATE = true
 
@@ -161,10 +162,35 @@ class StimulusResponseGenerator{
         this.currentStepNumber = 0 
 
         this.stateTable = {} // stateHash to meta 
+
+        this.rewardHistory = []
+
     }
 
     can_transition(){
-        return false
+        var minTrialsCriterion = this.taskParams['minTrialsCriterion']
+        var averageReturnCriterion = this.taskParams['averageReturnCriterion']
+
+        if (minTrialsCriterion == undefined){
+            return false 
+        }
+        if (averageReturnCriterion == undefined){
+            averageReturnCriterion = 0
+        }
+        var nstepsPerTrial = 3 
+        if(this.rewardHistory.length < minTrialsCriterion * nstepsPerTrial){
+            return false
+        }
+        var sumReward = np.sum(this.rewardHistory.slice(-1 * minTrialsCriterion * nstepsPerTrial))
+        var averageReward = sumReward / ( minTrialsCriterion * nstepsPerTrial)
+
+        console.log(averageReward)
+        if(averageReward < averageReturnCriterion / nstepsPerTrial){
+            return false
+        }
+
+
+        return true
     }
 
     get_state_table(){
@@ -203,7 +229,7 @@ class StimulusResponseGenerator{
 
     }
 
-    async update_state_hash_table(stepNumber, reward){
+    update_state_hash_table(stepNumber, reward){
         var stateHash = 'SR'
         var latentString = ''
 
@@ -321,6 +347,7 @@ class StimulusResponseGenerator{
             'assetId':assetId,
             'stepNumber':this.currentStepNumber}
 
+        this.rewardHistory.push(reward)
         return stepPackage
     }
 
