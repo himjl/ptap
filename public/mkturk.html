@@ -209,7 +209,7 @@ while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
   var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
 
-  TaskStreamer2.deposit_action(stepOutcome['action'])
+  TaskStreamer2.deposit_step_outcome(stepOutcome)
   
   continue 
 
@@ -219,11 +219,6 @@ while(TaskStreamer2.TERMINAL_STATE == false){
 await DataWriter.conclude_session()
 
 }// End try
-
-
-
-
-
 
 
 

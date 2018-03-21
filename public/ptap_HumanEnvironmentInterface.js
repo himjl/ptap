@@ -71,7 +71,10 @@ class HumanEnvironmentInterface{
         // Wait for eligible agent action
         if (actionTimeoutMsec == 0){
             // No action polled; move directly to next state
-            var action = 'null_state'
+            var action = {'actionIndex':null, 
+                            'x':null, 
+                            'y':null, 
+                            'timestamp':null}
         }
         else{
             var action = await this.ActionPoller.poll(
