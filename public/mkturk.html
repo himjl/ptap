@@ -171,13 +171,12 @@ wdm('Attaching async data probes...')
 // DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
 // DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
 // DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
-
 // Kick off async threads 
 wdm('Kicking off async threads...')
 // Playspace.start_periodic_rewards()
 // Playspace.start_action_tracking()
 // Playspace.start_device_tracking()
-//DataWriter.start_polling()
+DataWriter.start_polling()
 //TaskStreamer.start_buffering_continuous()
 
 
@@ -187,23 +186,16 @@ console.timeEnd('Done setting up')
 wdm('Entering main trial loop...')
 
 
-// Invariant to window size
-var viewingDistanceInches = 8 
-var playspaceHeightDegreesVisualAngle = 24
-var playspaceWidthDegreesVisualAngle = 24
-var virtualPixelsPerInch = 143.755 // todo: how to best estimate this value?
-
-
 SIO = new S3_IO()
 var IB = new ImageBuffer(SIO)
-
-
 
 TaskStreamer2 = new TaskStreamerClass2(
   IB, 
   sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'], 
   sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
 
+DataWriter.attach_probe(TaskStreamer2, 'AB', 'BEHAVIOR2')
+DataWriter.attach_probe(TaskStreamer2, 'hash2assetId', 'stateHash2assetId')
 
 while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()

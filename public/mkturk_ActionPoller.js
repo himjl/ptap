@@ -44,7 +44,6 @@ class ActionPollerClass{
         }
 
         this.handleActionEvent = function(x, y, t, event_type){
-            console.log(x, y, t)
 
             var inside = false
             
