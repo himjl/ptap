@@ -15,6 +15,9 @@ class TaskStreamerClass2{
 
         this.tasks = []
 
+        this.assetId2Hash = {} // key: generator provided asset id. value: hash
+        this.hash2assetId = {} // key: hash. value: generator provided asset id
+        this.currentHashCounter = 0 
 
         for (var tkNumber = 0; tkNumber < this.taskSequence.length; tkNumber ++){
             var taskType = this.taskSequence[tkNumber]['taskType']
@@ -33,17 +36,24 @@ class TaskStreamerClass2{
 
         // dataframe 1: agent behavior 
         this.AB = {}
-        this.AB.actionXHistory = [] // x (playspace proportion?) action; current action ()
-        this.AB.actionYHistory = [] // y (playspace proportion?)
-        this.AB.actionIndexHistory = [] // indexes action region
-        this.AB.rewardHistory = [] // reward; reflective of past actions
-        this.AB.stateHashHistory = []  // retrieved from generator
+        this.AB.actionX = [] // x (playspace proportion?) action; current action ()
+        this.AB.actionY = [] // y (playspace proportion?)
+        this.AB.actionIndex = [] // indexes action region
+        this.AB.reward = [] // reward; reflective of past actions
+        this.AB.stateHash = []  // retrieved from generator
         this.AB.timestampStartFrames = [] // first kickoff of frame 
         this.AB.timestampEndFrames = [] // last frame concluded at 
         this.AB.timestampAction = [] // action initiated at...
-        this.AB.frameTimestampHistory = [] // list of arrays of timestamps 
-        this.AB.taskNumberHistory = [] // indexes stateTableSequence
-        this.AB.stepNumberHistory = []
+        this.AB.taskNumber = [] // indexes stateTableSequence
+        this.AB.stepNumber = []
+        this.AB.taskType = []
+
+        // frame data
+        this.AB.assetIdHash = [] // entry is a list of lists
+        this.AB.frameTimestamp = [] // list of arrays of timestamps 
+        this.AB.actionRegionsX = [] // list of action regions 
+        this.AB.actionRegionsY = [] 
+        this.AB.actionRegionsDiameter = [] 
 
         // dataframe 2: environment state history 
         this.stateTableSequence = []
@@ -53,6 +63,8 @@ class TaskStreamerClass2{
 
     async get_step(){
         var stepPackage = await this.tasks[this.taskNumber].get_step()
+        this.lastStepPackage = stepPackage 
+
         this.lastReward = stepPackage['reward']
         this.lastStateHash = stepPackage['stateHash']
         this.lastStepNumber = stepPackage['stepNumber']
@@ -67,18 +79,32 @@ class TaskStreamerClass2{
 
 
         // Update behavior ledger 
-        this.AB.actionXHistory.push(action['x']) // x (playspace proportion?) action; current action ()
-        this.AB.actionYHistory.push(action['y'])// y (playspace proportion?)
-        this.AB.actionIndexHistory.push(action['actionIndex']) // indexes action region
+        this.AB.actionX.push(action['x']) // x (playspace proportion?) action; current action ()
+        this.AB.actionY.push(action['y'])// y (playspace proportion?)
+        this.AB.actionIndex.push(action['actionIndex']) // indexes action region
         this.AB.timestampAction.push(action['timestamp']) // action initiated at...
-        this.AB.rewardHistory.push(this.lastReward) // reward; reflective of past actions
-        this.AB.stateHashHistory.push(this.lastStateHash)  // retrieved from generator
+        this.AB.reward.push(this.lastReward) // reward; reflective of past actions
+        this.AB.stateHash.push(this.lastStateHash)  // retrieved from generator
         this.AB.timestampStartFrames.push(frameTimestamps[0]) // first kickoff of frame 
         this.AB.timestampEndFrames.push(frameTimestamps[frameTimestamps.length-1]) // last frame concluded at 
-        this.AB.frameTimestampHistory.push(frameTimestamps) // list of arrays of timestamps 
-        this.AB.taskNumberHistory.push(this.taskNumber)
-        this.AB.stepNumberHistory.push(this.lastStepNumber)
+        this.AB.frameTimestamp.push(frameTimestamps) // list of arrays of timestamps 
+        this.AB.taskNumber.push(this.taskNumber)
+        this.AB.stepNumber.push(this.lastStepNumber)
         this.AB.taskType.push(this.taskSequence[this.taskNumber]['taskType'])
+
+        // Update frame ledger
+        var assetId = this.lastStepPackage['assetId']
+        if (this.assetId2Hash[assetId] == undefined){
+            this.assetId2Hash[assetId] = this.currentHashCounter + 1 
+            this.currentHashCounter += 1 
+            this.hash2assetId[this.currentHashCounter] = assetId
+        }
+
+        this.AB.assetIdHash.push(this.assetId2Hash[assetId])
+        this.AB.actionRegionsX.push(this.lastStepPackage['actionRegions']['x']) // list of action regions 
+        this.AB.actionRegionsY.push(this.lastStepPackage['actionRegions']['y'])
+        this.AB.actionRegionsDiameter.push(this.lastStepPackage['actionRegions']['diameter'])
+
 
         // Check if current generator determined that the transition criterion was met
         if(this.tasks[this.taskNumber].can_transition()){
@@ -144,7 +170,7 @@ class StimulusResponseGenerator{
     get_state_table(){
         // Return whatever you want (JSON-like)
         // Hopefully, with key: stateHash, value: whatever state info 
-        return {}
+        return this.stateTable
     }
 
     async deposit_action(action){
@@ -172,33 +198,42 @@ class StimulusResponseGenerator{
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
         this.currentSampleBag = sampleBag
         this.currentSampleId = sampleId 
+        
 
 
     }
 
-    update_state_hash_table(stepNumber){
+    async update_state_hash_table(stepNumber, reward){
         var stateHash = 'SR'
         var latentString = ''
+
+        var stateMetaData = {} 
+
         if (stepNumber == 0){
             // fixation
             stateHash+='_F'
 
-            latentString += this.taskParams['fixationXCentroid'] + this.taskParams['fixationYCentroid'] + Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees'])
         }
         else if (stepNumber == 1){
             // stimulus and choice screen
+            stateHash+='_SC'
+
         }
         else if (stepNumber == 2){
             // reward or punish screen 
+            if (reward > 0){
+                stateHash+='_R'
+            }
+            else{
+                stateHash+='_P'
+            }
         }
         
-        var hash = latentString.hashCode()
-        stateHash = stateHash + '_' + hash
+        //var hash = latentString.hashCode()
+        //stateHash = stateHash + '_' + hash
 
 
         // Update hash code 
-
-
 
         return stateHash
     }
@@ -213,7 +248,7 @@ class StimulusResponseGenerator{
         var reward = 0
         var actionTimeoutMsec = 0
 
-        var stateHash = 'SRdummyhash'
+        var assetId = undefined 
 
         if (this.currentStepNumber == 0){
 
@@ -227,6 +262,7 @@ class StimulusResponseGenerator{
             actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees'])
             actionTimeoutMsec = undefined
             reward = 0 
+            assetId = 'fxdot'
         }
         else if(this.currentStepNumber == 1){
             // Run stimulus, (optionally) delay, and choice
@@ -239,6 +275,7 @@ class StimulusResponseGenerator{
             actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'])
             actionTimeoutMsec = 5000
             reward = 0
+            assetId = this.currentSampleId
         }
 
         else if(this.currentStepNumber == 2){
@@ -254,6 +291,7 @@ class StimulusResponseGenerator{
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'reward_sound'
                 reward = 1
+                assetId = 'Rgn'
             }
 
             else{
@@ -266,10 +304,11 @@ class StimulusResponseGenerator{
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'punish_sound'
                 reward = 0
+                assetId = 'Pbk'
             }
         }
 
-        stateHash = this.update_state_hash_table(this.currentStepNumber)
+        var stateHash = this.update_state_hash_table(this.currentStepNumber, reward)
 
 
         var stepPackage = {
@@ -279,6 +318,7 @@ class StimulusResponseGenerator{
             'actionTimeoutMsec':actionTimeoutMsec,
             'reward':reward, 
             'stateHash':stateHash, 
+            'assetId':assetId,
             'stepNumber':this.currentStepNumber}
 
         return stepPackage
