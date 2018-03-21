@@ -36,15 +36,18 @@ class JuiceReinforcer{
             var RewardDuration = nreward * this.setJuicerRewardDuration();
 
             if(ble.connected == false){
+               console.log('Delivered ', nreward, 'virtual juice rewards')
               return
             }
             else if (ble.connected == true){
                 var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
                 return p2
+                console.log('Delivered ', nreward, 'juice rewards')
             }
+
         }
       
-        console.log('Delivered ', nreward, 'rewards')
+        
     }
 
     setJuicerRewardDuration(){

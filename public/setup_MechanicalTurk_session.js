@@ -52,7 +52,7 @@ async function setup_mechanicalturk_session(sessionPackage){
     'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], 
     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
   HEI = new HumanEnvironmentInterface(playspacePackage)
-
+  await HEI.build()
   console.log(ENVIRONMENT)
   UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], ENVIRONMENT['bonusUSDPerCorrect'])
 

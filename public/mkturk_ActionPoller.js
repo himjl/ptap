@@ -128,7 +128,6 @@ class ActionPollerClass{
         }
 
         this.handleMouseEvent = function(event){
-            console.log(event)
 
             var boundingClientRect = event.target.getBoundingClientRect()
             var leftBound = boundingClientRect['left']

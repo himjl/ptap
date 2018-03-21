@@ -57,7 +57,7 @@ async function setup_upstairs_session(sessionPackage){
   
     wdm('Building playspace...')
    HEI = new HumanEnvironmentInterface(playspacePackage)
-
+   await HEI.build()
     //========= Start in TEST mode =======//
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"

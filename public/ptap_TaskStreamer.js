@@ -62,7 +62,6 @@ class TaskStreamerClass2{
     }
 
     async get_step(){
-        console.log('tasknumber', this.taskNumber)
         var stepPackage = await this.tasks[this.taskNumber].get_step()
         this.lastStepPackage = stepPackage 
 
