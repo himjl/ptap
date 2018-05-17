@@ -34,7 +34,6 @@ class az{
         var results = regex.exec(url) || ["", defaultValue] 
 
         return results[1]
-        
     }
 
 

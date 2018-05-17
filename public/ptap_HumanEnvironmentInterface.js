@@ -65,11 +65,15 @@ class HumanEnvironmentInterface{
         this.SoundPlayer.play_sound(soundData['soundName'])
         
         // Deliver reward(t) and run frames(t)
-        var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
 
+        console.log('START STEP: ', actionTimeoutMsec)
+        console.log(reward, frameData)
+        var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
+        console.log('DONE executing frames')
         var frameTimestamps = freturn[1]
         // Wait for eligible agent action
         if (actionTimeoutMsec == 0){
+            console.log('ActionPoller: Moving directly to next state')
             // No action polled; move directly to next state
             var action = {'actionIndex':null, 
                             'x':null, 
@@ -77,6 +81,7 @@ class HumanEnvironmentInterface{
                             'timestamp':null}
         }
         else{
+            console.log('ActionPoller: polling for action')
             var action = await this.ActionPoller.poll(
             actionRegions['x'], 
             actionRegions['y'], 

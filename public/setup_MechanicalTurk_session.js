@@ -36,8 +36,6 @@ async function setup_mechanicalturk_session(sessionPackage){
   IB = new ImageBuffer(SIO)
   CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)
   await CheckPointer.build()
-  TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
-  await TaskStreamer.build(5)
   DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode']) 
 
   var playspacePackage = {
@@ -98,13 +96,11 @@ async function setup_mechanicalturk_session(sessionPackage){
     SESSION['inputDevice'] = await UX.run_device_selection_dialogue()
   }
 
-  TaskStreamer.debug2record()
   //Playspace.debug2record()
   DataWriter.debug2record()
   UX.debug2record()
 
   var freturn = {}
-  freturn['TaskStreamer'] = TaskStreamer
   freturn['DataWriter'] = DataWriter 
   freturn['HEI'] = HEI 
   freturn['UX'] = UX 

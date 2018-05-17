@@ -61,44 +61,64 @@ class TaskStreamerClass2{
 
 
 class StimulusTrainMTSGenerator{
-    constructor(IB, imageBags, taskParams, initialState){
+    constructor(IB, imageBags, taskParams){
         this.IB = IB // Imagebuffer
         this.imageBags = imageBags
         this.taskParams = taskParams 
-        this.state = initialState 
         
         this.actionHistory = []
         this.rewardHistory = []
 
         this.initialize_canvases()
         
-        this.AB = {} // "agent behavior"
-        this.AB['trialNumberTask'] = []
-        this.AB['return'] = []
-        this.AB['sampleBag'] = []
-        this.AB['choiceBag'] = []
-        this.AB['sampleId'] = []
-        this.AB['action'] = []
-        this.AB['responseX'] = []
-        this.AB['responseY'] = []
-        this.AB['fixationX'] = []
-        this.AB['fixationY'] = []
-        this.AB['timestampStart'] = []
-        this.AB['timestampFixationOnset'] = []
-        this.AB['timestampFixationAcquired'] = []
-        this.AB['timestampResponse'] = []
-        this.AB['timestampReinforcementOn'] = []
-        this.AB['timestampReinforcementOff'] = []
-        this.AB['timestampStimulusOn'] = []
-        this.AB['timestampStimulusOff'] = []
-        this.AB['timestampChoiceOn'] = []
-        this.AB['reactionTime'] = []
+
+        this.sequenceNames = []
+        for (var k in this.taskParams['sequenceIdDict']){
+            if (this.taskParams['sequenceIdDict'].hasOwnProperty(k)){
+                this.sequenceNames.push(k)
+            }
+        }
+
+        this.trialNumber = 0
+
+        this.behavioral_data = {} // "agent behavior"
+        this.behavioral_data['trialNumberTask'] = []
+        this.behavioral_data['return'] = []
+        this.behavioral_data['stimulusSequenceName'] = []
+        this.behavioral_data['choiceId'] = []
+        this.behavioral_data['action'] = []
+        this.behavioral_data['responseChoice'] = []
+        this.behavioral_data['responseX'] = []
+        this.behavioral_data['responseY'] = []
+        this.behavioral_data['fixationX'] = []
+        this.behavioral_data['fixationY'] = []
+        this.behavioral_data['timestampStart'] = []
+        this.behavioral_data['timestampFixationOnset'] = []
+        this.behavioral_data['timestampFixationAcquired'] = []
+        this.behavioral_data['timestampResponse'] = []
+        this.behavioral_data['timestampReinforcementOn'] = []
+        this.behavioral_data['timestampReinforcementOff'] = []
+        this.behavioral_data['timestampStimulusOn'] = []
+        this.behavioral_data['timestampStimulusOff'] = []
+        this.behavioral_data['timestampChoiceOn'] = []
+        this.behavioral_data['reactionTime'] = []
     }
 
     initialize_canvases(){
 
-        // Canvases needed to run the task
-        var numStimulusFrames = this.taskParams['numStimulusFrames']
+        // Get number of canvases needed to run the task 
+        var seq = this.taskParams['sequenceIdDict']
+        var numStimulusFrames = 0
+        for (var k in seq){
+            if (!seq.hasOwnProperty(k)){
+                continue
+            }
+            if (seq[k].length > numStimulusFrames){
+                numStimulusFrames = seq[k].length
+            }
+        }
+        console.log('Preallocating', numStimulusFrames, 'frames')
+
         this.stimulusFrames = []
         for (var i = 0; i < numStimulusFrames; i++){
             this.stimulusFrames.push(Playspace2.get_new_canvas('frame_stimulus'+i))
@@ -145,17 +165,60 @@ class StimulusTrainMTSGenerator{
     }
 
     async buffer_trial(){
+        var stimulusSequenceName = np.choice(this.sequenceNames)
+        console.log('Running', stimulusSequenceName)
 
-        // Called before fixation is presented. 
 
-        var sampleBag = np.choice(this.taskParams['sampleBagNames'])
-        var sampleId = np.choice(this.imageBags[sampleBag])
-        var sampleImage = await this.IB.get_by_name(sampleId)
-        Playspace2.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace2.deg2propX(8))
+        var stimulusIdSeq = this.taskParams['sequenceIdDict'][stimulusSequenceName]
+        var msecSeq = this.taskParams['sequenceMsecDict'][stimulusSequenceName]
+        var choiceIds = this.taskParams['sequenceChoiceDict'][stimulusSequenceName]
+        var correctChoice = this.taskParams['sequenceRewardDict'][stimulusSequenceName]
 
-        this.rewardMap = this.taskParams['rewardMap'][sampleBag]
-        this.currentSampleBag = sampleBag
-        this.currentSampleId = sampleId 
+        // Download stimulus images
+        var stimulusImageRequests = []
+        for (var i = 0; i < stimulusIdSeq.length; i++){
+            var stimulusUrl = this.imageBags[stimulusIdSeq[i]]
+            stimulusImageRequests.push(this.IB.get_by_name(stimulusUrl))
+        }
+        var stimulusImages = await Promise.all(stimulusImageRequests)
+
+        // Download choice images (in order of placement on screen)
+        var choiceIds = shuffle(choiceIds)
+
+        var choiceImageRequests = []
+        for (var i = 0; i < choiceIds.length; i++){
+            var choiceUrl = this.imageBags[choiceIds[i]]
+            choiceImageRequests.push(this.IB.get_by_name(choiceUrl))
+        }
+        var choiceImages = await Promise.all(choiceImageRequests)
+
+        // Draw stimulus frame sequence
+        var numFrames = stimulusImages.length 
+        var stimulusDegrees = this.taskParams['sampleDiameterDegrees']
+        for (var i = 0; i < numFrames; i++){
+            Playspace2.draw_image(this.stimulusFrames[i], stimulusImages[i], 0.5, 0.5, Playspace2.deg2propX(stimulusDegrees))
+        }
+
+        // Draw choice frame
+        var numChoices = choiceImages.length 
+        for (var i = 0; i < numChoices; i++){
+            var xLoc = this.taskParams['choiceXCentroid'][i]
+            var yLoc = this.taskParams['choiceYCentroid'][i]
+            var choiceDegrees = this.taskParams['choiceDiameterDegrees'][i]
+            Playspace2.draw_image(this.canvasChoice, choiceImages[i], xLoc, yLoc, Playspace2.deg2propX(choiceDegrees))
+        }
+
+        this.numFrames = numFrames
+        this.stimulusSequenceName = stimulusSequenceName
+        this.choiceIds = choiceIds
+        if (correctChoice == undefined){
+            this.correctChoice = 'random'
+            this.correctActionIndex = np.choice(np.arange(numChoices))
+        }
+        else{
+            this.correctChoice = correctChoice    
+            this.correctActionIndex = choiceIds.indexOf(correctChoice)
+        }
     }
 
     async get_step(){
@@ -171,8 +234,7 @@ class StimulusTrainMTSGenerator{
 
         if (this.currentStepNumber == 0){
 
-            await this.buffer_trial() // Buffer before presenting the fixation
-            // Run fixation
+            await this.buffer_trial() // Buffer whole trial before presenting the fixation
 
             frameData['canvasSequence'] = [this.canvasFixation]
             frameData['durationSequence'] = [0]
@@ -184,12 +246,16 @@ class StimulusTrainMTSGenerator{
         }
 
         else if(this.currentStepNumber == 1){
+            var lastActionPackage = this.actionHistory[this.actionHistory.length-1]
+            this.lastFixationX = lastActionPackage['x']
+            this.lastFixationY = lastActionPackage['y']
+
             // Run stimulus train
-            frameData['canvasSequence'] = this.stimulusFrames
-            frameData['canvasSequence'].push(this.frame_choice)
+            frameData['canvasSequence'] = this.stimulusFrames.slice(0, this.numFrames)
+            frameData['canvasSequence'].push(this.canvasChoice)
             
-            var durSeq = np.ones(this.stimulusFrames.length) * 16.66667
-            durSeq.push(0)
+            var durSeq = JSON.parse(JSON.stringify(this.taskParams['sequenceMsecDict'][this.stimulusSequenceName]))
+            durSeq.push(0) // for choice
 
             frameData['durationSequence'] = durSeq
             actionRegions['x'] = this.taskParams['actionXCentroid']  // playspace units
@@ -201,7 +267,16 @@ class StimulusTrainMTSGenerator{
 
         else if(this.currentStepNumber == 2){
             // Run reinforcement screen (based on user action)
-            var reward = this.rewardMap[this.actionHistory[this.actionHistory.length-1]['actionIndex']]
+            var lastAction = this.actionHistory[this.actionHistory.length-1]['actionIndex']
+            var lastActionX = this.actionHistory[this.actionHistory.length-1]['x']
+            var lastActionY = this.actionHistory[this.actionHistory.length-1]['y']
+
+            if (lastAction == this.correctActionIndex){
+                var reward = 1 
+            }
+            else{
+                reward = 0
+            }
             if (reward >= 1){
                 // Reward screen
                 frameData['canvasSequence'] = [this.canvasReward, this.canvasReward]
@@ -225,6 +300,29 @@ class StimulusTrainMTSGenerator{
                 soundData['soundName'] = 'punish_sound'
                 reward = 0
             }
+
+            this.behavioral_data['trialNumberTask'].push(this.trialNumber)
+            this.behavioral_data['return'].push(reward)
+            this.behavioral_data['stimulusSequenceName'].push(this.stimulusSequenceName)
+            this.behavioral_data['choiceId'].push(this.choiceIds)
+            this.behavioral_data['action'].push(lastAction)
+            this.behavioral_data['responseChoice'].push(this.choiceIds[lastAction])
+            this.behavioral_data['responseX'].push(lastActionX)
+            this.behavioral_data['responseY'].push(lastActionY)
+            this.behavioral_data['fixationX'].push(this.lastFixationX)
+            this.behavioral_data['fixationY'].push(this.lastFixationY)
+            this.behavioral_data['timestampStart'] = []
+            this.behavioral_data['timestampFixationOnset'] = []
+            this.behavioral_data['timestampFixationAcquired'] = []
+            this.behavioral_data['timestampResponse'] = []
+            this.behavioral_data['timestampReinforcementOn'] = []
+            this.behavioral_data['timestampReinforcementOff'] = []
+            this.behavioral_data['timestampStimulusOn'] = []
+            this.behavioral_data['timestampStimulusOff'] = []
+            this.behavioral_data['timestampChoiceOn'] = []
+            this.behavioral_data['reactionTime'] = []
+
+            this.trialNumber+=1
         }
 
         var stepPackage = {

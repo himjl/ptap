@@ -90,7 +90,6 @@
 <script src="mkturk_SoundPlayer.js" type="text/javascript"></script>
 <script src="mkturk_DiskIO.js" type="text/javascript"></script>
 <script src="mkturk_DataWriter.js" type="text/javascript"></script>
-<script src="mkturk_TaskStreamer.js" type="text/javascript"></script>
 <script src="mkturk_UX.js" type="text/javascript"></script>
 <script src="mkturk_CheckPointer.js" type="text/javascript"></script>
 <script src="mkturk_Playspace.js" type="text/javascript"></script>
@@ -106,7 +105,6 @@
 <script src="mkturk_screenfunctions.js"></script>
 <script src="unit_tests.js"></script>
 <script src="mkturk_BiasDetection.js"></script>
-<script src="mkturk_TrialGenerator.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
 
 <script src="ptap_TaskStreamer.js"></script>
@@ -159,7 +157,7 @@ DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
-DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.TG.idx2bag)
+//DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.TG.idx2bag)
 //DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
@@ -194,8 +192,8 @@ TaskStreamer2 = new TaskStreamerClass2(
   sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'], 
   sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
 
-DataWriter.attach_probe(TaskStreamer2, 'AB', 'BEHAVIOR2')
-DataWriter.attach_probe(TaskStreamer2, 'hash2assetId', 'stateHash2assetId')
+DataWriter.attach_probe(TaskStreamer2, 'behavioral_data', 'BEHAVIOR')
+//DataWriter.attach_probe(TaskStreamer2, 'hash2assetId', 'stateHash2assetId')
 
 while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
