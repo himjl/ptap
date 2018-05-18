@@ -77,7 +77,6 @@ function connectBLEButtonPromise(){
       buttonclicked = yield buttonclicked;
       document.querySelector("button[name=connectble]").style.display = "none" //if do style.visibility=hidden, element will still occupy space
       document.querySelector("button[name=noble]").style.display = "none"
-      document.getElementById('drive_juice_button').style.visibility = "visible"
       wdm("Bluetooth connection handled...")
       resolveFunc(buttonclicked);
     }

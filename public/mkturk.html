@@ -28,16 +28,19 @@
 		<div id="StageBar"></div>
 </div>
 
-<div id="MechanicalTurk_ProgressBar", style="position: absolute; overflow:hidden; height: 3%; width:30%; margin-left:35%; margin-right:35%; border:1px solid #BDBDBD; background-color:#BDBDBD; z-index:102; visibility:hidden"; ; >
+<div id="MechanicalTurk_ProgressBar">
     <div id="MechanicalTurk_TrialBar"></div>
-</div>
+    
 
+</div>
+<div id='bonus_counter'>Bonus cents: 0</div>
 <button id="connectble" name="connectble" >Connect to Bluetooth juicer</button>
 <button id="noble" name="noble">No Bluetooth juicer</button>
-<button id="drive_juice_button" onclick="writepumpdurationtoBLE(500)">Send juice signal</button>
 
 <div id="TrialCounter">-</div>
 <div id="DebugMessageTextBox">Welcome...</div>
+<div id="LoadStatusTextBox">Hi :-) Loading assets...</div>
+
 <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
 <div id="PreviewModeSplash">
   <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>.  
@@ -45,7 +48,7 @@
 </div>
 
 <div id="MechanicalTurkInstructionsSplash">
-  <span id='InstructionSplashText'> Loading instructions... </span>
+  <div id='InstructionSplashText'> Loading instructions... </div>
   <button onclick="toggleElement(0, 'MechanicalTurkInstructionsSplash'); FLAGS.clicked_close_instructions(true)" id='CloseInstructionsButton' disabled> Loading... </button>
 </div>
 
@@ -74,14 +77,10 @@
 </div>
 
 <button id="doneTestingTask" name="doneTestingTask">Done with testing trials</button>
-
-<button id = 'WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
-
-
+<button id='WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
 <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
 <script src="setup_upstairs_session.js" type="text/javascript"></script>
 <script src="setup_MechanicalTurk_session.js" type="text/javascript"></script>
-
 <script src="mkturk_installsettings.js"></script>
 <script src="javascript_utils/seedrandom.js" type="text/javascript"></script>
 <script src="mkturk_ImageBuffer.js" type="text/javascript"></script>
@@ -98,28 +97,23 @@
 <script src="mkturk_ScreenDisplayer.js" type="text/javascript"></script>
 <script src="mkturk_amazon_utils.js" type="text/javascript"></script>
 <script src="mkturk_Verifier.js"></script>
-
 <script src="mkturk_SessionBootStrapper.js" type="text/javascript"></script>
 <script src="mkturk_defaultHIT_failsafe.js" type="text/javascript"></script>
-
 <script src="mkturk_screenfunctions.js"></script>
 <script src="unit_tests.js"></script>
 <script src="mkturk_BiasDetection.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> 
-
 <script src="ptap_TaskStreamer.js"></script>
 <script src="ptap_Playspace.js"></script>
 <script src="ptap_HumanEnvironmentInterface.js"></script>
 <script src="ptap_spatialunits.js"></script>
-
 <script>
-
-// todo: obfuscate script
 
 var FLAGS = {}; // todo: get rid of
 
 
 $(async function(){
+
 try{
 
 // Load inputs from local storage, web, or Dropbox.
@@ -149,7 +143,7 @@ var DataWriter = freturn['DataWriter']
 var HEI = freturn['HEI']
 var UX = freturn['UX']
 var SESSION = freturn['SESSION']
-
+var run_preview_mode = freturn['run_preview_mode']
 
 // Attach static data objects 
 wdm('Attaching static data probes...')
@@ -157,25 +151,15 @@ DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
-//DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.TG.idx2bag)
-//DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 
 // Attach async data probes 
 wdm('Attaching async data probes...')
 
-// DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
-// DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
-// DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
-// DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
 // Kick off async threads 
 wdm('Kicking off async threads...')
-// Playspace.start_periodic_rewards()
-// Playspace.start_action_tracking()
-// Playspace.start_device_tracking()
 DataWriter.start_polling()
-//TaskStreamer.start_buffering_continuous()
 
 
 // Main trial loop
@@ -192,8 +176,8 @@ TaskStreamer2 = new TaskStreamerClass2(
   sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'], 
   sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
 
+DataWriter.attach_probe(TaskStreamer2, 'rewardLog', 'REWARD_LOG')
 DataWriter.attach_probe(TaskStreamer2, 'behavioral_data', 'BEHAVIOR')
-//DataWriter.attach_probe(TaskStreamer2, 'hash2assetId', 'stateHash2assetId')
 
 while(TaskStreamer2.TERMINAL_STATE == false){
   var stepPackage = await TaskStreamer2.get_step()
@@ -206,7 +190,14 @@ while(TaskStreamer2.TERMINAL_STATE == false){
   wdm('Starting next trial...')
 }
 
-await DataWriter.conclude_session()
+
+if (run_preview_mode != true){
+  await DataWriter.conclude_session()  
+}
+else{
+  console.log('Not submitting because in preview mode')
+}
+
 
 }// End try
 
@@ -220,8 +211,6 @@ catch(error){
 }
 finally{
   // Should not get here unless an error took place
-  // Assume failure took place in mechanical turk session (this code is irrelevant for inlab)
-  // Submit the error message
   await sleep(1500)
 
   try{
@@ -252,7 +241,7 @@ finally{
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
   
-  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  document.getElementById("MechanicalTurk_SubmissionForm").submit();
   
   
 }

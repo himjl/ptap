@@ -56,7 +56,7 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
-    var show_instructions = false
+    var show_instructions = true
     var show_hand_selection = false 
     var show_device_selection = false 
     var run_preview_mode = false
@@ -75,25 +75,21 @@ async function setup_mechanicalturk_session(sessionPackage){
 
   if(run_preview_mode == true){
       console.log('RUNNING IN PREVIEW MODE')
-      var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')
       UX.show_preview_splash()
-      while(true){
-        await Playspace.run_tutorial_trial(tutorialImage)
-      }
   }
 
   if(show_instructions == true){
-    await UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])
+    UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])
   }
 
   
   if(show_hand_selection == true){
-    SESSION['handedness'] = await UX.run_hand_selection_dialogue()
+    //SESSION['handedness'] = UX.run_hand_selection_dialogue()
   }
 
   
   if(show_device_selection){    
-    SESSION['inputDevice'] = await UX.run_device_selection_dialogue()
+    //SESSION['inputDevice'] = UX.run_device_selection_dialogue()
   }
 
   //Playspace.debug2record()
@@ -105,6 +101,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   freturn['HEI'] = HEI 
   freturn['UX'] = UX 
   freturn['SESSION'] = SESSION
+  freturn['run_preview_mode'] = run_preview_mode
   return freturn
 }
 

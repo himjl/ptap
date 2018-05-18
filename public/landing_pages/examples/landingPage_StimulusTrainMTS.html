@@ -32,9 +32,9 @@ async function setupSession(){
     "GAME_PACKAGE": {
         "GAME": {
             "gameId": "stimulus_train_MechanicalTurk_MTS", 
-            "maximumTrials": 800, 
-            "minimumTrials": 50, 
-            "onFinish": "continue", 
+            "maximumTrials": 10, 
+            "minimumTrials": 10, 
+            "onFinish": "terminate", 
             "periodicRewardAmount": 0, 
             "periodicRewardIntervalMsec": 0
         }, 
@@ -62,7 +62,8 @@ async function setupSession(){
             ]
         }, 
         "TASK_SEQUENCE": [
-            {
+            {   
+                "numTrials":5,
                 "actionDiameterDegrees": [
                     6, 
                     6
@@ -80,11 +81,11 @@ async function setupSession(){
                     4
                 ], 
                 "sequenceMsecDict":{
-                    "sequence0":[100, 100], 
-                    "sequence1":[100, 100],
+                    "sequence0":[16.6667, 16.66667, 16.66667, 16.66667, 16.66667, 16.66667], 
+                    "sequence1":[16.6667, 16.66667],
                 },
                 "sequenceIdDict":{
-                    "sequence0": ["token_objectome_pineapple", "token_objectome_dog"],
+                    "sequence0": ["token_objectome_pineapple", "token_objectome_dog", "token_objectome_pineapple", "token_objectome_dog", "token_objectome_pineapple", "token_objectome_dog"],
                     "sequence1": ["token_objectome_flute", "token_objectome_flute"]
                 }, 
                 "sequenceChoiceDict":{
@@ -92,8 +93,8 @@ async function setupSession(){
                     "sequence1":["token_objectome_pineapple", "token_objectome_flute"], 
                 },
                 "sequenceRewardDict":{
-                    "sequence0":"token_objectome_pineapple", 
-                    "sequence1":undefined,
+                    "sequence0":"token_objectome_dog", 
+                    "sequence1":"token_objectome_flute",
                 },
 
                 "choiceTimeLimitMsec": 5000, 
@@ -106,7 +107,7 @@ async function setupSession(){
                     0.8
                 ], 
                 "drawEyeFixationDot": true, 
-                "fixationDiameterDegrees": 3, 
+                "fixationDiameterDegrees": 2, 
                 "fixationXCentroid": 0.5, 
                 "fixationYCentroid": 0.8, 
                 "minTrialsCriterion": 5, 
@@ -174,7 +175,7 @@ function go_to_main_page(){
     }
     else{
       try{
-        s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__
+        s3_bucket = 'ptap2mechanicalturk'
         window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
       }
       catch(error){

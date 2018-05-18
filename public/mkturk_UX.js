@@ -29,7 +29,6 @@ class MonkeyUX extends UXclass{
 
     debug2record(){
         console.log('debug2record: UX (not implemented yet)')
-        toggleElement(0, "drive_juice_button")
         toggleElement(0, "SessionTextBox")
         toggleElement(0, "myProgress")
         toggleElement(0, "DebugMessageTextBox")
@@ -84,7 +83,7 @@ class MechanicalTurkUX extends UXclass{
     debug2record(){
         toggleElement(1, 'MechanicalTurk_ProgressBar')
         toggleElement(1, 'MechanicalTurk_TrialBar')
-        document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'visible'
+        document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'hidden'
                                 toggleCashInButtonClickability(0)
         document.querySelector("button[name=WorkerCashInButton]").addEventListener('mouseup',this.cash_in_listener,false)
         document.querySelector("button[name=WorkerCashInButton]").addEventListener('touchstart',this.cash_in_listener,false)

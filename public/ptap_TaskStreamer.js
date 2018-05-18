@@ -8,17 +8,20 @@ class TaskStreamerClass2{
         this.IB = ImageBuffer
         this.imageBags = imageBags
         this.taskSequence = taskSequence 
-        
+        this.behavioral_data = []
         var initialState = undefined
         // Viewing information (for rendering canvases of appropriate size)
         this.TERMINAL_STATE = false 
 
         this.tasks = []
+        this.rewardLog = {}
+        this.rewardLog['n'] = []
 
         for (var tkNumber = 0; tkNumber < this.taskSequence.length; tkNumber ++){
             var taskType = this.taskSequence[tkNumber]['taskType']
             if (taskType == 'SR'){
-                this.tasks.push(new StimulusResponseGenerator(this.IB, this.imageBags, this.taskSequence[tkNumber], initialState))    
+                this.tasks.push(new StimulusResponseGenerator(this.IB, this.imageBags, this.taskSequence[tkNumber], initialState))  
+
             }
             else if (taskType == 'MTS'){
                 throw "MTS not implemented yet"
@@ -43,19 +46,26 @@ class TaskStreamerClass2{
         return stepPackage
     }
 
+
+
     deposit_step_outcome(stepOutcomePackage){
 
         this.tasks[this.taskNumber].deposit_step_outcome(stepOutcomePackage)
-
+        this.behavioral_data[this.taskNumber] = this.tasks[this.taskNumber].behavioral_data
+        this.rewardLog['n'].push(stepOutcomePackage['reward'])
         // Check if current generator determined that the transition criterion was met
         if(this.tasks[this.taskNumber].can_transition()){
             this.taskNumber+=1
 
             // Check terminal state
-            if(this.taskNumber > this.taskSequence.length){
+            console.log(this.taskNumber)
+            console.log(this.taskSequence.length)
+            if(this.taskNumber >= this.taskSequence.length){
                 this.TERMINAL_STATE = true
             }
         }
+
+        
     }
 }
 
@@ -68,6 +78,7 @@ class StimulusTrainMTSGenerator{
         
         this.actionHistory = []
         this.rewardHistory = []
+        this.totalTrialsToRun = taskParams['numTrials']
 
         this.initialize_canvases()
         
@@ -78,6 +89,8 @@ class StimulusTrainMTSGenerator{
                 this.sequenceNames.push(k)
             }
         }
+        this.sequenceNames = shuffle(this.sequenceNames)
+        this.sequenceCounter = 0
 
         this.trialNumber = 0
 
@@ -96,12 +109,51 @@ class StimulusTrainMTSGenerator{
         this.behavioral_data['timestampFixationOnset'] = []
         this.behavioral_data['timestampFixationAcquired'] = []
         this.behavioral_data['timestampResponse'] = []
-        this.behavioral_data['timestampReinforcementOn'] = []
-        this.behavioral_data['timestampReinforcementOff'] = []
         this.behavioral_data['timestampStimulusOn'] = []
         this.behavioral_data['timestampStimulusOff'] = []
         this.behavioral_data['timestampChoiceOn'] = []
         this.behavioral_data['reactionTime'] = []
+        this.behavioral_data['stimulusTrainFrameDurations'] = []
+
+
+        this.build()
+    }
+
+    async build(){
+        var imageRequests = []
+        var totalImages = 0
+        var imageUrls = []
+        for (var i =0; i < this.totalTrialsToRun; i ++){
+            if(i >=this.sequenceNames.length){
+                break
+            }
+            var stimulusSequenceName = this.sequenceNames[i]
+            var sequenceIds = this.taskParams['sequenceIdDict'][stimulusSequenceName] 
+            
+
+            for (var k = 0; k < sequenceIds.length; k++){
+                imageUrls.push(this.imageBags[sequenceIds[k]])
+                totalImages+=1
+            }
+        }
+        
+        console.log('Requesting', totalImages, 'images')
+
+        var imageCounter = 0
+        var imageChunkSize = 10 
+        for (var i = 0; i < imageUrls.length; i++){
+            imageCounter+=1
+            await this.IB.get_by_name(imageUrls[i])
+             $("#LoadStatusTextBox").html('Loaded ' + imageCounter + ' images out of ' + totalImages)
+
+        }
+        $("#LoadStatusTextBox").html('Done loading. Start playing!')
+        $("#LoadStatusTextBox").css('opacity', 0.1)
+        $("#LoadStatusTextBox").css('font-size', 10)
+       
+
+        wdm('Loading images...')
+        await Promise.all(imageRequests)
     }
 
     initialize_canvases(){
@@ -147,12 +199,15 @@ class StimulusTrainMTSGenerator{
     }
 
     can_transition(){
+        if (this.trialNumber >= this.totalTrialsToRun){
+            return true
+        }
         return false
     }
 
     async deposit_step_outcome(stepOutcomePackage){
         var action = stepOutcomePackage['action']
-
+        this.lastStepOutcomePackage = stepOutcomePackage
         this.currentStepNumber+=1
         if (this.currentStepNumber > 2){ 
             this.currentStepNumber = 0 // back to fixation
@@ -165,7 +220,19 @@ class StimulusTrainMTSGenerator{
     }
 
     async buffer_trial(){
-        var stimulusSequenceName = np.choice(this.sequenceNames)
+
+        if (this.sequenceCounter < this.sequenceNames.length){
+            // Sample without replacement first
+            var stimulusSequenceName = this.sequenceNames[this.sequenceCounter]
+            
+        }
+        else{
+            // then start sampling with replacement
+            var stimulusSequenceName = np.choice(this.sequenceNames)
+             
+        }
+        
+        this.sequenceCounter+=1
         console.log('Running', stimulusSequenceName)
 
 
@@ -211,14 +278,19 @@ class StimulusTrainMTSGenerator{
         this.numFrames = numFrames
         this.stimulusSequenceName = stimulusSequenceName
         this.choiceIds = choiceIds
-        if (correctChoice == undefined){
+        if (correctChoice == 'random'){
             this.correctChoice = 'random'
             this.correctActionIndex = np.choice(np.arange(numChoices))
+        }
+        else if(correctChoice == 'any'){
+            this.correctChoice = 'any'
+            this.correctActionIndex = 'any'
         }
         else{
             this.correctChoice = correctChoice    
             this.correctActionIndex = choiceIds.indexOf(correctChoice)
         }
+        console.log('CORRECT CHOICE', this.correctActionIndex, this.correctChoice)
     }
 
     async get_step(){
@@ -233,6 +305,8 @@ class StimulusTrainMTSGenerator{
         var actionTimeoutMsec = 0
 
         if (this.currentStepNumber == 0){
+
+
 
             await this.buffer_trial() // Buffer whole trial before presenting the fixation
 
@@ -249,6 +323,8 @@ class StimulusTrainMTSGenerator{
             var lastActionPackage = this.actionHistory[this.actionHistory.length-1]
             this.lastFixationX = lastActionPackage['x']
             this.lastFixationY = lastActionPackage['y']
+            this.lastFixationFrameOnTime = this.lastStepOutcomePackage['frameTimestamps'][0]
+            this.lastFixationTouchTime = this.lastStepOutcomePackage['action']['timestamp']
 
             // Run stimulus train
             frameData['canvasSequence'] = this.stimulusFrames.slice(0, this.numFrames)
@@ -271,12 +347,31 @@ class StimulusTrainMTSGenerator{
             var lastActionX = this.actionHistory[this.actionHistory.length-1]['x']
             var lastActionY = this.actionHistory[this.actionHistory.length-1]['y']
 
-            if (lastAction == this.correctActionIndex){
-                var reward = 1 
+            var lastActionTime = this.lastStepOutcomePackage['action']['timestamp']
+
+            var frameTimestamps = this.lastStepOutcomePackage['frameTimestamps']
+            var stimulusTrainTimeOn = frameTimestamps[0]
+            var stimulusTrainTimeOff = frameTimestamps[frameTimestamps.length - 1] // is equal to when choice pops up
+            var choiceTimeOn = frameTimestamps[frameTimestamps.length - 1] // when choice pops up
+
+            var stimulusTrainFrameDurations = []
+            for (var i = 1; i < frameTimestamps.length; i ++){
+                stimulusTrainFrameDurations.push(frameTimestamps[i] - frameTimestamps[i - 1])
+            }
+
+            var reward = 1
+            if (this.correctActionIndex == 'any'){
+                var reward = 1
             }
             else{
-                reward = 0
+                if (lastAction == this.correctActionIndex){
+                var reward = 1 
+                }
+                else if(lastAction != this.correctActionIndex){
+                    reward = 0
+                }
             }
+            
             if (reward >= 1){
                 // Reward screen
                 frameData['canvasSequence'] = [this.canvasReward, this.canvasReward]
@@ -292,7 +387,7 @@ class StimulusTrainMTSGenerator{
             else{
                 // Punish screen screen
                 frameData['canvasSequence'] = [this.canvasPunish, this.canvasPunish]
-                frameData['durationSequence'] = [2000, 0]
+                frameData['durationSequence'] = [this.taskParams['punishTimeOutMsec'], 0]
                 actionRegions['x'] = 0
                 actionRegions['y'] = 0
                 actionRegions['diameter'] = 0
@@ -311,18 +406,22 @@ class StimulusTrainMTSGenerator{
             this.behavioral_data['responseY'].push(lastActionY)
             this.behavioral_data['fixationX'].push(this.lastFixationX)
             this.behavioral_data['fixationY'].push(this.lastFixationY)
-            this.behavioral_data['timestampStart'] = []
-            this.behavioral_data['timestampFixationOnset'] = []
-            this.behavioral_data['timestampFixationAcquired'] = []
-            this.behavioral_data['timestampResponse'] = []
-            this.behavioral_data['timestampReinforcementOn'] = []
-            this.behavioral_data['timestampReinforcementOff'] = []
-            this.behavioral_data['timestampStimulusOn'] = []
-            this.behavioral_data['timestampStimulusOff'] = []
-            this.behavioral_data['timestampChoiceOn'] = []
-            this.behavioral_data['reactionTime'] = []
+            this.behavioral_data['timestampStart'].push(this.lastFixationTouchTime)
+            this.behavioral_data['timestampFixationOnset'].push(this.lastFixationFrameOnTime)
+            this.behavioral_data['timestampFixationAcquired'].push(this.lastFixationTouchTime)
+            this.behavioral_data['timestampResponse'].push(lastActionTime)
+            this.behavioral_data['timestampStimulusOn'].push(stimulusTrainTimeOn)
+            this.behavioral_data['stimulusTrainFrameDurations'].push(stimulusTrainFrameDurations)
+            this.behavioral_data['timestampStimulusOff'].push(stimulusTrainTimeOff)
+            this.behavioral_data['timestampChoiceOn'].push(choiceTimeOn)
+            this.behavioral_data['reactionTime'].push(lastActionTime - choiceTimeOn)
 
             this.trialNumber+=1
+
+            updateProgressbar(this.trialNumber/this.totalTrialsToRun*100, 'MechanicalTurk_TrialBar', '', 100, '')
+
+            
+
         }
 
         var stepPackage = {

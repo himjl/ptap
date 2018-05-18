@@ -18,7 +18,8 @@ class HumanEnvironmentInterface{
         var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
-
+        this.bonusUSDPerCorrect = bonusUSDPerCorrect
+        
         this.ScreenDisplayer = new ScreenDisplayer()
         
         if (primary_reinforcer_type == 'juice'){
@@ -43,6 +44,7 @@ class HumanEnvironmentInterface{
 
         // Async trackers 
         this.rewardLog = {'t':[], 'n':[]}
+        this.totalUSDBonus = 0
     }
 
     debug2record(){
@@ -66,14 +68,10 @@ class HumanEnvironmentInterface{
         
         // Deliver reward(t) and run frames(t)
 
-        console.log('START STEP: ', actionTimeoutMsec)
-        console.log(reward, frameData)
         var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
-        console.log('DONE executing frames')
         var frameTimestamps = freturn[1]
         // Wait for eligible agent action
         if (actionTimeoutMsec == 0){
-            console.log('ActionPoller: Moving directly to next state')
             // No action polled; move directly to next state
             var action = {'actionIndex':null, 
                             'x':null, 
@@ -81,7 +79,6 @@ class HumanEnvironmentInterface{
                             'timestamp':null}
         }
         else{
-            console.log('ActionPoller: polling for action')
             var action = await this.ActionPoller.poll(
             actionRegions['x'], 
             actionRegions['y'], 
@@ -90,6 +87,10 @@ class HumanEnvironmentInterface{
         }
         
         
+        // Update bonus readout
+        this.totalUSDBonus = this.totalUSDBonus + reward * this.bonusUSDPerCorrect
+        var current_bonus_string = 'Bonus cents: '+(100*this.totalUSDBonus).toFixed(3)
+        $('#bonus_counter').html(current_bonus_string)
 
         // Return
         var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward': reward}
