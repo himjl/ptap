@@ -57,36 +57,7 @@ function toggleProgressbar(on_or_off, bar_id){
 	}
 }
 
-function updateCashInButtonText(trials, bonus_earned, cash_in_option){
-	var elem = document.querySelector("button[name=WorkerCashInButton]")
 
-	var button_string = 'Bonus cents: '+(100*bonus_earned).toFixed(3)
-
-	//if(cash_in_option == false){
-		
-	//}
-	//else if(cash_in_option == true){
-	//	var button_string = 'Bonus cents: '+(100*bonus_earned).toFixed(3)+'<br>Turn in early'
-	//}
-	elem.innerHTML = button_string
-
-}	
-function toggleCashInButtonClickability(on_or_off){
-	var elem = document.querySelector("button[name=WorkerCashInButton]")
-	if(on_or_off == 0){
-		elem.disabled = true
-		elem.style["background-color"] = "#DBDDDF"
-		elem.style["color"] = "#767373"
-	}
-	else{
-		elem.disabled = false
-		elem.style["background-color"] = "#00cc66"
-		elem.style["color"] = "#f7fcf8"
-
-
-	}
-	return
-}
 
 function displayTerminalScreen(){
 	var terminal_text = 'Thank you for completing this HIT. Please wait while it is submitted...'

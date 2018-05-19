@@ -38,19 +38,7 @@
   opacity: 1
 }
 
-#WorkerCashInButton{
-  visibility:hidden; 
-  position: fixed; 
-  margin-top:4px; 
-  left: 89%; 
-  font-size: 12px; 
-  color: #f7fcf8;  
-  border-radius:5px border:0px solid #959595; 
-  z-index:101; 
-  background-color: #00cc66; 
-  text-align:center; 
-  opacity: 0.8
-}
+
 
 #doneTestingTask{
   visibility:hidden; 
@@ -106,48 +94,8 @@
   text-align:center;
 }
 
-#WorkerCashInButton{
-  visibility:hidden; 
-  position: fixed; 
-  margin-top:4px; 
-  left: 89%; 
-  font-size: 12px; 
-  color: #f7fcf8;  
-  border-radius:5px border:0px solid #959595; 
-  z-index:101; 
-  background-color: #00cc66; 
-  text-align:center; 
-  opacity: 0.8
-}
-
-#AutomatorLoadBar {
-  margin:;
-  width: 0.2%;
-  height: 15px;
-  background-color: #4CAF50;
-  color:white;
-  font-size: 8px; 
-  font-family: 'Helvetica Neue';
-  z-index:101;
-  position: absolute;
-  overflow:hidden;
-  visibility:hidden;
-}
 
 
-#StageBar {
-  margin-top: 34px;
-  width: 0.2%;
-  height: 15px;
-  background-color: #aed3f4;
-  color:white;
-  font-size: 8px; 
-  font-family: 'Helvetica Neue';
-  z-index:101;
-  position: absolute;
-  overflow:hidden;
-  visibility:hidden;
-}
 
 #TrialCounter {
    position: fixed;

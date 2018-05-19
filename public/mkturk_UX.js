@@ -30,17 +30,9 @@ class MonkeyUX extends UXclass{
     debug2record(){
         console.log('debug2record: UX (not implemented yet)')
         toggleElement(0, "SessionTextBox")
-        toggleElement(0, "myProgress")
         toggleElement(0, "DebugMessageTextBox")
         document.body.style['background-color'] = '#7F7F7F'
-        var progressbar_names = [
-                            'AutomatorLoadBar',
-                            'StageBar',]
-
-        for (var _p in progressbar_names){
-            toggleProgressbar(0, progressbar_names[_p])
-        }
-
+      
         this.writeToTrialCounterDisplay('-')
 
     }
@@ -83,10 +75,7 @@ class MechanicalTurkUX extends UXclass{
     debug2record(){
         toggleElement(1, 'MechanicalTurk_ProgressBar')
         toggleElement(1, 'MechanicalTurk_TrialBar')
-        document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'hidden'
-                                toggleCashInButtonClickability(0)
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('mouseup',this.cash_in_listener,false)
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('touchstart',this.cash_in_listener,false)
+
 
         toggleElement(0, "DebugMessageTextBox")
 
@@ -152,70 +141,17 @@ class MechanicalTurkUX extends UXclass{
     }
     async showMechanicalTurkInstructions(instructions_text){
   
-    document.getElementById("MechanicalTurkInstructionsSplash").style.visibility = 'visible'
-    document.getElementById("InstructionSplashText").innerHTML = instructions_text
+        document.getElementById("MechanicalTurkInstructionsSplash").style.visibility = 'visible'
+        document.getElementById("InstructionSplashText").innerHTML = instructions_text
 
-    
-    var btn = document.getElementById('CloseInstructionsButton')
-    btn.disabled = false 
-    btn.innerHTML = 'Continue'
 
-    return new Promise(function(resolve, reject){
-        FLAGS.clicked_close_instructions = resolve
-    })
-}
+        var btn = document.getElementById('CloseInstructionsButton')
+        btn.disabled = false 
+        btn.innerHTML = 'Continue'
 
-    async poll(trialOutcome){
-        
-        var trialNumberSession = trialOutcome['trialNumberSession']+1
-        this.writeToTrialCounterDisplay(trialNumberSession)
-        this.bonusEarned+=(trialOutcome['return'] * this.bonusUSDPerCorrect)
-
-        var minimum_trials_left = Math.max(this.minimumTrials - trialNumberSession, 0)
-        if(minimum_trials_left > 0){
-            updateProgressbar(trialNumberSession/this.minimumTrials*100, 'MechanicalTurk_TrialBar', '', 100, ' ')
-            if(this.bonusEarned != NaN){
-                updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
-            }
-            
-        }
-        else{
-
-            document.getElementById('MechanicalTurk_TrialBar').style['background-color'] = '#00cc66'
-            document.getElementById('MechanicalTurk_TrialBar').style['opacity'] = 1
-            
-            updateProgressbar(trialNumberSession/this.minimumTrials*100, 'MechanicalTurk_TrialBar', '', 100)
-
-            //toggleCashInButtonClickability(1)
-            var num_bonus_trials_performed = trialNumberSession-this.minimumTrials
-            if(this.bonusEarned != NaN){
-                updateCashInButtonText(num_bonus_trials_performed, this.bonusEarned, true)
-            }
-        }
-
-        if(trialNumberSession >= this.minimumTrials){ //if(trialNumberSession >= this.maximumTrials){
-            // TODO: TEMPORARY while cash in listener is fixed - switch back to this.maximumTrials 
-            TaskStreamer.TERMINAL_STATE = true
-
-        }
-        if(trialNumberSession >= this.maximumTrials){
-            TaskStreamer.TERMINAL_STATE = true
-        }
-    }
-
-    async cash_in_listener(event){
-        console.log('Worker called cash in')
-        var original_text = document.querySelector("button[name=WorkerCashInButton]").innerHTML
-        var original_color = document.querySelector("button[name=WorkerCashInButton]").style['background-color']
-
-        document.querySelector("button[name=WorkerCashInButton]").innerHTML = 'Submitting...'
-
-        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = '#ADFF97'
-                
-        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = original_color
-
-        DataWriter.conclude_session()
-        return 
+        return new Promise(function(resolve, reject){
+            FLAGS.clicked_close_instructions = resolve
+        })
     }
 
 }

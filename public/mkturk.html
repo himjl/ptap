@@ -13,26 +13,17 @@
 </form>
 
 <meta name="mobile-web-app-capable" content="yes"> 
-<!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
-<!-- do not allow window rescaling.  To avoid window rescaling in portrait mode, added with=device-width from http://stackoverflow.com/questions/22771523/ipad-w-retina-safari-reported-dimensions-in-landscape-make-no-sense. Also, removes 300-350ms tap delay (https://developers.google.com/web/updates/2013/12/300ms-tap-delay-gone-away) -->
-
 <link rel="manifest" href="mkturkmanifest.json">
-<link rel="icon" href="mkturklogo48.png">
 </head>
 
 <body style="overflow-y: hidden; overflow-x:hidden; background-color:#494c51">
 
-<div id="myProgress", style="overflow:hidden">
-		<div id="AutomatorLoadBar"></div>
-		<div id="StageBar"></div>
-</div>
 
 <div id="MechanicalTurk_ProgressBar">
     <div id="MechanicalTurk_TrialBar"></div>
-    
-
 </div>
+
 <div id='bonus_counter'>Bonus cents: 0</div>
 <button id="connectble" name="connectble" >Connect to Bluetooth juicer</button>
 <button id="noble" name="noble">No Bluetooth juicer</button>
@@ -55,7 +46,6 @@
 <div id="MechanicalTurkCursorDeviceSelectionScreen">
   <div id='DeviceSelectionSplashText'> Select which input device you are using: </div>
 
-
   <input type="image" class='DeviceButton' id='MouseImage'  style="" id="MouseImage" src="tutorial_images/mouse.png " alt="Mouse" onclick="setDeviceSelection(this, 'mouse')" />
   <input type="image"  class='DeviceButton' id='TrackPadImage' src="tutorial_images/trackpad.png " alt="Trackpad" onclick="setDeviceSelection(this, 'trackpad')" />
   <input type="image"  class='DeviceButton' id = 'TabletImage' src="tutorial_images/tablet.png " alt="Tablet" onclick="setDeviceSelection(this, 'touchscreen')" />
@@ -77,7 +67,7 @@
 </div>
 
 <button id="doneTestingTask" name="doneTestingTask">Done with testing trials</button>
-<button id='WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
+
 <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
 <script src="setup_upstairs_session.js" type="text/javascript"></script>
 <script src="setup_MechanicalTurk_session.js" type="text/javascript"></script>
@@ -107,6 +97,7 @@
 <script src="ptap_Playspace.js"></script>
 <script src="ptap_HumanEnvironmentInterface.js"></script>
 <script src="ptap_spatialunits.js"></script>
+
 <script>
 
 var FLAGS = {}; // todo: get rid of
