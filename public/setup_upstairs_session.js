@@ -35,8 +35,7 @@ async function setup_upstairs_session(sessionPackage){
    CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)
    await CheckPointer.build()
 
-   SIO = new S3_IO() 
-   IB = new ImageBuffer(SIO)
+   IB = new ImageBuffer(S3_IO)
 
    UX.updateSessionTextbox(SESSION['agentId'], GAME['gameId'])
 

@@ -130,13 +130,9 @@ DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
 
-// Attach async data probes 
-wdm('Attaching async data probes...')
-
 // Kick off async threads 
 wdm('Kicking off async threads...')
 DataWriter.start_polling()
-
 
 // Main trial loop
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
@@ -145,7 +141,7 @@ wdm('Entering main trial loop...')
 
 
 SIO = new S3_IO()
-var IB = new ImageBuffer(SIO)
+var IB = new ImageBuffer(S3_IO)
 
 TaskStreamer2 = new TaskStreamerClass2(
   IB, 

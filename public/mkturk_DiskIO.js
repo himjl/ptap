@@ -50,15 +50,8 @@ class DiskIO{
 }   
 
 class S3_IO{
-    constructor(){
 
-        this.read_textfile = this._read_textfile.bind(this)
-        this.load_sound = this._load_sound.bind(this)
-        this.load_image = this._load_image.bind(this)
-        this.exists = this._exists.bind(this)
-
-    }
-    async _load_image(blob_url){
+    static async load_image(blob_url){
         
         var resolvefunc 
         var rejectfunc 
@@ -79,7 +72,7 @@ class S3_IO{
         return img_loaded
     }
 
-    async _load_sound(sound_url){
+    static async load_sound(sound_url){
         var resolveFunc
         var rejectFunc
         var p = new Promise(function(resolve, reject){
@@ -110,7 +103,7 @@ class S3_IO{
         return sound_blob
 
     }
-    async _read_textfile(text_url){
+    static async read_textfile(text_url){
         // https://www.w3schools.com/xml/ajax_intro.asp
 
         // Configuring S3: to accept xhttp requests:
@@ -152,7 +145,7 @@ class S3_IO{
         return s
     }
 
-    async _exists(url){
+    static async exists(url){
         var resolveFunc
         var rejectFunc
         var p = new Promise(function(resolve, reject){
@@ -183,7 +176,6 @@ class S3_IO{
         return s
 
     }
-
   
 }
 

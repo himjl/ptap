@@ -1,6 +1,5 @@
 class SessionBootStrapper{
     constructor(){
-        this.SIO = new S3_IO()
         this.bootstrapLog = {}
     }   
 
@@ -190,7 +189,7 @@ class SessionBootStrapper{
             return JSON.parse(s)
         }
         else if(loadMethod == 'url'){
-            var s = await this.SIO.read_textfile(local_val)
+            var s = await S3_IO.read_textfile(local_val)
             return JSON.parse(s)
         }
 
