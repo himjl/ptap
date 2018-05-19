@@ -32,8 +32,7 @@ async function setup_mechanicalturk_session(sessionPackage){
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 
   console.log('SESSION', SESSION)
-  SIO = new S3_IO() 
-  IB = new ImageBuffer(SIO)
+  IB = new ImageBuffer(S3_IO)
   CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)
   await CheckPointer.build()
   DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode']) 

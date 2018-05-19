@@ -140,7 +140,6 @@ console.timeEnd('Done setting up')
 wdm('Entering main trial loop...')
 
 
-SIO = new S3_IO()
 var IB = new ImageBuffer(S3_IO)
 
 TaskStreamer2 = new TaskStreamerClass2(
@@ -169,8 +168,6 @@ if (run_preview_mode != true){
 else{
   console.log('Not submitting because in preview mode')
 }
-
-
 }// End try
 
 

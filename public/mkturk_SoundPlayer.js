@@ -19,6 +19,11 @@ class SoundPlayerClass{
   async build(){
    
     this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    var gainNode = this.audioContext.createGain()
+    gainNode.gain.value = 0.3
+    gainNode.connect(this.audioContext.destination)
+    this.gainNode = gainNode
+
     this.soundInstances = {} // name : preloaded sound
     this.bufferedSounds = []
     var _this = this
@@ -41,7 +46,7 @@ class SoundPlayerClass{
 
         var s = _this.audioContext.createBufferSource()
         s.buffer = bufferList[i] 
-        s.connect(_this.audioContext.destination)
+        s.connect(_this.gainNode)
         _this.soundInstances[name] == s
         _this.is_buffered[name] = true
       }
@@ -75,7 +80,7 @@ class SoundPlayerClass{
     }
     
     s.buffer = bufferEntry
-    s.connect(this.audioContext.destination)
+    s.connect(this.gainNode)
     this.soundInstances[name] = s
 
   }
