@@ -10,14 +10,12 @@ class HumanEnvironmentInterface{
     // msec (1000 = one second)
 
 
-    constructor(playspacePackage){
+    constructor(ENVIRONMENT){
         
-        var primary_reinforcer_type = playspacePackage['primary_reinforcer_type'] 
-        var action_event_type = playspacePackage['action_event_type'] 
-        var periodicRewardIntervalMsec = playspacePackage['periodicRewardIntervalMsec'] 
-        var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
-        var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
-        var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
+        var primary_reinforcer_type = ENVIRONMENT['primary_reinforcer_type'] 
+        var action_event_type = ENVIRONMENT['action_event_type']
+        var bonusUSDPerCorrect = ENVIRONMENT['bonusUSDPerCorrect']
+        var juiceRewardPer1000 = ENVIRONMENT['juiceRewardPer1000Trials']
         this.bonusUSDPerCorrect = bonusUSDPerCorrect
         
         this.ScreenDisplayer = new ScreenDisplayer()
@@ -33,14 +31,12 @@ class HumanEnvironmentInterface{
             this.Reinforcer = new MonetaryReinforcer(bonusUSDPerCorrect)
         }
 
-
-        this.actionCanvasObj = Playspace2.get_new_canvas('actionField')
+        this.actionCanvasObj = Playspace.get_new_canvas('actionField')
         this.actionCanvasObj.style.zIndex = 101
         
         this.ActionPoller = new ActionPollerClass(action_event_type, this.actionCanvasObj)
         this.SoundPlayer = new SoundPlayerClass()
-        this.periodicRewardIntervalMsec = periodicRewardIntervalMsec 
-        this.periodicRewardAmount = periodicRewardAmount
+
 
         // Async trackers 
         this.rewardLog = {'t':[], 'n':[]}
@@ -70,6 +66,11 @@ class HumanEnvironmentInterface{
 
         var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
         var frameTimestamps = freturn[1]
+
+        if (reward > 0){ 
+            this.rewardLog['n'].push(reward)
+            this.rewardLog['t'].push(performance.now())
+        }
         // Wait for eligible agent action
         if (actionTimeoutMsec == 0){
             // No action polled; move directly to next state
@@ -88,6 +89,7 @@ class HumanEnvironmentInterface{
         
         
         // Update bonus readout
+
         this.totalUSDBonus = this.totalUSDBonus + reward * this.bonusUSDPerCorrect
         var current_bonus_string = 'Bonus cents: '+(100*this.totalUSDBonus).toFixed(3)
         $('#bonus_counter').html(current_bonus_string)
@@ -97,39 +99,6 @@ class HumanEnvironmentInterface{
         return stepOutcome
     }
 
-
-    start_periodic_rewards(){
-        if (this.periodicRewardAmount <= 0){
-            return
-        }
-        if (this.periodicRewardIntervalMsec <= 0){
-            return
-        }
-
-        if(this.periodicRewardAmount == undefined){
-            return
-        }
-
-        if(this.periodicRewardIntervalMsec == undefined){
-            return 
-        }
-
-        console.log('Called auto reinforcer:',this.periodicRewardAmount, 'reward(s) every', this.periodicRewardIntervalMsec/1000, 'seconds')
-        // https://stackoverflow.com/questions/12587977/html5-audio-chrome-on-android-doesnt-automatically-play-song-vs-chrome-on-pc-d/24842152#24842152
-        this.SoundPlayer.play_sound('reward_sound')
-        var _this = this
-        var periodic_reward = function(){
-            var t = Math.round(performance.now()*1000)/1000
-            _this.Reinforcer.deliver_reinforcement(_this.periodicRewardAmount)
-            _this.SoundPlayer.play_sound('reward_sound')
-            _this.rewardLog['n'].push(_this.periodicRewardAmount)
-            _this.rewardLog['t'].push(t)
-        } 
-
-
-        window.setInterval(periodic_reward, this.periodicRewardIntervalMsec)
-        
-    }
 
     start_action_tracking(){
         this.ActionPoller.start_action_tracking()

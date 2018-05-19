@@ -1,12 +1,14 @@
-class Playspace2{
-    // An object that is instantiated with the viewing parameters of the environnment (i.e. viewing distance, virtual pixels, desired playspace dimensions), and then provides canvas creation and drawing operations that are requested in units of degrees and playspace proportions
+class Playspace{
+    // An object that is instantiated with the viewing parameters of the environnment (i.e. viewing distance, virtual pixels, desired playspace dimensions), and then provides canvas creation and drawing operations that are requested in units of degrees of visual angle and playspace proportions
 
-    constructor(
-        virtualPixelsPerInch, 
-        playspaceViewingDistanceInches, 
-        playspaceWidthVisualAngle, 
-        playspaceHeightVisualAngle,
+    constructor(ENVIRONMENT
         ){
+
+        var virtualPixelsPerInch = ENVIRONMENT['screen_virtualPixelsPerInch']
+        var playspaceViewingDistanceInches = ENVIRONMENT['playspace_viewingDistanceInches']
+        var playspaceWidthVisualAngle = ENVIRONMENT['playspace_degreesVisualAngle']
+        var playspaceHeightVisualAngle = ENVIRONMENT['playspace_degreesVisualAngle']
+
 
         this.viewingDistanceInches = playspaceViewingDistanceInches
         this.widthVisualAngle = playspaceWidthVisualAngle

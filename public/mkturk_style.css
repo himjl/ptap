@@ -23,23 +23,6 @@
 }
 
 
-#SyncButton{
-  visibility:hidden; 
-  position: absolute; 
-  margin-top:4px; 
-  left: 97%; 
-  font-size: 6px; 
-  color: #A6A6A6; 
-  padding:10px 10px; 
-  border:0px solid #959595; 
-  z-index:101; 
-  background-color: #E6E6E6; 
-  text-align:center; 
-  opacity: 1
-}
-
-
-
 #doneTestingTask{
   visibility:hidden; 
   position: absolute; 
@@ -55,6 +38,7 @@
 #MechanicalTurk_ProgressBar{
   display: flex; 
   justify-content: space-between;
+  flex-direction:column;
   position: absolute; 
   overflow:hidden; 
   height: 5%; 
@@ -74,7 +58,6 @@
   color:white;
   font-size: 8px; 
   font-family: 'Helvetica Neue';
-  z-index:103;
   overflow:hidden;
 }
 
@@ -93,8 +76,6 @@
   z-index:103; 
   text-align:center;
 }
-
-
 
 
 
@@ -121,7 +102,6 @@
    color:white;
    opacity:0.85;
    font-size: 20px; 
-   z-index:102;
    font-family: 'Helvetica Neue';
    color:white;
    visibility:visible;

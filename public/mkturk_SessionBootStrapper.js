@@ -16,7 +16,7 @@ class SessionBootStrapper{
 
         // Unpack sessionPackage
         wdm('Download_from_stringing SESSION_PACKAGE...')
-        var sessionPackage = await this.download_from_string(sessionPackageBootstrapString)
+        var sessionPackage = await this.download_from_string_header(sessionPackageBootstrapString)
 
         // Unpack elements of game package
         wdm('Unpacking GAME_PACKAGE...')
@@ -30,11 +30,11 @@ class SessionBootStrapper{
         unpackedSession['GAME_PACKAGE'] = gamePackage 
         unpackedSession['ENVIRONMENT'] = environment
         
-    
+
         return unpackedSession
     }
-    async unpack_game_package(game_package_key){
-        var gamePackage = await this.download_from_string(game_package_key) 
+    async unpack_game_package(game_package_string_header){
+        var gamePackage = await this.download_from_string_header(game_package_string_header) 
         var unpackedGame = {}
 
         unpackedGame['IMAGEBAGS'] = await this.unpack_imagebags(gamePackage['IMAGEBAGS'])
@@ -47,14 +47,14 @@ class SessionBootStrapper{
     async unpack_imagebags(imagebags_bootstrap){
 
         console.log('Loading IMAGEBAGS')
-        var imagebags = await this.download_from_string(imagebags_bootstrap)
+        var imagebags = await this.download_from_string_header(imagebags_bootstrap)
         console.log('Done downloading imagebags. Unpacking...')
         var loadMethods = []
         var unpacked_imagebags = {}
         if (imagebags.constructor == Array){
             // Unpack additional levels
             for (var i in imagebags){
-                var x = await this.download_from_string(imagebags[i])
+                var x = await this.download_from_string_header(imagebags[i])
                 loadMethods.push(this.infer_load_method(imagebags[i]))
                 for (var j in x){
                     if(!x.hasOwnProperty(j)){
@@ -121,7 +121,7 @@ class SessionBootStrapper{
     async unpack_game(game_bootstrap){
         console.log('Loading GAME')
 
-        var game = await this.download_from_string(game_bootstrap)
+        var game = await this.download_from_string_header(game_bootstrap)
 
         this.bootstrapLog['GAME'] = {}
         this.bootstrapLog['GAME']['loadMethod'] = this.infer_load_method(game_bootstrap)
@@ -134,7 +134,7 @@ class SessionBootStrapper{
 
         console.log('Loading task_sequence')
 
-        var task_sequence = await this.download_from_string(task_sequence_bootstrap)
+        var task_sequence = await this.download_from_string_header(task_sequence_bootstrap)
 
         if (task_sequence.constructor == Object){
             task_sequence = [task_sequence]
@@ -148,7 +148,7 @@ class SessionBootStrapper{
     }
     
     async unpack_environment(environment){
-        var ENVIRONMENT = await this.download_from_string(environment)
+        var ENVIRONMENT = await this.download_from_string_header(environment)
         return ENVIRONMENT
     }
 
@@ -163,21 +163,21 @@ class SessionBootStrapper{
         return local_val
     }
 
-    async download_from_string(local_val){
-        // local_val: a string that is either a: 
+    async download_from_string_header(string_header){
+        // string_header: a string that is either a: 
                 // url
                 // dropbox relative path
                 // stringified JSON oject
         // or already an object 
 
-        var loadMethod = this.infer_load_method(local_val)
+        var loadMethod = this.infer_load_method(string_header)
 
         if(loadMethod == 'literal'){
-            return local_val
+            return string_header
         }
 
         if(loadMethod == 'localstorage'){
-            return JSON.parse(local_val)
+            return JSON.parse(string_header)
         }
         else if(loadMethod == 'dropbox'){
             if (this.DIO == undefined){
@@ -185,44 +185,44 @@ class SessionBootStrapper{
                 await this.DIO.build(window.location.href)
             }
             
-            var s = await this.DIO.read_textfile(local_val)
+            var s = await this.DIO.read_textfile(string_header)
             return JSON.parse(s)
         }
         else if(loadMethod == 'url'){
-            var s = await S3_IO.read_textfile(local_val)
+            var s = await S3_IO.read_textfile(string_header)
             return JSON.parse(s)
         }
 
         else{
-            console.log('SessionBootStrapper.download_from_string called with loadMethod', loadMethod, '; not supported')
+            console.log('SessionBootStrapper.download_from_string_header called with loadMethod', loadMethod, '; not supported')
             return undefined
         }
     }
-    infer_load_method(s){
-        // s: a string that is either a: 
+    infer_load_method(string_header){
+        // string_header: a string that is either a: 
             // url
             // dropbox relative path 
             // stringified JSON object 
         // or it's an object.
 
-        if(s == undefined){
+        if(string_header == undefined){
             return undefined
         }
-        if(s.constructor!=String){
+        if(string_header.constructor!=String){
             return 'literal'
         }
         
-        if(s.startsWith('http') || s.startsWith('www')){
+        if(string_header.startsWith('http') || string_header.startsWith('www')){
             return 'url'
         }
-        else if(s.startsWith('/')){
+        else if(string_header.startsWith('/')){
             return 'dropbox'
         }
-        else if(s.startsWith('{') || s.startsWith('[')){
+        else if(string_header.startsWith('{') || string_header.startsWith('[')){
             return 'localstorage'
         }
         else{
-            console.log('SessionBootStrapper.infer_load_method could not infer for key', s, '; not supported')
+            console.log('SessionBootStrapper.infer_load_method could not infer for key', string_header, '; not supported')
             return undefined
         }
     }

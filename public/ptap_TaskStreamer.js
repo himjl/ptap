@@ -1,11 +1,11 @@
-class TaskStreamerClass2{
-    constructor(
-        ImageBuffer, 
-        taskSequence,
-        imageBags, 
-        ){
+class TaskStreamerClass{
+    constructor(sessionPackage){
 
-        this.IB = ImageBuffer
+        var taskSequence = sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']
+        var imageBags = sessionPackage['GAME_PACKAGE']['IMAGEBAGS']
+
+
+        this.IB = new ImageBuffer(S3_IO)
         this.imageBags = imageBags
         this.taskSequence = taskSequence 
         this.behavioral_data = []
@@ -14,8 +14,6 @@ class TaskStreamerClass2{
         this.TERMINAL_STATE = false 
 
         this.tasks = []
-        this.rewardLog = {}
-        this.rewardLog['n'] = []
 
         for (var tkNumber = 0; tkNumber < this.taskSequence.length; tkNumber ++){
             var taskType = this.taskSequence[tkNumber]['taskType']
@@ -52,7 +50,6 @@ class TaskStreamerClass2{
 
         this.tasks[this.taskNumber].deposit_step_outcome(stepOutcomePackage)
         this.behavioral_data[this.taskNumber] = this.tasks[this.taskNumber].behavioral_data
-        this.rewardLog['n'].push(stepOutcomePackage['reward'])
         // Check if current generator determined that the transition criterion was met
         if(this.tasks[this.taskNumber].can_transition()){
             this.taskNumber+=1
@@ -173,29 +170,29 @@ class StimulusTrainMTSGenerator{
 
         this.stimulusFrames = []
         for (var i = 0; i < numStimulusFrames; i++){
-            this.stimulusFrames.push(Playspace2.get_new_canvas('frame_stimulus'+i))
-            Playspace2.fill_gray(this.stimulusFrames[i])
+            this.stimulusFrames.push(Playspace.get_new_canvas('frame_stimulus'+i))
+            Playspace.fill_gray(this.stimulusFrames[i])
         }
 
 
-        this.canvasFixation = Playspace2.get_new_canvas('frame_fixation')
-        this.canvasChoice = Playspace2.get_new_canvas('frame_choice')
-        this.canvasPunish = Playspace2.get_new_canvas('frame_punish')
-        this.canvasReward = Playspace2.get_new_canvas("frame_reward")
+        this.canvasFixation = Playspace.get_new_canvas('frame_fixation')
+        this.canvasChoice = Playspace.get_new_canvas('frame_choice')
+        this.canvasPunish = Playspace.get_new_canvas('frame_punish')
+        this.canvasReward = Playspace.get_new_canvas("frame_reward")
 
         // Fill out what you can
-        Playspace2.fill_gray(this.canvasFixation)
-        Playspace2.fill_gray(this.canvasChoice)
-        Playspace2.draw_reward(this.canvasReward)
-        Playspace2.draw_punish(this.canvasPunish)
+        Playspace.fill_gray(this.canvasFixation)
+        Playspace.fill_gray(this.canvasChoice)
+        Playspace.draw_reward(this.canvasReward)
+        Playspace.draw_punish(this.canvasPunish)
 
         // Initiation button and eye fixation dot
-        Playspace2.draw_circle(this.canvasFixation, 
+        Playspace.draw_circle(this.canvasFixation, 
             this.taskParams['fixationXCentroid'], 
             this.taskParams['fixationYCentroid'], 
-            Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
+            Playspace.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
 
-        Playspace2.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
+        Playspace.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
     }
 
     can_transition(){
@@ -263,7 +260,7 @@ class StimulusTrainMTSGenerator{
         var numFrames = stimulusImages.length 
         var stimulusDegrees = this.taskParams['sampleDiameterDegrees']
         for (var i = 0; i < numFrames; i++){
-            Playspace2.draw_image(this.stimulusFrames[i], stimulusImages[i], 0.5, 0.5, Playspace2.deg2propX(stimulusDegrees))
+            Playspace.draw_image(this.stimulusFrames[i], stimulusImages[i], 0.5, 0.5, Playspace.deg2propX(stimulusDegrees))
         }
 
         // Draw choice frame
@@ -272,7 +269,7 @@ class StimulusTrainMTSGenerator{
             var xLoc = this.taskParams['choiceXCentroid'][i]
             var yLoc = this.taskParams['choiceYCentroid'][i]
             var choiceDegrees = this.taskParams['choiceDiameterDegrees'][i]
-            Playspace2.draw_image(this.canvasChoice, choiceImages[i], xLoc, yLoc, Playspace2.deg2propX(choiceDegrees))
+            Playspace.draw_image(this.canvasChoice, choiceImages[i], xLoc, yLoc, Playspace.deg2propX(choiceDegrees))
         }
 
         this.numFrames = numFrames
@@ -314,7 +311,7 @@ class StimulusTrainMTSGenerator{
             frameData['durationSequence'] = [0]
             actionRegions['x'] = this.taskParams['fixationXCentroid']  // playspace units
             actionRegions['y'] = this.taskParams['fixationYCentroid']  // playspace units
-            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees'])
+            actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['fixationDiameterDegrees'])
             actionTimeoutMsec = undefined
             reward = 0 
         }
@@ -336,7 +333,7 @@ class StimulusTrainMTSGenerator{
             frameData['durationSequence'] = durSeq
             actionRegions['x'] = this.taskParams['actionXCentroid']  // playspace units
             actionRegions['y'] = this.taskParams['actionYCentroid']  // playspace units
-            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'])
+            actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['actionDiameterDegrees'])
             actionTimeoutMsec = 5000
             reward = 0
         }
@@ -478,33 +475,33 @@ class StimulusResponseGenerator{
 
     initialize_canvases(){
         // Canvases needed to run the task
-        this.canvasFixation = Playspace2.get_new_canvas('SR_fixation')
-        this.canvasStimulus = Playspace2.get_new_canvas('SR_stimulus')
-        this.canvasDelay = Playspace2.get_new_canvas('SR_delay')
-        this.canvasChoice = Playspace2.get_new_canvas('SR_choice')
-        this.canvasPunish = Playspace2.get_new_canvas('SR_punish')
-        this.canvasReward = Playspace2.get_new_canvas("SR_reward")
+        this.canvasFixation = Playspace.get_new_canvas('SR_fixation')
+        this.canvasStimulus = Playspace.get_new_canvas('SR_stimulus')
+        this.canvasDelay = Playspace.get_new_canvas('SR_delay')
+        this.canvasChoice = Playspace.get_new_canvas('SR_choice')
+        this.canvasPunish = Playspace.get_new_canvas('SR_punish')
+        this.canvasReward = Playspace.get_new_canvas("SR_reward")
 
         // Fill out what you can
-        Playspace2.fill_gray(this.canvasFixation)
-        Playspace2.fill_gray(this.canvasStimulus)
-        Playspace2.fill_gray(this.canvasDelay)
-        Playspace2.fill_gray(this.canvasChoice)
-        Playspace2.draw_reward(this.canvasReward)
-        Playspace2.draw_punish(this.canvasPunish)
+        Playspace.fill_gray(this.canvasFixation)
+        Playspace.fill_gray(this.canvasStimulus)
+        Playspace.fill_gray(this.canvasDelay)
+        Playspace.fill_gray(this.canvasChoice)
+        Playspace.draw_reward(this.canvasReward)
+        Playspace.draw_punish(this.canvasPunish)
 
         // Initiation button and eye fixation dot
-        Playspace2.draw_circle(this.canvasFixation, 
+        Playspace.draw_circle(this.canvasFixation, 
             this.taskParams['fixationXCentroid'], 
             this.taskParams['fixationYCentroid'], 
-            Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
+            Playspace.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
 
-        Playspace2.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
+        Playspace.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
 
         // Choice screen 
         for (var a in this.taskParams['actionXCentroid']){
-            Playspace2.draw_circle(this.canvasChoice, this.taskParams['choiceXCentroid'][a], 
-                this.taskParams['choiceYCentroid'][a], Playspace2.deg2propX(this.taskParams['choiceDiameterDegrees'][a]), 'white')    
+            Playspace.draw_circle(this.canvasChoice, this.taskParams['choiceXCentroid'][a], 
+                this.taskParams['choiceYCentroid'][a], Playspace.deg2propX(this.taskParams['choiceDiameterDegrees'][a]), 'white')    
         }
     }
 
@@ -561,7 +558,7 @@ class StimulusResponseGenerator{
         var sampleBag = np.choice(this.taskParams['sampleBagNames'])
         var sampleId = np.choice(this.imageBags[sampleBag])
         var sampleImage = await this.IB.get_by_name(sampleId)
-        Playspace2.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace2.deg2propX(8))
+        Playspace.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace.deg2propX(8))
 
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
         this.currentSampleBag = sampleBag
@@ -624,7 +621,7 @@ class StimulusResponseGenerator{
             frameData['durationSequence'] = [0]
             actionRegions['x'] = this.taskParams['fixationXCentroid']  // playspace units
             actionRegions['y'] = this.taskParams['fixationYCentroid']  // playspace units
-            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['fixationDiameterDegrees'])
+            actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['fixationDiameterDegrees'])
             actionTimeoutMsec = undefined
             reward = 0 
             assetId = 'fixationDot'
@@ -637,7 +634,7 @@ class StimulusResponseGenerator{
 
             actionRegions['x'] = this.taskParams['actionXCentroid']  // playspace units
             actionRegions['y'] = this.taskParams['actionYCentroid']  // playspace units
-            actionRegions['diameter'] = Playspace2.deg2propX(this.taskParams['actionDiameterDegrees'])
+            actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['actionDiameterDegrees'])
             actionTimeoutMsec = 5000
             reward = 0
             assetId = this.currentSampleId

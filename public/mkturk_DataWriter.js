@@ -169,12 +169,13 @@ class DropboxDataWriter extends DataWriter{
 }
 
 class MechanicalTurkDataWriter extends DataWriter{
-    constructor(assignmentId, hitId, inSandboxMode){
+    constructor(assignmentId, hitId, inSandboxMode, in_preview_mode){
         super()
         console.log(this)
         this.inSandboxMode = inSandboxMode || false
         this.assignmentId = assignmentId
         this.hitId = hitId
+        this.in_preview_mode = in_preview_mode
     }
 
     start_polling(){
@@ -185,6 +186,10 @@ class MechanicalTurkDataWriter extends DataWriter{
     }
 
     async conclude_session(){
+        if (this.in_preview_mode == true){
+            console.log("not submitting because in preview mode")
+            return
+        }
     
         var dataobj = this.package_data()
         var result_str = JSON.stringify({'SESSION_DATA':dataobj})

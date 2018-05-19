@@ -19,8 +19,10 @@
 
 <body style="overflow-y: hidden; overflow-x:hidden; background-color:#494c51">
 
+<div id="LoadStatusTextBox">Welcome! Loading assets...</div>
 <div id="MechanicalTurk_ProgressBar">
     <div id="MechanicalTurk_TrialBar"></div>
+    
 </div>
 
 <div id='bonus_counter'>Bonus cents: 0</div>
@@ -28,9 +30,9 @@
 <button id="noble" name="noble">No Bluetooth juicer</button>
 
 <div id="DebugMessageTextBox">Welcome...</div>
-<div id="LoadStatusTextBox">Hi :-) Loading assets...</div>
 
 <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
+
 <div id="PreviewModeSplash">
   <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>.  
   </span>
@@ -38,7 +40,7 @@
 
 <div id="MechanicalTurkInstructionsSplash">
   <div id='InstructionSplashText'> Loading instructions... </div>
-  <button onclick="toggleElement(0, 'MechanicalTurkInstructionsSplash'); FLAGS.clicked_close_instructions(true)" id='CloseInstructionsButton' disabled> Loading... </button>
+  <button onclick="toggleElement(0, 'MechanicalTurkInstructionsSplash')" id='CloseInstructionsButton' disabled> Loading... </button>
 </div>
 
 <div id="MechanicalTurkCursorDeviceSelectionScreen">
@@ -91,7 +93,7 @@
 
 <script>
 
-var FLAGS = {}; // todo: get rid of
+var FLAGS = {}; 
 
 
 $(async function(){
@@ -115,59 +117,41 @@ if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
 else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
   var freturn = await setup_upstairs_session(sessionPackage)
 }
+
 // Unpack objects
 var DataWriter = freturn['DataWriter']
 var HEI = freturn['HEI']
 var SESSION = freturn['SESSION']
-var run_preview_mode = freturn['run_preview_mode']
+
+
+
+// Main trial loop
+console.log('ENTERING MAIN TRIAL STATE MACHINE')
+wdm('Entering main trial loop...')
+
+
+TaskStreamer = new TaskStreamerClass(sessionPackage)
 
 // Attach static data objects 
 wdm('Attaching static data probes...')
 DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
-DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])
-DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
-
-// Kick off async threads 
-wdm('Kicking off async threads...')
+DataWriter.attach_probe(HEI, 'rewardLog', 'REWARD_LOG')
+DataWriter.attach_probe(TaskStreamer, 'behavioral_data', 'BEHAVIOR')
 DataWriter.start_polling()
 
-// Main trial loop
-console.log('ENTERING MAIN TRIAL STATE MACHINE')
-console.timeEnd('Done setting up')
-wdm('Entering main trial loop...')
-
-
-var IB = new ImageBuffer(S3_IO)
-
-TaskStreamer2 = new TaskStreamerClass2(
-  IB, 
-  sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'], 
-  sessionPackage['GAME_PACKAGE']['IMAGEBAGS'])
-
-DataWriter.attach_probe(TaskStreamer2, 'rewardLog', 'REWARD_LOG')
-DataWriter.attach_probe(TaskStreamer2, 'behavioral_data', 'BEHAVIOR')
-
-while(TaskStreamer2.TERMINAL_STATE == false){
-  var stepPackage = await TaskStreamer2.get_step()
+while(TaskStreamer.TERMINAL_STATE == false){
+  var stepPackage = await TaskStreamer.get_step()
   var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
 
-  TaskStreamer2.deposit_step_outcome(stepOutcome)
+  TaskStreamer.deposit_step_outcome(stepOutcome)
   
-  continue 
-
-  wdm('Starting next trial...')
 }
 
+await DataWriter.conclude_session()  
 
-if (run_preview_mode != true){
-  await DataWriter.conclude_session()  
-}
-else{
-  console.log('Not submitting because in preview mode')
-}
 }// End try
 
 

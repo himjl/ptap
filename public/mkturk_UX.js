@@ -45,7 +45,6 @@ class MonkeyUX extends UXclass{
     doneTestingTask_listener(event){
         event.preventDefault()
         //console.log("User is done testing. Start saving data");
-        FLAGS.debug_mode = 0
 
         document.querySelector("button[name=doneTestingTask]").style.display = "none"
         TaskStreamer.debug2record()
@@ -99,7 +98,7 @@ class MechanicalTurkUX extends UXclass{
                 screen1_instructions += '<p><text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text>'
         screen1_instructions += "</ul>"
 
-        await this.showMechanicalTurkInstructions(screen1_instructions)
+        this.showMechanicalTurkInstructions(screen1_instructions)
         
     }
 
@@ -135,17 +134,13 @@ class MechanicalTurkUX extends UXclass{
     }
     async showMechanicalTurkInstructions(instructions_text){
   
-        document.getElementById("MechanicalTurkInstructionsSplash").style.visibility = 'visible'
-        document.getElementById("InstructionSplashText").innerHTML = instructions_text 
-
-
+        $('#InstructionSplashText').html(instructions_text)
+       
+        $('#MechanicalTurkInstructionsSplash').css('visibility', 'visible')
+        
         var btn = document.getElementById('CloseInstructionsButton')
         btn.disabled = false 
         btn.innerHTML = 'Continue'
-
-        return new Promise(function(resolve, reject){
-            FLAGS.clicked_close_instructions = resolve
-        })
     }
 
 }

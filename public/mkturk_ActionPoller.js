@@ -149,9 +149,9 @@ class ActionPollerClass{
     
     async poll(xCentroid, yCentroid, diameter, actionTimeoutMsec){
 
-        var xCentroidPixels = Playspace2.propX2pixels(xCentroid)
-        var yCentroidPixels = Playspace2.propX2pixels(yCentroid)
-        var diameterPixels = Playspace2.propX2pixels(diameter)
+        var xCentroidPixels = Playspace.propX2pixels(xCentroid)
+        var yCentroidPixels = Playspace.propX2pixels(yCentroid)
+        var diameterPixels = Playspace.propX2pixels(diameter)
 
         this.create_action_regions(
             xCentroidPixels, 
