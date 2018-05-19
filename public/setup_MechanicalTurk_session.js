@@ -99,7 +99,6 @@ async function setup_mechanicalturk_session(sessionPackage){
   var freturn = {}
   freturn['DataWriter'] = DataWriter 
   freturn['HEI'] = HEI 
-  freturn['UX'] = UX 
   freturn['SESSION'] = SESSION
   freturn['run_preview_mode'] = run_preview_mode
   return freturn

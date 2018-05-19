@@ -231,4 +231,13 @@ class SessionBootStrapper{
     get_bootstrap_log(){
         return this.bootstrapLog
     }
+
+    verify_session_package(sessionPackage){
+
+        var VF = new Verifier()
+        sessionPackage = VF.verify_session_package(sessionPackage)
+        this.VF = VF
+        this.verification_log = VF.get_verification_log()
+        return sessionPackage
+    }
 }

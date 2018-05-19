@@ -102,12 +102,8 @@ try{
 wdm('Running bootstrapper...')
 var SBS = new SessionBootStrapper()
 var sessionPackage = await SBS.build()
+sessionPackage = SBS.verify_session_package(sessionPackage)
 
-// Verify inputs
-wdm('Verifying inputs...')
-
-VF = new Verifier()
-sessionPackage = VF.verify_session_package(sessionPackage)
 console.log('sessionPackage', sessionPackage)
 
 // Construct session
@@ -120,10 +116,8 @@ else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
   var freturn = await setup_upstairs_session(sessionPackage)
 }
 // Unpack objects
-var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
 var HEI = freturn['HEI']
-var UX = freturn['UX']
 var SESSION = freturn['SESSION']
 var run_preview_mode = freturn['run_preview_mode']
 
@@ -134,7 +128,7 @@ DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TAS
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
-DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
+DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
 
 // Attach async data probes 
 wdm('Attaching async data probes...')
@@ -223,7 +217,7 @@ finally{
   document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
   console.log('Submitting failed session to mechanical turk')
   
-  document.getElementById("MechanicalTurk_SubmissionForm").submit();
+  //document.getElementById("MechanicalTurk_SubmissionForm").submit();
   
   
 }
