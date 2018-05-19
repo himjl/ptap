@@ -2,10 +2,7 @@ class UXclass{
     constructor(){
 
     }
-    writeToTrialCounterDisplay(s){
-        var elem = document.getElementById('TrialCounter')
-        elem.innerHTML = s; // text
-    }
+    
 }
 
 class MonkeyUX extends UXclass{
@@ -13,7 +10,6 @@ class MonkeyUX extends UXclass{
         super()
         toggleElement(1, "SessionTextBox")
         toggleElement(1, 'DebugMessageTextBox')
-        toggleElement(1, 'TrialCounter')
         document.querySelector("button[name=doneTestingTask]").addEventListener(
         'touchend',this.doneTestingTask_listener,false)
         document.querySelector("button[name=doneTestingTask]").addEventListener(
@@ -23,8 +19,7 @@ class MonkeyUX extends UXclass{
     }
 
     async poll(trialOutcome){
-        this.writeToTrialCounterDisplay(trialOutcome['trialNumberSession']+1)
-        return
+
     }
 
     debug2record(){
@@ -33,7 +28,6 @@ class MonkeyUX extends UXclass{
         toggleElement(0, "DebugMessageTextBox")
         document.body.style['background-color'] = '#7F7F7F'
       
-        this.writeToTrialCounterDisplay('-')
 
     }
     

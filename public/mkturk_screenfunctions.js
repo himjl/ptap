@@ -59,19 +59,6 @@ function toggleProgressbar(on_or_off, bar_id){
 
 
 
-function displayTerminalScreen(){
-	var terminal_text = 'Thank you for completing this HIT. Please wait while it is submitted...'
-	document.getElementById('terminal_splash_screen').style.zIndex = 100
-	document.getElementById('terminal_splash_screen').style.innerHTML = terminal_text
-
-}
-
-//passive event handlers: 
-//https://stackoverflow.com/questions/39152877/consider-marking-event-handler-as-passive-to-make-the-page-more-responsive
-
-
-
-
 
 
 

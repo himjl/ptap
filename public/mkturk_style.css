@@ -97,17 +97,7 @@
 
 
 
-#TrialCounter {
-   position: fixed;
-   margin-top: -5px;
-   left: 1px; /* space between top of browser and annoying box */
-   height: 30px;
-   color:white;
-   font-size: 8px; 
-   z-index:102;
-   font-family: 'Helvetica Neue';
-   color:white;
-}
+
 
 #DebugMessageTextBox {
    position: fixed;

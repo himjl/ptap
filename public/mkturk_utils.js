@@ -20,11 +20,6 @@ function getWindowHeight(){
     return w
 }
 
-function _dpr(){
-  var devicePixelRatio = window.devicePixelRatio || 1
-  return devicePixelRatio
-}
-
 function wdm(s){
   // Write debug message
   console.log(s)
@@ -297,15 +292,6 @@ Object.defineProperty(Array.prototype, "equals", {enumerable: false});
 
 
 
-// Return all indices of val in arr
-function getAllInstancesIndexes(arr, val){
-  var indexes = []
-    for(var i = 0; i < arr.length; i++)
-        if (arr[i] === val)
-            indexes.push(i);
-    return indexes;
-}
-
 // Shuffles an array
 function shuffle(array) {
 
@@ -327,38 +313,6 @@ function shuffle(array) {
   return array;
 }
 
-function cantor(k1, k2){
-  // Cantor hash function maps two nonnegative integers into another nonnegative integer 
-  // https://stackoverflow.com/questions/919612/mapping-two-integers-to-one-in-a-unique-and-deterministic-way
-  
-  if(k1 == undefined || k2 == undefined){
-    return undefined 
-  }
-
-  if(k1.constructor != Number || k2.constructor != Number){
-    return undefined 
-  }
-  
-  if (k1 < 0){
-    k1 = -1 * k1 * 2 - 1
-  }
-  else{
-    k1 = 2 * k1
-  }
-  if (k2 < 0){
-    k2 = -1 * k2 * 2 - 1
-  }
-  else{
-    k2 = 2 * k2
-  }
-
-  hash = (k1 + k2) * (k1 + k2 + 1) /  2 + k2
-
-  return hash
-}
-
-
-
 
 function toBytesInt16(num){
   arr = new ArrayBuffer(2) //2 bytes
@@ -373,13 +327,6 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
-function md5Hash(blob){
-  var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(blob));
-  return hash
-}
-
-
 String.prototype.hashCode = function(){
     var hash = 0;
     if (this.length == 0) return hash;
@@ -393,19 +340,6 @@ String.prototype.hashCode = function(){
 
 
 //================== UTILITIES ==================//
-
-function hashJSON(j){
-  // Return JSON hash 
-
-  // Invariant to: 
-  // Order of keys in objects 
-  // Order of elements in arrays containing all strings
-
-  // Subject to: 
-  // Order of elements in arrays containing all numbers 
-
-  // TODO
-}
 
 
 function join(parts, sep){
@@ -423,13 +357,6 @@ function add(a, b) {
     // console.log(sum); // 6
 
     return a + b;
-}
-
-function splitFilename(s){
-  // https://stackoverflow.com/questions/423376/how-to-get-the-file-name-from-a-full-path-using-javascript
-  // Takes full path and returns filename only
-  var filename = s.replace(/^.*[\\\/]/, '')
-  return filename
 }
 
 
