@@ -1,8 +1,8 @@
 class StimulusResponseGenerator{
-    constructor(ImageBuffer, imageBags, taskParams, initialState){
+    constructor(ImageBuffer, image_table, taskParams, initialState){
 
         this.IB = ImageBuffer // Imagebuffer
-        this.imageBags = imageBags
+        this.image_table = image_table
         this.taskParams = taskParams 
         this.state = initialState 
         
@@ -15,7 +15,7 @@ class StimulusResponseGenerator{
         this.behavioral_data['trialNumberTask'] = []
         this.behavioral_data['return'] = []
         this.behavioral_data['sampleBag'] = []
-        this.behavioral_data['sampleId'] = []
+        this.behavioral_data['sampleIdKey'] = []
         this.behavioral_data['action'] = []
         this.behavioral_data['responseX'] = []
         this.behavioral_data['responseY'] = []
@@ -34,7 +34,6 @@ class StimulusResponseGenerator{
 
         this.trialNumberTask = 0
         this.lastActionIndex = undefined
-
     }
 
     initialize_canvases(){
@@ -114,14 +113,18 @@ class StimulusResponseGenerator{
         // Called before fixation is presented. 
 
         var sampleBag = np.choice(this.taskParams['sampleBagNames'])
-        var sampleId = np.choice(this.imageBags[sampleBag])
-        var sampleURL = this.imageId_2_url[sampleId]
+        var sampleIdKey = np.choice(this.taskParams['imageBags'][sampleBag])
+        var sampleURL = this.image_table[sampleIdKey]
+        console.log(this.image_table)
+        console.log(this.taskParams)
+        console.log(sampleIdKey)
+        console.log(sampleURL)
         var sampleImage = await this.IB.get_by_name(sampleURL)
         Playspace.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace.deg2propX(8))
 
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
         this.currentSampleBag = sampleBag
-        this.currentSampleId = sampleId 
+        this.currentSampleIdKey = sampleIdKey 
     }
 
     async get_step(){
@@ -145,7 +148,7 @@ class StimulusResponseGenerator{
                 this.behavioral_data['trialNumberTask'].push(this.trialNumberTask-1)
                 this.behavioral_data['return'].push(this.lastTrialReward)
                 this.behavioral_data['sampleBag'].push(this.currentSampleBag)
-                this.behavioral_data['sampleId'].push(this.currentSampleId)
+                this.behavioral_data['sampleIdKey'].push(this.currentSampleIdKey)
                 this.behavioral_data['action'].push(this.lastChoiceIndex)
                 this.behavioral_data['responseX'].push(this.lastChoiceX)
                 this.behavioral_data['responseY'].push(this.lastChoiceY)

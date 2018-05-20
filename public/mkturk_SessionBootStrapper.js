@@ -37,7 +37,7 @@ class SessionBootStrapper{
         var gamePackage = await this.download_from_string_header(game_package_string_header) 
         var unpackedGame = {}
 
-        unpackedGame['IMAGEBAGS'] = await this.unpack_imagebags(gamePackage['IMAGEBAGS'])
+        unpackedGame['IMAGE_TABLE'] = await this.unpack_imagebags(gamePackage['IMAGE_TABLE'])
         unpackedGame['GAME'] = await this.unpack_game(gamePackage['GAME'])
         unpackedGame['TASK_SEQUENCE'] = await this.unpack_task_sequence(gamePackage['TASK_SEQUENCE'])
 
@@ -46,8 +46,10 @@ class SessionBootStrapper{
 
     async unpack_imagebags(imagebags_bootstrap){
 
-        console.log('Loading IMAGEBAGS')
+        console.log('Loading IMAGE_TABLE')
         var imagebags = await this.download_from_string_header(imagebags_bootstrap)
+
+        return imagebags
         console.log('Done downloading imagebags. Unpacking...')
         var loadMethods = []
         var unpacked_imagebags = {}

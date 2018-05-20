@@ -7,10 +7,10 @@ class TaskStreamerClass{
     async build(){
         var sessionPackage = this.sessionPackage
         var taskSequence = sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']
-        var imageBags = sessionPackage['GAME_PACKAGE']['IMAGEBAGS']
+        var image_table = sessionPackage['GAME_PACKAGE']['IMAGE_TABLE']
 
         this.ImageBuffer = new ImageBuffer(S3_IO)
-        this.imageBags = imageBags
+        this.image_table = image_table
         this.taskSequence = taskSequence 
         this.behavioral_data = []
         var initialState = undefined
@@ -27,7 +27,7 @@ class TaskStreamerClass{
                 this.cachedTaskURLs.push(taskURL)
             }
             
-            var constructor_string = 'new '+taskName+'(this.ImageBuffer, this.imageBags, this.taskSequence[tkNumber], initialState)'
+            var constructor_string = 'new '+taskName+'(this.ImageBuffer, this.image_table, this.taskSequence[tkNumber], initialState)'
 
             this.tasks.push(eval(constructor_string)) 
         }
