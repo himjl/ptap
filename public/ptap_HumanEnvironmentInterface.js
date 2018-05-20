@@ -65,6 +65,7 @@ class HumanEnvironmentInterface{
         // Deliver reward(t) and run frames(t)
 
         var freturn = await Promise.all([this.Reinforcer.deliver_reinforcement(reward), this.ScreenDisplayer.execute_canvas_sequence(frameData['canvasSequence'], frameData['durationSequence'])])
+        var reinforcementTimestamps = freturn[0]
         var frameTimestamps = freturn[1]
 
         if (reward > 0){ 
@@ -89,13 +90,12 @@ class HumanEnvironmentInterface{
         
         
         // Update bonus readout
-
         this.totalUSDBonus = this.totalUSDBonus + reward * this.bonusUSDPerCorrect
         var current_bonus_string = 'Bonus cents: '+(100*this.totalUSDBonus).toFixed(3)
         $('#bonus_counter').html(current_bonus_string)
 
         // Return
-        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward': reward}
+        var stepOutcome = {'frameTimestamps': frameTimestamps, 'action':action, 'reward': reward, 'reinforcementTimestamps':reinforcementTimestamps}
         return stepOutcome
     }
 

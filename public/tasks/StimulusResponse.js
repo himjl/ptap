@@ -1,6 +1,5 @@
 class StimulusResponseGenerator{
     constructor(ImageBuffer, imageBags, taskParams, initialState){
-        // taskParams: entry of TASK_SEQUENCE
 
         this.IB = ImageBuffer // Imagebuffer
         this.imageBags = imageBags
@@ -12,7 +11,7 @@ class StimulusResponseGenerator{
 
         this.initialize_canvases()
         
-        this.behavioral_data = {} // "agent behavior"
+        this.behavioral_data = {} 
         this.behavioral_data['trialNumberTask'] = []
         this.behavioral_data['return'] = []
         this.behavioral_data['sampleBag'] = []
@@ -33,12 +32,8 @@ class StimulusResponseGenerator{
         this.behavioral_data['timestampChoiceOn'] = []
         this.behavioral_data['reactionTime'] = []
 
-        this.stateTable = {} // stateHash to meta 
         this.trialNumberTask = 0
-
-        $("#LoadStatusTextBox").html('Done loading. Start playing!')
-        $("#LoadStatusTextBox").css('opacity', 0.1)
-        $("#LoadStatusTextBox").css('font-size', 10)
+        this.lastActionIndex = undefined
 
     }
 
@@ -91,11 +86,9 @@ class StimulusResponseGenerator{
         var sumReward = np.sum(this.rewardHistory.slice(-1 * minTrialsCriterion * nstepsPerTrial))
         var averageReward = sumReward / ( minTrialsCriterion * nstepsPerTrial)
 
-        console.log(averageReward)
         if(averageReward < averageReturnCriterion / nstepsPerTrial){
             return false
         }
-
 
         return true
     }
@@ -103,15 +96,17 @@ class StimulusResponseGenerator{
     async deposit_step_outcome(stepOutcomePackage){
         var action = stepOutcomePackage['action']
 
+
         this.currentStepNumber+=1
         if (this.currentStepNumber > 2){
             this.currentStepNumber = 0
         }
-  
+        console.log(stepOutcomePackage)
+        this.lastStepOutcomePackage = stepOutcomePackage
         this.actionHistory.push(action)
-
+        this.lastActionIndex = action['actionIndex']
+        this.lastActionPackage = action
         // Update internal behavior
-
     }
 
     async buffer_trial(){
@@ -120,7 +115,8 @@ class StimulusResponseGenerator{
 
         var sampleBag = np.choice(this.taskParams['sampleBagNames'])
         var sampleId = np.choice(this.imageBags[sampleBag])
-        var sampleImage = await this.IB.get_by_name(sampleId)
+        var sampleURL = this.imageId_2_url[sampleId]
+        var sampleImage = await this.IB.get_by_name(sampleURL)
         Playspace.draw_image(this.canvasStimulus, sampleImage, 0.5, 0.5, Playspace.deg2propX(8))
 
         this.rewardMap = this.taskParams['rewardMap'][sampleBag]
@@ -139,11 +135,35 @@ class StimulusResponseGenerator{
         var reward = 0
         var actionTimeoutMsec = 0
 
-        var assetId = undefined 
-
         if (this.currentStepNumber == 0){
 
-            await this.buffer_trial() // Buffer before presenting the fixation
+            if (this.trialNumberTask > 0){
+                this.timestampReinforcementOn =  this.lastStepOutcomePackage['reinforcementTimestamps'][0]
+                this.timestampReinforcementOff = this.lastStepOutcomePackage['reinforcementTimestamps'][1]
+
+                // Record results of previous trial
+                this.behavioral_data['trialNumberTask'].push(this.trialNumberTask-1)
+                this.behavioral_data['return'].push(this.lastTrialReward)
+                this.behavioral_data['sampleBag'].push(this.currentSampleBag)
+                this.behavioral_data['sampleId'].push(this.currentSampleId)
+                this.behavioral_data['action'].push(this.lastChoiceIndex)
+                this.behavioral_data['responseX'].push(this.lastChoiceX)
+                this.behavioral_data['responseY'].push(this.lastChoiceY)
+                this.behavioral_data['fixationX'].push(this.lastFixationX)
+                this.behavioral_data['fixationY'].push(this.lastFixationY)
+                this.behavioral_data['timestampStart'].push(this.lastFixationT)
+                this.behavioral_data['timestampFixationOnset'].push(this.lastFixationOnsetT)
+                this.behavioral_data['timestampFixationAcquired'].push(this.lastFixationT)
+                this.behavioral_data['timestampResponse'].push(this.timestampResponse)
+                this.behavioral_data['timestampReinforcementOn'].push(this.timestampReinforcementOn)
+                this.behavioral_data['timestampReinforcementOff'].push(this.timestampReinforcementOff)
+                this.behavioral_data['timestampStimulusOn'].push(this.timestampStimulusOn)
+                this.behavioral_data['timestampStimulusOff'].push(this.timestampStimulusOff)
+                this.behavioral_data['timestampChoiceOn'].push(this.timestampChoiceOn)
+                this.behavioral_data['reactionTime'].push(this.timestampResponse - this.timestampChoiceOn)
+            }
+            this.trialNumberTask+=1
+            await this.buffer_trial() // Buffer upcoming trial
             // Run fixation
 
             frameData['canvasSequence'] = [this.canvasFixation]
@@ -153,9 +173,13 @@ class StimulusResponseGenerator{
             actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['fixationDiameterDegrees'])
             actionTimeoutMsec = undefined
             reward = 0 
-            assetId = 'fixationDot'
         }
         else if(this.currentStepNumber == 1){
+
+            this.lastFixationX = this.lastActionPackage['x']
+            this.lastFixationY = this.lastActionPackage['y']
+            this.lastFixationT = this.lastActionPackage['timestamp']
+            this.lastFixationOnsetT = this.lastStepOutcomePackage['frameTimestamps'][0]
             // Run stimulus, (optionally) delay, and choice
 
             frameData['canvasSequence'] = [this.canvasStimulus, this.canvasChoice]
@@ -166,10 +190,18 @@ class StimulusResponseGenerator{
             actionRegions['diameter'] = Playspace.deg2propX(this.taskParams['actionDiameterDegrees'])
             actionTimeoutMsec = 5000
             reward = 0
-            assetId = this.currentSampleId
         }
 
         else if(this.currentStepNumber == 2){
+
+            this.timestampStimulusOn = this.lastStepOutcomePackage['frameTimestamps'][0]
+            this.timestampStimulusOff = this.lastStepOutcomePackage['frameTimestamps'][1]
+            this.timestampChoiceOn = this.lastStepOutcomePackage['frameTimestamps'].slice(-1)[0]
+
+            this.timestampResponse = this.lastActionPackage['timestamp']
+            this.lastChoiceIndex = this.lastActionPackage['actionIndex']
+            this.lastChoiceX = this.lastActionPackage['x']
+            this.lastChoiceY = this.lastActionPackage['y']
             // Run reinforcement screen (based on user action)
             var reward = this.rewardMap[this.actionHistory[this.actionHistory.length-1]['actionIndex']]
             if (reward >= 1){
@@ -182,7 +214,6 @@ class StimulusResponseGenerator{
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'reward_sound'
                 reward = 1
-                assetId = 'rewardScreenGreen'
             }
 
             else{
@@ -195,12 +226,9 @@ class StimulusResponseGenerator{
                 actionTimeoutMsec = 0
                 soundData['soundName'] = 'punish_sound'
                 reward = 0
-                assetId = 'punishScreenBlack'
             }
-
-
+            this.lastTrialReward = reward
         }
-
 
         var stepPackage = {
             'frameData':frameData, 

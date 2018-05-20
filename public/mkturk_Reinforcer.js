@@ -8,11 +8,14 @@ class MonetaryReinforcer{
 
     async deliver_reinforcement(nreward){
 
-        if(nreward >=1){
-            this.bonus_total = this.bonus_total + this.bonus_per_correct
-            console.log('Running monetary bonus amount',
-              Math.round(this.bonus_total*1000)/1000)
-          }
+      var reinforcementStartTimestamp = performance.now()
+      if(nreward >=1){
+          this.bonus_total = this.bonus_total + this.bonus_per_correct
+          console.log('Running monetary bonus amount',
+            Math.round(this.bonus_total*1000)/1000)
+      }
+      var reinforcementStopTimestamp = performance.now()
+      return [reinforcementStartTimestamp, reinforcementStopTimestamp]
     }       
 }
 
@@ -30,24 +33,23 @@ class JuiceReinforcer{
     }
 
     async deliver_reinforcement(nreward){
+      var reinforcementStartTimestamp = performance.now()
 
-        if(nreward >=1){
+      if(nreward >=1){
+          var RewardDuration = nreward * this.setJuicerRewardDuration();
 
-            var RewardDuration = nreward * this.setJuicerRewardDuration();
-
-            if(ble.connected == false){
-               console.log('Delivered ', nreward, 'virtual juice rewards')
-              return
-            }
-            else if (ble.connected == true){
-                var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
-                return p2
-                console.log('Delivered ', nreward, 'juice rewards')
-            }
-
+          if(ble.connected == false){
+            console.log('Delivered ', nreward, 'virtual juice rewards')
+          }
+          else if (ble.connected == true){
+              
+              var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
+              await p2
+              console.log('Delivered ', nreward, 'juice rewards')
+          } 
         }
-      
-        
+        var reinforcementStopTimestamp = performance.now() 
+        return [reinforcementStartTimestamp, reinforcementStopTimestamp]
     }
 
     setJuicerRewardDuration(){
