@@ -55,7 +55,7 @@
   <input type="image" class='DeviceButton' id='MouseImage'  style="" id="MouseImage" src="tutorial_images/mouse.png " alt="Mouse" onclick="setDeviceSelection(this, 'mouse')" />
   <input type="image"  class='DeviceButton' id='TrackPadImage' src="tutorial_images/trackpad.png " alt="Trackpad" onclick="setDeviceSelection(this, 'trackpad')" />
   <input type="image"  class='DeviceButton' id = 'TabletImage' src="tutorial_images/tablet.png " alt="Tablet" onclick="setDeviceSelection(this, 'touchscreen')" />
-  <button id='CloseDeviceSelectionButton' onclick="toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); FLAGS.clicked_device_selection(UX.MechanicalTurk_DeviceSelected)" disabled> <i>Make selection...</i> </button>
+  <button id='CloseDeviceSelectionButton' onclick="toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); SESSION['inputDevice'] = (UX.MechanicalTurk_DeviceSelected)" disabled> <i>Make selection...</i> </button>
 
 </div>
 
@@ -64,7 +64,7 @@
   <input type="image" class='HandButton' id='LeftHandImage'  style="" id="MouseImage" src="tutorial_images/left_hand.png " alt="Lefthanded" onclick="setHandSelection(this, 'left')" />
   <input type="image"  class='HandButton' id = 'RightHandImage' src="tutorial_images/right_hand.png " alt="Righthanded" onclick="setHandSelection(this, 'right')" />
 
-  <button style="text-align:center; width:100%; height:10%; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(UX.MechanicalTurk_Handedness)" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>
+  <button style="text-align:center; width:100%; height:10%; margin-top:5%; top: 80%; left:35%;"  onclick="toggleElement(0, 'MechanicalTurkHandSelectionScreen'); SESSION['handedness'] = UX.MechanicalTurk_Handedness" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>
 </div>
 
 <button id="doneTestingTask" name="doneTestingTask">Done with testing trials</button>
@@ -128,7 +128,7 @@ else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
 // Unpack objects
 var DataWriter = freturn['DataWriter']
 var HEI = freturn['HEI']
-var SESSION = freturn['SESSION']
+SESSION = freturn['SESSION']
 
 
 // Main trial loop

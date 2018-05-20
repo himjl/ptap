@@ -17,18 +17,17 @@ async function setup_mechanicalturk_session(sessionPackage){
   var SESSION = extract_mturk_session_info(landingPageURL)
   console.log('SESSION', SESSION)
 
-  
 
   HEI = new HumanEnvironmentInterface(ENVIRONMENT)
   await HEI.build()
 
-  UX = new MechanicalTurkUX(GAME['minimumTrials'], GAME['maximumTrials'], ENVIRONMENT['bonusUSDPerCorrect'])
+  UX = new MechanicalTurkUX(ENVIRONMENT['bonusUSDPerCorrect'])
 
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
     var show_instructions = false
-    var show_hand_selection = false 
-    var show_device_selection = false 
+    var show_hand_selection = true 
+    var show_device_selection = true 
     var in_preview_mode = false
   }
   else{
@@ -52,14 +51,13 @@ async function setup_mechanicalturk_session(sessionPackage){
     UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])
   }
 
-  
   if(show_hand_selection == true){
-    SESSION['handedness'] = UX.run_hand_selection_dialogue()
+    UX.run_hand_selection_dialogue()
   }
 
   
   if(show_device_selection){    
-    SESSION['inputDevice'] = UX.run_device_selection_dialogue()
+    UX.run_device_selection_dialogue()
   }
 
   DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode'], in_preview_mode) 

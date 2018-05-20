@@ -27,12 +27,12 @@ async function setupSession(){
         "playspace_viewingDistanceInches": 8, 
         "primary_reinforcer_type": "monetary", 
         "rigEnvironment": "mechanicalturk", 
-        "screen_virtualPixelsPerInch": 143.755902965
+        "screen_virtualPixelsPerInch": 143.755902965, 
+        "maxSteps":3 * 10,
     }, 
     "GAME_PACKAGE": {
         "GAME": {
             "gameId": "example_MechanicalTurk_SR", 
-            "minimumSteps": 3 * 10, 
         }, 
         "IMAGE_TABLE": {
             "dog1":  "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_dog_e1ed016de5e47e8a6567123ce134d72b7187db73_ty0.43294_tz-0.29943_rxy-112.6794_rxz75.5665_ryz127.211_s1.6328.png", 
@@ -167,10 +167,10 @@ function go_to_main_page(){
     else{
       try{
         s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__
-        window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" 
       }
       catch(error){
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"
       }
         
     }

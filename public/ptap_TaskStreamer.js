@@ -35,8 +35,11 @@ class TaskStreamerClass{
         // TaskStreamer state 
         this.taskNumber = 0
         this.stepNumber = 0
-        this.maxSteps = sessionPackage['GAME_PACKAGE']['GAME']['minimumSteps']
+        this.maxSteps = sessionPackage['ENVIRONMENT']['maxSteps']
+
+        
     }
+
 
     async get_step(){
         var stepPackage = await this.tasks[this.taskNumber].get_step()

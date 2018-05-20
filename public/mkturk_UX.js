@@ -57,10 +57,8 @@ class MonkeyUX extends UXclass{
 }
 
 class MechanicalTurkUX extends UXclass{
-    constructor(minimumTrials, maximumTrials, bonusUSDPerCorrect){
+    constructor(bonusUSDPerCorrect){
         super()
-        this.minimumTrials = minimumTrials // for enabling early turn-in
-        this.maximumTrials = maximumTrials
         this.bonusUSDPerCorrect = bonusUSDPerCorrect
         this.bonusEarned = 0
     }

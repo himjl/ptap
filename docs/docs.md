@@ -65,22 +65,22 @@ A sessionPackage has two keys:
 We'll go through each key and talk about what it should consist of: 
 
 ## GAME_PACKAGE 
-The GAME_PACKAGE is a dictionary that defines the logical structure and contents of the behavioral task. Here, you will tell ptap which images, rules (i.e. SR vs. MTS), rewards, punishments (e.g. timeout lengths), etc. you would like to use in the session. 
+The GAME_PACKAGE is a dictionary that defines the logical structure and contents of the behavioral task. Here, you will tell ptap which tasks to run.
 
 Along these lines, the GAME_PACKAGE consists of 3 keys: 
 
+
 ### GAME 
-These are settings for the game as a whole. You need to specify: 
 
-    'GAME': {
-            "gameId":"theNameOfTheGame"
-            "minimumSteps":50,
-            }
+This is a **dictionary**: 
 
-These are fairly self explanatory. 
+    {
+        'gameId':'myGameId', 
+        #todo: transition rules between tasks
+    }
 
 ### TASK_SEQUENCE
-This is a **list**, and each entry must contain at least the two following keys:
+This is a **list**, and each entry must contain the three following keys:
 
     {
     "taskURL":"tasks/StimulusResponse.js", 
@@ -94,12 +94,14 @@ This is a dictionary with
 
     {'idKey': url_to_image}
 
+The reason this is its own key, instead of being associated with a single task, is that this dictionary is often very large (MB) and should not be re
 
 ### Wrapping them up in a single dictionary: 
 
 That concludes the contents of the GAME_PACKAGE, which should then look like: 
 
-    gamePackage = {'IMAGE_TABLE':*your_imagebags_here*, 
+    gamePackage = {
+                  'IMAGE_TABLE':*your_imagebags_here*, 
                   'GAME':*your_game_here*, 
                   'TASK_SEQUENCE':*your_task_sequence_here*}
 
@@ -117,6 +119,7 @@ The ENVIRONMENT is where you tell ptap about where it is being run (e.g. for mon
                         'rigEnvironment':'monkeybox', 
                         "bonusUSDPerCorrect":0.0005,
                         "juiceRewardPer1000Trials":250,
+                        "maxSteps":50,
                     }  
 
 # Putting it all together
