@@ -1,3 +1,17 @@
+
+async function download_script(url){
+  p = new Promise(function(resolve, reject){
+    //$.getScript(url, resolve("Loaded "+url))
+    $.getScript(url).done(function(script, textStatus){resolve(textStatus)})
+    //https://stackoverflow.com/questions/14565365/jquery-getscript-callback-when-script-is-fully-loaded-and-executed
+  })
+  await p
+  await sleep(500)
+  
+  console.log('Loaded javascript from', url)
+  return p
+
+}
 function getWindowWidth(){
     // Reference: https://www.w3schools.com/js/js_window.asp
 

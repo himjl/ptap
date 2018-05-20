@@ -66,11 +66,7 @@ class MechanicalTurkUX extends UXclass{
     }
 
     debug2record(){
-        toggleElement(1, 'MechanicalTurk_ProgressBar')
-        toggleElement(1, 'MechanicalTurk_TrialBar')
 
-
-        toggleElement(1, "DebugMessageTextBox")
 
         return
     }

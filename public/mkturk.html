@@ -1,6 +1,8 @@
 <!doctype html>
 
 <head>
+<link rel="shortcut icon" type="image/png" href="favicon.png"/>
+
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
@@ -29,7 +31,7 @@
         <div id="MechanicalTurk_TrialBar"></div>
     </div>
 
-    <div id='bonus_counter'>Bonus cents: 0</div>
+    <div id='bonus_counter'>Bonus cents: 0.000</div>
 
 
     <div id="DebugMessageTextBox">Welcome...</div>
@@ -38,8 +40,6 @@
 
     <div id="PreviewModeSplash"><p style="color:red; font-size:14px; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled.   
     </div>
-
-
 </div>
 
 
@@ -105,6 +105,7 @@ var FLAGS = {};
 
 $(async function(){
 
+
 try{
  
 // Load inputs from local storage, web, or Dropbox.
@@ -138,7 +139,7 @@ wdm('Entering main trial loop...')
 
 
 TaskStreamer = new TaskStreamerClass(sessionPackage)
-
+await TaskStreamer.build()
 // Attach static data objects 
 wdm('Attaching static data probes...')
 DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])

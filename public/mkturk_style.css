@@ -57,7 +57,6 @@
   border:1px solid #BDBDBD; 
   background-color:#BDBDBD; 
   z-index:102; 
-  visibility:hidden;
 }
 
 #MechanicalTurk_TrialBar{
@@ -101,21 +100,18 @@
    z-index:102;
    font-family: 'Helvetica Neue';
    color:white;
-   visibility:visible;
 }
 
 #LoadStatusTextBox {
   position:absolute;
-  margin-top: 51px;
   left: 10px;
-  bottom:1px;
+  bottom:0px;
   height: 30px;
   color:white;
   opacity:0.85;
   font-size: 20px; 
   font-family: 'Helvetica Neue';
   color:white;
-  visibility:visible;
 }
 
 #SessionTextBox {
@@ -131,8 +127,6 @@
    color:#4B4B4B;
    background-color:#E4E4E4;
    border-radius:3px;
-   visibility:hidden;
-
 }
 
 #PreviewModeSplash{
