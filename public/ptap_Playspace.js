@@ -124,6 +124,19 @@ class Playspace{
         cf.draw_circle(canvasobj, xPixels, yPixels, diameterPixels, '#2d2d2d')
     }
 
+    draw_eye_fixation_cross(canvasobj, xCentroidProportion, yCentroidProportion){
+
+        var width = parseFloat(canvasobj.style.width)
+        var height = parseFloat(canvasobj.style.height)
+
+        var diameterPixels = Math.max(this.deg2pixels(0.2), 15) // at least 4 pixels at its widest 
+        var xPixels = width * xCentroidProportion 
+        var yPixels = height * yCentroidProportion 
+        var lineWidth = 2
+        cf.draw_line(canvasobj, xPixels - diameterPixels/2, yPixels, diameterPixels, 0, lineWidth,  '#2d2d2d')
+        cf.draw_line(canvasobj, xPixels, yPixels - diameterPixels/2, 0, diameterPixels, lineWidth, '#2d2d2d')
+    }
+
 
 
     // ******* Spatial conversion functions *******
@@ -218,6 +231,14 @@ class cf{ // "Canvas Fabricator"
             }
         }
 
+    static draw_line(canvasobj, xPixels, yPixels, xRun, yRun, lineWidth, color){
+        var context=canvasobj.getContext('2d');
+        context.beginPath();
+        context.lineWidth = lineWidth
+        context.moveTo(xPixels, yPixels);
+        context.lineTo(xPixels + xRun, yPixels + yRun); 
+        context.stroke();
+    }
     static draw_circle(canvasobj, xPixels, yPixels, diameterPixels, color){
 
         var context=canvasobj.getContext('2d');

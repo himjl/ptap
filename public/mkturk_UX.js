@@ -70,7 +70,7 @@ class MechanicalTurkUX extends UXclass{
         toggleElement(1, 'MechanicalTurk_TrialBar')
 
 
-        toggleElement(0, "DebugMessageTextBox")
+        toggleElement(1, "DebugMessageTextBox")
 
         return
     }

@@ -19,24 +19,31 @@
 
 <body style="overflow-y: hidden; overflow-x:hidden; background-color:#494c51">
 
-<div id="LoadStatusTextBox">Welcome! Loading assets...</div>
-<div id="MechanicalTurk_ProgressBar">
-    <div id="MechanicalTurk_TrialBar"></div>
-    
-</div>
-
-<div id='bonus_counter'>Bonus cents: 0</div>
 <button id="connectble" name="connectble" >Connect to Bluetooth juicer</button>
 <button id="noble" name="noble">No Bluetooth juicer</button>
 
-<div id="DebugMessageTextBox">Welcome...</div>
 
-<div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
+<div id="HUD">
+    <div id="LoadStatusTextBox">Welcome! Loading assets...</div>
+    <div id="MechanicalTurk_ProgressBar">
+        <div id="MechanicalTurk_TrialBar"></div>
+    </div>
 
-<div id="PreviewModeSplash">
-  <span id='PreviewSplashText'><p style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style="font-weight:bold">demo below</text>.  
-  </span>
+    <div id='bonus_counter'>Bonus cents: 0</div>
+
+
+    <div id="DebugMessageTextBox">Welcome...</div>
+
+    <div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
+
+    <div id="PreviewModeSplash"><p style="color:red; font-size:14px; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled.   
+    </div>
+
+
 </div>
+
+
+
 
 <div id="MechanicalTurkInstructionsSplash">
   <div id='InstructionSplashText'> Loading instructions... </div>
@@ -99,7 +106,7 @@ var FLAGS = {};
 $(async function(){
 
 try{
-
+ 
 // Load inputs from local storage, web, or Dropbox.
 wdm('Running bootstrapper...')
 var SBS = new SessionBootStrapper()

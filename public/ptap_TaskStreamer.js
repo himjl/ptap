@@ -4,7 +4,6 @@ class TaskStreamerClass{
         var taskSequence = sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']
         var imageBags = sessionPackage['GAME_PACKAGE']['IMAGEBAGS']
 
-
         this.IB = new ImageBuffer(S3_IO)
         this.imageBags = imageBags
         this.taskSequence = taskSequence 
@@ -32,6 +31,9 @@ class TaskStreamerClass{
 
         // TaskStreamer state 
         this.taskNumber = 0
+        this.stepNumber = 0
+        this.totalSteps = sessionPackage['GAME_PACKAGE']['GAME']['minimumSteps']
+        // assumes one step to each 'trial' - todo: change
     }
 
     async get_step(){
@@ -51,6 +53,7 @@ class TaskStreamerClass{
         this.tasks[this.taskNumber].deposit_step_outcome(stepOutcomePackage)
         this.behavioral_data[this.taskNumber] = this.tasks[this.taskNumber].behavioral_data
         // Check if current generator determined that the transition criterion was met
+        this.stepNumber+=1
         if(this.tasks[this.taskNumber].can_transition()){
             this.taskNumber+=1
 
@@ -61,8 +64,12 @@ class TaskStreamerClass{
                 this.TERMINAL_STATE = true
             }
         }
+        else if(this.stepNumber >= this.totalSteps){
+            this.TERMINAL_STATE = true
+        }
 
-        
+        updateProgressbar(this.stepNumber/this.totalSteps*100, 'MechanicalTurk_TrialBar', '', 100, '')
+
     }
 }
 
@@ -192,7 +199,7 @@ class StimulusTrainMTSGenerator{
             this.taskParams['fixationYCentroid'], 
             Playspace.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
 
-        Playspace.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
+        Playspace.draw_eye_fixation_cross(this.canvasFixation, 0.5, 0.5)
     }
 
     can_transition(){
@@ -449,28 +456,34 @@ class StimulusResponseGenerator{
 
         this.initialize_canvases()
         
-        this.AB = {} // "agent behavior"
-        this.AB['trialNumberTask'] = []
-        this.AB['return'] = []
-        this.AB['sampleBag'] = []
-        this.AB['sampleId'] = []
-        this.AB['action'] = []
-        this.AB['responseX'] = []
-        this.AB['responseY'] = []
-        this.AB['fixationX'] = []
-        this.AB['fixationY'] = []
-        this.AB['timestampStart'] = []
-        this.AB['timestampFixationOnset'] = []
-        this.AB['timestampFixationAcquired'] = []
-        this.AB['timestampResponse'] = []
-        this.AB['timestampReinforcementOn'] = []
-        this.AB['timestampReinforcementOff'] = []
-        this.AB['timestampStimulusOn'] = []
-        this.AB['timestampStimulusOff'] = []
-        this.AB['timestampChoiceOn'] = []
-        this.AB['reactionTime'] = []
+        this.behavioral_data = {} // "agent behavior"
+        this.behavioral_data['trialNumberTask'] = []
+        this.behavioral_data['return'] = []
+        this.behavioral_data['sampleBag'] = []
+        this.behavioral_data['sampleId'] = []
+        this.behavioral_data['action'] = []
+        this.behavioral_data['responseX'] = []
+        this.behavioral_data['responseY'] = []
+        this.behavioral_data['fixationX'] = []
+        this.behavioral_data['fixationY'] = []
+        this.behavioral_data['timestampStart'] = []
+        this.behavioral_data['timestampFixationOnset'] = []
+        this.behavioral_data['timestampFixationAcquired'] = []
+        this.behavioral_data['timestampResponse'] = []
+        this.behavioral_data['timestampReinforcementOn'] = []
+        this.behavioral_data['timestampReinforcementOff'] = []
+        this.behavioral_data['timestampStimulusOn'] = []
+        this.behavioral_data['timestampStimulusOff'] = []
+        this.behavioral_data['timestampChoiceOn'] = []
+        this.behavioral_data['reactionTime'] = []
 
         this.stateTable = {} // stateHash to meta 
+        this.trialNumberTask = 0
+
+         $("#LoadStatusTextBox").html('Done loading. Start playing!')
+        //$("#LoadStatusTextBox").css('opacity', 0.1)
+        //$("#LoadStatusTextBox").css('font-size', 10)
+
     }
 
     initialize_canvases(){
@@ -496,7 +509,7 @@ class StimulusResponseGenerator{
             this.taskParams['fixationYCentroid'], 
             Playspace.deg2propX(this.taskParams['fixationDiameterDegrees']), 'white')
 
-        Playspace.draw_eye_fixation_dot(this.canvasFixation, 0.5, 0.5)
+        Playspace.draw_eye_fixation_cross(this.canvasFixation, 0.5, 0.5)
 
         // Choice screen 
         for (var a in this.taskParams['actionXCentroid']){
@@ -531,12 +544,6 @@ class StimulusResponseGenerator{
         return true
     }
 
-    get_state_table(){
-        // Return whatever you want (JSON-like)
-        // Hopefully, with key: stateHash, value: whatever state info 
-        return this.stateTable
-    }
-
     async deposit_step_outcome(stepOutcomePackage){
         var action = stepOutcomePackage['action']
 
@@ -565,40 +572,6 @@ class StimulusResponseGenerator{
         this.currentSampleId = sampleId 
     }
 
-    update_state_hash_table(stepNumber, reward){
-        var stateHash = 'SR'
-        var latentString = ''
-
-        var stateMetaData = {} 
-
-        if (stepNumber == 0){
-            // fixation
-            stateHash+='_F'
-
-        }
-        else if (stepNumber == 1){
-            // stimulus and choice screen
-            stateHash+='_SC'
-
-        }
-        else if (stepNumber == 2){
-            // reward or punish screen 
-            if (reward > 0){
-                stateHash+='_R'
-            }
-            else{
-                stateHash+='_P'
-            }
-        }
-        
-        //var hash = latentString.hashCode()
-        //stateHash = stateHash + '_' + hash
-
-
-        // Update hash code 
-
-        return stateHash
-    }
     async get_step(){
         if (this.currentStepNumber == undefined){
             this.currentStepNumber = 0
@@ -668,9 +641,9 @@ class StimulusResponseGenerator{
                 reward = 0
                 assetId = 'punishScreenBlack'
             }
-        }
 
-        var stateHash = this.update_state_hash_table(this.currentStepNumber, reward)
+
+        }
 
 
         var stepPackage = {
@@ -679,9 +652,7 @@ class StimulusResponseGenerator{
             'actionRegions':actionRegions, 
             'actionTimeoutMsec':actionTimeoutMsec,
             'reward':reward, 
-            'stateHash':stateHash, 
-            'assetId':assetId,
-            'stepNumber':this.currentStepNumber}
+            }
 
         this.rewardHistory.push(reward)
         return stepPackage
