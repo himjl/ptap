@@ -27,7 +27,7 @@ class TaskStreamerClass{
                 this.cachedTaskURLs.push(taskURL)
             }
             
-            var constructor_string = 'new '+taskName+'(this.ImageBuffer, this.image_table, this.taskSequence[tkNumber], initialState)'
+            var constructor_string = 'new '+taskName+'(this.ImageBuffer, this.image_table, this.taskSequence[tkNumber]["taskConstructorParams"], initialState)'
 
             this.tasks.push(eval(constructor_string)) 
         }

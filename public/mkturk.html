@@ -105,7 +105,6 @@ var FLAGS = {};
 
 $(async function(){
 
-
 try{
  
 // Load inputs from local storage, web, or Dropbox.
@@ -132,7 +131,6 @@ var HEI = freturn['HEI']
 var SESSION = freturn['SESSION']
 
 
-
 // Main trial loop
 console.log('ENTERING MAIN TRIAL STATE MACHINE')
 wdm('Entering main trial loop...')
@@ -146,6 +144,7 @@ DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
 DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
+
 DataWriter.attach_probe(HEI, 'rewardLog', 'REWARD_LOG')
 DataWriter.attach_probe(TaskStreamer, 'behavioral_data', 'BEHAVIOR')
 DataWriter.start_polling()
@@ -157,6 +156,7 @@ while(TaskStreamer.TERMINAL_STATE == false){
   TaskStreamer.deposit_step_outcome(stepOutcome)
   
 }
+
 
 await DataWriter.conclude_session()  
 

@@ -49,75 +49,18 @@ class SessionBootStrapper{
         console.log('Loading IMAGE_TABLE')
         var imagebags = await this.download_from_string_header(imagebags_bootstrap)
 
+         // Log 
+
+         this.bootstrapLog['IMAGE_TABLE'] = {}
+        var loadMethod = this.infer_load_method(imagebags_bootstrap)
+        
+        this.bootstrapLog['IMAGE_TABLE']['loadMethod'] = loadMethod
+        if (loadMethod == 'url' || loadMethod == 'dropbox'){
+            this.bootstrapLog['IMAGE_TABLE']['loadHeader'] = imagebags_bootstrap
+        }
+        
         return imagebags
-        console.log('Done downloading imagebags. Unpacking...')
-        var loadMethods = []
-        var unpacked_imagebags = {}
-        if (imagebags.constructor == Array){
-            // Unpack additional levels
-            for (var i in imagebags){
-                var x = await this.download_from_string_header(imagebags[i])
-                loadMethods.push(this.infer_load_method(imagebags[i]))
-                for (var j in x){
-                    if(!x.hasOwnProperty(j)){
-                        continue
-                    }
-
-                    unpacked_imagebags[j] = x[j]
-                }
-            }
-        }
-        else if(imagebags.constructor == Object){
-            imagebags = [imagebags]
-            unpacked_imagebags = imagebags[0]
-            loadMethods.push(this.infer_load_method(imagebags_bootstrap))
-        }
-        else{
-            return undefined
-        }
-
-        // Convert singleton bags into length-1 arrays
-        for (var bagName in unpacked_imagebags){
-            if(!unpacked_imagebags.hasOwnProperty(bagName)){
-                continue
-            }
-            if (unpacked_imagebags[bagName].constructor == String){
-                // Convert singletons
-                unpacked_imagebags[bagName] = [unpacked_imagebags[bagName]]
-            }
-        }
-
-        // Log 
-        this.bootstrapLog['IMAGEBAGS'] = {}
-
-        console.log('imagebags load method', loadMethods)
-        console.log('imagebags_bootstrap', imagebags_bootstrap)
         
-
-        if (loadMethods.length == 1){
-            this.bootstrapLog['IMAGEBAGS']['constructor'] = imagebags_bootstrap
-            this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods[0]
-        }
-        
-        else{
-
-
-            var constructors = []
-            for (var k in loadMethods){
-                var lM = loadMethods[k]
-                if (lM == 'dropbox' || lM == 'url'){
-                    constructors.push(imagebags[k])
-                } 
-                else{
-                    constructors.push(undefined)
-                }
-            }
-
-            this.bootstrapLog['IMAGEBAGS']['constructor'] = constructors
-            this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods
-        }
-
-        return unpacked_imagebags
     }
 
     async unpack_game(game_bootstrap){
@@ -125,9 +68,12 @@ class SessionBootStrapper{
 
         var game = await this.download_from_string_header(game_bootstrap)
 
+        var loadMethod = this.infer_load_method(game_bootstrap)
         this.bootstrapLog['GAME'] = {}
-        this.bootstrapLog['GAME']['loadMethod'] = this.infer_load_method(game_bootstrap)
-
+        this.bootstrapLog['GAME']['loadMethod'] = loadMethod
+        if (loadMethod == 'url' || loadMethod == 'dropbox'){
+            this.bootstrapLog['GAME']['loadHeader'] = game_bootstrap
+        }
         return game
     }
 
@@ -142,8 +88,13 @@ class SessionBootStrapper{
             task_sequence = [task_sequence]
         }
 
+
+        var loadMethod = this.infer_load_method(task_sequence_bootstrap)
         this.bootstrapLog['TASK_SEQUENCE'] = {}
-        this.bootstrapLog['TASK_SEQUENCE']['loadMethod'] = this.infer_load_method(task_sequence_bootstrap)
+        this.bootstrapLog['TASK_SEQUENCE']['loadMethod'] = loadMethod
+        if (loadMethod == 'url' || loadMethod == 'dropbox'){
+            this.bootstrapLog['TASK_SEQUENCE']['loadHeader'] = task_sequence_bootstrap
+        }
         return task_sequence
 
 

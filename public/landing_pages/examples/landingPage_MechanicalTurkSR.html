@@ -33,9 +33,6 @@ async function setupSession(){
         "GAME": {
             "gameId": "example_MechanicalTurk_SR", 
             "minimumSteps": 3 * 10, 
-            "onFinish": "continue", 
-            "periodicRewardAmount": 0, 
-            "periodicRewardIntervalMsec": 0
         }, 
         "IMAGE_TABLE": {
             "dog1":  "https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/objectome_dog_e1ed016de5e47e8a6567123ce134d72b7187db73_ty0.43294_tz-0.29943_rxy-112.6794_rxz75.5665_ryz127.211_s1.6328.png", 
@@ -52,73 +49,71 @@ async function setupSession(){
             "pineapple3":"https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome_tokens/images/objectomeTokens_objectome_pineapple.png"
         }, 
         "TASK_SEQUENCE": [
-            {   
-                "imageBags":{"stimulus_objectome_dog": ['dog1', 'dog2'], 
-                             "stimulus_objectome_flute": ['flute1', 'flute2'], 
-                            "stimulus_objectome_pineapple": ['pineapple1', 'pineapple2'], 
-                            "token_objectome_dog": 'dog3', 
-                            "token_objectome_flute": 'flute3', 
-                            "token_objectome_pineapple": 'pineapple3'}, 
-
-                "actionDiameterDegrees": [
-                    6, 
-                    6
-                ], 
-
-                "actionXCentroid": [
-                    0.3, 
-                    0.7
-                ], 
-                "actionYCentroid": [
-                    0.8, 
-                    0.8
-                ], 
-                "averageReturnCriterion": 0.8, 
-                "choiceDiameterDegrees": [
-                    4, 
-                    4
-                ], 
-                "choiceTimeLimitMsec": 5000, 
-                "choiceXCentroid": [
-                    0.3, 
-                    0.7
-                ], 
-                "choiceYCentroid": [
-                    0.8, 
-                    0.8
-                ], 
-                "drawEyeFixationDot": true, 
-                "fixationDiameterDegrees": 3, 
-                "fixationXCentroid": 0.5, 
-                "fixationYCentroid": 0.8, 
-                "minTrialsCriterion": 5, 
-                "probabilityRepeatWhenWrong": 0, 
-                "punishStreakTimeOutMultiplier": 1.2, 
-                "punishTimeOutMsec": 400, 
-                "rewardMap": {
-                    "stimulus_objectome_flute": [
-                        0, 
-                        1
-                    ], 
-                    "stimulus_objectome_pineapple": [
-                        1, 
-                        0
-                    ]
-                }, 
-                "rewardTimeOutMsec": 150, 
-                "sampleBagNames": [
-                    "stimulus_objectome_pineapple", 
-                    "stimulus_objectome_flute"
-                ], 
-                "sampleDiameterDegrees": 8, 
-                "sampleOffMsec": 0, 
-                "sampleOnMsec": 200, 
-                "sampleSampleWithReplacement": false, 
-                "sampleXCentroid": 0.5, 
-                "sampleYCentroid": 0.5, 
-                "taskType": "SR", 
-                "taskURL":"tasks/StimulusResponse.js",
+            {   "taskURL":"tasks/StimulusResponse.js",
                 "taskName":'StimulusResponseGenerator',
+                "taskConstructorParams":{"imageBags":{"stimulus_objectome_dog": ['dog1', 'dog2'], 
+                                              "stimulus_objectome_flute": ['flute1', 'flute2'], 
+                                             "stimulus_objectome_pineapple": ['pineapple1', 'pineapple2'], 
+                                             "token_objectome_dog": 'dog3', 
+                                             "token_objectome_flute": 'flute3', 
+                                             "token_objectome_pineapple": 'pineapple3'}, 
+                 
+                                 "actionDiameterDegrees": [
+                                     6, 
+                                     6
+                                 ], 
+                 
+                                 "actionXCentroid": [
+                                     0.3, 
+                                     0.7
+                                 ], 
+                                 "actionYCentroid": [
+                                     0.8, 
+                                     0.8
+                                 ], 
+                                 "averageReturnCriterion": 0.8, 
+                                 "choiceDiameterDegrees": [
+                                     4, 
+                                     4
+                                 ], 
+                                 "choiceTimeLimitMsec": 5000, 
+                                 "choiceXCentroid": [
+                                     0.3, 
+                                     0.7
+                                 ], 
+                                 "choiceYCentroid": [
+                                     0.8, 
+                                     0.8
+                                 ], 
+                                 "drawEyeFixationDot": true, 
+                                 "fixationDiameterDegrees": 3, 
+                                 "fixationXCentroid": 0.5, 
+                                 "fixationYCentroid": 0.8, 
+                                 "minTrialsCriterion": 5, 
+                                 "probabilityRepeatWhenWrong": 0, 
+                                 "punishStreakTimeOutMultiplier": 1.2, 
+                                 "punishTimeOutMsec": 400, 
+                                 "rewardMap": {
+                                     "stimulus_objectome_flute": [
+                                         0, 
+                                         1
+                                     ], 
+                                     "stimulus_objectome_pineapple": [
+                                         1, 
+                                         0
+                                     ]
+                                 }, 
+                                 "rewardTimeOutMsec": 150, 
+                                 "sampleBagNames": [
+                                     "stimulus_objectome_pineapple", 
+                                     "stimulus_objectome_flute"
+                                 ], 
+                                 "sampleDiameterDegrees": 8, 
+                                 "sampleOffMsec": 0, 
+                                 "sampleOnMsec": 200, 
+                                 "sampleSampleWithReplacement": false, 
+                                 "sampleXCentroid": 0.5, 
+                                 "sampleYCentroid": 0.5,} 
             }
         ]
     }

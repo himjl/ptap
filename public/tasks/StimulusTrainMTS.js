@@ -1,8 +1,8 @@
 
 class StimulusTrainMTSGenerator{
-    constructor(IB, imageBags, taskParams, initialState){
+    constructor(IB, image_table, taskParams, initialState){
         this.IB = IB // Imagebuffer
-        this.imageBags = imageBags
+        this.image_table = image_table
         this.taskParams = taskParams 
         
         this.actionHistory = []
@@ -13,8 +13,8 @@ class StimulusTrainMTSGenerator{
         
 
         this.sequenceNames = []
-        for (var k in this.taskParams['sequenceIdDict']){
-            if (this.taskParams['sequenceIdDict'].hasOwnProperty(k)){
+        for (var k in this.taskParams['sequenceIdKeyDict']){
+            if (this.taskParams['sequenceIdKeyDict'].hasOwnProperty(k)){
                 this.sequenceNames.push(k)
             }
         }
@@ -27,7 +27,7 @@ class StimulusTrainMTSGenerator{
         this.behavioral_data['trialNumberTask'] = []
         this.behavioral_data['return'] = []
         this.behavioral_data['stimulusSequenceName'] = []
-        this.behavioral_data['choiceId'] = []
+        this.behavioral_data['choiceIdKeys'] = []
         this.behavioral_data['action'] = []
         this.behavioral_data['responseChoice'] = []
         this.behavioral_data['responseX'] = []
@@ -57,11 +57,10 @@ class StimulusTrainMTSGenerator{
                 break
             }
             var stimulusSequenceName = this.sequenceNames[i]
-            var sequenceIds = this.taskParams['sequenceIdDict'][stimulusSequenceName] 
+            var sequenceIdKeys = this.taskParams['sequenceIdKeyDict'][stimulusSequenceName] 
             
-
-            for (var k = 0; k < sequenceIds.length; k++){
-                imageUrls.push(this.imageBags[sequenceIds[k]])
+            for (var k = 0; k < sequenceIdKeys.length; k++){
+                imageUrls.push(this.image_table[sequenceIdKeys[k]])
                 totalImages+=1
             }
         }
@@ -88,7 +87,7 @@ class StimulusTrainMTSGenerator{
     initialize_canvases(){
 
         // Get number of canvases needed to run the task 
-        var seq = this.taskParams['sequenceIdDict']
+        var seq = this.taskParams['sequenceIdKeyDict']
         var numStimulusFrames = 0
         for (var k in seq){
             if (!seq.hasOwnProperty(k)){
@@ -165,7 +164,8 @@ class StimulusTrainMTSGenerator{
         console.log('Running', stimulusSequenceName)
 
 
-        var stimulusIdSeq = this.taskParams['sequenceIdDict'][stimulusSequenceName]
+        var stimulusIdSeq = this.taskParams['sequenceIdKeyDict'][stimulusSequenceName]
+        console.log('STIMULUS ID SEQ', stimulusIdSeq)
         var msecSeq = this.taskParams['sequenceMsecDict'][stimulusSequenceName]
         var choiceIds = this.taskParams['sequenceChoiceDict'][stimulusSequenceName]
         var correctChoice = this.taskParams['sequenceRewardDict'][stimulusSequenceName]
@@ -173,7 +173,7 @@ class StimulusTrainMTSGenerator{
         // Download stimulus images
         var stimulusImageRequests = []
         for (var i = 0; i < stimulusIdSeq.length; i++){
-            var stimulusUrl = this.imageBags[stimulusIdSeq[i]]
+            var stimulusUrl = this.image_table[stimulusIdSeq[i]]
             stimulusImageRequests.push(this.IB.get_by_name(stimulusUrl))
         }
         var stimulusImages = await Promise.all(stimulusImageRequests)
@@ -183,7 +183,7 @@ class StimulusTrainMTSGenerator{
 
         var choiceImageRequests = []
         for (var i = 0; i < choiceIds.length; i++){
-            var choiceUrl = this.imageBags[choiceIds[i]]
+            var choiceUrl = this.image_table[choiceIds[i]]
             choiceImageRequests.push(this.IB.get_by_name(choiceUrl))
         }
         var choiceImages = await Promise.all(choiceImageRequests)
@@ -206,7 +206,7 @@ class StimulusTrainMTSGenerator{
 
         this.numFrames = numFrames
         this.stimulusSequenceName = stimulusSequenceName
-        this.choiceIds = choiceIds
+        this.choiceIdKeys = choiceIds
         if (correctChoice == 'random'){
             this.correctChoice = 'random'
             this.correctActionIndex = np.choice(np.arange(numChoices))
@@ -328,9 +328,9 @@ class StimulusTrainMTSGenerator{
             this.behavioral_data['trialNumberTask'].push(this.trialNumber)
             this.behavioral_data['return'].push(reward)
             this.behavioral_data['stimulusSequenceName'].push(this.stimulusSequenceName)
-            this.behavioral_data['choiceId'].push(this.choiceIds)
+            this.behavioral_data['choiceIdKeys'].push(this.choiceIdKeys)
             this.behavioral_data['action'].push(lastAction)
-            this.behavioral_data['responseChoice'].push(this.choiceIds[lastAction])
+            this.behavioral_data['responseChoice'].push(this.choiceIdKeys[lastAction])
             this.behavioral_data['responseX'].push(lastActionX)
             this.behavioral_data['responseY'].push(lastActionY)
             this.behavioral_data['fixationX'].push(this.lastFixationX)

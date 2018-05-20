@@ -22,9 +22,9 @@
 
 ### 4. Select 'landingPage_MechanicalTurkMTS_to_SR.html'. 
 
- This will bring you to a "landing page", which is basically a webpage where the inputs to ptap are stored in the user's "local storage", which is a modern version of cookies. 
+ This will bring you to a "landing page", which is a webpage where inputs to ptap are stored in the user's "local storage", which is a modern version of cookies. 
 
- The landing page then redirects you to the main mkturk.html webpage. 
+ The landing page then redirects the user to the main mkturk.html webpage. 
 
  The Javascript in mkturk.html then looks inside of local storage, retrieves the inputs the landing page stored, and constructs the session. 
 
@@ -73,72 +73,35 @@ Along these lines, the GAME_PACKAGE consists of 3 keys:
 These are settings for the game as a whole. You need to specify: 
 
     'GAME': {
-            'gameId':'failsafeGameSettings',
-            "periodicRewardIntervalMsec":0,
-            "periodicRewardAmount":0,
-            "bonusUSDPerCorrect":0.0005, 
-            "onFinish":"terminate", // can be terminate, continue
-            "minimumTrials":50,
-            "maximumTrials":200,
-            "randomSeed":undefined,
+            "gameId":"theNameOfTheGame"
+            "minimumSteps":50,
             }
 
 These are fairly self explanatory. 
 
 ### TASK_SEQUENCE
-This is a list of dictionaries, each of which looks like: 
+This is a **list**, and each entry must contain at least the two following keys:
 
     {
-                    "taskType":"SR", // MTS
-                    "sampleBagNames":['stimulus_objectome_airplane', 'stimulus_objectome_ant'], 
-                    "rewardMap":{"stimulus_objectome_airplane":[1, 0], "stimulus_objectome_ant":[0, 1]}, // blank if MTS 
-                    "fixationXCentroid":0.5,
-                    "fixationYCentroid":0.8,
-                    "fixationDiameterDegrees":6,
-                    "sampleXCentroid":0.5,
-                    "sampleYCentroid":0.5,
-                    "sampleDiameterDegrees":8,
-                    "actionXCentroid":[0.2, 0.8], 
-                    "actionYCentroid":[0.8, 0.8],
-                    "actionDiameterDegrees":[6, 6],
-                    "choiceXCentroid":[0.2, 0.8],
-                    "choiceYCentroid":[0.8, 0.8],
-                    "choiceDiameterDegrees":[6, 6],
-                    "sampleOnMsec":200, 
-                    "sampleOffMsec":0,
-                    "choiceTimeLimitMsec":5000,
-                    "punishTimeOutMsec":400,
-                    "punishStreakTimeOutMultiplier":1.2,
-                    "rewardTimeOutMsec":150,
-                    "probabilityRepeatWhenWrong":0,
-                    "averageReturnCriterion":0, 
-                    "minTrialsCriterion":50,
-                    "sampleSampleWithReplacement":true, // true / false  
-                } 
+    "taskURL":"tasks/StimulusResponse.js", 
+    "taskName":"StimulusResponseGenerator", 
+    "taskConstructorParams": "whatever you want"
+} 
 
-The "rewardMap" key is unique to SR. For each key in "rewardMap", a list is specified that gives reward amounts for selecting an action (in the same order as specified in actionXCentroid, actionYCentroid...). It looks like: 
-    
-    "rewardMap":{"stimulus_objectome_airplane":[1, 0], "stimulus_objectome_ant":[0, 1]}, // blank if MTS 
-    
-The "choiceMap" key is unique to MTS and looks like: 
 
-    "choiceMap":{"obj0_stimuli":"obj0_token", 
-                  "obj1_stimuli":"obj1_token", 
-                  }
-
-### IMAGEBAGS
+### IMAGE_TABLE
 This is a dictionary with 
 
-    {'bagname':[url_or_dropbox_path_to_image0, url_or_dropbox_path_to_image1 ...]}
+    {'idKey': url_to_image}
 
 
 ### Wrapping them up in a single dictionary: 
 
 That concludes the contents of the GAME_PACKAGE, which should then look like: 
 
-    gamePackage = {'IMAGEBAGS':*your_imagebags_here*, 
-                                      'GAME':*your_game_here*, 
-                                      'TASK_SEQUENCE':*your_task_sequence_here*}
+    gamePackage = {'IMAGE_TABLE':*your_imagebags_here*, 
+                  'GAME':*your_game_here*, 
+                  'TASK_SEQUENCE':*your_task_sequence_here*}
 
 
 ## ENVIRONMENT 
@@ -161,7 +124,7 @@ The ENVIRONMENT is where you tell ptap about where it is being run (e.g. for mon
 So, your sessionPackage should look like: 
 
     sessionPackage = {'ENVIRONMENT':*your_environment_here*, 
-                      'GAME_PACKAGE':{'IMAGEBAGS':*your_imagebags_here*, 
+                      'GAME_PACKAGE':{'IMAGE_TABLE':*your_imagebags_here*, 
                                       'GAME':*your_game_here*, 
                                       'TASK_SEQUENCE':*your_task_sequence_here*}}
 
@@ -182,7 +145,7 @@ In the sessionPackage above, you can replace any of the ingredients with a url o
 For example, imagebags can be quite **large** so it can be convenient to simply write it down once, upload it to a public url (such as a bucket you own on Amazon s3), and just write down the url to the imagebags. It would look something like: 
 
     sessionPackage = {'ENVIRONMENT':*your_environment_here*, 
-                      'GAME_PACKAGE':{'IMAGEBAGS':"https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json", 
+                      'GAME_PACKAGE':{'IMAGE_TABLE':"https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json", 
                                       'GAME':*your_game_here*, 
                                       'TASK_SEQUENCE':*your_task_sequence_here*}}
 
