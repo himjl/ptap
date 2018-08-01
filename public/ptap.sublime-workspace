@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"timestmap",
+				"timestampChoiceOn"
+			],
+			[
+				"reinforc",
+				"reinforcementTimestamps"
+			],
+			[
+				"reinforcementSt",
+				"reinforcementStopTimestamp"
+			],
+			[
+				"lastA",
+				"lastActionPackage"
+			],
+			[
 				"constructor",
 				"constructor_string"
 			],
@@ -498,22 +514,6 @@
 			[
 				"state",
 				"state_b"
-			],
-			[
-				"_last_state",
-				"_last_state_b"
-			],
-			[
-				"sigma",
-				"sigma_grad_numerator"
-			],
-			[
-				"_laststate",
-				"_last_state_b"
-			],
-			[
-				"_lastact",
-				"_lastaction_value_predictions"
 			]
 		]
 	},
@@ -523,7 +523,105 @@
 			"file": "ptap_TaskStreamer.js",
 			"settings":
 			{
-				"buffer_size": 2807,
+				"buffer_size": 2388,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tasks/StimulusResponse.js",
+			"settings":
+			{
+				"buffer_size": 10809,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tasks/StimulusTrainMTS.js",
+			"settings":
+			{
+				"buffer_size": 14522,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tasks/MatchToSample.js",
+			"settings":
+			{
+				"buffer_size": 14518,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_SessionBootStrapper.js",
+			"settings":
+			{
+				"buffer_size": 6436,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "setup_MechanicalTurk_session.js",
+			"settings":
+			{
+				"buffer_size": 2599,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Searching 57 files for \"UX\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   56    <input type=\"image\"  class='DeviceButton' id='TrackPadImage' src=\"tutorial_images/trackpad.png \" alt=\"Trackpad\" onclick=\"setDeviceSelection(this, 'trackpad')\" />\n   57    <input type=\"image\"  class='DeviceButton' id = 'TabletImage' src=\"tutorial_images/tablet.png \" alt=\"Tablet\" onclick=\"setDeviceSelection(this, 'touchscreen')\" />\n   58:   <button id='CloseDeviceSelectionButton' onclick=\"toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); FLAGS.clicked_device_selection(UX.MechanicalTurk_DeviceSelected)\" disabled> <i>Make selection...</i> </button>\n   59  \n   60  </div>\n   ..\n   65    <input type=\"image\"  class='HandButton' id = 'RightHandImage' src=\"tutorial_images/right_hand.png \" alt=\"Righthanded\" onclick=\"setHandSelection(this, 'right')\" />\n   66  \n   67:   <button style=\"text-align:center; width:100%; height:10%; margin-top:5%; top: 80%; left:35%;\"  onclick=\"toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(UX.MechanicalTurk_Handedness)\" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>\n   68  </div>\n   69  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n    1  function setDeviceSelection(element, devicename){\n    2: \tUX.MechanicalTurk_DeviceSelected = devicename \n    3  \tvar device_option_elements = document.querySelectorAll(\".DeviceButton\")\n    4  \tfor(var i = 0; i<device_option_elements.length; i++){\n    .\n   15  \n   16  function setHandSelection(element, handedness){\n   17:     UX.MechanicalTurk_Handedness = handedness \n   18      var hand_option_elements = document.querySelectorAll(\".HandButton\")\n   19      for(var i = 0; i<hand_option_elements.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   24  \n   25      debug2record(){\n   26:         console.log('debug2record: UX (not implemented yet)')\n   27          toggleElement(0, \"SessionTextBox\")\n   28          toggleElement(0, \"DebugMessageTextBox\")\n   ..\n   51          Playspace.debug2record()\n   52          DataWriter.debug2record()\n   53:         UX.debug2record()\n   54  \n   55          return\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   22    await HEI.build()\n   23  \n   24:   UX = new MechanicalTurkUX(ENVIRONMENT['bonusUSDPerCorrect'])\n   25  \n   26    // Convenience - if debugging on my machine, skip instructions etc. \n   ..\n   45    if(in_preview_mode == true){\n   46        console.log('RUNNING IN PREVIEW MODE')\n   47:       UX.show_preview_splash()\n   48    }\n   49  \n   50    if(show_instructions == true){\n   51:     UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])\n   52    }\n   53  \n   54    \n   55    if(show_hand_selection == true){\n   56:     SESSION['handedness'] = UX.run_hand_selection_dialogue()\n   57    }\n   58  \n   59    \n   60    if(show_device_selection){    \n   61:     SESSION['inputDevice'] = UX.run_device_selection_dialogue()\n   62    }\n   63  \n   ..\n   65    //Playspace.debug2record()\n   66    DataWriter.debug2record()\n   67:   UX.debug2record()\n   68  \n   69    var freturn = {}\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   16     DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentId'])\n   17  \n   18:    UX = new MonkeyUX()\n   19:    UX.updateSessionTextbox(SESSION['agentId'], sessionPackage['GAME_PACKAGE']['GAME']['gameId'])\n   20  \n   21     HEI = new HumanEnvironmentInterface(ENVIRONMENT)\n\n14 matches across 5 files\n\n\nSearching 57 files for \"MechanicalTurk_DeviceSelected\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   56    <input type=\"image\"  class='DeviceButton' id='TrackPadImage' src=\"tutorial_images/trackpad.png \" alt=\"Trackpad\" onclick=\"setDeviceSelection(this, 'trackpad')\" />\n   57    <input type=\"image\"  class='DeviceButton' id = 'TabletImage' src=\"tutorial_images/tablet.png \" alt=\"Tablet\" onclick=\"setDeviceSelection(this, 'touchscreen')\" />\n   58:   <button id='CloseDeviceSelectionButton' onclick=\"toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); SESSION[] = (UX.MechanicalTurk_DeviceSelected)\" disabled> <i>Make selection...</i> </button>\n   59  \n   60  </div>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n    1  function setDeviceSelection(element, devicename){\n    2: \tUX.MechanicalTurk_DeviceSelected = devicename \n    3  \tvar device_option_elements = document.querySelectorAll(\".DeviceButton\")\n    4  \tfor(var i = 0; i<device_option_elements.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  108      async showDeviceSelectionDialogue_and_getUserSelection(){\n  109      // Turn on dialogue\n  110:     this.MechanicalTurk_DeviceSelected = 'not_selected'\n  111      document.getElementById(\"MechanicalTurkCursorDeviceSelectionScreen\").style.visibility = 'visible'\n  112      return new Promise(function(resolve, reject){\n\n3 matches across 3 files\n\n\nSearching 57 files for \"setHandSelection\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   62  <div id=\"MechanicalTurkHandSelectionScreen\">\n   63  \n   64:   <input type=\"image\" class='HandButton' id='LeftHandImage'  style=\"\" id=\"MouseImage\" src=\"tutorial_images/left_hand.png \" alt=\"Lefthanded\" onclick=\"setHandSelection(this, 'left')\" />\n   65:   <input type=\"image\"  class='HandButton' id = 'RightHandImage' src=\"tutorial_images/right_hand.png \" alt=\"Righthanded\" onclick=\"setHandSelection(this, 'right')\" />\n   66  \n   67    <button style=\"text-align:center; width:100%; height:10%; margin-top:5%; top: 80%; left:35%;\"  onclick=\"toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(UX.MechanicalTurk_Handedness)\" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n   14  }\n   15  \n   16: function setHandSelection(element, handedness){\n   17      UX.MechanicalTurk_Handedness = handedness \n   18      var hand_option_elements = document.querySelectorAll(\".HandButton\")\n\n3 matches across 2 files\n\n\nSearching 57 files for \"MechanicalTurk_DeviceSelected\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   56    <input type=\"image\"  class='DeviceButton' id='TrackPadImage' src=\"tutorial_images/trackpad.png \" alt=\"Trackpad\" onclick=\"setDeviceSelection(this, 'trackpad')\" />\n   57    <input type=\"image\"  class='DeviceButton' id = 'TabletImage' src=\"tutorial_images/tablet.png \" alt=\"Tablet\" onclick=\"setDeviceSelection(this, 'touchscreen')\" />\n   58:   <button id='CloseDeviceSelectionButton' onclick=\"toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); SESSION['inputDevice'] = (UX.MechanicalTurk_DeviceSelected)\" disabled> <i>Make selection...</i> </button>\n   59  \n   60  </div>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n    1  function setDeviceSelection(element, devicename){\n    2: \tUX.MechanicalTurk_DeviceSelected = devicename \n    3  \tvar device_option_elements = document.querySelectorAll(\".DeviceButton\")\n    4  \tfor(var i = 0; i<device_option_elements.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  108      async showDeviceSelectionDialogue_and_getUserSelection(){\n  109      // Turn on dialogue\n  110:     this.MechanicalTurk_DeviceSelected = 'not_selected'\n  111      document.getElementById(\"MechanicalTurkCursorDeviceSelectionScreen\").style.visibility = 'visible'\n  112      return new Promise(function(resolve, reject){\n\n3 matches across 3 files\n\n\nSearching 57 files for \"handedness\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   65    <input type=\"image\"  class='HandButton' id = 'RightHandImage' src=\"tutorial_images/right_hand.png \" alt=\"Righthanded\" onclick=\"setHandSelection(this, 'right')\" />\n   66  \n   67:   <button style=\"text-align:center; width:100%; height:10%; margin-top:5%; top: 80%; left:35%;\"  onclick=\"toggleElement(0, 'MechanicalTurkHandSelectionScreen'); SESSION['handedness'] = UX.MechanicalTurk_Handedness\" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>\n   68  </div>\n   69  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n   14  }\n   15  \n   16: function setHandSelection(element, handedness){\n   17:     UX.MechanicalTurk_Handedness = handedness \n   18      var hand_option_elements = document.querySelectorAll(\".HandButton\")\n   19      for(var i = 0; i<hand_option_elements.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   54    \n   55    if(show_hand_selection == true){\n   56:     SESSION['handedness'] = UX.run_hand_selection_dialogue()\n   57    }\n   58  \n\n4 matches across 3 files\n\n\nSearching 57 files for \"setDeviceSelection\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   53  <div id=\"MechanicalTurkCursorDeviceSelectionScreen\">\n   54  \n   55:   <input type=\"image\" class='DeviceButton' id='MouseImage'  style=\"\" id=\"MouseImage\" src=\"tutorial_images/mouse.png \" alt=\"Mouse\" onclick=\"setDeviceSelection(this, 'mouse')\" />\n   56:   <input type=\"image\"  class='DeviceButton' id='TrackPadImage' src=\"tutorial_images/trackpad.png \" alt=\"Trackpad\" onclick=\"setDeviceSelection(this, 'trackpad')\" />\n   57:   <input type=\"image\"  class='DeviceButton' id = 'TabletImage' src=\"tutorial_images/tablet.png \" alt=\"Tablet\" onclick=\"setDeviceSelection(this, 'touchscreen')\" />\n   58    <button id='CloseDeviceSelectionButton' onclick=\"toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); SESSION['inputDevice'] = (UX.MechanicalTurk_DeviceSelected)\" disabled> <i>Make selection...</i> </button>\n   59  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n    1: function setDeviceSelection(element, devicename){\n    2  \tUX.MechanicalTurk_DeviceSelected = devicename \n    3  \tvar device_option_elements = document.querySelectorAll(\".DeviceButton\")\n\n4 matches across 2 files\n\n\nSearching 57 files for \"run_hand_selection_dialogue\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   97      }\n   98  \n   99:     async run_hand_selection_dialogue(){\n  100          var hand_used = await this.showHandSelectionDialogue_and_getUserSelection()\n  101          return hand_used\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   53  \n   54    if(show_hand_selection == true){\n   55:     UX.run_hand_selection_dialogue()\n   56    }\n   57  \n\n2 matches across 2 files\n\n\nSearching 57 files for \"run_hand_selection_dialogue\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   97      }\n   98  \n   99:     async run_hand_selection_dialogue(){\n  100          var hand_used = await this.showHandSelectionDialogue_and_getUserSelection()\n  101          return hand_used\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   53  \n   54    if(show_hand_selection == true){\n   55:     UX.run_hand_selection_dialogue()\n   56    }\n   57  \n\n2 matches across 2 files\n\n\nSearching 57 files for \"FLAGS\" (case sensitive, whole word)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  101  <script>\n  102  \n  103: var FLAGS = {}; \n  104  \n  105  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  111      document.getElementById(\"MechanicalTurkCursorDeviceSelectionScreen\").style.visibility = 'visible'\n  112      return new Promise(function(resolve, reject){\n  113:         FLAGS.clicked_device_selection = resolve\n  114      })\n  115      }\n  ...\n  120          document.getElementById(\"MechanicalTurkHandSelectionScreen\").style.visibility = 'visible'\n  121          return new Promise(function(resolve, reject){\n  122:             FLAGS.clicked_hand_selection = resolve\n  123          })\n  124      }\n\n3 matches across 2 files\n",
+			"settings":
+			{
+				"buffer_size": 12052,
+				"line_ending": "Unix",
+				"name": "Find Results",
+				"scratch": true
+			}
+		},
+		{
+			"file": "mkturk_SoundPlayer.js",
+			"settings":
+			{
+				"buffer_size": 3765,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_screenfunctions.js",
+			"settings":
+			{
+				"buffer_size": 1922,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_UX.js",
+			"settings":
+			{
+				"buffer_size": 5497,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_defaultHIT_failsafe.js",
+			"settings":
+			{
+				"buffer_size": 46096,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "tasks/TaskTemplate.js",
+			"settings":
+			{
+				"buffer_size": 866,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -531,7 +629,44 @@
 			"file": "mkturk.html",
 			"settings":
 			{
-				"buffer_size": 8549,
+				"buffer_size": 8534,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "landing_pages/examples/landingPage_MechanicalTurkSR.html",
+			"settings":
+			{
+				"buffer_size": 9737,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "landing_pages/examples/landingPage_StimulusTrainMTS.html",
+			"settings":
+			{
+				"buffer_size": 8845,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "ptap_HumanEnvironmentInterface.js",
+			"settings":
+			{
+				"buffer_size": 6909,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "mkturk_Reinforcer.js",
+			"settings":
+			{
+				"buffer_size": 2780,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		}
@@ -581,10 +716,16 @@
 	},
 	"expanded_folders":
 	[
-		"/Users/michaellee/Dropbox (MIT)/ptap/public"
+		"/Users/michaellee/Dropbox (MIT)/ptap/public",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/tasks"
 	],
 	"file_history":
 	[
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/task_generators/StimulusResponse.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/task_generators/StimulusTrainMTS.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR.html",
@@ -710,9 +851,7 @@
 		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_bluetooth.js",
 		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk/parameterfiles/subjects/Zico_params.txt",
 		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/BehavioralComparisons.py",
-		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/Analyses/BehavioralComparisons.py",
-		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/.git_ignore",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/SupervisedModels/SupervisedModel.py"
+		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/Analyses/BehavioralComparisons.py"
 	],
 	"find":
 	{
@@ -723,13 +862,63 @@
 		"height": 101.0,
 		"where_history":
 		[
+			""
 		]
 	},
 	"find_state":
 	{
-		"case_sensitive": false,
+		"case_sensitive": true,
 		"find_history":
 		[
+			"FLAGS",
+			"run_hand_selection_dialogue",
+			"setDeviceSelection",
+			"handedness",
+			"MechanicalTurk_DeviceSelected",
+			"setHandSelection",
+			"MechanicalTurk_DeviceSelected",
+			"UX",
+			"GAME",
+			"MechanicalTurkUX",
+			"maximumTrials",
+			"MechanicalTurkUX",
+			"GAME",
+			"MechanicalTurkUX",
+			"bonusUSDPerCorrect",
+			"JuiceReinforcer",
+			"juiceRewardPer1000",
+			"rewardper",
+			"gameId",
+			"onFinish",
+			"bonusUSDPerCorrect",
+			"LANDING_PAGE_URL",
+			"download_from_string_header",
+			"bootstrapLog",
+			"this.choiceId",
+			"choiceIdKeys",
+			"this.choiceId",
+			"this.choiceIds",
+			"choiceIds",
+			"choiceIdKeys",
+			"console.log",
+			"imageBags",
+			"sequenceIdDict",
+			"imagebags",
+			"image_table",
+			"imagebags",
+			"currentSampleId",
+			"image_table",
+			"imagebags",
+			"unpackedGame",
+			"imageBags",
+			"sampleId",
+			"deliver_reinforcement",
+			"stepOutcomePackage",
+			"rewardHistory",
+			"lastReward",
+			"lastStepPackage",
+			"deposit_step_outcome",
+			"buffer_trial"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -741,13 +930,13 @@
 		"reverse": false,
 		"show_context": true,
 		"use_buffer2": true,
-		"whole_word": false,
+		"whole_word": true,
 		"wrap": true
 	},
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 7,
 			"sheets":
 			[
 				{
@@ -756,15 +945,390 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2807,
+						"buffer_size": 2388,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								214,
-								214
+								1444,
+								1444
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 123.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "tasks/StimulusResponse.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10809,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								8748,
+								8748
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "tasks/StimulusTrainMTS.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14522,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								14522
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "tasks/MatchToSample.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14518,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								13693,
+								13768
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4751.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "mkturk_SessionBootStrapper.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6436,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								191,
+								191
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "setup_MechanicalTurk_session.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2599,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1538,
+								1565
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 443.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12052,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										608,
+										610
+									],
+									[
+										1093,
+										1095
+									],
+									[
+										1358,
+										1360
+									],
+									[
+										1627,
+										1629
+									],
+									[
+										1948,
+										1950
+									],
+									[
+										2182,
+										2184
+									],
+									[
+										2352,
+										2354
+									],
+									[
+										2608,
+										2610
+									],
+									[
+										2703,
+										2705
+									],
+									[
+										2881,
+										2883
+									],
+									[
+										3019,
+										3021
+									],
+									[
+										3159,
+										3161
+									],
+									[
+										3390,
+										3392
+									],
+									[
+										3420,
+										3422
+									],
+									[
+										4230,
+										4259
+									],
+									[
+										4469,
+										4498
+									],
+									[
+										4830,
+										4859
+									],
+									[
+										5416,
+										5432
+									],
+									[
+										5587,
+										5603
+									],
+									[
+										6039,
+										6055
+									],
+									[
+										6872,
+										6901
+									],
+									[
+										7111,
+										7140
+									],
+									[
+										7472,
+										7501
+									],
+									[
+										8193,
+										8203
+									],
+									[
+										8466,
+										8476
+									],
+									[
+										8521,
+										8531
+									],
+									[
+										8825,
+										8835
+									],
+									[
+										9265,
+										9283
+									],
+									[
+										9433,
+										9451
+									],
+									[
+										9600,
+										9618
+									],
+									[
+										9967,
+										9985
+									],
+									[
+										10350,
+										10377
+									],
+									[
+										10646,
+										10673
+									],
+									[
+										10902,
+										10929
+									],
+									[
+										11198,
+										11225
+									],
+									[
+										11428,
+										11433
+									],
+									[
+										11697,
+										11702
+									],
+									[
+										11956,
+										11961
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								8891,
+								8891
+							]
+						],
+						"settings":
+						{
+							"detect_indentation": false,
+							"line_numbers": false,
+							"output_tag": 9,
+							"result_base_dir": "",
+							"result_file_regex": "^([^ \t].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5083.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "mkturk_SoundPlayer.js",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 3765,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1433,
+								1433
 							]
 						],
 						"settings":
@@ -778,6 +1342,124 @@
 								"syntax": "javascript"
 							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1020.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "mkturk_screenfunctions.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1922,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								54,
+								83
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "mkturk_UX.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3968,
+								3968
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1859.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "mkturk_defaultHIT_failsafe.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 46096,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2315,
+								2315
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 456.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "tasks/TaskTemplate.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 866,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								338,
+								338
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
@@ -785,7 +1467,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 16,
 					"type": "text"
 				}
 			]
@@ -795,20 +1477,20 @@
 			"sheets":
 			[
 				{
-					"buffer": 1,
+					"buffer": 12,
 					"file": "mkturk.html",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8549,
+						"buffer_size": 8534,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								463,
-								463
+								6788,
+								6788
 							]
 						],
 						"settings":
@@ -816,7 +1498,7 @@
 							"WordCount":
 							{
 								"changes": 0,
-								"count": 179,
+								"count": 178,
 								"modified": false,
 								"selection": false,
 								"status": -1,
@@ -830,7 +1512,127 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "landing_pages/examples/landingPage_MechanicalTurkSR.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9737,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4527,
+								4527
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "landing_pages/examples/landingPage_StimulusTrainMTS.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8845,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2404,
+								2404
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "ptap_HumanEnvironmentInterface.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6909,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								753,
+								753
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "mkturk_Reinforcer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2780,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								724,
+								739
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 330.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
 					"type": "text"
 				}
 			]
@@ -864,7 +1666,7 @@
 		"cols":
 		[
 			0.0,
-			0.5,
+			0.385174082357,
 			1.0
 		],
 		"rows":

@@ -24,12 +24,12 @@ async function setup_upstairs_session(sessionPackage){
     document.querySelector("button[name=doneTestingTask]").style.display = "block"
     document.querySelector("button[name=doneTestingTask]").style.visibility = "visible"
     
-    var gamePackage = {}
-    gamePackage['DataWriter'] = DataWriter 
-    gamePackage['HEI'] = HEI 
-    gamePackage['SESSION'] = SESSION
+    var freturn = {}
+    freturn['DataWriter'] = DataWriter 
+    freturn['HEI'] = HEI 
+    freturn['SESSION'] = SESSION
+    return freturn
 
-    return gamePackage
 }
 
 

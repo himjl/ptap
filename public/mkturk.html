@@ -106,54 +106,56 @@ var FLAGS = {};
 $(async function(){
 
 try{
- 
-// Load inputs from local storage, web, or Dropbox.
-wdm('Running bootstrapper...')
-var SBS = new SessionBootStrapper()
-var sessionPackage = await SBS.build()
-sessionPackage = SBS.verify_session_package(sessionPackage)
+  // Load inputs from localStorage, URL, or Dropbox text file.
+  wdm('Running bootstrapper...')
+  var SBS = new SessionBootStrapper()
+  var sessionPackage = await SBS.build()
+  sessionPackage = SBS.verify_session_package(sessionPackage)
 
-console.log('sessionPackage', sessionPackage)
+  console.log('sessionPackage', sessionPackage)
 
-// Construct session
-wdm('Setting up session...')
+  // Using the sessionPackage, set up the behavioral session
+  wdm('Setting up session...')
 
-if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
-  var freturn = await setup_mechanicalturk_session(sessionPackage)
-}
-else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
-  var freturn = await setup_upstairs_session(sessionPackage)
-}
+  if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
+    var freturn = await setup_mechanicalturk_session(sessionPackage)
+  }
+  else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
+    var freturn = await setup_upstairs_session(sessionPackage)
+  }
 
-// Unpack objects
-var DataWriter = freturn['DataWriter']
-var HEI = freturn['HEI']
-SESSION = freturn['SESSION']
+  // From the output of the setup function, unpack the objects that will be used to run the main task. 
+  var DataWriter = freturn['DataWriter']
+  var HEI = freturn['HEI']
+  SESSION = freturn['SESSION']
+  TaskStreamer = new TaskStreamerClass(sessionPackage)
+  await TaskStreamer.build()
+  
 
+  // Attach static data probes 
+  wdm('Attaching static data probes...')
+  DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
+  DataWriter.deposit_key_data('SESSION', SESSION)
+  DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
+  DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
 
-// Main trial loop
-console.log('ENTERING MAIN TRIAL STATE MACHINE')
-wdm('Entering main trial loop...')
+  // Attach dynamic data probes
+  DataWriter.attach_probe(HEI, 'rewardLog', 'REWARD_LOG')
+  DataWriter.attach_probe(TaskStreamer, 'behavioral_data', 'BEHAVIOR')
+  DataWriter.start_polling()
 
+  // Enter the main data loop
+  wdm('Entering main trial loop...')
+  while(TaskStreamer.TERMINAL_STATE == false){
 
-TaskStreamer = new TaskStreamerClass(sessionPackage)
-await TaskStreamer.build()
-// Attach static data objects 
-wdm('Attaching static data probes...')
-DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])
-DataWriter.deposit_key_data('SESSION', SESSION)
-DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
-DataWriter.deposit_key_data('VERIFICATION_LOG', SBS.verification_log)
+    // Obtain the step package
+    var stepPackage = await TaskStreamer.get_step()
 
-DataWriter.attach_probe(HEI, 'rewardLog', 'REWARD_LOG')
-DataWriter.attach_probe(TaskStreamer, 'behavioral_data', 'BEHAVIOR')
-DataWriter.start_polling()
+    // Run the step
+    var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
 
-while(TaskStreamer.TERMINAL_STATE == false){
-  var stepPackage = await TaskStreamer.get_step()
-  var stepOutcome = await HEI.step(stepPackage['frameData'], stepPackage['soundData'], stepPackage['actionRegions'], stepPackage['actionTimeoutMsec'], stepPackage['reward'])
-
-  TaskStreamer.deposit_step_outcome(stepOutcome)
+    // Record the outcome of the step
+    TaskStreamer.deposit_step_outcome(stepOutcome)
   
 }
 
