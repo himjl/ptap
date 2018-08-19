@@ -577,7 +577,7 @@
 			"file": "mkturk_DiskIO.js",
 			"settings":
 			{
-				"buffer_size": 13071,
+				"buffer_size": 13194,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -604,7 +604,7 @@
 			"file": "mkturk_SessionBootStrapper.js",
 			"settings":
 			{
-				"buffer_size": 7395,
+				"buffer_size": 7459,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -720,7 +720,7 @@
 			"file": "mkturk_TaskStreamer.js",
 			"settings":
 			{
-				"buffer_size": 7030,
+				"buffer_size": 7266,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -730,15 +730,14 @@
 			"settings":
 			{
 				"buffer_size": 10724,
-				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"contents": "Searching 31 files for \"start_buffering_continuous\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  174  Playspace.start_device_tracking()\n  175  DataWriter.start_polling()\n  176: TaskStreamer.start_buffering_continuous()\n  177  \n  178  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n  178          return \n  179      }\n  180:     async start_buffering_continuous(){\n  181:         this.TG.start_buffering_continuous()\n  182      }\n  183  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n  235      }\n  236  \n  237:     async start_buffering_continuous(){\n  238          var _this = this \n  239  \n\n4 matches across 3 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n   92      checkpoint['taskActionHistory'] = []\n   93      checkpoint['taskBagHistory'] = []\n   94:     checkpoint['samplesSeen'] = {}\n   95      \n   96      return checkpoint\n   ..\n  110      this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])\n  111  \n  112:     if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){\n  113:         this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []\n  114      }\n  115      \n  116:     this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']].push(checkpointPackage['i_sampleId'])\n  117  }\n  118  \n  ...\n  159  \n  160  get_samples_seen_history(){\n  161:     return this.checkpoint['samplesSeen']\n  162  }\n  163  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   20          this.TERMINAL_STATE = false\n   21          this.monitoring = true\n   22:         this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen\n   23  \n   24          // Queue \n   ..\n   34              'TERMINAL_STATE': this.TERMINAL_STATE,\n   35              'monitoring': this.monitoring,\n   36:             'samplesSeen':this.samplesSeen, \n   37          }\n   38  \n\n8 matches across 2 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n   92      checkpoint['taskActionHistory'] = []\n   93      checkpoint['taskBagHistory'] = []\n   94:     checkpoint['samplesSeen'] = {}\n   95      \n   96      return checkpoint\n   ..\n  110      this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])\n  111  \n  112:     if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){\n  113:         this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []\n  114      }\n  115      \n  116:     this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']].push(checkpointPackage['i_sampleId'])\n  117  }\n  118  \n  ...\n  159  \n  160  get_samples_seen_history(){\n  161:     return this.checkpoint['samplesSeen']\n  162  }\n  163  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   20          this.TERMINAL_STATE = false\n   21          this.monitoring = true\n   22:         this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen\n   23  \n   24          // Queue \n   ..\n   34              'TERMINAL_STATE': this.TERMINAL_STATE,\n   35              'monitoring': this.monitoring,\n   36:             'samplesSeen':this.samplesSeen, \n   37          }\n   38  \n\n8 matches across 2 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   33              'TERMINAL_STATE': this.TERMINAL_STATE,\n   34              'monitoring': this.monitoring,\n   35:             'samplesSeen':this.samplesSeen, \n   36          }\n   37  \n\n2 matches in 1 file\n\n\nSearching 31 files for \"viewingwindowwidth\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_BiasDetection.js:\n    1: function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, returnSamps, bagSamps){\n    2      var numBags = sampleBagNames.length \n    3  \n    4      var minLength = Math.min(returnSamps.length, bagSamps.length)\n    5:     if (minLength < viewingWindowWidth){\n    6          var uniformWeights = np.xvec(numBags, 1 / numBags)\n    7          return uniformWeights\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   91          // The null is violated when, for example, the subject always chooses one option regardless of the category presented\n   92  \n   93:         var viewingWindowWidth = 50 \n   94  \n   95:         var returnSamps = this.taskReturnHistory.slice(-1 * viewingWindowWidth)\n   96:         var bagSamps = this.taskBagHistory.slice(-1 * viewingWindowWidth)\n   97  \n   98:         this.bagSamplingWeights = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, returnSamps, bagSamps)        \n   99          // ***************************************\n  100  \n\n6 matches across 2 files\n\n\nSearching 31 files for \"TaskStreamer.IB\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/unit_tests.js:\n   19          for (var j = 0; j<batchSize; j++){\n   20              imageRequests.push(imageNames[i+j])\n   21:             //promise_array.push(TaskStreamer.IB.get_by_name(imageNames[i+j]))\n   22  \n   23          }\n   24:         await TaskStreamer.IB.get_by_name(imageRequests)\n   25          \n   26      }\n\n2 matches in 1 file\n\n\nSearching 31 files for \"lastTrialTimestamp\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n    4          this.pollPeriodMsec = 60000\n    5          this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds\n    6:         this.lastTrialTimestamp = performance.now() \n    7          this.lastSaveTimestamp = performance.now()\n    8          this.probeFunctions = {}\n    .\n   24              this.trialData[key].push(trialOutcome[key])\n   25          }\n   26:         this.lastTrialTimestamp = performance.now()\n   27      }\n   28  \n   ..\n  126          var pollFunction = function(){\n  127              // If it's been latentSaveModeTimeoutMsec since the last trial, save and enter latent mode.\n  128:             if(performance.now() - _this.lastTrialTimestamp >= _this.latentSaveModeTimeoutMsec){\n  129                  if(_this.inLatentMode == false){\n  130                      console.log('Entering latent save mode.')\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   51      update_state(current_trial_outcome){\n   52  \n   53:         this.lastTrialTimestamp = performance.now()\n   54  \n   55          var tk = this.taskSequence[this.taskNumber]\n\n4 matches across 2 files\n\n\nSearching 31 files for \"imagebags_mapping\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  155  DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])\n  156  DataWriter.deposit_key_data('SESSION', SESSION)\n  157: DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.idx2bag)\n  158  //DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags\n  159  DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())\n\n1 match in 1 file\n\n\nSearching 31 files for \"splash\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   40  <div id=\"DebugMessageTextBox\">Welcome...</div>\n   41  <div id=\"SessionTextBox\"><b>Subject:</b> <br><b>Experiment:</b></div>\n   42: <div id=\"PreviewModeSplash\">\n   43:   <span id='PreviewSplashText'><p style=\"color:red; font-size:large; font-weight:bold; text-align:center\">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style=\"font-weight:bold\">demo below</text>.  \n   44    </span>\n   45  </div>\n   46  \n   47: <div id=\"MechanicalTurkInstructionsSplash\">\n   48:   <span id='InstructionSplashText'> Loading instructions... </span>\n   49:   <button onclick=\"toggleElement(0, 'MechanicalTurkInstructionsSplash'); FLAGS.clicked_close_instructions(true)\" id='CloseInstructionsButton' disabled> Loading... </button>\n   50  </div>\n   51  \n   52  <div id=\"MechanicalTurkCursorDeviceSelectionScreen\">\n   53:   <div id='DeviceSelectionSplashText'> Select which input device you are using: </div>\n   54  \n   55  \n   ..\n   64  \n   65  <div id=\"MechanicalTurkHandSelectionScreen\">\n   66:   <div id='HandSelectionSplashText'> Select which hand you are using: </div>\n   67  \n   68    <input type=\"image\" class='HandButton' id='LeftHandImage'  style=\"\" id=\"MouseImage\" src=\"tutorial_images/left_hand.png \" alt=\"Lefthanded\" onclick=\"setHandSelection(this, 'left')\" />\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  149      }\n  150  \n  151:     show_preview_splash(){\n  152:         toggleElement(1, 'PreviewModeSplash')\n  153      }\n  154      async showMechanicalTurkInstructions(instructions_text){\n  155    \n  156:     document.getElementById(\"MechanicalTurkInstructionsSplash\").style.visibility = 'visible'\n  157:     document.getElementById(\"InstructionSplashText\").innerHTML = instructions_text\n  158  \n  159      \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n   91  function displayTerminalScreen(){\n   92  \tvar terminal_text = 'Thank you for completing this HIT. Please wait while it is submitted...'\n   93: \tdocument.getElementById('terminal_splash_screen').style.zIndex = 100\n   94: \tdocument.getElementById('terminal_splash_screen').style.innerHTML = terminal_text\n   95  \n   96  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_style.css:\n  176  }\n  177  \n  178: #PreviewModeSplash{\n  179    display: table;\n  180    position: absolute;\n  ...\n  195     border-style:solid;\n  196  }\n  197: #PreviewSplashText{\n  198    display: table-cell;\n  199    vertical-align: middle;\n  ...\n  208  \n  209  \n  210: #MechanicalTurkInstructionsSplash{\n  211    display: table;\n  212    position: absolute;\n  ...\n  231     padding-left:1%;\n  232  }\n  233: #InstructionSplashText{\n  234    vertical-align: middle;\n  235    line-height: normal;\n  ...\n  270  }\n  271  \n  272: #DeviceSelectionSplashText{\n  273    line-height: normal;\n  274    vertical-align: bottom;\n  ...\n  316  }\n  317  \n  318: #HandSelectionSplashText{\n  319    line-height: normal;\n  320    vertical-align: bottom;\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   71        console.log('RUNNING IN PREVIEW MODE')\n   72        var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')\n   73:       UX.show_preview_splash()\n   74        while(true){\n   75          await Playspace.run_tutorial_trial(tutorialImage)\n\n20 matches across 5 files\n\n\nSearching 31 files for \"showMechanicalTurkInstructions\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   98              if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100:                     await this.showMechanicalTurkInstructions(instructionsDialogueString)\n  101                      return\n  102                  }\n  ...\n  118          screen1_instructions += \"</ul>\"\n  119  \n  120:         await this.showMechanicalTurkInstructions(screen1_instructions)\n  121          \n  122      }\n  ...\n  152          toggleElement(1, 'PreviewModeSplash')\n  153      }\n  154:     async showMechanicalTurkInstructions(instructions_text){\n  155    \n  156      document.getElementById(\"MechanicalTurkInstructionsSplash\").style.visibility = 'visible'\n\n3 matches in 1 file\n\n\nSearching 31 files for \"run_instructions_dialogue\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   94          return\n   95      }\n   96:     async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98              if (instructionsDialogueString.constructor == String){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   78  \n   79    if(show_instructions == true){\n   80:     await UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])\n   81    }\n   82  \n\n2 matches across 2 files\n\n\nSearching 31 files for \"juiceRewardPer1000Trials\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   11          var periodicRewardAmount = playspacePackage['periodicRewardAmount'] \n   12          var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] \n   13:         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']\n   14          this.viewingDistanceInches = playspace_viewingDistanceInches\n   15          this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   42      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   43      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], \n   44:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   45    Playspace = new PlaySpaceClass(playspacePackage)\n   46    await Playspace.build()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   50      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   51      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],\n   52:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   53    \n   54      wdm('Building playspace...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/user_utils/make_examples.py:\n   54                      'rigEnvironment':'monkeybox', \n   55                      \"bonusUSDPerCorrect\":0.0005,\n   56:                     \"juiceRewardPer1000Trials\":250,\n   57  \n   58  \n   ..\n  125                        'rigEnvironment':'mechanicalturk', \n  126                        \"bonusUSDPerCorrect\":0.0005,\n  127:                       \"juiceRewardPer1000Trials\":250, \n  128                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  129                    }   \n  ...\n  195                        'rigEnvironment':'mechanicalturk', \n  196                        \"bonusUSDPerCorrect\":0.0005, \n  197:                       \"juiceRewardPer1000Trials\":250, \n  198                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  199                    }   \n  ...\n  292                        'rigEnvironment':'mechanicalturk', \n  293                        \"bonusUSDPerCorrect\":0.0005, \n  294:                       \"juiceRewardPer1000Trials\":250, \n  295                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  296                    }   \n\n9 matches across 4 files\n\n\nSearching 31 files for \"JuiceReinforcer\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   23          \n   24          if (primary_reinforcer_type == 'juice'){\n   25:             this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n   26          }\n   27          else if(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   19  \n   20  \n   21: class JuiceReinforcer{\n   22      constructor(juiceRewardPer1000){\n   23        if (juiceRewardPer1000 != undefined){\n\n2 matches across 2 files\n\n\nSearching 31 files for \"juiceRewardPer1000Trials\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   11          var periodicRewardAmount = playspacePackage['periodicRewardAmount'] \n   12          var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] \n   13:         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']\n   14          this.viewingDistanceInches = playspace_viewingDistanceInches\n   15          this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   42      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   43      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], \n   44:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   45    Playspace = new PlaySpaceClass(playspacePackage)\n   46    await Playspace.build()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   50      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   51      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],\n   52:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   53    \n   54      wdm('Building playspace...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/user_utils/make_examples.py:\n   54                      'rigEnvironment':'monkeybox', \n   55                      \"bonusUSDPerCorrect\":0.0005,\n   56:                     \"juiceRewardPer1000Trials\":250,\n   57  \n   58  \n   ..\n  125                        'rigEnvironment':'mechanicalturk', \n  126                        \"bonusUSDPerCorrect\":0.0005,\n  127:                       \"juiceRewardPer1000Trials\":250, \n  128                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  129                    }   \n  ...\n  195                        'rigEnvironment':'mechanicalturk', \n  196                        \"bonusUSDPerCorrect\":0.0005, \n  197:                       \"juiceRewardPer1000Trials\":250, \n  198                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  199                    }   \n  ...\n  292                        'rigEnvironment':'mechanicalturk', \n  293                        \"bonusUSDPerCorrect\":0.0005, \n  294:                       \"juiceRewardPer1000Trials\":250, \n  295                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  296                    }   \n\n9 matches across 4 files\n",
+			"contents": "Searching 31 files for \"start_buffering_continuous\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  174  Playspace.start_device_tracking()\n  175  DataWriter.start_polling()\n  176: TaskStreamer.start_buffering_continuous()\n  177  \n  178  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n  178          return \n  179      }\n  180:     async start_buffering_continuous(){\n  181:         this.TG.start_buffering_continuous()\n  182      }\n  183  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n  235      }\n  236  \n  237:     async start_buffering_continuous(){\n  238          var _this = this \n  239  \n\n4 matches across 3 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n   92      checkpoint['taskActionHistory'] = []\n   93      checkpoint['taskBagHistory'] = []\n   94:     checkpoint['samplesSeen'] = {}\n   95      \n   96      return checkpoint\n   ..\n  110      this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])\n  111  \n  112:     if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){\n  113:         this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []\n  114      }\n  115      \n  116:     this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']].push(checkpointPackage['i_sampleId'])\n  117  }\n  118  \n  ...\n  159  \n  160  get_samples_seen_history(){\n  161:     return this.checkpoint['samplesSeen']\n  162  }\n  163  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   20          this.TERMINAL_STATE = false\n   21          this.monitoring = true\n   22:         this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen\n   23  \n   24          // Queue \n   ..\n   34              'TERMINAL_STATE': this.TERMINAL_STATE,\n   35              'monitoring': this.monitoring,\n   36:             'samplesSeen':this.samplesSeen, \n   37          }\n   38  \n\n8 matches across 2 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n   92      checkpoint['taskActionHistory'] = []\n   93      checkpoint['taskBagHistory'] = []\n   94:     checkpoint['samplesSeen'] = {}\n   95      \n   96      return checkpoint\n   ..\n  110      this.checkpoint['taskBagHistory'].push(checkpointPackage['i_sampleBag'])\n  111  \n  112:     if(this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] == undefined){\n  113:         this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']] = []\n  114      }\n  115      \n  116:     this.checkpoint['samplesSeen'][checkpointPackage['sampleBag']].push(checkpointPackage['i_sampleId'])\n  117  }\n  118  \n  ...\n  159  \n  160  get_samples_seen_history(){\n  161:     return this.checkpoint['samplesSeen']\n  162  }\n  163  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   20          this.TERMINAL_STATE = false\n   21          this.monitoring = true\n   22:         this.samplesSeen = CheckPointer.get_samples_seen_history() // {} // id: times seen\n   23  \n   24          // Queue \n   ..\n   34              'TERMINAL_STATE': this.TERMINAL_STATE,\n   35              'monitoring': this.monitoring,\n   36:             'samplesSeen':this.samplesSeen, \n   37          }\n   38  \n\n8 matches across 2 files\n\n\nSearching 31 files for \"samplesSeen\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   33              'TERMINAL_STATE': this.TERMINAL_STATE,\n   34              'monitoring': this.monitoring,\n   35:             'samplesSeen':this.samplesSeen, \n   36          }\n   37  \n\n2 matches in 1 file\n\n\nSearching 31 files for \"viewingwindowwidth\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_BiasDetection.js:\n    1: function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, returnSamps, bagSamps){\n    2      var numBags = sampleBagNames.length \n    3  \n    4      var minLength = Math.min(returnSamps.length, bagSamps.length)\n    5:     if (minLength < viewingWindowWidth){\n    6          var uniformWeights = np.xvec(numBags, 1 / numBags)\n    7          return uniformWeights\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   91          // The null is violated when, for example, the subject always chooses one option regardless of the category presented\n   92  \n   93:         var viewingWindowWidth = 50 \n   94  \n   95:         var returnSamps = this.taskReturnHistory.slice(-1 * viewingWindowWidth)\n   96:         var bagSamps = this.taskBagHistory.slice(-1 * viewingWindowWidth)\n   97  \n   98:         this.bagSamplingWeights = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, returnSamps, bagSamps)        \n   99          // ***************************************\n  100  \n\n6 matches across 2 files\n\n\nSearching 31 files for \"TaskStreamer.IB\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/unit_tests.js:\n   19          for (var j = 0; j<batchSize; j++){\n   20              imageRequests.push(imageNames[i+j])\n   21:             //promise_array.push(TaskStreamer.IB.get_by_name(imageNames[i+j]))\n   22  \n   23          }\n   24:         await TaskStreamer.IB.get_by_name(imageRequests)\n   25          \n   26      }\n\n2 matches in 1 file\n\n\nSearching 31 files for \"lastTrialTimestamp\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n    4          this.pollPeriodMsec = 60000\n    5          this.saveTimeoutPeriodMsec = 5000 // save at most every 5 seconds\n    6:         this.lastTrialTimestamp = performance.now() \n    7          this.lastSaveTimestamp = performance.now()\n    8          this.probeFunctions = {}\n    .\n   24              this.trialData[key].push(trialOutcome[key])\n   25          }\n   26:         this.lastTrialTimestamp = performance.now()\n   27      }\n   28  \n   ..\n  126          var pollFunction = function(){\n  127              // If it's been latentSaveModeTimeoutMsec since the last trial, save and enter latent mode.\n  128:             if(performance.now() - _this.lastTrialTimestamp >= _this.latentSaveModeTimeoutMsec){\n  129                  if(_this.inLatentMode == false){\n  130                      console.log('Entering latent save mode.')\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   51      update_state(current_trial_outcome){\n   52  \n   53:         this.lastTrialTimestamp = performance.now()\n   54  \n   55          var tk = this.taskSequence[this.taskNumber]\n\n4 matches across 2 files\n\n\nSearching 31 files for \"imagebags_mapping\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  155  DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])\n  156  DataWriter.deposit_key_data('SESSION', SESSION)\n  157: DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.idx2bag)\n  158  //DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags\n  159  DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())\n\n1 match in 1 file\n\n\nSearching 31 files for \"splash\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   40  <div id=\"DebugMessageTextBox\">Welcome...</div>\n   41  <div id=\"SessionTextBox\"><b>Subject:</b> <br><b>Experiment:</b></div>\n   42: <div id=\"PreviewModeSplash\">\n   43:   <span id='PreviewSplashText'><p style=\"color:red; font-size:large; font-weight:bold; text-align:center\">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text style=\"font-weight:bold\">demo below</text>.  \n   44    </span>\n   45  </div>\n   46  \n   47: <div id=\"MechanicalTurkInstructionsSplash\">\n   48:   <span id='InstructionSplashText'> Loading instructions... </span>\n   49:   <button onclick=\"toggleElement(0, 'MechanicalTurkInstructionsSplash'); FLAGS.clicked_close_instructions(true)\" id='CloseInstructionsButton' disabled> Loading... </button>\n   50  </div>\n   51  \n   52  <div id=\"MechanicalTurkCursorDeviceSelectionScreen\">\n   53:   <div id='DeviceSelectionSplashText'> Select which input device you are using: </div>\n   54  \n   55  \n   ..\n   64  \n   65  <div id=\"MechanicalTurkHandSelectionScreen\">\n   66:   <div id='HandSelectionSplashText'> Select which hand you are using: </div>\n   67  \n   68    <input type=\"image\" class='HandButton' id='LeftHandImage'  style=\"\" id=\"MouseImage\" src=\"tutorial_images/left_hand.png \" alt=\"Lefthanded\" onclick=\"setHandSelection(this, 'left')\" />\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  149      }\n  150  \n  151:     show_preview_splash(){\n  152:         toggleElement(1, 'PreviewModeSplash')\n  153      }\n  154      async showMechanicalTurkInstructions(instructions_text){\n  155    \n  156:     document.getElementById(\"MechanicalTurkInstructionsSplash\").style.visibility = 'visible'\n  157:     document.getElementById(\"InstructionSplashText\").innerHTML = instructions_text\n  158  \n  159      \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n   91  function displayTerminalScreen(){\n   92  \tvar terminal_text = 'Thank you for completing this HIT. Please wait while it is submitted...'\n   93: \tdocument.getElementById('terminal_splash_screen').style.zIndex = 100\n   94: \tdocument.getElementById('terminal_splash_screen').style.innerHTML = terminal_text\n   95  \n   96  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_style.css:\n  176  }\n  177  \n  178: #PreviewModeSplash{\n  179    display: table;\n  180    position: absolute;\n  ...\n  195     border-style:solid;\n  196  }\n  197: #PreviewSplashText{\n  198    display: table-cell;\n  199    vertical-align: middle;\n  ...\n  208  \n  209  \n  210: #MechanicalTurkInstructionsSplash{\n  211    display: table;\n  212    position: absolute;\n  ...\n  231     padding-left:1%;\n  232  }\n  233: #InstructionSplashText{\n  234    vertical-align: middle;\n  235    line-height: normal;\n  ...\n  270  }\n  271  \n  272: #DeviceSelectionSplashText{\n  273    line-height: normal;\n  274    vertical-align: bottom;\n  ...\n  316  }\n  317  \n  318: #HandSelectionSplashText{\n  319    line-height: normal;\n  320    vertical-align: bottom;\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   71        console.log('RUNNING IN PREVIEW MODE')\n   72        var tutorialImage = await SIO.load_image('tutorial_images/TutorialClickMe.png')\n   73:       UX.show_preview_splash()\n   74        while(true){\n   75          await Playspace.run_tutorial_trial(tutorialImage)\n\n20 matches across 5 files\n\n\nSearching 31 files for \"showMechanicalTurkInstructions\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   98              if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100:                     await this.showMechanicalTurkInstructions(instructionsDialogueString)\n  101                      return\n  102                  }\n  ...\n  118          screen1_instructions += \"</ul>\"\n  119  \n  120:         await this.showMechanicalTurkInstructions(screen1_instructions)\n  121          \n  122      }\n  ...\n  152          toggleElement(1, 'PreviewModeSplash')\n  153      }\n  154:     async showMechanicalTurkInstructions(instructions_text){\n  155    \n  156      document.getElementById(\"MechanicalTurkInstructionsSplash\").style.visibility = 'visible'\n\n3 matches in 1 file\n\n\nSearching 31 files for \"run_instructions_dialogue\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   94          return\n   95      }\n   96:     async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98              if (instructionsDialogueString.constructor == String){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   78  \n   79    if(show_instructions == true){\n   80:     await UX.run_instructions_dialogue(ENVIRONMENT['instructionsDialogueString'])\n   81    }\n   82  \n\n2 matches across 2 files\n\n\nSearching 31 files for \"juiceRewardPer1000Trials\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   11          var periodicRewardAmount = playspacePackage['periodicRewardAmount'] \n   12          var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] \n   13:         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']\n   14          this.viewingDistanceInches = playspace_viewingDistanceInches\n   15          this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   42      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   43      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], \n   44:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   45    Playspace = new PlaySpaceClass(playspacePackage)\n   46    await Playspace.build()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   50      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   51      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],\n   52:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   53    \n   54      wdm('Building playspace...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/user_utils/make_examples.py:\n   54                      'rigEnvironment':'monkeybox', \n   55                      \"bonusUSDPerCorrect\":0.0005,\n   56:                     \"juiceRewardPer1000Trials\":250,\n   57  \n   58  \n   ..\n  125                        'rigEnvironment':'mechanicalturk', \n  126                        \"bonusUSDPerCorrect\":0.0005,\n  127:                       \"juiceRewardPer1000Trials\":250, \n  128                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  129                    }   \n  ...\n  195                        'rigEnvironment':'mechanicalturk', \n  196                        \"bonusUSDPerCorrect\":0.0005, \n  197:                       \"juiceRewardPer1000Trials\":250, \n  198                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  199                    }   \n  ...\n  292                        'rigEnvironment':'mechanicalturk', \n  293                        \"bonusUSDPerCorrect\":0.0005, \n  294:                       \"juiceRewardPer1000Trials\":250, \n  295                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  296                    }   \n\n9 matches across 4 files\n\n\nSearching 31 files for \"JuiceReinforcer\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   23          \n   24          if (primary_reinforcer_type == 'juice'){\n   25:             this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n   26          }\n   27          else if(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   19  \n   20  \n   21: class JuiceReinforcer{\n   22      constructor(juiceRewardPer1000){\n   23        if (juiceRewardPer1000 != undefined){\n\n2 matches across 2 files\n\n\nSearching 31 files for \"juiceRewardPer1000Trials\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   11          var periodicRewardAmount = playspacePackage['periodicRewardAmount'] \n   12          var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] \n   13:         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']\n   14          this.viewingDistanceInches = playspace_viewingDistanceInches\n   15          this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   42      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   43      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], \n   44:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   45    Playspace = new PlaySpaceClass(playspacePackage)\n   46    await Playspace.build()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   50      'periodicRewardAmount':GAME['periodicRewardAmount'], \n   51      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],\n   52:     'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   53    \n   54      wdm('Building playspace...')\n\n/Users/michaellee/Dropbox (MIT)/ptap/user_utils/make_examples.py:\n   54                      'rigEnvironment':'monkeybox', \n   55                      \"bonusUSDPerCorrect\":0.0005,\n   56:                     \"juiceRewardPer1000Trials\":250,\n   57  \n   58  \n   ..\n  125                        'rigEnvironment':'mechanicalturk', \n  126                        \"bonusUSDPerCorrect\":0.0005,\n  127:                       \"juiceRewardPer1000Trials\":250, \n  128                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  129                    }   \n  ...\n  195                        'rigEnvironment':'mechanicalturk', \n  196                        \"bonusUSDPerCorrect\":0.0005, \n  197:                       \"juiceRewardPer1000Trials\":250, \n  198                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  199                    }   \n  ...\n  292                        'rigEnvironment':'mechanicalturk', \n  293                        \"bonusUSDPerCorrect\":0.0005, \n  294:                       \"juiceRewardPer1000Trials\":250, \n  295                        \"instructionsDialogueString\":\"<ul><p><text style=\\\"font-weight:bold; font-size:large\\\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\\\"color:#7A7A7A; font-size:smaller; font-style:italic\\\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>\"\n  296                    }   \n\n9 matches across 4 files\n\n\nSearching 32 files for \"onfinish\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n   35              \"maximumTrials\": 30, \n   36              \"minimumTrials\": 30, \n   37:             \"onFinish\": \"loop\", \n   38              \"periodicRewardAmount\": 0, \n   39              \"periodicRewardIntervalMsec\": 0\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    5          this.taskSequence = gamePackage['TASK_SEQUENCE']\n    6  \n    7:         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])\n    8  \n    9          this.CheckPointer = CheckPointer\n   ..\n  147              // Check termination condition\n  148              if(this.taskNumber >= this.taskSequence.length-1){\n  149:                 var onFinish = this.game['onFinish']\n  150:                 if(onFinish == 'loop'){\n  151                      console.log('Reached end of TASK_SEQUENCE: looping')\n  152                      nextTaskNumber = 0\n  153                  }\n  154:                 else if(onFinish == 'terminate'){\n  155                      console.log('Reached end of TASK_SEQUENCE: terminating')\n  156                      this.TERMINAL_STATE = true \n  157                  }\n  158:                 else if(onFinish == 'continue'){\n  159                      console.log('Reached end of TASK_SEQUENCE: continuing')\n  160                      this.monitoring = false\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n    1  class TrialGeneratorClass{\n    2:     constructor(IB, imageBags, taskSequence, onFinish){\n    3          this.IB = IB \n    4          this.taskSequence = taskSequence\n    .\n   11  \n   12          this.taskNumber = 0\n   13:         this.onFinish = onFinish\n   14  \n   15      }\n   ..\n  278  \n  279              // Manage queues for other tasks \n  280:             if (_this.onFinish != 'loop'){\n  281                  // Delete queues for previous taskNumbers\n  282                  for(var t = 0; t<_this.taskNumber; t++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n    8          \"periodicRewardIntervalMsec\":0,\n    9          \"periodicRewardAmount\":0,\n   10:         \"onFinish\":\"terminate\", // terminate, continue\n   11          \"minimumTrials\":10,\n   12          \"maximumTrials\":10,\n\n/Users/michaellee/Dropbox (MIT)/ptap/user_utils/make_examples.py:\n    9            \"periodicRewardIntervalMsec\":60000,\n   10            \"periodicRewardAmount\":1,\n   11:           \"onFinish\":\"continue\",\n   12            \"randomSeed\":'none',\n   13      }\n   ..\n   81              \"periodicRewardIntervalMsec\":0,\n   82              \"periodicRewardAmount\":0,\n   83:             \"onFinish\":\"continue\",\n   84              \"minimumTrials\":2,\n   85              \"maximumTrials\":800,\n   ..\n  149              \"periodicRewardIntervalMsec\":0,\n  150              \"periodicRewardAmount\":0,\n  151:             \"onFinish\":\"continue\",\n  152              \"minimumTrials\":2,\n  153              \"maximumTrials\":800,\n  ...\n  217              \"periodicRewardIntervalMsec\":0,\n  218              \"periodicRewardAmount\":0,\n  219:             \"onFinish\":\"loop\",\n  220              \"minimumTrials\":30,\n  221              \"maximumTrials\":30,\n\n16 matches across 5 files\n\n\nSearching 32 files for \"package_data\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  209  \n  210    try{\n  211:     var dataobj = DataWriter.package_data()\n  212    }\n  213    catch(error){\n  214:     var dataobj = {'ERROR_DataWriter.package_data()':String(error)}\n  215    }\n  216    try{\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n   38      }\n   39  \n   40:     package_data(){\n   41          var dataPackage = {}\n   42          dataPackage['BEHAVIOR'] = this.trialData // trial outcomes\n   ..\n  159          }\n  160  \n  161:         var dataString = JSON.stringify(this.package_data(), null, 4)\n  162  \n  163          var savedMsecAgo = Math.round(performance.now() - this.lastSaveTimestamp)\n  ...\n  187      async conclude_session(){\n  188      \n  189:         var dataobj = this.package_data()\n  190          var result_str = JSON.stringify({'SESSION_DATA':dataobj})\n  191   \n\n5 matches across 2 files\n\n\nSearching 32 files for \"setup_mechanicalturk_session\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   81  <script src=\"https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js\"></script>\n   82  <script src=\"setup_upstairs_session.js\" type=\"text/javascript\"></script>\n   83: <script src=\"setup_MechanicalTurk_session.js\" type=\"text/javascript\"></script>\n   84  \n   85  <script src=\"mkturk_installsettings.js\"></script>\n   ..\n  136  \n  137  if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){\n  138:   var freturn = await setup_mechanicalturk_session(sessionPackage)\n  139  }\n  140  else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n    1: async function setup_mechanicalturk_session(sessionPackage){\n    2   \n    3    GAME_PACKAGE = sessionPackage['GAME_PACKAGE']\n\n3 matches across 2 files\n\n\nSearching 32 files for \"constructor\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  141    var freturn = await setup_upstairs_session(sessionPackage)\n  142  }\n  143: // error must be happening before this point, \"\\\"TypeError: Cannot read property 'constructor' of undefined\\\"\"\n  144  // Unpack objects\n  145  var TaskStreamer = freturn['TaskStreamer']\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js:\n    1  class ActionPollerClass{\n    2:     constructor(event_types, bounds){\n    3          // ['mousemove', 'touchmove', 'touchstart', 'onclick']\n    4  \n    .\n   29          this.actionRadii = []\n   30  \n   31:         this.trackNullActions = false // todo: move into constructor\n   32  \n   33  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n    1  class CheckPointerClass{\n    2:     constructor(gamePackage){\n    3          this.gamePackage = gamePackage\n    4  \n    .\n   14  class DropboxCheckPointer extends CheckPointerClass{ \n   15  \n   16: constructor(DIO, agentId, gamePackage){\n   17      super(gamePackage)\n   18  \n   ..\n  160  class MechanicalTurkCheckPointer extends CheckPointerClass{ \n  161  \n  162:     constructor(gamePackage){\n  163          super(gamePackage)\n  164  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n    1  class DataWriter{\n    2:     constructor(){\n    3          this.trialData = {}\n    4          this.pollPeriodMsec = 60000\n    .\n   74  \n   75  class DropboxDataWriter extends DataWriter{\n   76:     constructor(DIO, debugSaveDir, saveDir, savePrefix){\n   77          super()\n   78          this.DIO = DIO\n   ..\n  170  \n  171  class MechanicalTurkDataWriter extends DataWriter{\n  172:     constructor(assignmentId, hitId, inSandboxMode){\n  173          super()\n  174          console.log(this)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n    5  // Template \n    6  class DiskIO{\n    7:     constructor(){\n    8  \n    9      }\n   ..\n   51  \n   52  class S3_IO{\n   53:     constructor(){\n   54  \n   55          this.read_textfile = this._read_textfile.bind(this)\n   ..\n  191  \n  192  \n  193:     constructor(){\n  194      }\n  195      async build(DBX_REDIRECT_URI){\n  ...\n  431  \n  432  class LocalStorageIO{\n  433:     constructor(){\n  434  \n  435      }\n  ...\n  449  \n  450      static async write_string(datastr, key){\n  451:         if(datastr.constructor != String){\n  452              datastr = JSON.stringify(datastr)\n  453          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ImageBuffer.js:\n    1  class ImageBuffer { \n    2  \n    3: constructor(DIO){\n    4  \t// future: some \"generator\" object that can take queries \n    5  \t\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n    1  class PlaySpaceClass{\n    2:     constructor(playspacePackage){\n    3  \n    4          var playspace_degreesVisualAngle = playspacePackage['playspace_degreesVisualAngle'] \n    .\n  411          // diameter degrees \n  412          // assume centered (center of diameter length at viewing normal to screen surface)\n  413:         if(degrees.constructor == Array){\n  414              var result = []\n  415              for (var i = 0; i<degrees.length; i++){\n  ...\n  426      deg2pixels(degrees){\n  427          // Return virtual pixels \n  428:         if(degrees.constructor == Array){\n  429              var result = []\n  430              for (var i = 0; i<degrees.length; i++){\n  ...\n  440  \n  441      xprop2pixels(xproportion){\n  442:         if(xproportion.constructor == Array){\n  443              var result = []\n  444              for (var i = 0; i<xproportion.length; i++){\n  ...\n  451  \n  452      yprop2pixels(yproportion){\n  453:         if(yproportion.constructor == Array){\n  454              var result = []\n  455              for (var i = 0; i<yproportion.length; i++){\n  ...\n  462  \n  463      deg2rad(deg){\n  464:         if(deg.constructor == Array){\n  465              var result = []\n  466              for (var i = 0; i<deg.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n    2  \n    3  class MonetaryReinforcer{\n    4:     constructor(bonus_usd_per_correct){\n    5          this.bonus_total = 0\n    6          this.bonus_per_correct = bonus_usd_per_correct || 0.0007 // one extra dollar for every 1000 correct \n    .\n   20  \n   21  class JuiceReinforcer{\n   22:     constructor(juiceRewardPer1000){\n   23        if (juiceRewardPer1000 != undefined){\n   24          this.juiceRewardPer1000 = juiceRewardPer1000  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js:\n    1  class ScreenDisplayer{\n    2:     constructor(bounds){\n    3  \n    4          this.calibrateBounds(bounds)\n    .\n  109          canvasobj){\n  110  \n  111:         if(images.constructor == Array){\n  112                  // Iterate over the images in this frame and draw them all\n  113                  for (var i_image = 0; i_image<images.length; i_image++){\n  ...\n  238  \n  239  renderBlank(canvasobj){\n  240:     if (canvasobj.constructor != Array){\n  241          canvasobj = [canvasobj]\n  242      }\n  ...\n  323              t_durations = [t_durations]\n  324          }\n  325:         if(sequence.constructor != Array){\n  326              sequence = [sequence]\n  327          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n    1  class SessionBootStrapper{\n    2:     constructor(){\n    3          this.SIO = new S3_IO()\n    4          this.bootstrapLog = {}\n    .\n   53          var loadMethods = []\n   54          var unpacked_imagebags = {}\n   55:         if (imagebags.constructor == Array){\n   56              // Unpack additional levels\n   57              for (var i in imagebags){\n   ..\n   67              }\n   68          }\n   69:         else if(imagebags.constructor == Object){\n   70              imagebags = [imagebags]\n   71              unpacked_imagebags = imagebags[0]\n   ..\n   81                  continue\n   82              }\n   83:             if (unpacked_imagebags[bagName].constructor == String){\n   84                  // Convert singletons\n   85                  unpacked_imagebags[bagName] = [unpacked_imagebags[bagName]]\n   ..\n   95  \n   96          if (loadMethods.length == 1){\n   97:             this.bootstrapLog['IMAGEBAGS']['constructor'] = imagebags_bootstrap\n   98              this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods[0]\n   99          }\n  ...\n  102  \n  103  \n  104:             var constructors = []\n  105              for (var k in loadMethods){\n  106                  var lM = loadMethods[k]\n  107                  if (lM == 'dropbox' || lM == 'url'){\n  108:                     constructors.push(imagebags[k])\n  109                  } \n  110                  else{\n  111:                     constructors.push(undefined)\n  112                  }\n  113              }\n  114  \n  115:             this.bootstrapLog['IMAGEBAGS']['constructor'] = constructors\n  116              this.bootstrapLog['IMAGEBAGS']['loadMethod'] = loadMethods\n  117          }\n  ...\n  138          var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  139  \n  140:         if (task_sequence.constructor == Object){\n  141              task_sequence = [task_sequence]\n  142          }\n  ...\n  210              return undefined\n  211          }\n  212:         if(s.constructor!=String){\n  213              return 'literal'\n  214          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SoundPlayer.js:\n    1  class SoundPlayerClass{ \n    2:   constructor(){\n    3  \n    4        this.sound_filepaths = {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    1  class TaskStreamerClass{\n    2:     constructor(gamePackage, IB, CheckPointer){\n    3          this.game = gamePackage['GAME']\n    4          this.imageBags = gamePackage['IMAGEBAGS']\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n    1  class TrialGeneratorClass{\n    2:     constructor(IB, imageBags, taskSequence, onFinish){\n    3          this.IB = IB \n    4          this.taskSequence = taskSequence\n    .\n   29               \n   30  \n   31:             if (this.imageBags[bag].constructor != Array){\n   32                  var idAlphabetized = [this.imageBags[bag]]\n   33              }\n   ..\n  134              var distractorBagIdx = np.choice(distractorBagIdxPool, nway-1, false)\n  135              var distractorBag = this.get_bag_from_idx(distractorBagIdx)\n  136:             if(distractorBag.constructor != Array){\n  137                  distractorBag = [distractorBag]\n  138              }\n  ...\n  211          var i = {}\n  212  \n  213:         if (bag_name.constructor == Array){\n  214              var _this = this\n  215              i['bag'] = bag_name.map(function(item){return _this.bag2idx[item]})\n  ...\n  228      get_bag_from_idx(bag_idx){\n  229          var i = []\n  230:         if(bag_idx.constructor == Array){\n  231              for (var j in bag_idx){\n  232                  i.push(this.idx2bag[bag_idx[j]])\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n    1  class UXclass{\n    2:     constructor(){\n    3  \n    4      }\n    .\n   10  \n   11  class MonkeyUX extends UXclass{\n   12:     constructor(){\n   13          super()\n   14          toggleElement(1, \"SessionTextBox\")\n   ..\n   74  \n   75  class MechanicalTurkUX extends UXclass{\n   76:     constructor(minimumTrials, maximumTrials, bonusUSDPerCorrect){\n   77          super()\n   78          this.minimumTrials = minimumTrials // for enabling early turn-in\n   ..\n   96      async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98:             if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100                      await this.showMechanicalTurkInstructions(instructionsDialogueString)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n    1  class Verifier{\n    2:     constructor(){\n    3          this.verificationLog = {}\n    4          this.verificationLog['verified'] = false \n    .\n  111  \n  112      check_key_presence(testObject, necessaryKeyList){\n  113:         if(necessaryKeyList.constructor != Array){\n  114              necessaryKeyList = [necessaryKeyList]\n  115          }\n  ...\n  132      verify_environment(environment){\n  133          var verified = true \n  134:         if(environment.constructor!=Object){\n  135              verified = false\n  136          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_amazon_utils.js:\n    3  \n    4  class az{\n    5:     constructor(){\n    6  \n    7      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n   71  \n   72  \n   73:     if(arr.constructor != Array){\n   74        arr = [arr]\n   75      }\n   ..\n  202    static iloc(arr, idx){\n  203      \n  204:     if(idx.constructor != Array){\n  205        return arr[idx]\n  206      }\n  ...\n  330    }\n  331  \n  332:   if(k1.constructor != Number || k2.constructor != Number){\n  333      return undefined \n  334    }\n\n58 matches across 17 files\n\n\nSearching 32 files for \".constructor\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  449  \n  450      static async write_string(datastr, key){\n  451:         if(datastr.constructor != String){\n  452              datastr = JSON.stringify(datastr)\n  453          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n  411          // diameter degrees \n  412          // assume centered (center of diameter length at viewing normal to screen surface)\n  413:         if(degrees.constructor == Array){\n  414              var result = []\n  415              for (var i = 0; i<degrees.length; i++){\n  ...\n  426      deg2pixels(degrees){\n  427          // Return virtual pixels \n  428:         if(degrees.constructor == Array){\n  429              var result = []\n  430              for (var i = 0; i<degrees.length; i++){\n  ...\n  440  \n  441      xprop2pixels(xproportion){\n  442:         if(xproportion.constructor == Array){\n  443              var result = []\n  444              for (var i = 0; i<xproportion.length; i++){\n  ...\n  451  \n  452      yprop2pixels(yproportion){\n  453:         if(yproportion.constructor == Array){\n  454              var result = []\n  455              for (var i = 0; i<yproportion.length; i++){\n  ...\n  462  \n  463      deg2rad(deg){\n  464:         if(deg.constructor == Array){\n  465              var result = []\n  466              for (var i = 0; i<deg.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js:\n  109          canvasobj){\n  110  \n  111:         if(images.constructor == Array){\n  112                  // Iterate over the images in this frame and draw them all\n  113                  for (var i_image = 0; i_image<images.length; i_image++){\n  ...\n  238  \n  239  renderBlank(canvasobj){\n  240:     if (canvasobj.constructor != Array){\n  241          canvasobj = [canvasobj]\n  242      }\n  ...\n  323              t_durations = [t_durations]\n  324          }\n  325:         if(sequence.constructor != Array){\n  326              sequence = [sequence]\n  327          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   53          var loadMethods = []\n   54          var unpacked_imagebags = {}\n   55:         if (imagebags.constructor == Array){\n   56              // Unpack additional levels\n   57              for (var i in imagebags){\n   ..\n   67              }\n   68          }\n   69:         else if(imagebags.constructor == Object){\n   70              imagebags = [imagebags]\n   71              unpacked_imagebags = imagebags[0]\n   ..\n   81                  continue\n   82              }\n   83:             if (unpacked_imagebags[bagName].constructor == String){\n   84                  // Convert singletons\n   85                  unpacked_imagebags[bagName] = [unpacked_imagebags[bagName]]\n   ..\n  138          var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  139  \n  140:         if (task_sequence.constructor == Object){\n  141              task_sequence = [task_sequence]\n  142          }\n  ...\n  210              return undefined\n  211          }\n  212:         if(s.constructor!=String){\n  213              return 'literal'\n  214          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n   29               \n   30  \n   31:             if (this.imageBags[bag].constructor != Array){\n   32                  var idAlphabetized = [this.imageBags[bag]]\n   33              }\n   ..\n  134              var distractorBagIdx = np.choice(distractorBagIdxPool, nway-1, false)\n  135              var distractorBag = this.get_bag_from_idx(distractorBagIdx)\n  136:             if(distractorBag.constructor != Array){\n  137                  distractorBag = [distractorBag]\n  138              }\n  ...\n  211          var i = {}\n  212  \n  213:         if (bag_name.constructor == Array){\n  214              var _this = this\n  215              i['bag'] = bag_name.map(function(item){return _this.bag2idx[item]})\n  ...\n  228      get_bag_from_idx(bag_idx){\n  229          var i = []\n  230:         if(bag_idx.constructor == Array){\n  231              for (var j in bag_idx){\n  232                  i.push(this.idx2bag[bag_idx[j]])\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   96      async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98:             if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100                      await this.showMechanicalTurkInstructions(instructionsDialogueString)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n  111  \n  112      check_key_presence(testObject, necessaryKeyList){\n  113:         if(necessaryKeyList.constructor != Array){\n  114              necessaryKeyList = [necessaryKeyList]\n  115          }\n  ...\n  132      verify_environment(environment){\n  133          var verified = true \n  134:         if(environment.constructor!=Object){\n  135              verified = false\n  136          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n   71  \n   72  \n   73:     if(arr.constructor != Array){\n   74        arr = [arr]\n   75      }\n   ..\n  202    static iloc(arr, idx){\n  203      \n  204:     if(idx.constructor != Array){\n  205        return arr[idx]\n  206      }\n  ...\n  330    }\n  331  \n  332:   if(k1.constructor != Number || k2.constructor != Number){\n  333      return undefined \n  334    }\n\n25 matches across 8 files\n\n\nSearching 32 files for \"write_string\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n  122          var savePath = this.checkpointSavePath\n  123      }\n  124:     await this.DIO.write_string(checkpointString, savePath)\n  125      console.log('Saved checkpoint at', savePath, 'of size', memorySizeOf(checkpointString, 1))\n  126  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n  163          var savedMsecAgo = Math.round(performance.now() - this.lastSaveTimestamp)\n  164          this.lastSaveTimestamp = performance.now()\n  165:         await this.DIO.write_string(dataString, this.savePath)\n  166          console.log('Saved. Size:', memorySizeOf(dataString, 1), '(Last save', savedMsecAgo/1000,'sec ago):')\n  167          \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n   18      }\n   19  \n   20:     async write_string(savepath){\n   21  \n   22          return\n   ..\n  218          this.listdir = this._listdir.bind(this)\n  219          this.load_sound = this._load_sound.bind(this)\n  220:         this.write_string = this._write_string.bind(this)\n  221          this.read_textfile = this._read_textfile.bind(this)\n  222          this.load_image = this._load_image.bind(this)\n  ...\n  300      }\n  301  \n  302:     async _write_string(datastr, filepath){\n  303          try{\n  304              var response = await this.dbx.filesUpload({\n  ...\n  308          }\n  309          catch(error){\n  310:             console.log('DIO.write_string:', error)\n  311          }\n  312      }\n  ...\n  448      }\n  449  \n  450:     static async write_string(datastr, key){\n  451          if(datastr.constructor != String){\n  452              datastr = JSON.stringify(datastr)\n\n8 matches across 3 files\n\n\nSearching 32 files for \".constructor\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  449  \n  450      static async write_string(datastr, key){\n  451:         if(datastr.constructor != String){\n  452              datastr = JSON.stringify(datastr)\n  453          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n  411          // diameter degrees \n  412          // assume centered (center of diameter length at viewing normal to screen surface)\n  413:         if(degrees.constructor == Array){\n  414              var result = []\n  415              for (var i = 0; i<degrees.length; i++){\n  ...\n  426      deg2pixels(degrees){\n  427          // Return virtual pixels \n  428:         if(degrees.constructor == Array){\n  429              var result = []\n  430              for (var i = 0; i<degrees.length; i++){\n  ...\n  440  \n  441      xprop2pixels(xproportion){\n  442:         if(xproportion.constructor == Array){\n  443              var result = []\n  444              for (var i = 0; i<xproportion.length; i++){\n  ...\n  451  \n  452      yprop2pixels(yproportion){\n  453:         if(yproportion.constructor == Array){\n  454              var result = []\n  455              for (var i = 0; i<yproportion.length; i++){\n  ...\n  462  \n  463      deg2rad(deg){\n  464:         if(deg.constructor == Array){\n  465              var result = []\n  466              for (var i = 0; i<deg.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js:\n  109          canvasobj){\n  110  \n  111:         if(images.constructor == Array){\n  112                  // Iterate over the images in this frame and draw them all\n  113                  for (var i_image = 0; i_image<images.length; i_image++){\n  ...\n  238  \n  239  renderBlank(canvasobj){\n  240:     if (canvasobj.constructor != Array){\n  241          canvasobj = [canvasobj]\n  242      }\n  ...\n  323              t_durations = [t_durations]\n  324          }\n  325:         if(sequence.constructor != Array){\n  326              sequence = [sequence]\n  327          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   53          var loadMethods = []\n   54          var unpacked_imagebags = {}\n   55:         if (imagebags.constructor == Array){\n   56              // Unpack additional levels\n   57              for (var i in imagebags){\n   ..\n   67              }\n   68          }\n   69:         else if(imagebags.constructor == Object){\n   70              imagebags = [imagebags]\n   71              unpacked_imagebags = imagebags[0]\n   ..\n   81                  continue\n   82              }\n   83:             if (unpacked_imagebags[bagName].constructor == String){\n   84                  // Convert singletons\n   85                  unpacked_imagebags[bagName] = [unpacked_imagebags[bagName]]\n   ..\n  138          var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  139  \n  140:         if (task_sequence.constructor == Object){\n  141              task_sequence = [task_sequence]\n  142          }\n  ...\n  210              return undefined\n  211          }\n  212:         if(s.constructor!=String){\n  213              return 'literal'\n  214          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n   29               \n   30  \n   31:             if (this.imageBags[bag].constructor != Array){\n   32                  var idAlphabetized = [this.imageBags[bag]]\n   33              }\n   ..\n  134              var distractorBagIdx = np.choice(distractorBagIdxPool, nway-1, false)\n  135              var distractorBag = this.get_bag_from_idx(distractorBagIdx)\n  136:             if(distractorBag.constructor != Array){\n  137                  distractorBag = [distractorBag]\n  138              }\n  ...\n  211          var i = {}\n  212  \n  213:         if (bag_name.constructor == Array){\n  214              var _this = this\n  215              i['bag'] = bag_name.map(function(item){return _this.bag2idx[item]})\n  ...\n  228      get_bag_from_idx(bag_idx){\n  229          var i = []\n  230:         if(bag_idx.constructor == Array){\n  231              for (var j in bag_idx){\n  232                  i.push(this.idx2bag[bag_idx[j]])\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   96      async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98:             if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100                      await this.showMechanicalTurkInstructions(instructionsDialogueString)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n  111  \n  112      check_key_presence(testObject, necessaryKeyList){\n  113:         if(necessaryKeyList.constructor != Array){\n  114              necessaryKeyList = [necessaryKeyList]\n  115          }\n  ...\n  132      verify_environment(environment){\n  133          var verified = true \n  134:         if(environment.constructor!=Object){\n  135              verified = false\n  136          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n   71  \n   72  \n   73:     if(arr.constructor != Array){\n   74        arr = [arr]\n   75      }\n   ..\n  202    static iloc(arr, idx){\n  203      \n  204:     if(idx.constructor != Array){\n  205        return arr[idx]\n  206      }\n  ...\n  330    }\n  331  \n  332:   if(k1.constructor != Number || k2.constructor != Number){\n  333      return undefined \n  334    }\n\n25 matches across 8 files\n\n\nSearching 32 files for \"TrialGeneratorClass\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    5          this.taskSequence = gamePackage['TASK_SEQUENCE']\n    6  \n    7:         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])\n    8  \n    9          this.CheckPointer = CheckPointer\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n    1: class TrialGeneratorClass{\n    2      constructor(IB, imageBags, taskSequence, onFinish){\n    3          this.IB = IB \n\n2 matches across 2 files\n\n\nSearching 32 files for \"TaskStreamerClass\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    1: class TaskStreamerClass{\n    2      constructor(gamePackage, IB, CheckPointer){\n    3          this.game = gamePackage['GAME']\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   28    CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)\n   29    await CheckPointer.build()\n   30:   TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)\n   31    await TaskStreamer.build(5)\n   32    DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode']) \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   37     UX.updateSessionTextbox(SESSION['agentId'], GAME['gameId'])\n   38  \n   39:    TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)\n   40     wdm('Building taskstreamer...')\n   41     await TaskStreamer.build(5)\n\n3 matches across 3 files\n\n\nSearching 32 files for \".constructor\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  449  \n  450      static async write_string(datastr, key){\n  451:         if(datastr.constructor != String){\n  452              datastr = JSON.stringify(datastr)\n  453          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n  411          // diameter degrees \n  412          // assume centered (center of diameter length at viewing normal to screen surface)\n  413:         if(degrees.constructor == Array){\n  414              var result = []\n  415              for (var i = 0; i<degrees.length; i++){\n  ...\n  426      deg2pixels(degrees){\n  427          // Return virtual pixels \n  428:         if(degrees.constructor == Array){\n  429              var result = []\n  430              for (var i = 0; i<degrees.length; i++){\n  ...\n  440  \n  441      xprop2pixels(xproportion){\n  442:         if(xproportion.constructor == Array){\n  443              var result = []\n  444              for (var i = 0; i<xproportion.length; i++){\n  ...\n  451  \n  452      yprop2pixels(yproportion){\n  453:         if(yproportion.constructor == Array){\n  454              var result = []\n  455              for (var i = 0; i<yproportion.length; i++){\n  ...\n  462  \n  463      deg2rad(deg){\n  464:         if(deg.constructor == Array){\n  465              var result = []\n  466              for (var i = 0; i<deg.length; i++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js:\n  109          canvasobj){\n  110  \n  111:         if(images.constructor == Array){\n  112                  // Iterate over the images in this frame and draw them all\n  113                  for (var i_image = 0; i_image<images.length; i_image++){\n  ...\n  238  \n  239  renderBlank(canvasobj){\n  240:     if (canvasobj.constructor != Array){\n  241          canvasobj = [canvasobj]\n  242      }\n  ...\n  323              t_durations = [t_durations]\n  324          }\n  325:         if(sequence.constructor != Array){\n  326              sequence = [sequence]\n  327          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   53          var loadMethods = []\n   54          var unpacked_imagebags = {}\n   55:         if (imagebags.constructor == Array){\n   56              // Unpack additional levels\n   57              for (var i in imagebags){\n   ..\n   67              }\n   68          }\n   69:         else if(imagebags.constructor == Object){\n   70              imagebags = [imagebags]\n   71              unpacked_imagebags = imagebags[0]\n   ..\n   81                  continue\n   82              }\n   83:             if (unpacked_imagebags[bagName].constructor == String){\n   84                  // Convert singletons\n   85                  unpacked_imagebags[bagName] = [unpacked_imagebags[bagName]]\n   ..\n  138          var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  139  \n  140:         if (task_sequence.constructor == Object){\n  141              task_sequence = [task_sequence]\n  142          }\n  ...\n  210              return undefined\n  211          }\n  212:         if(s.constructor!=String){\n  213              return 'literal'\n  214          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n   29               \n   30  \n   31:             if (this.imageBags[bag].constructor != Array){\n   32                  var idAlphabetized = [this.imageBags[bag]]\n   33              }\n   ..\n  134              var distractorBagIdx = np.choice(distractorBagIdxPool, nway-1, false)\n  135              var distractorBag = this.get_bag_from_idx(distractorBagIdx)\n  136:             if(distractorBag.constructor != Array){\n  137                  distractorBag = [distractorBag]\n  138              }\n  ...\n  211          var i = {}\n  212  \n  213:         if (bag_name.constructor == Array){\n  214              var _this = this\n  215              i['bag'] = bag_name.map(function(item){return _this.bag2idx[item]})\n  ...\n  228      get_bag_from_idx(bag_idx){\n  229          var i = []\n  230:         if(bag_idx.constructor == Array){\n  231              for (var j in bag_idx){\n  232                  i.push(this.idx2bag[bag_idx[j]])\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   96      async run_instructions_dialogue(instructionsDialogueString){\n   97          if(instructionsDialogueString != undefined){\n   98:             if (instructionsDialogueString.constructor == String){\n   99                  if(instructionsDialogueString.length > 0){\n  100                      await this.showMechanicalTurkInstructions(instructionsDialogueString)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n  111  \n  112      check_key_presence(testObject, necessaryKeyList){\n  113:         if(necessaryKeyList.constructor != Array){\n  114              necessaryKeyList = [necessaryKeyList]\n  115          }\n  ...\n  132      verify_environment(environment){\n  133          var verified = true \n  134:         if(environment.constructor!=Object){\n  135              verified = false\n  136          }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n   71  \n   72  \n   73:     if(arr.constructor != Array){\n   74        arr = [arr]\n   75      }\n   ..\n  202    static iloc(arr, idx){\n  203      \n  204:     if(idx.constructor != Array){\n  205        return arr[idx]\n  206      }\n  ...\n  330    }\n  331  \n  332:   if(k1.constructor != Number || k2.constructor != Number){\n  333      return undefined \n  334    }\n\n25 matches across 8 files\n\n\nSearching 32 files for \"SessionBootStrapper\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  101  <script src=\"mkturk_Verifier.js\"></script>\n  102  \n  103: <script src=\"mkturk_SessionBootStrapper.js\" type=\"text/javascript\"></script>\n  104  <script src=\"mkturk_defaultHIT_failsafe.js\" type=\"text/javascript\"></script>\n  105  \n  ...\n  123  // Load inputs from local storage, web, or Dropbox.\n  124  wdm('Running bootstrapper...')\n  125: var SBS = new SessionBootStrapper() \n  126  var sessionPackage = await SBS.build()\n  127  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n    1: class SessionBootStrapper{\n    2      constructor(){\n    3          this.SIO = new S3_IO()\n    .\n  196  \n  197          else{\n  198:             console.log('SessionBootStrapper.download_from_string called with loadMethod', loadMethod, '; not supported')\n  199              return undefined\n  200          }\n  ...\n  224          }\n  225          else{\n  226:             console.log('SessionBootStrapper.infer_load_method could not infer for key', s, '; not supported')\n  227              return undefined\n  228          }\n\n5 matches across 2 files\n",
 			"settings":
 			{
-				"buffer_size": 23572,
+				"buffer_size": 61034,
 				"line_ending": "Unix",
 				"name": "Find Results",
 				"scratch": true
@@ -783,7 +782,7 @@
 			"file": "mkturk.html",
 			"settings":
 			{
-				"buffer_size": 10806,
+				"buffer_size": 10801,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -861,6 +860,7 @@
 	},
 	"file_history":
 	[
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_BiasDetection.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/unit_tests.js",
@@ -987,8 +987,7 @@
 		"/Users/michaellee/Dropbox (MIT)/MutantBakery/.gitignore",
 		"/Users/michaellee/Dropbox (MIT)/ModelTurk/SupervisedModels/test_tensorboard.py",
 		"/Users/michaellee/Dropbox (MIT)/ModelTurk/TaskStreams/Generator.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/NwayModels_TF.py",
-		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/XYRegressorsNull.py"
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/NwayModels_TF.py"
 	],
 	"find":
 	{
@@ -1007,6 +1006,20 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			".constructor",
+			"SessionBootStrapper",
+			".constructor",
+			"TaskStreamerClass",
+			"TrialGeneratorClass",
+			".constructor",
+			"write_string",
+			".constructor",
+			"constructor",
+			"SessionBootStrapper",
+			"new",
+			"setup_mechanicalturk_session",
+			"package_data",
+			"onfinish",
 			"juiceRewardPer1000Trials",
 			"JuiceReinforcer",
 			"juiceRewardPer1000Trials",
@@ -1120,21 +1133,7 @@
 			"run_instructions_dialogue",
 			"instruction",
 			"timeout",
-			"choiceTimeLimit",
-			"ENVIRONMENT",
-			"\":",
-			"GAME",
-			"head",
-			"recordTouchEvent",
-			"recordActionEvent",
-			"record",
-			"handleTouchEvent",
-			"recordTouchEvent",
-			"recordActionEvent",
-			"start_action_tracking",
-			"instructions",
-			"minimumTrials",
-			"criterion"
+			"choiceTimeLimit"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -1183,7 +1182,7 @@
 	"groups":
 	[
 		{
-			"selected": 7,
+			"selected": 9,
 			"sheets":
 			[
 				{
@@ -1213,7 +1212,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 25,
+					"stack_index": 28,
 					"type": "text"
 				},
 				{
@@ -1235,14 +1234,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"translate_tabs_to_spaces": false
 						},
@@ -1250,7 +1241,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
@@ -1280,7 +1271,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 24,
+					"stack_index": 27,
 					"type": "text"
 				},
 				{
@@ -1310,7 +1301,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 23,
+					"stack_index": 26,
 					"type": "text"
 				},
 				{
@@ -1340,7 +1331,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 22,
+					"stack_index": 25,
 					"type": "text"
 				},
 				{
@@ -1362,6 +1353,36 @@
 						],
 						"settings":
 						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 16,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "mkturk_DiskIO.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 13194,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								12998,
+								13010
+							]
+						],
+						"settings":
+						{
 							"WordCount":
 							{
 								"changes": -1,
@@ -1371,44 +1392,14 @@
 								"syntax": "javascript"
 							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "mkturk_DiskIO.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 13071,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4865,
-								4876
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 6973.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 21,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
@@ -1430,23 +1421,15 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 7708.0,
+						"translation.y": 7827.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
@@ -1468,21 +1451,13 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 12,
 					"type": "text"
 				},
 				{
@@ -1491,15 +1466,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 7395,
+						"buffer_size": 7459,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1145,
-								1145
+								2102,
+								2114
 							]
 						],
 						"settings":
@@ -1517,10 +1492,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 518.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -1602,15 +1577,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": 0,
-								"count": 117,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
 							"syntax": "Packages/HTML/HTML.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1619,7 +1585,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 18,
 					"type": "text"
 				},
 				{
@@ -1649,7 +1615,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 20,
+					"stack_index": 24,
 					"type": "text"
 				},
 				{
@@ -1700,14 +1666,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "css"
-							},
 							"syntax": "Packages/CSS/CSS.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1716,7 +1674,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 17,
 					"type": "text"
 				},
 				{
@@ -1738,14 +1696,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1754,7 +1704,7 @@
 						"translation.y": 88.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 20,
 					"type": "text"
 				},
 				{
@@ -1776,14 +1726,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
@@ -1792,7 +1734,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 19,
 					"type": "text"
 				},
 				{
@@ -1808,8 +1750,8 @@
 						"selection":
 						[
 							[
-								62,
-								62
+								1010,
+								1010
 							]
 						],
 						"settings":
@@ -1827,10 +1769,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 243.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 9,
 					"type": "text"
 				},
 				{
@@ -1852,14 +1794,6 @@
 						],
 						"settings":
 						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
@@ -1868,7 +1802,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 14,
 					"type": "text"
 				},
 				{
@@ -1898,7 +1832,7 @@
 						"translation.y": 387.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 19,
+					"stack_index": 23,
 					"type": "text"
 				},
 				{
@@ -1920,6 +1854,36 @@
 						],
 						"settings":
 						{
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 343.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
+					"type": "text"
+				},
+				{
+					"buffer": 22,
+					"file": "mkturk_TaskStreamer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7266,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6,
+								23
+							]
+						],
+						"settings":
+						{
 							"WordCount":
 							{
 								"changes": -1,
@@ -1933,40 +1897,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 343.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 22,
-					"file": "mkturk_TaskStreamer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7030,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2882,
-								2889
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 666.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 18,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -1982,19 +1916,29 @@
 						"selection":
 						[
 							[
-								2805,
-								2805
+								207,
+								207
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax"
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 26,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
@@ -2002,7 +1946,7 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 23572,
+						"buffer_size": 61034,
 						"regions":
 						{
 							"match":
@@ -2329,6 +2273,706 @@
 									[
 										22391,
 										22415
+									],
+									[
+										23820,
+										23828
+									],
+									[
+										24199,
+										24207
+									],
+									[
+										24420,
+										24428
+									],
+									[
+										24442,
+										24450
+									],
+									[
+										24479,
+										24487
+									],
+									[
+										24682,
+										24690
+									],
+									[
+										24903,
+										24911
+									],
+									[
+										25219,
+										25227
+									],
+									[
+										25376,
+										25384
+									],
+									[
+										25387,
+										25395
+									],
+									[
+										25513,
+										25521
+									],
+									[
+										25843,
+										25851
+									],
+									[
+										26140,
+										26148
+									],
+									[
+										26335,
+										26343
+									],
+									[
+										26557,
+										26565
+									],
+									[
+										26779,
+										26787
+									],
+									[
+										27058,
+										27070
+									],
+									[
+										27151,
+										27163
+									],
+									[
+										27306,
+										27318
+									],
+									[
+										27515,
+										27527
+									],
+									[
+										27726,
+										27738
+									],
+									[
+										28144,
+										28172
+									],
+									[
+										28399,
+										28427
+									],
+									[
+										28634,
+										28662
+									],
+									[
+										29033,
+										29044
+									],
+									[
+										29249,
+										29260
+									],
+									[
+										29476,
+										29487
+									],
+									[
+										29616,
+										29627
+									],
+									[
+										29778,
+										29789
+									],
+									[
+										29949,
+										29960
+									],
+									[
+										30120,
+										30131
+									],
+									[
+										30289,
+										30300
+									],
+									[
+										30478,
+										30489
+									],
+									[
+										30698,
+										30709
+									],
+									[
+										30779,
+										30790
+									],
+									[
+										30902,
+										30913
+									],
+									[
+										31026,
+										31037
+									],
+									[
+										31154,
+										31165
+									],
+									[
+										31359,
+										31370
+									],
+									[
+										31558,
+										31569
+									],
+									[
+										31863,
+										31874
+									],
+									[
+										32085,
+										32096
+									],
+									[
+										32284,
+										32295
+									],
+									[
+										32487,
+										32498
+									],
+									[
+										32669,
+										32680
+									],
+									[
+										32901,
+										32912
+									],
+									[
+										33144,
+										33155
+									],
+									[
+										33403,
+										33414
+									],
+									[
+										33542,
+										33553
+									],
+									[
+										33797,
+										33808
+									],
+									[
+										33969,
+										33980
+									],
+									[
+										34171,
+										34182
+									],
+									[
+										34376,
+										34387
+									],
+									[
+										34568,
+										34579
+									],
+									[
+										34798,
+										34809
+									],
+									[
+										35060,
+										35071
+									],
+									[
+										35239,
+										35250
+									],
+									[
+										35438,
+										35449
+									],
+									[
+										35552,
+										35563
+									],
+									[
+										35686,
+										35697
+									],
+									[
+										35702,
+										35713
+									],
+									[
+										35949,
+										35960
+									],
+									[
+										36120,
+										36131
+									],
+									[
+										36304,
+										36315
+									],
+									[
+										36477,
+										36488
+									],
+									[
+										36741,
+										36752
+									],
+									[
+										36948,
+										36959
+									],
+									[
+										37268,
+										37279
+									],
+									[
+										37435,
+										37446
+									],
+									[
+										37677,
+										37688
+									],
+									[
+										37891,
+										37902
+									],
+									[
+										37991,
+										38002
+									],
+									[
+										38151,
+										38162
+									],
+									[
+										38505,
+										38516
+									],
+									[
+										38791,
+										38802
+									],
+									[
+										39014,
+										39025
+									],
+									[
+										39227,
+										39238
+									],
+									[
+										39407,
+										39418
+									],
+									[
+										39539,
+										39550
+									],
+									[
+										39668,
+										39679
+									],
+									[
+										39773,
+										39784
+									],
+									[
+										39801,
+										39812
+									],
+									[
+										40081,
+										40093
+									],
+									[
+										40401,
+										40413
+									],
+									[
+										40623,
+										40635
+									],
+									[
+										40822,
+										40834
+									],
+									[
+										41025,
+										41037
+									],
+									[
+										41207,
+										41219
+									],
+									[
+										41452,
+										41464
+									],
+									[
+										41707,
+										41719
+									],
+									[
+										41879,
+										41891
+									],
+									[
+										42144,
+										42156
+									],
+									[
+										42336,
+										42348
+									],
+									[
+										42566,
+										42578
+									],
+									[
+										42857,
+										42869
+									],
+									[
+										43028,
+										43040
+									],
+									[
+										43246,
+										43258
+									],
+									[
+										43566,
+										43578
+									],
+									[
+										43733,
+										43745
+									],
+									[
+										43975,
+										43987
+									],
+									[
+										44338,
+										44350
+									],
+									[
+										44694,
+										44706
+									],
+									[
+										44907,
+										44919
+									],
+									[
+										45078,
+										45090
+									],
+									[
+										45207,
+										45219
+									],
+									[
+										45312,
+										45324
+									],
+									[
+										45340,
+										45352
+									],
+									[
+										45634,
+										45646
+									],
+									[
+										46030,
+										46042
+									],
+									[
+										46304,
+										46316
+									],
+									[
+										46500,
+										46512
+									],
+									[
+										46521,
+										46533
+									],
+									[
+										46718,
+										46730
+									],
+									[
+										46922,
+										46934
+									],
+									[
+										47026,
+										47038
+									],
+									[
+										47371,
+										47383
+									],
+									[
+										47691,
+										47703
+									],
+									[
+										47913,
+										47925
+									],
+									[
+										48112,
+										48124
+									],
+									[
+										48315,
+										48327
+									],
+									[
+										48497,
+										48509
+									],
+									[
+										48742,
+										48754
+									],
+									[
+										48997,
+										49009
+									],
+									[
+										49169,
+										49181
+									],
+									[
+										49434,
+										49446
+									],
+									[
+										49626,
+										49638
+									],
+									[
+										49856,
+										49868
+									],
+									[
+										50147,
+										50159
+									],
+									[
+										50318,
+										50330
+									],
+									[
+										50536,
+										50548
+									],
+									[
+										50856,
+										50868
+									],
+									[
+										51023,
+										51035
+									],
+									[
+										51265,
+										51277
+									],
+									[
+										51628,
+										51640
+									],
+									[
+										51984,
+										51996
+									],
+									[
+										52197,
+										52209
+									],
+									[
+										52368,
+										52380
+									],
+									[
+										52497,
+										52509
+									],
+									[
+										52602,
+										52614
+									],
+									[
+										52630,
+										52642
+									],
+									[
+										52939,
+										52958
+									],
+									[
+										53182,
+										53201
+									],
+									[
+										53448,
+										53465
+									],
+									[
+										53780,
+										53797
+									],
+									[
+										54167,
+										54184
+									],
+									[
+										54511,
+										54523
+									],
+									[
+										54831,
+										54843
+									],
+									[
+										55053,
+										55065
+									],
+									[
+										55252,
+										55264
+									],
+									[
+										55455,
+										55467
+									],
+									[
+										55637,
+										55649
+									],
+									[
+										55882,
+										55894
+									],
+									[
+										56137,
+										56149
+									],
+									[
+										56309,
+										56321
+									],
+									[
+										56574,
+										56586
+									],
+									[
+										56766,
+										56778
+									],
+									[
+										56996,
+										57008
+									],
+									[
+										57287,
+										57299
+									],
+									[
+										57458,
+										57470
+									],
+									[
+										57676,
+										57688
+									],
+									[
+										57996,
+										58008
+									],
+									[
+										58163,
+										58175
+									],
+									[
+										58405,
+										58417
+									],
+									[
+										58768,
+										58780
+									],
+									[
+										59124,
+										59136
+									],
+									[
+										59337,
+										59349
+									],
+									[
+										59508,
+										59520
+									],
+									[
+										59637,
+										59649
+									],
+									[
+										59742,
+										59754
+									],
+									[
+										59770,
+										59782
+									],
+									[
+										60052,
+										60071
+									],
+									[
+										60325,
+										60344
+									],
+									[
+										60491,
+										60510
+									],
+									[
+										60643,
+										60662
+									],
+									[
+										60869,
+										60888
 									]
 								],
 								"scope": ""
@@ -2337,16 +2981,16 @@
 						"selection":
 						[
 							[
-								19231,
-								19231
+								60494,
+								60494
 							]
 						],
 						"settings":
 						{
 							"WordCount":
 							{
-								"changes": 19,
-								"count": 1292,
+								"changes": 85,
+								"count": 2629,
 								"modified": false,
 								"selection": true,
 								"status": -1,
@@ -2354,7 +2998,7 @@
 							},
 							"detect_indentation": false,
 							"line_numbers": false,
-							"output_tag": 14,
+							"output_tag": 25,
 							"result_base_dir": "",
 							"result_file_regex": "^([^ \t].*):$",
 							"result_line_regex": "^ +([0-9]+):",
@@ -2363,10 +3007,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 8406.0,
+						"translation.y": 27149.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 2,
 					"type": "text"
 				},
 				{
@@ -2396,13 +3040,13 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 27,
+					"stack_index": 29,
 					"type": "text"
 				}
 			]
 		},
 		{
-			"selected": 2,
+			"selected": 3,
 			"sheets":
 			[
 				{
@@ -2418,38 +3062,8 @@
 						"selection":
 						[
 							[
-								3599,
-								3599
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1994.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 29,
-					"type": "text"
-				},
-				{
-					"buffer": 27,
-					"file": "mkturk_Playspace.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 21541,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								270,
-								270
+								3726,
+								3726
 							]
 						],
 						"settings":
@@ -2470,7 +3084,45 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 27,
+					"file": "mkturk_Playspace.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 21541,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								17782,
+								17782
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 6737.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
@@ -2486,8 +3138,8 @@
 						"selection":
 						[
 							[
-								0,
-								0
+								1846,
+								1846
 							]
 						],
 						"settings":
@@ -2506,7 +3158,7 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 171.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 10,
@@ -2518,23 +3170,23 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10806,
+						"buffer_size": 10801,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1487,
-								1487
+								6510,
+								6510
 							]
 						],
 						"settings":
 						{
 							"WordCount":
 							{
-								"changes": 0,
-								"count": 266,
+								"changes": 186,
+								"count": 274,
 								"modified": false,
 								"selection": false,
 								"status": -1,
@@ -2545,10 +3197,10 @@
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 464.0,
+						"translation.y": 302.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 15,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -2578,7 +3230,7 @@
 						"translation.y": 217.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 16,
+					"stack_index": 21,
 					"type": "text"
 				},
 				{
@@ -2608,7 +3260,7 @@
 						"translation.y": 45.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 17,
+					"stack_index": 22,
 					"type": "text"
 				},
 				{
@@ -2624,21 +3276,29 @@
 						"selection":
 						[
 							[
-								880,
-								880
+								5231,
+								5231
 							]
 						],
 						"settings":
 						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 878.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 28,
+					"stack_index": 7,
 					"type": "text"
 				}
 			]
@@ -2646,7 +3306,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 25.0
+		"height": 27.0
 	},
 	"input":
 	{
@@ -2672,7 +3332,7 @@
 		"cols":
 		[
 			0.0,
-			0.467681579589,
+			0.390133799885,
 			1.0
 		],
 		"rows":
@@ -2690,7 +3350,7 @@
 	"project": "ptap.sublime-project",
 	"replace":
 	{
-		"height": 46.0
+		"height": 50.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -2720,7 +3380,7 @@
 		],
 		"width": 404.0
 	},
-	"selected_group": 0,
+	"selected_group": 1,
 	"settings":
 	{
 	},

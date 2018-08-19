@@ -209,6 +209,7 @@
 
 #MechanicalTurkInstructionsSplash{
   display: table;
+  overflow-y: scroll;
   position: absolute;
    margin-top: 20%;
    height: 40%; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/

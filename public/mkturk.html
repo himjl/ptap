@@ -122,13 +122,13 @@ console.time('Done setting up')
 
 // Load inputs from local storage, web, or Dropbox.
 wdm('Running bootstrapper...')
-var SBS = new SessionBootStrapper()
+var SBS = new SessionBootStrapper() 
 var sessionPackage = await SBS.build()
 
 // Verify inputs
 wdm('Verifying inputs...')
 
-VF = new Verifier()
+VF = new Verifier() 
 sessionPackage = VF.verify_session_package(sessionPackage)
 console.log('sessionPackage', sessionPackage)
 // Construct session
@@ -140,6 +140,7 @@ if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
 else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
   var freturn = await setup_upstairs_session(sessionPackage)
 }
+// error must be happening before this point, "\"TypeError: Cannot read property 'constructor' of undefined\""
 // Unpack objects
 var TaskStreamer = freturn['TaskStreamer']
 var DataWriter = freturn['DataWriter']
@@ -155,7 +156,6 @@ DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TAS
 DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])
 DataWriter.deposit_key_data('SESSION', SESSION)
 DataWriter.deposit_key_data('IMAGEBAGS_MAPPING', TaskStreamer.TG.idx2bag)
-//DataWriter.deposit_key_data('IMAGEBAGS_PATH', SBS.get_imagebags_path()) // a compressed representation of imagebags
 DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log())
 DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log())
 

@@ -1,0 +1,822 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"tStati",
+				"tStatistic_criticalUb"
+			],
+			[
+				"tS",
+				"tStatistic_criticalLb"
+			],
+			[
+				"performance",
+				"performancePerBag"
+			],
+			[
+				"empirical",
+				"empiricalEffectSize"
+			],
+			[
+				"sumPer",
+				"sumPerformanceRest"
+			],
+			[
+				"perform",
+				"performancePerBag"
+			],
+			[
+				"perof",
+				"performancePerBag"
+			],
+			[
+				"infer",
+				"infer_load_method"
+			],
+			[
+				"is_",
+				"is_buffered"
+			],
+			[
+				"create",
+				"createBufferSource"
+			],
+			[
+				"punish",
+				"punish_sound"
+			],
+			[
+				"necess",
+				"necessaryKeyList"
+			],
+			[
+				"nec",
+				"necessaryKeyList"
+			],
+			[
+				"__",
+				"__TASK_SEQUENCE_GOES_HERE__"
+			],
+			[
+				"game",
+				"GAME"
+			],
+			[
+				"CheckPointer",
+				"CheckPointerClass"
+			],
+			[
+				"num",
+				"num_elements_in_cache"
+			],
+			[
+				"start",
+				"startsWith"
+			],
+			[
+				"Te",
+				"TERMINAL_STATE"
+			],
+			[
+				"debugCheck",
+				"debugCheckpointSavePath"
+			],
+			[
+				"generate",
+				"generate_default_checkpoint"
+			],
+			[
+				"term",
+				"TERMINAL_STATE"
+			],
+			[
+				"current",
+				"current_stage"
+			],
+			[
+				"distractorBag",
+				"distractorBagIdxPool"
+			],
+			[
+				"actionC",
+				"actionXCentroids"
+			],
+			[
+				"virtual",
+				"virtualPixelsPerInch"
+			],
+			[
+				"scren",
+				"screen_virtualPixelsPerInch"
+			],
+			[
+				"stimulus_objectome",
+				"stimulus_objectome_flute"
+			],
+			[
+				"stimulus",
+				"stimulus_objectome_pineapple"
+			],
+			[
+				"imageBags",
+				"check_imageBags"
+			],
+			[
+				"ycent",
+				"ycentroid_pixel"
+			],
+			[
+				"fixation",
+				"fixationRadius_pixel"
+			],
+			[
+				"last_fi",
+				"last_fixation_radius"
+			],
+			[
+				"last_",
+				"last_fixation_ycentroid"
+			],
+			[
+				"last_fix",
+				"last_fixation_xcentroid"
+			],
+			[
+				"last",
+				"last_fixation_radius"
+			],
+			[
+				"periodic_rewa",
+				"periodic_reward_interval"
+			],
+			[
+				"transition",
+				"transitionCriterionMet"
+			],
+			[
+				"_image",
+				"_image_cache"
+			],
+			[
+				"_b",
+				"_build_StateBags"
+			],
+			[
+				"worker_id",
+				"worker_id_encrypted"
+			],
+			[
+				"bonus_paid_",
+				"bonus_paid_unix_timestamp"
+			],
+			[
+				"bonus_amo",
+				"bonus_paid_amount_USD"
+			],
+			[
+				"Worker",
+				"WorkerID_encrypted"
+			],
+			[
+				"Assignment",
+				"AssignmentId"
+			],
+			[
+				"NUM_",
+				"TRIAL_NUMBER_FROM_SESSION_START"
+			],
+			[
+				"read",
+				"readAsArrayBuffer"
+			],
+			[
+				"current_trial",
+				"current_stage_trial_number"
+			],
+			[
+				"test_image",
+				"test_images_q"
+			],
+			[
+				"DBX",
+				"DBX_REDIRECT_URI_ROOT"
+			],
+			[
+				"Experim",
+				"ExperimentFilePath"
+			],
+			[
+				"curre",
+				"current_trial_outcome"
+			],
+			[
+				"get",
+				"get_juiceRequest_filepath"
+			],
+			[
+				"jucie",
+				"juiceChangeRequest"
+			],
+			[
+				"task",
+				"TASK_idx"
+			],
+			[
+				"TRIAL",
+				"TRIALDATA_SAVE_TIMEOUT_PERIOD_IN_SECONDS"
+			],
+			[
+				"need2",
+				"need2loadParameters"
+			],
+			[
+				"Current",
+				"CurrentAutomatorStage"
+			],
+			[
+				"Curre",
+				"CurrentAutomatorStage"
+			],
+			[
+				"num_train",
+				"num_train_per_obj"
+			],
+			[
+				"objA",
+				"objAobjB_2_negative_tasks_idx"
+			],
+			[
+				"im1obj",
+				"im1objB_2_negative_tasks_idx"
+			],
+			[
+				"objAobjB_2",
+				"objAobjB_2_positive_tasks_idx"
+			],
+			[
+				"obj0",
+				"obj0_is_correct_and_obj1_is_distractor_trial_idx"
+			],
+			[
+				"obj_2_is",
+				"obj_2_is_distractor_idx"
+			],
+			[
+				"tk_2_",
+				"tk_2_permuted_idx"
+			],
+			[
+				"random",
+				"random_state"
+			],
+			[
+				"c",
+				"c"
+			],
+			[
+				"x_novel",
+				"x_novel_embedded"
+			],
+			[
+				"x_support",
+				"x_support_embedded"
+			],
+			[
+				"drop",
+				"dropout_keep_prob"
+			],
+			[
+				"inverse",
+				"inverse_mapping"
+			],
+			[
+				"y_novel",
+				"y_novel_vectorized"
+			],
+			[
+				"int_label",
+				"int_label_space"
+			],
+			[
+				"y_support",
+				"y_support_vectorized"
+			],
+			[
+				"exemplars",
+				"exemplars_per_class_in_batch"
+			],
+			[
+				"exemplar",
+				"exemplars_per_class_in_batch"
+			],
+			[
+				"reuse",
+				"reuse_variables"
+			],
+			[
+				"embedde",
+				"embedded_x_support"
+			],
+			[
+				"embe",
+				"embedded_x_novel"
+			],
+			[
+				"image_resize",
+				"image_resize_dims"
+			],
+			[
+				"emb",
+				"embedded_support_set"
+			],
+			[
+				"checkpoin",
+				"checkpoint_path"
+			],
+			[
+				"check",
+				"checkpoint_path"
+			],
+			[
+				"image_resi",
+				"image_resize_dims"
+			],
+			[
+				"_train",
+				"_train_writer"
+			],
+			[
+				"num_obj",
+				"num_obj_dimensions"
+			],
+			[
+				"cell_state",
+				"cell_state"
+			],
+			[
+				"_predi",
+				"_predictor_constructor"
+			],
+			[
+				"_last",
+				"_lastinternalpreds"
+			],
+			[
+				"TaskStream",
+				"TaskStreamSampling_RNGseed"
+			],
+			[
+				"qval",
+				"qval_test"
+			],
+			[
+				"cheby",
+				"chebyshev_polynomials"
+			],
+			[
+				"j",
+				"j"
+			],
+			[
+				"_coef",
+				"_coef"
+			],
+			[
+				"_laststa",
+				"_last_state_val"
+			],
+			[
+				"_lastst",
+				"_last_state_val"
+			],
+			[
+				"regress",
+				"regression_variables"
+			],
+			[
+				"x_action",
+				"x_action_internal"
+			],
+			[
+				"state",
+				"state_b"
+			],
+			[
+				"_last_state",
+				"_last_state_b"
+			],
+			[
+				"sigma",
+				"sigma_grad_numerator"
+			],
+			[
+				"_laststate",
+				"_last_state_b"
+			],
+			[
+				"_lastact",
+				"_lastaction_value_predictions"
+			],
+			[
+				"_last_st",
+				"_last_state_val"
+			],
+			[
+				"_lastaction",
+				"_lastactionprob"
+			],
+			[
+				"_last_X",
+				"_last_X_mu"
+			],
+			[
+				"_policy",
+				"_policy_Xstdev_coef"
+			],
+			[
+				"len",
+				"len"
+			],
+			[
+				"_policy_X",
+				"_policy_Xmu_coef"
+			],
+			[
+				"num_exem",
+				"num_exemplars_per_obj"
+			],
+			[
+				"F",
+				"F"
+			],
+			[
+				"reward",
+				"reward_sigma_proportion"
+			],
+			[
+				"image",
+				"image_x"
+			],
+			[
+				"d",
+				"d"
+			],
+			[
+				"trial",
+				"trial_number"
+			],
+			[
+				"_acti",
+				"_action_2_internallabel_dict"
+			],
+			[
+				"_internal",
+				"_internallabels"
+			],
+			[
+				"_inte",
+				"_internallabels"
+			],
+			[
+				"_in",
+				"_internallabel_2_action_dict"
+			],
+			[
+				"pool",
+				"pool_objlabels"
+			],
+			[
+				"typ",
+				"typ"
+			],
+			[
+				"target",
+				"target_to_image_ratio"
+			],
+			[
+				"IMAGE",
+				"IMAGE_SCALE"
+			],
+			[
+				"Task",
+				"TaskStream_progressbar"
+			],
+			[
+				"_Task",
+				"_TaskStreamIDs"
+			],
+			[
+				"_summ",
+				"_summary_stats"
+			],
+			[
+				"base",
+				"base_agent_key"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"Package Control: c",
+				"Package Control: List Packages"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 428.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = 'df21e130d211cfc94d9b0905775a7c0f' + '1e3d39e33b79698005270310898eea76'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/michaellee/Dropbox (MIT)/ptap/public"
+	],
+	"file_history":
+	[
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_BiasDetection.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/unit_tests.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js",
+		"/Users/michaellee/.ipython/profile_default/startup/mil_standard_imports.ipy",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Zico_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Michaelo_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_window.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/InlabMTS_fromurl.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/Inlab_SR_bootstrap_from_dropbox.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/InlabMTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/inlabSR.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/MechanicalTurk_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/template_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/behaviorParsers/unpack_data.py",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/MechanicalTurk_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/template_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_SR_bootstrap_from_dropbox.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_pages/examples/Inlab_MTS.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_page_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_page_templates/landing_page_template_mechanicalturker.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/Zico_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/landing_page_templates/landing_page_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/Turkboy_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/Michaelo_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/Turker_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_amazon_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_verify_inputs.js",
+		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk_upstairs/GameResources/Games/6_Mutator.json",
+		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk_upstairs/GameResources/Game/6_MutatorSRTraining.json",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_input_schema.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_scratch.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_tutorial.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_eventlisteners.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_game.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_game.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_task.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_task.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Artist.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_AssetFetcher.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_canvas_business.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_artist.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_globalvariables.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/manual_setup.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_reinforcement.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_data_writer.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_runtrial.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_rewardmap.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_setup.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot.html",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_plotter.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_globals.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/liveplot_eventlisteners.js",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ScreenDisplayer.js",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/SRbehavior.json",
+		"/Users/michaellee/Dropbox (MIT)/ptap/docs/taskdefinition_format.json",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/MTSbehavior.json",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/SRmetrics.json",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/Transfer_MTS_SR/dataformat/MTShistory_format.json",
+		"/Users/michaellee/Dropbox (MIT)/ptap/upload_ptap_to_upstairs.py",
+		"/Users/michaellee/Dropbox (MIT)/ptap/upload_landingpages_to_upstairs.py",
+		"/Users/michaellee/Dropbox (MIT)/ptap/example/Michaelo_landing_page.html",
+		"/Users/michaellee/Dropbox (MIT)/MIT_Projects/FewShot/fewshot_behavioraldataformat.json",
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/setup_Ratan_task.js",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/README.md",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Generator/Generator.py",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/hellodropbox.html",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/MechanicalTurk_ExperimentDefinitions/misc_resources/Zico_learned_object_pool.json",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/MechanicalTurk_ExperimentDefinitions/misc_resources/Zico_novel_and_unrelated_object_pool.json",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/MechanicalTurk_ExperimentDefinitions/misc_resources/Zico_novel_object_pool.json",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/liveplot.html",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/StartTurkMonitor.py",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/sandbox_publish.py",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/write_landing_html.py",
+		"/Users/michaellee/Dropbox (MIT)/TurkMonitor/upload_mkturk_to_sandbox.py",
+		"/Users/michaellee/Dropbox (MIT)/DiCarloLab/ccn_notes_2017",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/seedrandom.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/deprecated/_deprecated_snippets.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/TabletTask_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/monkeyturk_setup.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/mkturk.html",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/liveplot_v2.html",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/_deprecated_snippets.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/mkturk_screenfunctions.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/mkturk_dropbox.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/experiment_flow.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/mkturk_automator.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/liveplot_utils.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/liveplot_googlecharts.js",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/mkturkmanifest.json",
+		"/Users/michaellee/Dropbox (MIT)/mkturk/public/readme.md",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/liveplot.html",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/liveplot_utils.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/liveplot_googlecharts.js",
+		"/Users/michaellee/Dropbox (MIT)/Apps/MonkeyTurk_mil_app/Subjects/SubjectCheckpoints/Michaelo_checkpoint.txt",
+		"/Users/michaellee/Dropbox (MIT)/Apps/MonkeyTurk_mil_app/Subjects/SubjectCheckpoints/Checkpoint_Michaelo.ckpt",
+		"/Users/michaellee/Dropbox (MIT)/Apps/MonkeyTurk_mil_app/Tasks/SubjectSettings/Michaelo_settings.txt",
+		"/Users/michaellee/Dropbox (MIT)/Apps/MonkeyTurk_mil_app/Tasks/SubjectParameters/Zico_params.txt",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_dropbox.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_hardware.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_utils.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_TrialQueue.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_installsettings.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_eventlisteners.js",
+		"/Users/michaellee/Dropbox (MIT)/Apps/MonkeyTurk_mil_app/test.txt",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_automator.js",
+		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_bluetooth.js",
+		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk/parameterfiles/subjects/Zico_params.txt",
+		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/BehavioralComparisons.py",
+		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/Analyses/BehavioralComparisons.py",
+		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/.git_ignore",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/SupervisedModels/SupervisedModel.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/PolicyGradContinuous.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/QLearningGaussianContinuous.pyc",
+		"/Volumes/mil/ModelTurk/SupervisedModels/OmniglotVinyals.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/SupervisedModels/VinyalsBaselineClassifier.py",
+		"/Volumes/mil/ModelTurk/Science/FewShotSupervised/RunBaselineClassifier.py",
+		"/Volumes/mil/ModelTurk/SupervisedModels/VinyalsBaselineClassifier.py",
+		"/Users/michaellee/Dropbox (MIT)/MutantBakery/.gitignore",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/SupervisedModels/test_tensorboard.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/TaskStreams/Generator.py",
+		"/Users/michaellee/Dropbox (MIT)/ModelTurk/Wedjat/NwayModels_TF.py"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 101.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": false,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 27.0
+	},
+	"input":
+	{
+		"height": 37.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "ptap.sublime-project",
+	"replace":
+	{
+		"height": 50.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 404.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 262.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+		"max_columns": 2
+	}
+}
