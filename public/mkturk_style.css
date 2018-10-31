@@ -22,6 +22,19 @@
   border-radius: 20px
 }
 
+#connectusb{
+  z-index:101; 
+  visibility:hidden; 
+  position: absolute; 
+  top: 45%; 
+  left: 20%; 
+  height: 50px; 
+  width: 20%; 
+  border-radius: 20px;
+  background-opacity:0.5;
+  color:white;
+  background-color:#305CC6;
+}
 
 #SyncButton{
   visibility:hidden; 

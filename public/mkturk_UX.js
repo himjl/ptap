@@ -20,6 +20,7 @@ class MonkeyUX extends UXclass{
         'mouseup',this.doneTestingTask_listener,false)
 
         connectBLEButtonPromise()
+        connectUSBButtonPromise()
     }
 
     async poll(trialOutcome){
