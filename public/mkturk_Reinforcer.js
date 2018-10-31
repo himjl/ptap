@@ -35,11 +35,13 @@ class JuiceReinforcer{
 
             var RewardDuration = nreward * this.setJuicerRewardDuration();
 
-            if(ble.connected == false){
-              return
-            }
-            else if (ble.connected == true){
+            if (ble.connected == true){
                 var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
+                return p2
+            }
+
+            if (port.connected == true){
+                var p2 = port.writepumpdurationtoUSB(Math.round(RewardDuration*1000))
                 return p2
             }
         }

@@ -70,7 +70,7 @@ if (event.type == "touchend" || event.type == "mouseup"){
     catch(error){
       console.log(error);
     }
-    waitforClick.next(1)
+    waitforClickUSB.next(1)
   }
 }
 
@@ -253,7 +253,7 @@ function connectUSBButtonPromise(){
     resolveFunc = resolve;
     errFunc = reject;
   }).then(function(resolveval){console.log('User clicked ' + resolveval)});
-  function *waitforclickGenerator(){
+  function *waitforclickGeneratorUSB(){
     var buttonclicked =[-1];
     while (true){
       buttonclicked = yield buttonclicked;
@@ -263,7 +263,7 @@ function connectUSBButtonPromise(){
       resolveFunc(buttonclicked);
     }
   }
-  waitforClick = waitforclickGenerator(); // start async function
-  waitforClick.next(); //move out of default state
+  waitforClickUSB = waitforclickGeneratorUSB(); // start async function
+  waitforClickUSB.next(); //move out of default state
   return p;
 }
