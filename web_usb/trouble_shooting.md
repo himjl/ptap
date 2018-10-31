@@ -36,4 +36,18 @@ Basically, this step writes a file called "chrome-command-line" with the string 
 
 4. Force stop your tablet's version of Chrome. 
 
-5. You should be done. To check, open up the tablet's Chrome's web console with remote debugging, and type in "navigator.usb" in teh console. It should return a USB object, not undefined. 
+5. You should be done. To check, open up the tablet's Chrome's web console with remote debugging, and type in "navigator.usb" in the console. It should return a USB object, not undefined. 
+
+
+
+# Installing ptap on a new android tablet
+
+On the tablet,
+1. Update Chrome to version 61+
+2. Turn on Remote USB debugging (https://www.phonearena.com/news/How-to-enable-USB-debugging-on-Android_id53909)
+3. Go to chrome://flags, turn on enable-command-line-on-non-rooted-devices.
+4. Go to chrome://flags, enable Experimental Web Platform Features, 
+5. activate experimental canvas features (where is this?)
+6. Deactivate the redirect on the ptap landing page 
+7. Add the landing page to your homescreen
+8. Done!
