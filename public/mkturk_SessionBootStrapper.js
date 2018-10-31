@@ -11,22 +11,24 @@ class SessionBootStrapper{
         // Retrieve landing page url from localstorage - no need to unpack further
         wdm('Retrieving LANDING_PAGE_URL...')
         unpackedSession['LANDING_PAGE_URL'] = await this.load_localstorage_string('LANDING_PAGE_URL')
-
+        console.log(unpackedSession['LANDING_PAGE_URL'])
         // Retrieve sessionPackage bootstraps from localstorage
         var sessionPackageBootstrapString = await this.load_localstorage_string('SESSION_PACKAGE')
-
+        console.log(sessionPackageBootstrapString)
         // Unpack sessionPackage
         wdm('Download_from_stringing SESSION_PACKAGE...')
+        //var sessionPackageBootstrapString = '/MonkeyTurk_upstairs/Subjects/Crypto_session.json' // TODO: fix on tablet (ee issue)
+  
         var sessionPackage = await this.download_from_string(sessionPackageBootstrapString)
-
+        console.log(sessionPackage)
         // Unpack elements of game package
         wdm('Unpacking GAME_PACKAGE...')
         var gamePackage = await this.unpack_game_package(sessionPackage['GAME_PACKAGE'])
-
+        console.log(gamePackage)
         // Unpack elements of environment
         wdm('Unpacking ENVIRONMENT...')
         var environment = await this.unpack_environment(sessionPackage['ENVIRONMENT'])
-
+        console.log(environment)
         // return
         unpackedSession['GAME_PACKAGE'] = gamePackage 
         unpackedSession['ENVIRONMENT'] = environment

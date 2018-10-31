@@ -1,0 +1,465 @@
+<!doctype html>
+
+<head>
+<meta name="mobile-web-app-capable" content="yes"> <!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+<script>
+
+function shuffle(array) {
+
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+class np{
+  static argclosest(arr, x){
+    // Returns index with minimum absolute difference 
+    // If there's a tie between two indices, return the lower index. 
+    var diffMagnitude = undefined 
+    var minIdx = 0
+
+    for (var i = 0; i < arr.length; i++){
+      diffMagnitude = Math.abs(arr[i] - x)
+      if (diffMagnitude < Math.abs(arr[minIdx] - x)){
+        minIdx = i 
+      }
+    }
+
+    return minIdx
+
+  }
+  static choice(arr, n, replace, p){
+    
+    if(n == undefined){
+      n = 1 
+    }
+
+    if(replace == undefined){
+      replace = true
+    }
+
+
+    if(arr.constructor != Array){
+      arr = [arr]
+    }
+
+    var L = arr.length
+    if((p == undefined) || (p.length != L)){
+      // Execute uniform 
+      p = []
+      
+      for (var i = 0; i < L; i ++){
+        p.push(1/L)
+      }
+    }
+
+    // Construct rejection sampling space
+    var ubs = []
+    
+    var region_ub = 0 
+    var region_width = 0
+    for (var i = 0; i < L; i++){
+      
+      if (p[i] == undefined){
+        region_width = 0
+      }
+      else{
+        region_width = p[i]
+      }
+      region_ub += region_width
+      ubs.push(region_ub)
+    }
+    var regionTotalWidth = ubs[ubs.length-1]
+    
+
+    var result = []
+    var locSample = 0
+
+    var whichSide = undefined
+    var iClosest = undefined 
+    var iSample = undefined 
+
+
+    for(var i = 0; i < n; i++){
+      locSample = Math.random() * regionTotalWidth
+
+      // Find closest entry 
+      iClosest = this.argclosest(ubs, locSample)
+
+      whichSide = locSample - ubs[iClosest]
+
+      if (whichSide > 0){
+
+        // Get the next nonzero width region
+        for (var j = iClosest + 1; j < ubs.length; j++){
+          if (ubs[j] != ubs[iClosest]){
+            iSample = j
+            break
+          }
+        }
+      }
+      else if(whichSide < 0){
+        iSample = iClosest
+      }
+      else if(whichSide == 0){
+        iSample = iClosest 
+      }
+      else{
+        console.log('Hmm....should not be here')
+        console.log(iSample, iClosest, whichSide)
+      }
+      result.push(arr[iSample])
+    }
+    
+    if(result.length == 1){
+      result = result[0]
+    }
+    
+    return result
+  }
+
+  static randn(mean, stdev) {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    var x = Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+    return x*stdev + mean
+}
+
+
+}
+// ******* The experimenter fills out SESSION_PACKAGE ********* 
+async function setupSession(){
+  
+  try{
+    SESSION_PACKAGE =  SESSION_PACKAGE = {
+  "ENVIRONMENT": {
+    "action_event_type": [
+      "mouseup", 
+      "touchstart", 
+      "touchmove"
+    ], 
+    "bonusUSDPerCorrect": 0.003, 
+    "instructionsDialogueString": null, 
+    "juiceRewardPer1000Trials": 250, 
+    "playspace_degreesVisualAngle": 24, 
+    "playspace_verticalOffsetInches": 0, 
+    "playspace_viewingDistanceInches": 12, 
+    "primary_reinforcer_type": "monetary", 
+    "rigEnvironment": "mechanicalturk", 
+    "screen_virtualPixelsPerInch": 143.755902965
+  }, 
+  "GAME_PACKAGE": {
+    "GAME": {
+      "gameId": "Capacity8", 
+      "maximumTrials": 250, 
+      "minimumTrials": 250, 
+      "onFinish": "terminate", 
+      "periodicRewardAmount": 0, 
+      "periodicRewardIntervalMsec": 0, 
+      "randomSeed": "none"
+    }, 
+    "IMAGEBAGS": [
+      "https://s3.amazonaws.com/milresources/ImageBagManifests/AbstractShapes/abstractShapes_imagebags.json", 
+      "https://s3.amazonaws.com/milresources/ImageBagManifests/MutatorB0/MutatorB0_FullVar_and_Canonical_imagebags.json"
+    ], 
+    "TASK_SEQUENCE": [
+      {
+        "actionDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 0.9, 
+        "choiceDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "choiceTimeLimitMsec": 5000, 
+        "choiceXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "blueDiamond": [
+            0, 
+            1
+          ], 
+          "orangeDiamond": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "blueDiamond", 
+          "orangeDiamond"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 200, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 0, 
+        "choiceDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "choiceTimeLimitMsec": 5000, 
+        "choiceXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "minTrialsCriterion": 100, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "null": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          null, 
+          null
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 200, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 0, 
+        "choiceDiameterDegrees": [
+          4, 
+          4
+        ], 
+        "choiceTimeLimitMsec": 5000, 
+        "choiceXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "minTrialsCriterion": 100, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "null": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          null, 
+          null
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 200, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }
+    ]
+  }}
+  }
+  catch(error){
+    console.log(error)
+    SESSION_PACKAGE = undefined
+  }
+
+  try{
+    // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
+    // Fill in for upstairs task; e.g. 'Zico'
+    agentId = __AGENTID_GOES_HERE__
+  }
+  catch(error){
+    console.log(error)
+    agentId = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+  }
+
+  // Randomly edit session package 
+  var sampleBagSpace = ['MutatorB0_FullVar_batch0obj45',
+                           'MutatorB0_FullVar_batch0obj46',
+                           'MutatorB0_FullVar_batch0obj49',
+                           'MutatorB0_FullVar_batch0obj51',
+                           'MutatorB0_FullVar_batch0obj66',
+                           'MutatorB0_FullVar_batch0obj67',
+                           'MutatorB0_FullVar_batch0obj73',
+                           'MutatorB0_FullVar_batch0obj90']
+  shuffle(sampleBagSpace)
+  var task0obj = [sampleBagSpace[0], sampleBagSpace[1]]
+  shuffle(sampleBagSpace)
+  var task1obj = [sampleBagSpace[0], sampleBagSpace[1]]
+  console.log(task0obj)
+  console.log(task1obj)
+
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj
+  
+  var rmap1 = {}
+  rmap1[task0obj[0]] = [0, 1]
+  rmap1[task0obj[1]] = [1, 0]
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1
+
+  var rmap2 = {}
+  rmap2[task1obj[0]] = [0, 1]
+  rmap2[task1obj[1]] = [1, 0]
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2
+
+  var switchMean = 100 // params of Gaussian distribution from which to switch
+  var switchStd = 10
+  var switchTrial = Math.round(np.randn(switchMean, switchStd))
+  console.log(switchTrial)
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial
+
+
+  var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}
+  await concludeLandingPage(localSavePackage)
+}
+
+</script>
+
+<script>
+// ******** Util functions ********
+async function concludeLandingPage(localSavePackage){
+    
+    SESSION_PACKAGE = localSavePackage['SESSION_PACKAGE']
+    agentId = localSavePackage['agentId']
+    LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL']
+
+    console.log('landing page url', window.location.href)
+
+    await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)))
+    await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
+    await localStorage.setItem('agentId', btoa(agentId))
+
+    console.log('All items stored. Redirecting...')
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    go_to_main_page()
+}
+
+function go_to_main_page(){
+  var currentURL = window.location.href 
+    if(currentURL.indexOf('localhost')!=-1){
+        window.location.href = '/public/mkturk.html?loadtime=' +Math.round(window.performance.timing.navigationStart)
+    }
+    else{
+      try{
+        s3_bucket = "ptapmechanicalturk"
+        window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
+      }
+      catch(error){
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
+      }
+        
+    }
+
+    
+}
+
+
+</script>
+
+
+<script>
+(async function(){
+    await setupSession();
+}
+)()
+</script>
+
+</head>
+
+<body>
+    Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. 
+</body>
+</html>

@@ -37,7 +37,7 @@ class TaskStreamerClass{
     }
     
     async build(num_trials_per_stage_to_prebuffer){
-
+        console.log(this.taskNumber)
         await this.TG.build(this.taskNumber, num_trials_per_stage_to_prebuffer)
     }
 

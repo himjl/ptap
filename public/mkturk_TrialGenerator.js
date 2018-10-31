@@ -61,10 +61,18 @@ class TrialGeneratorClass{
     async get_trial(taskNumber, bagSamplingWeights){
         this.taskNumber = taskNumber
         // Selects the imagebag for the trialPackage based on bagSamplingWeights (if supplied). 
+        // If user specified bagSamplingWeights in tk, then default to those. 
         // Otherwise, select among the bags with uniform probability. 
+
+
 
         // returns a trialPackage on demand
         var tk = this.taskSequence[taskNumber]
+
+        if (tk.hasOwnProperty('bagSamplingWeights')){
+            bagSamplingWeights = tk['bagSamplingWeights']
+        }
+        
         var sampleBagName = np.choice(tk['sampleBagNames'], 1, undefined, bagSamplingWeights)
 
         if (this.trialBuffer[taskNumber] == undefined){
@@ -79,7 +87,6 @@ class TrialGeneratorClass{
         }
 
         var tP = this.trialBuffer[taskNumber][sampleBagName].shift() // .shift() removes first element and returns
-
 
         return tP 
     }
@@ -115,6 +122,7 @@ class TrialGeneratorClass{
 
         // MTS - select choice
         else if(tk['taskType'] == 'MTS'){
+            console.log("MTS")
             var correctBag = np.choice(tk['choiceMap'][sampleBag])
             var correctPool = this.imageBags[correctBag]
             var correctId = np.choice(correctPool)
@@ -127,7 +135,11 @@ class TrialGeneratorClass{
                     //console.log(potentialSampleBag)
                     continue
                 }
-                distractorBagIdxPool.push(this.bag2idx[tk['choiceMap'][potentialSampleBag]])
+                console.log(potentialSampleBag)
+                console.log(tk['choiceMap'][potentialSampleBag])
+                var dbag = np.choice(tk['choiceMap'][potentialSampleBag]) // choose one of the associated choice bags associated with this distractor
+                
+                distractorBagIdxPool.push(this.bag2idx[dbag])
             }
 
             var nway = tk['choiceXCentroid'].length
@@ -154,7 +166,44 @@ class TrialGeneratorClass{
             var choiceIdx = this.get_image_idx(choiceBag, choiceId)
             var rewardMap = np.zeros(choiceId.length)
             rewardMap[choiceId.indexOf(correctId)] = 1 
+        }
+        else if(tk['taskType'] == 'MTS_choice_space'){
+            console.log("MTS_choice_space")
+            var choice1_map = tk['choiceMap'][sampleBag]['choice1']
+            var choice2_map = tk['choiceMap'][sampleBag]['choice2']
+            var choice1_space = []
+            var choice2_space = []
 
+            for (var potentialChoice1Bag in choice1_map){
+                choice1_space.push(potentialChoice1Bag)
+            }
+
+            for (var potentialChoice2Bag in choice2_map){
+                choice2_space.push(potentialChoice2Bag)
+            }
+
+            //console.log(choice1_space)
+            //console.log(choice2_space)
+
+            var choice1Bag = np.choice(choice1_space)
+            var choice2Bag = np.choice(choice2_space)
+            var choice1ImagePool = this.imageBags[choice1Bag]
+            var choice2ImagePool = this.imageBags[choice2Bag]
+
+            var choice1Id = np.choice(choice1ImagePool)
+            var choice2Id = np.choice(choice2ImagePool)
+
+            // Shuffle arrangement of choices
+            var choiceId = [choice1Id, choice2Id]
+            var choiceBag = [choice1Bag, choice2Bag]
+            var rewardMap = [choice1_map[choice1Bag], choice2_map[choice2Bag]]
+
+            var choice_shuffle = shuffle(np.arange(choiceId.length))
+            choiceId = np.iloc(choiceId, choice_shuffle)
+            choiceBag = np.iloc(choiceBag, choice_shuffle)
+            rewardMap = np.iloc(rewardMap, choice_shuffle)
+            var choiceIdx = this.get_image_idx(choiceBag, choiceId)
+            
         }
         
         // Construct image request 

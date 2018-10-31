@@ -75,7 +75,7 @@ class np{
     }
 
     var L = arr.length
-    if(p == undefined){
+    if((p == undefined) || (p.length != L)){
       // Execute uniform 
       p = []
       

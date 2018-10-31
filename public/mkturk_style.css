@@ -208,20 +208,19 @@
 
 
 #MechanicalTurkInstructionsSplash{
-  display: table;
-  overflow-y: scroll;
-  position: absolute;
-   margin-top: 20%;
-   height: 40%; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/
-   width:40%;
-   left: 50%;
-   margin-left:-20%; /* -1 * width/2 */
-   line-height:40%; /* https://stackoverflow.com/questions/8865458/how-do-i-vertically-center-text-with-css */
+  position:fixed;
+  top:50%;
+  left:50%;
+  height:500px;
+  width:500px;
+  transform:translate(-50%, -50%);
+  display: flex;
+  align-items:center;
+  flex-direction:column;
    font-size:14px; 
-   z-index:102;
+   z-index:103;
    font-family: 'Helvetica Neue';
    text-align: left;
-   vertical-align:middle;
    color:#4B4B4B;
    background-color:#E4E4E4;
    visibility:hidden;
@@ -231,42 +230,44 @@
    padding-right:1%;
    padding-left:1%;
 }
+
 #InstructionSplashText{
-  vertical-align: middle;
+  overflow-y:scroll;
+  z-index:103;
   line-height: normal;
-  margin-left:10px;
-  margin-right:10px;
-  width:20%;
+  width:90%;
   color:black;
 }
 
 #CloseInstructionsButton{
+
+  z-index:103;
    text-align:center;
-   width:30%; 
-   height:6%;
-   margin:0 auto; 
-   display:block;
+   width:100%; 
+   height:8%;
 }
 
+
 #MechanicalTurkCursorDeviceSelectionScreen{
-  display: table;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content:center;
+  align-items:center;
   position: absolute;
-   margin-top: 20%;
-   height: 30%; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/
-   width:40%;
+   height: 500px; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/
+   width:500px;
    left: 50%;
-   margin-left:-20%; /* -1 * width/2 */
-   line-height:40%; /* https://stackoverflow.com/questions/8865458/how-do-i-vertically-center-text-with-css */
+   top:50%;
+   transform:translate(-50%, -50%);
    font-size:14px; 
    z-index:102;
    font-family: 'Helvetica Neue';
-   text-align: left;
-   vertical-align:middle;
    color:#4B4B4B;
    background-color:#E4E4E4;
    visibility:hidden;
    border-radius:8px;
-   border-color:#E6E6E6;
+   border-width:3px;
+   border-color:#403f3f;
    border-style:solid;
 }
 
@@ -287,21 +288,27 @@
   border-style:solid;
   vertical-align:bottom; 
   margin-top:5%; 
-  margin-left:10%;
+  margin-left:5%;
   border-radius:8px; 
-  border-color:#ddd;
-  max-width:20%; 
-  height:auto
+  border-color:#e0dfdf;
+  width:20%; 
+  height:20%;
+  max-width:100%; 
+  max-height:100%
 }
 
+
 #MechanicalTurkHandSelectionScreen{
-  display: table;
+  display: flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  align-items:center;
   position: absolute;
-   margin-top: 20%;
-   height: 30%; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/
-   width:40%;
+   height: 500px; /* https://stackoverflow.com/questions/982054/how-to-center-html-element-in-browser-window*/
+   width:500px;
+   top:50%;
    left: 50%;
-   margin-left:-20%; /* -1 * width/2 */
+   transform:translate(-50%, -50%);
    line-height:40%; /* https://stackoverflow.com/questions/8865458/how-do-i-vertically-center-text-with-css */
    font-size:14px; 
    z-index:102;
@@ -316,24 +323,15 @@
    border-style:solid;
 }
 
-#HandSelectionSplashText{
-  line-height: normal;
-  vertical-align: bottom;
-  margin-left:15%;
-  margin-top:5%;
-  width:70%;
-  text-align:center;
-  color:black;
-}
+
 
 .HandButton:hover{
   box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
 }
+
 .HandButton{
   border-style:solid;
-  vertical-align:bottom; 
-  margin-top:5%; 
-  margin-left:10%;
+  vertical-align:bottom;
   border-radius:8px; 
   border-color:#ddd;
   max-width:35%; 

@@ -166,7 +166,6 @@ class PlaySpaceClass{
             var t_reinforcementOff = Math.round(performance.now()*1000)/1000
         }
         if(rewardAmount == undefined){
-            // Timeout
             rewardAmount = 0
             var t_reinforcementOn = Math.round(performance.now()*1000)/1000
             var t_reinforcementOff = Math.round(performance.now()*1000)/1000

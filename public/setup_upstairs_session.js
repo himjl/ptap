@@ -13,7 +13,7 @@ async function setup_upstairs_session(sessionPackage){
   SESSION['species'] = 'monkey'
   SESSION['url'] = window.location.href
   SESSION['landingPageURL'] = landingPageURL
-  SESSION['agentId'] = await LocalStorageIO.load_string('agentId')
+  SESSION['agentId'] = await LocalStorageIO.load_string('agentId') // todo: fix
 
   SESSION['unixTimestampPageLoad'] = window.performance.timing.navigationStart
 

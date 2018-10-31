@@ -51,8 +51,8 @@ async function setup_mechanicalturk_session(sessionPackage){
   // Convenience - if debugging on my machine, skip instructions etc. 
   if(window.location.href.indexOf('localhost')!=-1){
     var show_instructions = true
-    var show_hand_selection = false 
-    var show_device_selection = false 
+    var show_hand_selection = true 
+    var show_device_selection = true 
     var run_preview_mode = false
   }
   else{
