@@ -38,16 +38,27 @@ Basically, this step writes a file called "chrome-command-line" with the string 
 
 5. You should be done. To check, open up the tablet's Chrome's web console with remote debugging, and type in "navigator.usb" in the console. It should return a USB object, not undefined. 
 
+6. Also, check the startup flags listed in chrome://version to verify that this worked.
+
+
 
 
 # Installing ptap on a new android tablet
 
 On the tablet,
 1. Update Chrome to version 61+
+2. Turn off notifications.
 2. Turn on Remote USB debugging (https://www.phonearena.com/news/How-to-enable-USB-debugging-on-Android_id53909)
+3. Turn on 'stay-awake' under Developer OPtions
 3. Go to chrome://flags, turn on enable-command-line-on-non-rooted-devices.
 4. Go to chrome://flags, enable Experimental Web Platform Features, 
 5. activate experimental canvas features (where is this?)
 6. Deactivate the redirect on the ptap landing page 
 7. Add the landing page to your homescreen
+8. On the tablet, Install Caffeine; disable auto brightness adjustment
+9. Enable interaction control in Android Settings (search for accessibility -> dexterity and interaction) to disable the swipe-down gesture on the top menu bar and to disable hardware buttons (this enables the subject to exit out of the task), upon a simultaneous home-button + volume-down button press. You can do this at the beginning of each session. 
+10. Turn off "Use page predictions" in Chrome (optional?)
 8. Done!
+
+Troubleshooting: 
+Clear browsing data in Chrome

@@ -165,9 +165,6 @@ class MechanicalTurkCheckPointer extends CheckPointerClass{
     }
 
     async build(){
-        // Try loading checkpoint if it exists 
-        //this.checkpoint = await LocalStorageIO.load_string('ptap_checkpoint')
-
     }
 
     debug2record(){

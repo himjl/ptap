@@ -17,8 +17,8 @@ class ActionPollerClass{
         this.actionLog['y'] = []
         this.actionLog['type'] = []
 
-        this.eventType2eventCode = {'mousemove':'mmv', 'mouseup':'mclk', 'touchmove':'dg', 'touchstart':'tp'}
-        this.supportedEventTypes = ['mousemove', 'mouseup', 'touchmove', 'touchstart']
+        this.eventType2eventCode = {'mousemove':'mmv', 'mouseup':'mclk', 'touchmove':'dg', 'touchstart':'tp', "keypress":'k'}
+        this.supportedEventTypes = ['mousemove', 'mouseup', 'touchmove', 'touchstart', 'keypress']
 
         this.loggingActions = false
         this.listening = false
@@ -30,6 +30,7 @@ class ActionPollerClass{
 
         this.trackNullActions = false // todo: move into constructor
 
+        //this.key2actionIndex = {'f':0, 'j':1, ' ':-1}
 
         this.recordActionEvent = function(x, y, t, event_type){
             // Adds event to action log 
@@ -99,7 +100,7 @@ class ActionPollerClass{
             }
 
             var t = Math.round(performance.now() * 1000)/1000 
-            var actionIndex = _this.keyCode2actionIndex[event.keyCode]
+            var actionIndex = _this.key2actionIndex[event.key]
             if(actionIndex == undefined){
                 return
             }
@@ -177,11 +178,21 @@ class ActionPollerClass{
         }
     }
 
-    create_button_mappings(keyCode2actionIndex){
-        // keyCode2actionIndex: {ascii key code : action index}
-        this.keyCode2actionIndex = keyCode2actionIndex
+    create_button_mappings(key2actionIndex){
+        // key2actionIndex: {ascii key code : action index}
+        //https://keycode.info/
+        // f: 70
+        // j: 74
+        // <-: 37
+        // ->: 39
+        // ^: 38
+        // v: 40
+
+        this.key2actionIndex = key2actionIndex
         if(this.attached = false){
             // todo
+            this.add_event_listener()
+            this.attached = true 
         }
     }
 
@@ -232,6 +243,9 @@ class ActionPollerClass{
             }
             else if(event_types[i] == 'mousemove' || event_types[i] == 'mouseup'){
                 window.addEventListener(event_types[i], this.handleMouseEvent)
+            }
+            else if(event_types[i] == 'keypress'){
+                window.addEventListener(event_types[i], this.handleKeyPressEvent)
             }
             
             //console.log('Added ', event_types[i])

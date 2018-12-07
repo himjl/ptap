@@ -15,7 +15,6 @@ class PlaySpaceClass{
         this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet 
         this.playspaceSizeDegrees = playspace_degreesVisualAngle
         this.virtualPixelsPerInch = screen_virtualPixelsPerInch
-
         this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)
 
         var bounds = this.getPlayspaceBounds()    
@@ -119,6 +118,8 @@ class PlaySpaceClass{
             fixationYCentroidPixels,
             fixationDiameterPixels)
 
+        this.ActionPoller.create_button_mappings({' ':0})
+
         var t_fixationOn = await this.ScreenDisplayer.displayFixation()
         var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
 
@@ -134,6 +135,8 @@ class PlaySpaceClass{
             actionXCentroidPixels, 
             actionYCentroidPixels, 
             actionDiameterPixels)
+
+        this.ActionPoller.create_button_mappings({'f':0, 'j':1})
 
         if(trialPackage['choiceTimeLimitMsec'] > 0){
             var actionPromise = Promise.race([
@@ -483,7 +486,6 @@ class PlaySpaceClass{
             'fixationDiameterPixels':fixationDiameterPixels,
         }
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
-
 
         // BUFFER STIMULUS
         var stimulusXCentroidPixels = this.xprop2pixels(0.1 + 0.8 * Math.random())
