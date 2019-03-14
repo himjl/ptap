@@ -120,8 +120,13 @@ class PlaySpaceClass{
 
         this.ActionPoller.create_button_mappings({' ':0})
 
-        var t_fixationOn = await this.ScreenDisplayer.displayFixation()
-        var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
+        var t_fixationOn = {}
+        var fixationOutcome = {}
+        if (trialPackage['fixationDiameterDegrees'] > 0){
+            var t_fixationOn = await this.ScreenDisplayer.displayFixation()
+            var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()    
+        }
+        
 
         // RUN STIMULUS SEQUENCE
         wdm('Running stimulus...')

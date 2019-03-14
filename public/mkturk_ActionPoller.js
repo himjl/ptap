@@ -28,7 +28,7 @@ class ActionPollerClass{
         this.actionCentroids = []
         this.actionRadii = []
 
-        this.trackNullActions = false // todo: move into constructor
+        this.trackNullActions = true // todo: move into constructor
 
         //this.key2actionIndex = {'f':0, 'j':1, ' ':-1}
 

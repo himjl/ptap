@@ -114,10 +114,19 @@ class TrialGeneratorClass{
         // SR - use white dots 
         // TODO: use custom tokens 
         if (tk['taskType'] == 'SR'){
+            var choiceId = []
+            var choiceIdx = {'bag':[], 'id':[]}
+
+            if (this.taskSequence[taskNumber]['keepSampleOn'] == true){
+                choiceId.push(sampleId)
+                choiceIdx['bag'].push(sampleBag)
+                choiceIdx['id'].push(sampleIdx)
+            }
+
             var rewardMap = tk['rewardMap'][sampleBag]
-            var choiceId = rewardMap.map(function(entry){return 'dot'})
-            var choiceIdx = {'bag':np.nans(choiceId.length),
-                            'id':np.nans(choiceId.length)}
+            choiceId.push(... rewardMap.map(function(entry){return 'dot'}))
+            choiceIdx['bag'].push(... np.nans(choiceId.length))
+            choiceIdx['id'].push(... np.nans(choiceId.length))
         }
 
         // MTS - select choice

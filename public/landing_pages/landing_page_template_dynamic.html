@@ -8,26 +8,17 @@
 
 
 <script>
-
-function shuffle(array) {
-
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
 }
+
 class np{
   static argclosest(arr, x){
     // Returns index with minimum absolute difference 
@@ -167,18 +158,37 @@ async function setupSession(){
   }
 
   // Randomly edit session package 
-  var sampleBagSpace = ['MutatorB0_FullVar_batch0obj45',
-                           'MutatorB0_FullVar_batch0obj46',
-                           'MutatorB0_FullVar_batch0obj49',
-                           'MutatorB0_FullVar_batch0obj51',
-                           'MutatorB0_FullVar_batch0obj66',
-                           'MutatorB0_FullVar_batch0obj67',
-                           'MutatorB0_FullVar_batch0obj73',
+  
+  
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj7','MutatorB0_FullVar_batch0obj86',],
+                ['MutatorB0_FullVar_batch0obj29','MutatorB0_FullVar_batch0obj82',],
+                ['MutatorB0_FullVar_batch0obj34','MutatorB0_FullVar_batch0obj48',],
+                ['MutatorB0_FullVar_batch0obj65','MutatorB0_FullVar_batch0obj9',],
+                 ] //Alpha8
+                             
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj73','MutatorB0_FullVar_batch0obj46',],
+                ['MutatorB0_FullVar_batch0obj66','MutatorB0_FullVar_batch0obj45',],
+                ['MutatorB0_FullVar_batch0obj51','MutatorB0_FullVar_batch0obj67',],
+                ['MutatorB0_FullVar_batch0obj49','MutatorB0_FullVar_batch0obj90',],
+                 ] //Nightmare8
+
+
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj65','MutatorB0_FullVar_batch0obj9',],
+                ['MutatorB0_FullVar_batch0obj7','MutatorB0_FullVar_batch0obj86',],
+                 ] //Hard
+
+  var testTaskBagSpace = [ 'MutatorB0_FullVar_batch0obj49',
                            'MutatorB0_FullVar_batch0obj90']
-  shuffle(sampleBagSpace)
-  var task0obj = [sampleBagSpace[0], sampleBagSpace[1]]
-  shuffle(sampleBagSpace)
-  var task1obj = [sampleBagSpace[0], sampleBagSpace[1]]
+
+  shuffle(objPairs)
+  var op = objPairs[0]
+  shuffle(op)
+  var task0obj = [op[0], op[1]]
+  shuffle(testTaskBagSpace)
+  var task1obj = [testTaskBagSpace[0], testTaskBagSpace[1]]
   console.log(task0obj)
   console.log(task1obj)
 
