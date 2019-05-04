@@ -405,8 +405,6 @@ class PlaySpaceClass{
             console.log('Battery logging error:', error)
         }
 
-        
-
         // ******** Window resize ****
         this.deviceLog['window'] = {}
         this.deviceLog['window']['height'] = []
