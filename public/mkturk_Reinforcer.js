@@ -17,14 +17,21 @@ class MonetaryReinforcer{
 }
 
 
-
 class JuiceReinforcer{
-    constructor(juiceRewardPer1000){
+    constructor(juiceRewardPer1000, pumpNumber){
+
       if (juiceRewardPer1000 != undefined){
         this.juiceRewardPer1000 = juiceRewardPer1000  
       }
       else{
         this.juiceRewardPer1000 = 300
+      }
+
+      if (pumpNumber != undefined){
+        this.pumpNumber = pumpNumber
+      }
+      else{
+        this.pumpNumber = 1
       }
       
     }
@@ -33,15 +40,15 @@ class JuiceReinforcer{
 
         if(nreward >=1){
 
-            var RewardDuration = nreward * this.setJuicerRewardDuration();
+            var RewardDuration = nreward * this.setJuicerRewardDuration(); // msec
 
             if (ble.connected == true){
-                var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))
+                var p2 = writepumpdurationtoBLE(Math.round(RewardDuration))
                 return p2
             }
 
             if (port.connected == true){
-                var p2 = port.writepumpdurationtoUSB(Math.round(RewardDuration*1000))
+                var p2 = port.writepumpdurationtoUSB(Math.round(RewardDuration))
                 return p2
             }
         }
@@ -53,8 +60,8 @@ class JuiceReinforcer{
       var m = 0;
       var b = 0;
 
-      var pumpNumber = 1
-      var liquidNumber = 1
+      var pumpNumber = this.pumpNumber
+      //var liquidNumber = 1
       var rewardPer1000 = this.juiceRewardPer1000 
       if (pumpNumber == 1){
         // m = 1.13; b = 15.04;
@@ -82,7 +89,12 @@ class JuiceReinforcer{
           m=0.0550; b=0.6951; //water-condensed milk (50/50)
         }
       } //piezoelectric 7mL/min (takasago)
-      return (rewardPer1000 - b)/m/1000;
+      else if (pumpNumber == 7){
+        //Yosoo 6V DC DIY Dosing pump Peristaltic dosing Head
+        m = 1.08 // mL per second
+        b = 0.03 // extraneous mL per trigger
+      }
+      return (rewardPer1000 - b)/m; // in msec
       
     }
 }

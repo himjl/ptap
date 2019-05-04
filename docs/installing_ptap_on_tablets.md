@@ -42,6 +42,8 @@ Basically, this step writes a file called "chrome-command-line" with the string 
 
 
 
+# Disabling swipe down gesture
+"Enable interaction control in Android Settings (search for accessibility) to disable the swipe-down gesture on the top menu bar and to disable hardware buttons (this enables the subject to exit out of the task), upon a simultaneous home-button + volume-down button press. You can do this at the beginning of each session. "
 
 # Installing ptap on a new android tablet
 
@@ -49,7 +51,7 @@ On the tablet,
 1. Update Chrome to version 61+
 2. Turn off notifications.
 2. Turn on Remote USB debugging (https://www.phonearena.com/news/How-to-enable-USB-debugging-on-Android_id53909)
-3. Turn on 'stay-awake' under Developer OPtions
+3. Turn on 'stay-awake' under Developer Options
 3. Go to chrome://flags, turn on enable-command-line-on-non-rooted-devices.
 4. Go to chrome://flags, enable Experimental Web Platform Features, 
 5. activate experimental canvas features (where is this?)

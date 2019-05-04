@@ -136,8 +136,24 @@ class ScreenDisplayer{
             await this.drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixels, 'white', canvasobj)
             return
         }
+        if (image == 'dim_dot'){
+            await this.drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixels, 'white', canvasobj, 0.3)
+            return
+        }
         if(image == 'blank'){
             await this.renderBlank(canvasobj)
+            return
+        }
+        if (image == 'dot_f'){
+            await this.drawDotWithText(xcentroid_pixel, ycentroid_pixel, diameter_pixels, "white", canvasobj, 0.7, 'F')
+            return
+        }
+        if (image == 'dot_j'){
+            await this.drawDotWithText(xcentroid_pixel, ycentroid_pixel, diameter_pixels, "white", canvasobj, 0.7, 'J')
+            return
+        }
+        if (image == 'dot_space'){
+            await this.drawDotWithText(xcentroid_pixel, ycentroid_pixel, diameter_pixels, "white", canvasobj, 0.8, 'SPACEBAR')
             return
         }
 
@@ -184,15 +200,27 @@ async bufferFixation(fixationFramePackage){
         return 
     }
 
+
     await this.renderBlank(this.canvas_fixation)
 
-    // Draw touch initiation dot
-    await this.drawDot(
-                    xcentroid_pixel, 
-                    ycentroid_pixel, 
-                    fixationDiameter_pixels, 
-                    'white', 
-                    this.canvas_fixation)
+    if (fixationFramePackage['fixationSpacebarText'] == true){
+        // Keyboard mode
+        await this.drawDotWithText(xcentroid_pixel, ycentroid_pixel, fixationDiameter_pixels, 'white', this.canvas_fixation, 1, 'SPACEBAR')
+    }
+    else{
+        // Draw touch initiation dot
+        await this.drawDot(
+                        xcentroid_pixel, 
+                        ycentroid_pixel, 
+                        fixationDiameter_pixels, 
+                        'white', 
+                        this.canvas_fixation)
+    }
+
+   
+
+    
+    
 
     // Draw eye fixation dot 
     if(fixationFramePackage['drawEyeFixationDot'] == true){
@@ -226,14 +254,48 @@ async drawText(textString, fontSize, color, xcentroid_pixel, ycentroid_pixel, ca
 
 }
 
-async drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixel, color, canvasobj){
+async drawDotWithText(xcentroid_pixel, ycentroid_pixel, diameter_pixel, color, canvasobj, alpha, text){
     var context=canvasobj.getContext('2d');
+
+    // https://stackoverflow.com/questions/10487882/html5-change-opacity-of-a-draw-rectangle/17459193
+    if (alpha != undefined){
+        context.globalAlpha = alpha    
+    }
 
     context.beginPath();
     context.arc(xcentroid_pixel,ycentroid_pixel,diameter_pixel/2,0*Math.PI,2*Math.PI);
     context.fillStyle=color; 
     context.fill();
-}
+
+    var nLetters = text.length
+    var letterSize = Math.min((diameter_pixel) / (nLetters + 0.5) , 40)
+    context.font = letterSize.toString()+"px Arial"
+    context.fillStyle = "gray"
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    context.fillText(text, xcentroid_pixel, ycentroid_pixel)
+
+    // So further calls to this canvas context are not necessarily alpha'd out.
+    context.globalAlpha = 1
+}   
+
+async drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixel, color, canvasobj, alpha){
+    var context=canvasobj.getContext('2d');
+
+    // https://stackoverflow.com/questions/10487882/html5-change-opacity-of-a-draw-rectangle/17459193
+    if (alpha != undefined){
+        context.globalAlpha = alpha    
+    }
+
+    context.beginPath();
+    context.arc(xcentroid_pixel,ycentroid_pixel,diameter_pixel/2,0*Math.PI,2*Math.PI);
+    context.fillStyle=color; 
+    context.fill();
+
+    // So further calls to this canvas context are not necessarily alpha'd out.
+    context.globalAlpha = 1
+}   
+
 
 
 renderBlank(canvasobj){

@@ -64,11 +64,10 @@ class TrialGeneratorClass{
         // If user specified bagSamplingWeights in tk, then default to those. 
         // Otherwise, select among the bags with uniform probability. 
 
-
-
         // returns a trialPackage on demand
         var tk = this.taskSequence[taskNumber]
 
+        // Override correction loop if bagSamplingWeights supplied in gamePackage[TASK_SEQUENCE]
         if (tk.hasOwnProperty('bagSamplingWeights')){
             bagSamplingWeights = tk['bagSamplingWeights']
         }
@@ -114,6 +113,7 @@ class TrialGeneratorClass{
         // SR - use white dots 
         // TODO: use custom tokens 
         if (tk['taskType'] == 'SR'){
+            var rewardMap = tk['rewardMap'][sampleBag]
             var choiceId = []
             var choiceIdx = {'bag':[], 'id':[]}
 
@@ -121,12 +121,41 @@ class TrialGeneratorClass{
                 choiceId.push(sampleId)
                 choiceIdx['bag'].push(sampleBag)
                 choiceIdx['id'].push(sampleIdx)
+                var choiceDiameterDegreesDots = tk['choiceDiameterDegrees'].slice(1) // assume first one is for stimulus
+            }
+            else{
+                var choiceDiameterDegreesDots = tk['choiceDiameterDegrees']
             }
 
-            var rewardMap = tk['rewardMap'][sampleBag]
-            choiceId.push(... rewardMap.map(function(entry){return 'dot'}))
+            // Color dots, if specified in a task key "dotId"
+            if (tk['dotId'] != undefined){
+                var dotId = tk['dotId']
+                choiceId.push(... dotId)
+            }
+            else if (tk['dimDistractorButtons'] == true){
+                var dotCorrect = 'dot'
+                var dotDistractor = 'dim_dot'
+                
+                var maxRewardButtonIndex = np.argmax(rewardMap)
+                for (var i = 0; i < rewardMap.length; i++) {
+                    if (i == maxRewardButtonIndex){
+                        choiceId.push(dotCorrect)
+                    }
+                    else{
+                        choiceId.push(dotDistractor)
+                    }
+                }
+            }
+            else{
+                // Default to all white dots 
+                choiceId.push(... choiceDiameterDegreesDots.map(function(entry){return 'dot'}))    
+            }
+
+            
             choiceIdx['bag'].push(... np.nans(choiceId.length))
             choiceIdx['id'].push(... np.nans(choiceId.length))
+
+            
         }
 
         // MTS - select choice
@@ -233,7 +262,9 @@ class TrialGeneratorClass{
         tP['fixationYCentroid'] = tk['fixationYCentroid']
         tP['fixationDiameterDegrees'] = tk['fixationDiameterDegrees']
         tP['drawEyeFixationDot'] = tk['drawEyeFixationDot'] || false
+        tP['fixationSpacebarText'] = tk['fixationSpacebarText'] || false
 
+        tP['sampleBag'] = sampleBag
         tP['i_sampleBag'] = sampleIdx['bag']
         tP['i_sampleId'] = sampleIdx['id']
         tP['sampleXCentroid'] = tk['sampleXCentroid']
@@ -255,6 +286,8 @@ class TrialGeneratorClass{
         tP['choiceTimeLimitMsec'] = tk['choiceTimeLimitMsec'] 
         tP['punishTimeOutMsec'] = punishTimeOutMsec
         tP['rewardTimeOutMsec'] = tk['rewardTimeOutMsec']
+
+
 
         if(this.trialBuffer[taskNumber] == undefined){
             this.trialBuffer[taskNumber] = {}

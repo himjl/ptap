@@ -158,72 +158,60 @@ async function setupSession(){
   }
 
   // Randomly edit session package 
-  // Assign subject to one of six conditions, and one of two rewardmaps
   
-  // add imagebag 
-  // add samplebagNames for task 1 
-  // add rewardmap for task 1 and task 2 (consistent)
-  var condition_imagebags = [
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_ac_B0_4v8_imagebags.json',
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_ac_Shaping1_4v8_imagebags.json',
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_c_B0_4v8_imagebags.json',
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_c_Shaping1_4v8_imagebags.json',
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_r_B0_4v8_imagebags.json',
-                            'https://s3.amazonaws.com/milresources/ImageBagManifests/ShapingExperiments/4v8/Curric_r_Shaping1_4v8_imagebags.json']
-
-  var condition_objs = [
-                        ['Curric_ac_B0_batch0obj4', 'Curric_ac_B0_batch0obj8'],
-                        ['Curric_ac_Shaping1_batch0obj4', 'Curric_ac_Shaping1_batch0obj8'],
-                        ['Curric_c_B0_batch0obj4', 'Curric_c_B0_batch0obj8'],
-                        ['Curric_c_Shaping1_batch0obj4', 'Curric_c_Shaping1_batch0obj8'],
-                        ['Curric_r_B0_batch0obj4', 'Curric_r_B0_batch0obj8'],
-                        ['Curric_r_Shaping1_batch0obj4', 'Curric_r_Shaping1_batch0obj8'],
-                      ]
   
-  // Randomly sample condition
-  var subjectCondition = Math.floor(Math.random() * 6)
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj7','MutatorB0_FullVar_batch0obj86',],
+                ['MutatorB0_FullVar_batch0obj29','MutatorB0_FullVar_batch0obj82',],
+                ['MutatorB0_FullVar_batch0obj34','MutatorB0_FullVar_batch0obj48',],
+                ['MutatorB0_FullVar_batch0obj65','MutatorB0_FullVar_batch0obj9',],
+                 ] //Alpha8
+                             
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj73','MutatorB0_FullVar_batch0obj46',],
+                ['MutatorB0_FullVar_batch0obj66','MutatorB0_FullVar_batch0obj45',],
+                ['MutatorB0_FullVar_batch0obj51','MutatorB0_FullVar_batch0obj67',],
+                ['MutatorB0_FullVar_batch0obj49','MutatorB0_FullVar_batch0obj90',],
+                 ] //Nightmare8
+
+
+  var objPairs = [
+                ['MutatorB0_FullVar_batch0obj65','MutatorB0_FullVar_batch0obj9',],
+                ['MutatorB0_FullVar_batch0obj7','MutatorB0_FullVar_batch0obj86',],
+                 ] //Hard
+
+  var testTaskBagSpace = [ 'MutatorB0_FullVar_batch0obj49',
+                           'MutatorB0_FullVar_batch0obj90']
+
+  shuffle(objPairs)
+  var op = objPairs[0]
+  shuffle(op)
+  var task0obj = [op[0], op[1]]
+  shuffle(testTaskBagSpace)
+  var task1obj = [testTaskBagSpace[0], testTaskBagSpace[1]]
+  console.log(task0obj)
+  console.log(task1obj)
+
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj
   
-  // Add imagebag
-  SESSION_PACKAGE['GAME_PACKAGE']['IMAGEBAGS'].push(condition_imagebags[subjectCondition])
+  var rmap1 = {}
+  rmap1[task0obj[0]] = [0, 1]
+  rmap1[task0obj[1]] = [1, 0]
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1
 
-  // Add samplebag names for task 1
-  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = condition_objs[subjectCondition]
+  var rmap2 = {}
+  rmap2[task1obj[0]] = [0, 1]
+  rmap2[task1obj[1]] = [1, 0]
+  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2
 
-  var sessionObjs = condition_objs[subjectCondition]
-  // Add reward map for task 1 and 2 (consistent)
-  var rewardMapCondition = Math.round(Math.random())
-
-  var obj0 = sessionObjs[0]
-  var obj1 = sessionObjs[1]
-
-  if (rewardMapCondition == 1){
-    // set 1
-    var rmap_task1 = {}
-    rmap_task1[obj0] = [0, 1]
-    rmap_task1[obj1] = [1, 0]
-    var rmap_task2 = {'Curric_test_B0_batch0obj4':[0, 1],
-                      'Curric_test_B0_batch0obj8':[1, 0]}
-  }
-  else {
-    // set 2: 
-    var rmap_task1 = {}
-    rmap_task1[obj0] = [1, 0]
-    rmap_task1[obj1] = [0, 1]
-    var rmap_task2 = {'Curric_test_B0_batch0obj4':[1, 0],
-                      'Curric_test_B0_batch0obj8':[0, 1]}
-  }
-        
-  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap_task1
-  SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap_task2
-
-  // Randomize length of the curriculum  
-  // 10, 15, 20, 30, 40, 50, 100 trials
-  var lengths = [20, 50, 100]
-  var lengthCondition = Math.floor(Math.random() * lengths.length)
-  var switchTrial = lengths[lengthCondition]
-
+  var switchMean = 100 // params of Gaussian distribution from which to switch
+  var switchStd = 10
+  var switchTrial = Math.round(np.randn(switchMean, switchStd))
+  console.log(switchTrial)
   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial
   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial
+
 
   var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}
   await concludeLandingPage(localSavePackage)
@@ -268,7 +256,6 @@ function go_to_main_page(){
 
     
 }
-
 
 
 </script>

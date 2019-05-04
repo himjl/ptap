@@ -27,6 +27,10 @@ function wdm(s){
 }
 
 class np{
+  static argmax(array){
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1]; // (condition) ? expression on true : expression on false
+  }
+
   static mean(arr){
     var total = 0, i;
       for (i = 0; i < arr.length; i += 1) {

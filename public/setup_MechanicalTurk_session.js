@@ -52,13 +52,26 @@ async function setup_mechanicalturk_session(sessionPackage){
   if(window.location.href.indexOf('localhost')!=-1){
     var show_instructions = true
     var show_hand_selection = true 
-    var show_device_selection = true 
+    if (ENVIRONMENT['showDeviceSelectionSplash'] != undefined){
+      var show_device_selection = ENVIRONMENT['showDeviceSelectionSplash'] 
+    }
+    else{
+      var show_device_selection = true   
+    }
+    
     var run_preview_mode = false
   }
   else{
     var show_instructions = true
     var show_hand_selection = true 
-    var show_device_selection = true 
+    if (ENVIRONMENT['showDeviceSelectionSplash'] != undefined){
+      var show_device_selection = ENVIRONMENT['showDeviceSelectionSplash'] 
+    }
+    else{
+      var show_device_selection = true   
+    }
+    
+    
     if(SESSION['assignmentId'] == 'assignmentId_not_found'|| SESSION['assignmentId'] == 'ASSIGNMENT_ID_NOT_AVAILABLE'){
       var run_preview_mode = true
     }

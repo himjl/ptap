@@ -18,6 +18,18 @@ async get_by_name(filename){
 	if(filename == 'dot'){
 		return filename
 	}
+	if (filename == 'dim_dot'){
+		return filename
+	}
+	if (filename == 'dot_f'){
+		return filename
+	}
+	if (filename == 'dot_j'){
+		return filename
+	}
+	if (filename == 'dot_space'){
+		return filename
+	}
 
 	try{
 		// Requested image not in buffer. Add it, then return. 

@@ -1,6 +1,6 @@
 class PlaySpaceClass{
     constructor(playspacePackage){
-
+        var playspace_isFullScreen = playspacePackage['playspace_isFullScreen']
         var playspace_degreesVisualAngle = playspacePackage['playspace_degreesVisualAngle'] 
         var playspace_verticalOffsetInches = playspacePackage['playspace_verticalOffsetInches']
         var playspace_viewingDistanceInches = playspacePackage['playspace_viewingDistanceInches']
@@ -11,9 +11,11 @@ class PlaySpaceClass{
         var periodicRewardAmount = playspacePackage['periodicRewardAmount'] 
         var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'] 
         var juiceRewardPer1000 = playspacePackage['juiceRewardPer1000Trials']
+        var pumpNumber = playspacePackage['pumpNumber']
         this.viewingDistanceInches = playspace_viewingDistanceInches
         this.viewingOffsetInches = playspace_verticalOffsetInches // Todo: not implemented yet 
         this.playspaceSizeDegrees = playspace_degreesVisualAngle
+        this.playspace_isFullScreen = playspace_isFullScreen
         this.virtualPixelsPerInch = screen_virtualPixelsPerInch
         this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)
 
@@ -21,7 +23,7 @@ class PlaySpaceClass{
         this.ScreenDisplayer = new ScreenDisplayer(bounds)
         
         if (primary_reinforcer_type == 'juice'){
-            this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)
+            this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000, pumpNumber)
         }
         else if(
             primary_reinforcer_type == 'monetary' 
@@ -80,6 +82,7 @@ class PlaySpaceClass{
             'eyeFixationYCentroidPixels':sampleYCentroidPixels, 
             'eyeFixationDiameterPixels':Math.max(this.deg2pixels(0.2),4),
             'drawEyeFixationDot': trialPackage['drawEyeFixationDot'] || false, 
+            'fixationSpacebarText': trialPackage['fixationSpacebarText'] || false,
         }
         
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage)
@@ -216,6 +219,7 @@ class PlaySpaceClass{
         trialOutcome['tStatistic_criticalUb'] = TaskStreamer.tStatistic_criticalUb
         trialOutcome['tStatistic_criticalLb'] = TaskStreamer.tStatistic_criticalLb
 
+        trialOutcome['sampleBag'] = trialPackage['sampleBag']
         trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag']
         trialOutcome['i_sampleId'] = trialPackage['i_sampleId']
         trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag']
@@ -275,18 +279,31 @@ class PlaySpaceClass{
         var windowHeight = getWindowHeight()
         var windowWidth = getWindowWidth()
 
-        var screen_margin = 0.15
-        var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
+        if (this.playspace_isFullScreen == true){
 
-        var min_dimension = Math.min(max_allowable_playspace_dimension, this.playspaceSizePixels)
-        var min_dimension = Math.ceil(min_dimension)
+            bounds['height'] = windowHeight
+            bounds['width'] = windowWidth 
+            bounds['leftBound'] = 0//Math.floor((windowWidth - min_dimension)/2) // in units of window
+            bounds['rightBound'] = windowWidth//Math.floor(windowWidth-(windowWidth - min_dimension)/2)
+            bounds['topBound'] = 0//Math.floor((windowHeight - min_dimension)/2)
+            bounds['bottomBound'] = windowHeight//Math.floor(windowHeight-(windowHeight - min_dimension)/2)
+        }
+        else{
+            var screen_margin = 0.15
+            var max_allowable_playspace_dimension = Math.round(Math.min(windowHeight, windowWidth))*(1-screen_margin)
 
-        bounds['height'] = min_dimension
-        bounds['width'] = min_dimension 
-        bounds['leftBound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
-        bounds['rightBound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
-        bounds['topBound'] = Math.floor((windowHeight - min_dimension)/2)
-        bounds['bottomBound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
+            var min_dimension = Math.min(max_allowable_playspace_dimension, this.playspaceSizePixels)
+            var min_dimension = Math.ceil(min_dimension)
+
+            bounds['height'] = min_dimension
+            bounds['width'] = min_dimension 
+            bounds['leftBound'] = Math.floor((windowWidth - min_dimension)/2) // in units of window
+            bounds['rightBound'] = Math.floor(windowWidth-(windowWidth - min_dimension)/2)
+            bounds['topBound'] = Math.floor((windowHeight - min_dimension)/2)
+            bounds['bottomBound'] = Math.floor(windowHeight-(windowHeight - min_dimension)/2)
+        }
+
+        
 
         return bounds
     }

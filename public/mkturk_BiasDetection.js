@@ -87,6 +87,10 @@ function get_sampling_weights(sampleBagNames, idx2bag, viewingWindowWidth, retur
         var samplingWeights = np.xvec(numBags, 1 / numBags)
     }
 
+    if (sampleBagNames.length == 1){
+        var samplingWeights = [1]
+    }
+
     var r = {
         'samplingWeights':samplingWeights, 
         'empiricalEffectSize':empiricalEffectSize, 

@@ -83,7 +83,6 @@ class TaskStreamerClass{
         }
 
         
-
         var freturn = get_sampling_weights(tk['sampleBagNames'], this.TG.idx2bag, viewingWindowWidth, this.taskReturnHistory, this.taskBagHistory, performanceModulationFactor)
 
         this.bagSamplingWeights = freturn['samplingWeights']
@@ -96,6 +95,18 @@ class TaskStreamerClass{
         this.d = freturn['d']
         this.tStatistic_criticalUb = freturn['tStatistic_criticalUb']
         this.tStatistic_criticalLb = freturn['tStatistic_criticalLb']
+
+        if (tk['repeatSampleBagIfWrong'] != undefined){
+            if (tk['repeatSampleBagIfWrong'] == true){
+                // Indexes tk['sampleBagNames']
+                if (r < 1){
+                    var lastBag = current_trial_outcome['sampleBag']
+                    var lastBagIdx = tk['sampleBagNames'].indexOf(lastBag)
+                    this.bagSamplingWeights = np.xvec(tk['sampleBagNames'].length, 0) // probability = 1 of repeating last bag     
+                    this.bagSamplingWeights[lastBagIdx] = 1
+                }
+            }
+        }
 
         console.log(this.bagSamplingWeights)   
         console.log('t-statistic = ', freturn['tStatistic'], '. ', this.performancePerBag,'abcd = ', this.a, this.b, this.c, this.d)

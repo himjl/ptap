@@ -1,0 +1,1731 @@
+<!doctype html>
+
+<head>
+<meta name="mobile-web-app-capable" content="yes"> <!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+
+
+<script>
+// ******* The experimenter fills out SESSION_PACKAGE ********* 
+async function setupSession(){
+  
+  try{
+    SESSION_PACKAGE = {
+  "ENVIRONMENT": {
+    "action_event_type": [
+      "mouseup", 
+      "touchstart", 
+      "touchmove", 
+      "keypress"
+    ], 
+    "bonusUSDPerCorrect": 0.003, 
+    "instructionsDialogueString": "<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. Your task is to figure out whether to press the <b>\"F\" key or \"J\" key</b> based on the information in the images.<p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Press the <b>SPACEBAR</b> to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>", 
+    "juiceRewardPer1000Trials": 250, 
+    "playspace_degreesVisualAngle": 24, 
+    "playspace_verticalOffsetInches": 0, 
+    "playspace_viewingDistanceInches": 12, 
+    "primary_reinforcer_type": "monetary", 
+    "rigEnvironment": "mechanicalturk", 
+    "screen_virtualPixelsPerInch": 143.755902965, 
+    "showDeviceSelectionSplash": false
+  }, 
+  "GAME_PACKAGE": {
+    "GAME": {
+      "gameId": "World0_SR_sf1", 
+      "maximumTrials": 500, 
+      "minimumTrials": 500, 
+      "onFinish": "terminate", 
+      "periodicRewardAmount": 0, 
+      "periodicRewardIntervalMsec": 0, 
+      "randomSeed": "none"
+    }, 
+    "IMAGEBAGS": [
+      "https://s3.amazonaws.com/milresources/ImageBagManifests/AbstractShapes/abstractShapes_imagebags.json", 
+      "https://s3.amazonaws.com/milresources/ImageBagManifests/SR_Worlds/World0_IO_RB_imagebags.json"
+    ], 
+    "TASK_SEQUENCE": [
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 8, 
+        "choiceDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 5000, 
+        "choiceXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "blueDiamond": [
+            0, 
+            1
+          ], 
+          "orangeDiamond": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "blueDiamond", 
+          "orangeDiamond"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 200, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            1, 
+            0
+          ], 
+          "inside_red": [
+            0, 
+            1
+          ], 
+          "outside_blue": [
+            1, 
+            0
+          ], 
+          "outside_red": [
+            0, 
+            1
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }, 
+      {
+        "actionDiameterDegrees": [
+          2.5, 
+          2.5
+        ], 
+        "actionXCentroid": [
+          0.35, 
+          0.65
+        ], 
+        "actionYCentroid": [
+          0.8, 
+          0.8
+        ], 
+        "averageReturnCriterion": 1, 
+        "choiceDiameterDegrees": [
+          8, 
+          2.5, 
+          2.5
+        ], 
+        "choiceTimeLimitMsec": 10000, 
+        "choiceXCentroid": [
+          0.5, 
+          0.35, 
+          0.65
+        ], 
+        "choiceYCentroid": [
+          0.5, 
+          0.8, 
+          0.8
+        ], 
+        "dotId": [
+          "dot_f", 
+          "dot_j"
+        ], 
+        "drawEyeFixationDot": true, 
+        "fixationDiameterDegrees": 4, 
+        "fixationSpacebarText": true, 
+        "fixationXCentroid": 0.5, 
+        "fixationYCentroid": 0.8, 
+        "keepSampleOn": true, 
+        "minTrialsCriterion": 10, 
+        "probabilityRepeatWhenWrong": 0, 
+        "punishStreakTimeOutMultiplier": 1, 
+        "punishTimeOutMsec": 800, 
+        "rewardMap": {
+          "inside_blue": [
+            0, 
+            1
+          ], 
+          "inside_red": [
+            1, 
+            0
+          ], 
+          "outside_blue": [
+            0, 
+            1
+          ], 
+          "outside_red": [
+            1, 
+            0
+          ]
+        }, 
+        "rewardTimeOutMsec": 100, 
+        "sampleBagNames": [
+          "inside_blue", 
+          "outside_blue", 
+          "inside_red", 
+          "outside_red"
+        ], 
+        "sampleDiameterDegrees": 8, 
+        "sampleOffMsec": 0, 
+        "sampleOnMsec": 500, 
+        "sampleSampleWithReplacement": true, 
+        "sampleXCentroid": 0.5, 
+        "sampleYCentroid": 0.5, 
+        "taskType": "SR"
+      }
+    ]
+  }
+}
+  }
+  catch(error){
+    console.log(error)
+    SESSION_PACKAGE = undefined
+  }
+
+  try{
+    // Not necessary to fill out for mechanical turk; in that case the workerId is extracted from the URL suffix. 
+    // Fill in for upstairs task; e.g. 'Zico'
+    agentId = __AGENTID_GOES_HERE__
+  }
+  catch(error){
+    console.log(error)
+    agentId = 'unknown_agent_'+Math.round(window.performance.timing.navigationStart)
+  }
+
+  var localSavePackage = {'SESSION_PACKAGE':SESSION_PACKAGE, 'agentId':agentId, 'LANDING_PAGE_URL':window.location.href}
+  await concludeLandingPage(localSavePackage)
+}
+
+</script>
+
+<script>
+// ******** Util functions ********
+async function concludeLandingPage(localSavePackage){
+    
+    SESSION_PACKAGE = localSavePackage['SESSION_PACKAGE']
+    agentId = localSavePackage['agentId']
+    LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL']
+
+    console.log('landing page url', window.location.href)
+
+    await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)))
+    await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL))
+    await localStorage.setItem('agentId', btoa(agentId))
+
+    console.log('All items stored. Redirecting...')
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    go_to_main_page()
+}
+
+function go_to_main_page(){
+  var currentURL = window.location.href 
+    if(currentURL.indexOf('localhost')!=-1){
+        window.location.href = '/public/mkturk.html?loadtime=' +Math.round(window.performance.timing.navigationStart)
+    }
+    else{
+      try{
+        s3_bucket = "ptapmechanicalturk"
+        window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
+      }
+      catch(error){
+        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
+      }
+        
+    }
+
+    
+}
+
+
+</script>
+
+
+<script>
+(async function(){
+    await setupSession();
+}
+)()
+</script>
+
+</head>
+
+<body>
+    Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. 
+</body>
+</html>

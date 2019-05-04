@@ -41,10 +41,8 @@ class ActionPollerClass{
                 this.actionLog['x'].push(x)
                 this.actionLog['y'].push(y)
                 this.actionLog['type'].push(this.eventType2eventCode[event_type])
-
             }
         }
-
 
         this.handleActionEvent = function(x, y, t, event_type){
             
@@ -89,7 +87,7 @@ class ActionPollerClass{
             var t = Math.round(performance.now()*1000)/1000
             var x = event.targetTouches[0].pageX - _this.leftBound
             var y = event.targetTouches[0].pageY - _this.topBound
-            //_this.recordActionEvent(x, y, t, event.type)
+            _this.recordActionEvent(x, y, t, event.type)
             _this.handleActionEvent(x, y, t, event.type)
             
         }  

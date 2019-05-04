@@ -49,7 +49,9 @@ async function setup_upstairs_session(sessionPackage){
     'periodicRewardIntervalMsec':GAME['periodicRewardIntervalMsec'], 
     'periodicRewardAmount':GAME['periodicRewardAmount'], 
     'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'],
-    'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}
+    'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials'], 
+    'playspace_isFullScreen':ENVIRONMENT['playspace_isFullScreen'], 
+    'pumpNumber':ENVIRONMENT['pumpNumber']}
   
     wdm('Building playspace...')
    Playspace = new PlaySpaceClass(playspacePackage)

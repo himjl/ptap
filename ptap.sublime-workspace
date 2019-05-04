@@ -4,6 +4,14 @@
 		"selected_items":
 		[
 			[
+				"pump",
+				"pumpNumber"
+			],
+			[
+				"SHOW",
+				"showDeviceSelectionSplash"
+			],
+			[
 				"fixationDiameter",
 				"fixationDiameterDegrees"
 			],
@@ -506,14 +514,6 @@
 			[
 				"typ",
 				"typ"
-			],
-			[
-				"target",
-				"target_to_image_ratio"
-			],
-			[
-				"IMAGE",
-				"IMAGE_SCALE"
 			]
 		]
 	},
@@ -523,16 +523,7 @@
 			"file": "public/mkturk_ActionPoller.js",
 			"settings":
 			{
-				"buffer_size": 10334,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "public/mkturk_Playspace.js",
-			"settings":
-			{
-				"buffer_size": 21793,
+				"buffer_size": 10330,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -541,7 +532,43 @@
 			"file": "public/mkturk_ScreenDisplayer.js",
 			"settings":
 			{
-				"buffer_size": 17435,
+				"buffer_size": 19669,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_Playspace.js",
+			"settings":
+			{
+				"buffer_size": 22764,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_TrialGenerator.js",
+			"settings":
+			{
+				"buffer_size": 14393,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_utils.js",
+			"settings":
+			{
+				"buffer_size": 10936,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_ImageBuffer.js",
+			"settings":
+			{
+				"buffer_size": 6317,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -550,15 +577,7 @@
 			"file": "public/mkturk_TaskStreamer.js",
 			"settings":
 			{
-				"buffer_size": 7302,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "public/mkturk_TrialGenerator.js",
-			"settings":
-			{
-				"buffer_size": 13086,
+				"buffer_size": 7867,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -572,13 +591,81 @@
 			}
 		},
 		{
-			"contents": "Searching 56 files for \"ActionPollerClass\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js:\n    1: class ActionPollerClass{\n    2      constructor(event_types, bounds){\n    3          // ['mousemove', 'touchmove', 'touchstart', 'onclick']\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   32          }\n   33  \n   34:         this.ActionPoller = new ActionPollerClass(action_event_type, bounds)\n   35          this.SoundPlayer = new SoundPlayerClass()\n   36          this.periodicRewardIntervalMsec = periodicRewardIntervalMsec \n\n2 matches across 2 files\n\n\nSearching 56 files for \"task_sequence\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  154  wdm('Attaching static data probes...')\n  155  DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])\n  156: DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])\n  157  DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])\n  158  DataWriter.deposit_key_data('SESSION', SESSION)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n   13          \"randomSeed\":undefined,\n   14          }, \n   15: 'TASK_SEQUENCE':[{\n   16                  \"taskType\":\"SR\", // MTS\n   17                  \"sampleBagNames\":['stimulus_objectome_airplane', 'stimulus_objectome_ant'], \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   43          unpackedGame['IMAGEBAGS'] = await this.unpack_imagebags(gamePackage['IMAGEBAGS'])\n   44          unpackedGame['GAME'] = await this.unpack_game(gamePackage['GAME'])\n   45:         unpackedGame['TASK_SEQUENCE'] = await this.unpack_task_sequence(gamePackage['TASK_SEQUENCE'])\n   46  \n   47          return unpackedGame\n   ..\n  134  \n  135  \n  136:     async unpack_task_sequence(task_sequence_bootstrap){\n  137  \n  138:         console.log('Loading task_sequence')\n  139  \n  140:         var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  141  \n  142:         if (task_sequence.constructor == Object){\n  143:             task_sequence = [task_sequence]\n  144          }\n  145  \n  146:         this.bootstrapLog['TASK_SEQUENCE'] = {}\n  147:         this.bootstrapLog['TASK_SEQUENCE']['loadMethod'] = this.infer_load_method(task_sequence_bootstrap)\n  148:         return task_sequence\n  149  \n  150  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    3          this.game = gamePackage['GAME']\n    4          this.imageBags = gamePackage['IMAGEBAGS']\n    5:         this.taskSequence = gamePackage['TASK_SEQUENCE']\n    6  \n    7:         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])\n    8  \n    9          this.CheckPointer = CheckPointer\n   ..\n  149                  var onFinish = this.game['onFinish']\n  150                  if(onFinish == 'loop'){\n  151:                     console.log('Reached end of TASK_SEQUENCE: looping')\n  152                      nextTaskNumber = 0\n  153                  }\n  154                  else if(onFinish == 'terminate'){\n  155:                     console.log('Reached end of TASK_SEQUENCE: terminating')\n  156                      this.TERMINAL_STATE = true \n  157                  }\n  158                  else if(onFinish == 'continue'){\n  159:                     console.log('Reached end of TASK_SEQUENCE: continuing')\n  160                      this.monitoring = false\n  161                      nextTaskNumber = this.taskNumber\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n    7          this.verificationLog['GAME_hash'] = undefined \n    8          this.verificationLog['ENVIRONMENT_hash'] = undefined \n    9:         this.verificationLog['TASK_SEQUENCE_hash'] = undefined \n   10      }\n   11      verify_session_package(sessionPackage){\n   ..\n   30          this.verificationLog['GAME_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['GAME']).hashCode()\n   31          this.verificationLog['IMAGEBAGS_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['IMAGEBAGS']).hashCode()\n   32:         this.verificationLog['TASK_SEQUENCE_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']).hashCode()\n   33          return sessionPackage\n   34      }\n   ..\n   48              'IMAGEBAGS', \n   49              'GAME', \n   50:             'TASK_SEQUENCE']\n   51  \n   52          var missing_keys = this.check_key_presence(gamePackage, necessary_keys)\n   ..\n   59  \n   60          // TODO\n   61:         if(gamePackage['TASK_SEQUENCE'].length == 0){\n   62              return false\n   63          }\n   ..\n   65          // Perform a cursory check of each task that they have the correct key names\n   66          var necessary_keys = []\n   67:         for (var k in DEFAULT_HIT['TASK_SEQUENCE'][0]){\n   68:             if(!DEFAULT_HIT['TASK_SEQUENCE'].hasOwnProperty(k)){\n   69                  continue\n   70              }\n   ..\n   76          }\n   77  \n   78:         for (var taskNumber in gamePackage['TASK_SEQUENCE']){\n   79:             var tk = gamePackage['TASK_SEQUENCE'][taskNumber]\n   80              \n   81              var missing_keys = this.check_key_presence(tk, necessary_keys)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n    4    GAME = GAME_PACKAGE['GAME']\n    5    IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']\n    6:   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']\n    7  \n    8    ENVIRONMENT = sessionPackage['ENVIRONMENT'] \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n    4    GAME = GAME_PACKAGE['GAME']\n    5    IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']\n    6:   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']\n    7    \n    8    ENVIRONMENT = sessionPackage['ENVIRONMENT'] \n    .\n   29  \n   30     wdm('Starting checkpointer...')\n   31:    CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)\n   32     await CheckPointer.build()\n   33  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/task_specification.json:\n   53      \"bonusUSDPerCorrect\":0},\n   54  \n   55: \"TASK_SEQUENCE\":{\n   56      \n   57  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/landing_page_template_dynamic.html:\n  183    console.log(task1obj)\n  184  \n  185:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  186:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  187    \n  188    var rmap1 = {}\n  189    rmap1[task0obj[0]] = [0, 1]\n  190    rmap1[task0obj[1]] = [1, 0]\n  191:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1\n  192  \n  193    var rmap2 = {}\n  194    rmap2[task1obj[0]] = [0, 1]\n  195    rmap2[task1obj[1]] = [1, 0]\n  196:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2\n  197  \n  198    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  200    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  201    console.log(switchTrial)\n  202:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  203:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  204  \n  205  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n   38          }, \n   39          \"IMAGEBAGS\": \"https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json\", \n   40:         \"TASK_SEQUENCE\": [\n   41              {\n   42                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n   45                        \"https://s3.amazonaws.com/milresources/ImageBagManifests/objectome_imagebags.json\"\n   46                      ], \n   47:                     \"TASK_SEQUENCE\": [\n   48                        {\n   49                          \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n   44                        \"https://s3.amazonaws.com/milresources/ImageBagManifests/objectome_imagebags.json\"\n   45                      ], \n   46:                     \"TASK_SEQUENCE\": [\n   47                        {\n   48                          \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n  181        \"https://s3.amazonaws.com/milresources/ImageBagManifests/MutatorB0/MutatorB0_FullVar_and_Canonical_imagebags.json\"\n  182      ], \n  183:     \"TASK_SEQUENCE\": [\n  184        {\n  185          \"actionDiameterDegrees\": [\n  ...\n  383    console.log(task1obj)\n  384     \n  385:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  386:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  387    \n  388  \n  389    \n  390:   //SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = {task0obj[0]:[0, 1], task0obj[1]:[1, 0]}\n  391:   //SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = {task1obj[0]:[0, 1], task1obj[1]:[1, 0]}\n  392  \n  393    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  395    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  396    console.log(switchTrial)\n  397:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  398:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  399  \n  400  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n  181        \"https://s3.amazonaws.com/milresources/ImageBagManifests/MutatorB0/MutatorB0_FullVar_and_Canonical_imagebags.json\"\n  182      ], \n  183:     \"TASK_SEQUENCE\": [\n  184        {\n  185          \"actionDiameterDegrees\": [\n  ...\n  382    console.log(task1obj)\n  383  \n  384:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  385:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  386    \n  387    var rmap1 = {}\n  388    rmap1[task0obj[0]] = [0, 1]\n  389    rmap1[task0obj[1]] = [1, 0]\n  390:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1\n  391  \n  392    var rmap2 = {}\n  393    rmap2[task1obj[0]] = [0, 1]\n  394    rmap2[task1obj[1]] = [1, 0]\n  395:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2\n  396  \n  397    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  399    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  400    console.log(switchTrial)\n  401:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  402:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  403  \n  404  \n\n65 matches across 18 files\n\n\nSearching 56 files for \"task_sequence\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  154  wdm('Attaching static data probes...')\n  155  DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])\n  156: DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])\n  157  DataWriter.deposit_key_data('GAME', sessionPackage['GAME_PACKAGE']['GAME'])\n  158  DataWriter.deposit_key_data('SESSION', SESSION)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n   13          \"randomSeed\":undefined,\n   14          }, \n   15: 'TASK_SEQUENCE':[{\n   16                  \"taskType\":\"SR\", // MTS\n   17                  \"sampleBagNames\":['stimulus_objectome_airplane', 'stimulus_objectome_ant'], \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   43          unpackedGame['IMAGEBAGS'] = await this.unpack_imagebags(gamePackage['IMAGEBAGS'])\n   44          unpackedGame['GAME'] = await this.unpack_game(gamePackage['GAME'])\n   45:         unpackedGame['TASK_SEQUENCE'] = await this.unpack_task_sequence(gamePackage['TASK_SEQUENCE'])\n   46  \n   47          return unpackedGame\n   ..\n  134  \n  135  \n  136:     async unpack_task_sequence(task_sequence_bootstrap){\n  137  \n  138:         console.log('Loading task_sequence')\n  139  \n  140:         var task_sequence = await this.download_from_string(task_sequence_bootstrap)\n  141  \n  142:         if (task_sequence.constructor == Object){\n  143:             task_sequence = [task_sequence]\n  144          }\n  145  \n  146:         this.bootstrapLog['TASK_SEQUENCE'] = {}\n  147:         this.bootstrapLog['TASK_SEQUENCE']['loadMethod'] = this.infer_load_method(task_sequence_bootstrap)\n  148:         return task_sequence\n  149  \n  150  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    3          this.game = gamePackage['GAME']\n    4          this.imageBags = gamePackage['IMAGEBAGS']\n    5:         this.taskSequence = gamePackage['TASK_SEQUENCE']\n    6  \n    7:         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])\n    8  \n    9          this.CheckPointer = CheckPointer\n   ..\n  149                  var onFinish = this.game['onFinish']\n  150                  if(onFinish == 'loop'){\n  151:                     console.log('Reached end of TASK_SEQUENCE: looping')\n  152                      nextTaskNumber = 0\n  153                  }\n  154                  else if(onFinish == 'terminate'){\n  155:                     console.log('Reached end of TASK_SEQUENCE: terminating')\n  156                      this.TERMINAL_STATE = true \n  157                  }\n  158                  else if(onFinish == 'continue'){\n  159:                     console.log('Reached end of TASK_SEQUENCE: continuing')\n  160                      this.monitoring = false\n  161                      nextTaskNumber = this.taskNumber\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n    7          this.verificationLog['GAME_hash'] = undefined \n    8          this.verificationLog['ENVIRONMENT_hash'] = undefined \n    9:         this.verificationLog['TASK_SEQUENCE_hash'] = undefined \n   10      }\n   11      verify_session_package(sessionPackage){\n   ..\n   30          this.verificationLog['GAME_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['GAME']).hashCode()\n   31          this.verificationLog['IMAGEBAGS_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['IMAGEBAGS']).hashCode()\n   32:         this.verificationLog['TASK_SEQUENCE_hash'] = JSON.stringify(sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']).hashCode()\n   33          return sessionPackage\n   34      }\n   ..\n   48              'IMAGEBAGS', \n   49              'GAME', \n   50:             'TASK_SEQUENCE']\n   51  \n   52          var missing_keys = this.check_key_presence(gamePackage, necessary_keys)\n   ..\n   59  \n   60          // TODO\n   61:         if(gamePackage['TASK_SEQUENCE'].length == 0){\n   62              return false\n   63          }\n   ..\n   65          // Perform a cursory check of each task that they have the correct key names\n   66          var necessary_keys = []\n   67:         for (var k in DEFAULT_HIT['TASK_SEQUENCE'][0]){\n   68:             if(!DEFAULT_HIT['TASK_SEQUENCE'].hasOwnProperty(k)){\n   69                  continue\n   70              }\n   ..\n   76          }\n   77  \n   78:         for (var taskNumber in gamePackage['TASK_SEQUENCE']){\n   79:             var tk = gamePackage['TASK_SEQUENCE'][taskNumber]\n   80              \n   81              var missing_keys = this.check_key_presence(tk, necessary_keys)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n    4    GAME = GAME_PACKAGE['GAME']\n    5    IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']\n    6:   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']\n    7  \n    8    ENVIRONMENT = sessionPackage['ENVIRONMENT'] \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n    4    GAME = GAME_PACKAGE['GAME']\n    5    IMAGEBAGS = GAME_PACKAGE['IMAGEBAGS']\n    6:   TASK_SEQUENCE = GAME_PACKAGE['TASK_SEQUENCE']\n    7    \n    8    ENVIRONMENT = sessionPackage['ENVIRONMENT'] \n    .\n   29  \n   30     wdm('Starting checkpointer...')\n   31:    CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)\n   32     await CheckPointer.build()\n   33  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/task_specification.json:\n   53      \"bonusUSDPerCorrect\":0},\n   54  \n   55: \"TASK_SEQUENCE\":{\n   56      \n   57  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/landing_page_template_dynamic.html:\n  183    console.log(task1obj)\n  184  \n  185:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  186:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  187    \n  188    var rmap1 = {}\n  189    rmap1[task0obj[0]] = [0, 1]\n  190    rmap1[task0obj[1]] = [1, 0]\n  191:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1\n  192  \n  193    var rmap2 = {}\n  194    rmap2[task1obj[0]] = [0, 1]\n  195    rmap2[task1obj[1]] = [1, 0]\n  196:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2\n  197  \n  198    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  200    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  201    console.log(switchTrial)\n  202:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  203:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  204  \n  205  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n   38          }, \n   39          \"IMAGEBAGS\": \"https://s3.amazonaws.com/milresources/ImageBagMetaDefinitions/MutatorTraining_FullVarWithBGSetA.json\", \n   40:         \"TASK_SEQUENCE\": [\n   41              {\n   42                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n   45                        \"https://s3.amazonaws.com/milresources/ImageBagManifests/objectome_imagebags.json\"\n   46                      ], \n   47:                     \"TASK_SEQUENCE\": [\n   48                        {\n   49                          \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n   62              ]\n   63          }, \n   64:         \"TASK_SEQUENCE\": [\n   65              {\n   66                  \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n   44                        \"https://s3.amazonaws.com/milresources/ImageBagManifests/objectome_imagebags.json\"\n   45                      ], \n   46:                     \"TASK_SEQUENCE\": [\n   47                        {\n   48                          \"actionDiameterDegrees\": [\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n  181        \"https://s3.amazonaws.com/milresources/ImageBagManifests/MutatorB0/MutatorB0_FullVar_and_Canonical_imagebags.json\"\n  182      ], \n  183:     \"TASK_SEQUENCE\": [\n  184        {\n  185          \"actionDiameterDegrees\": [\n  ...\n  383    console.log(task1obj)\n  384     \n  385:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  386:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  387    \n  388  \n  389    \n  390:   //SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = {task0obj[0]:[0, 1], task0obj[1]:[1, 0]}\n  391:   //SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = {task1obj[0]:[0, 1], task1obj[1]:[1, 0]}\n  392  \n  393    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  395    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  396    console.log(switchTrial)\n  397:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  398:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  399  \n  400  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n  181        \"https://s3.amazonaws.com/milresources/ImageBagManifests/MutatorB0/MutatorB0_FullVar_and_Canonical_imagebags.json\"\n  182      ], \n  183:     \"TASK_SEQUENCE\": [\n  184        {\n  185          \"actionDiameterDegrees\": [\n  ...\n  382    console.log(task1obj)\n  383  \n  384:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['sampleBagNames'] = task0obj\n  385:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['sampleBagNames'] = task1obj\n  386    \n  387    var rmap1 = {}\n  388    rmap1[task0obj[0]] = [0, 1]\n  389    rmap1[task0obj[1]] = [1, 0]\n  390:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['rewardMap'] = rmap1\n  391  \n  392    var rmap2 = {}\n  393    rmap2[task1obj[0]] = [0, 1]\n  394    rmap2[task1obj[1]] = [1, 0]\n  395:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['rewardMap'] = rmap2\n  396  \n  397    var switchMean = 100 // params of Gaussian distribution from which to switch\n  ...\n  399    var switchTrial = Math.round(np.randn(switchMean, switchStd))\n  400    console.log(switchTrial)\n  401:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][1]['minTrialsCriterion'] = switchTrial\n  402:   SESSION_PACKAGE['GAME_PACKAGE']['TASK_SEQUENCE'][2]['minTrialsCriterion'] = 200 - switchTrial\n  403  \n  404  \n\n65 matches across 18 files\n\n\nSearching 56 files for \"start_action_tracking\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  172  wdm('Kicking off async threads...')\n  173  Playspace.start_periodic_rewards()\n  174: Playspace.start_action_tracking()\n  175  Playspace.start_device_tracking()\n  176  DataWriter.start_polling()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js:\n  137      }\n  138       \n  139:     start_action_tracking(){\n  140          this.loggingActions = true \n  141          this.actionLog = {}\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   44          this.rewardLog = {'t':[], 'n':[]}\n   45          this.start_device_tracking()\n   46:         this.ActionPoller.start_action_tracking()\n   47          this.toggleBorder(0)\n   48          console.log('debug2record: Playspace performed a reset of reward, device, and action logs')\n   ..\n  258      }\n  259  \n  260:     start_action_tracking(){\n  261:         this.ActionPoller.start_action_tracking()\n  262      }\n  263  \n\n5 matches across 3 files\n\n\nSearching 56 files for \"start_action_tracking\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  172  wdm('Kicking off async threads...')\n  173  Playspace.start_periodic_rewards()\n  174: Playspace.start_action_tracking()\n  175  Playspace.start_device_tracking()\n  176  DataWriter.start_polling()\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js:\n  137      }\n  138       \n  139:     start_action_tracking(){\n  140          this.loggingActions = true \n  141          this.actionLog = {}\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   44          this.rewardLog = {'t':[], 'n':[]}\n   45          this.start_device_tracking()\n   46:         this.ActionPoller.start_action_tracking()\n   47          this.toggleBorder(0)\n   48          console.log('debug2record: Playspace performed a reset of reward, device, and action logs')\n   ..\n  258      }\n  259  \n  260:     start_action_tracking(){\n  261:         this.ActionPoller.start_action_tracking()\n  262      }\n  263  \n\n5 matches across 3 files\n\n\nSearching 56 files for \"handleactionevent\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ActionPoller.js:\n   47  \n   48  \n   49:         this.handleActionEvent = function(x, y, t, event_type){\n   50              \n   51              var inside = false\n   ..\n   91              var y = event.targetTouches[0].pageY - _this.topBound\n   92              //_this.recordActionEvent(x, y, t, event.type)\n   93:             _this.handleActionEvent(x, y, t, event.type)\n   94              \n   95          }  \n   ..\n  126              var y = event.pageY - _this.topBound\n  127              _this.recordActionEvent(x, y, t, event.type)\n  128:             _this.handleActionEvent(x, y, t, event.type)\n  129              }\n  130  \n\n3 matches in 1 file\n\n\nSearching 57 files for \"onfinish\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n    8          \"periodicRewardIntervalMsec\":0,\n    9          \"periodicRewardAmount\":0,\n   10:         \"onFinish\":\"terminate\", // terminate, continue\n   11          \"minimumTrials\":10,\n   12          \"maximumTrials\":10,\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n    5          this.taskSequence = gamePackage['TASK_SEQUENCE']\n    6  \n    7:         this.TG = new TrialGeneratorClass(IB, gamePackage['IMAGEBAGS'], gamePackage['TASK_SEQUENCE'], this.game['onFinish'])\n    8  \n    9          this.CheckPointer = CheckPointer\n   ..\n  147              // Check termination condition\n  148              if(this.taskNumber >= this.taskSequence.length-1){\n  149:                 var onFinish = this.game['onFinish']\n  150:                 if(onFinish == 'loop'){\n  151                      console.log('Reached end of TASK_SEQUENCE: looping')\n  152                      nextTaskNumber = 0\n  153                  }\n  154:                 else if(onFinish == 'terminate'){\n  155                      console.log('Reached end of TASK_SEQUENCE: terminating')\n  156                      this.TERMINAL_STATE = true \n  157                  }\n  158:                 else if(onFinish == 'continue'){\n  159                      console.log('Reached end of TASK_SEQUENCE: continuing')\n  160                      this.monitoring = false\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n    1  class TrialGeneratorClass{\n    2:     constructor(IB, imageBags, taskSequence, onFinish){\n    3          this.IB = IB \n    4          this.taskSequence = taskSequence\n    .\n   11  \n   12          this.taskNumber = 0\n   13:         this.onFinish = onFinish\n   14  \n   15      }\n   ..\n  327  \n  328              // Manage queues for other tasks \n  329:             if (_this.onFinish != 'loop'){\n  330                  // Delete queues for previous taskNumbers\n  331                  for(var t = 0; t<_this.taskNumber; t++){\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/task_specification.json:\n   43  \"sampleScale\":0, // pixels, Playspace units, degrees\n   44  }], \n   45: \"onFinish\":\"terminate, continue, or loop\", \n   46  \"\" }\n   47  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n   32          \"GAME\": {\n   33              \"gameId\": \"example_inlab_MTS\", \n   34:             \"onFinish\": \"continue\", \n   35              \"periodicRewardAmount\": 1, \n   36              \"periodicRewardIntervalMsec\": 60000, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n   30                        \"maximumTrials\": 200, \n   31                        \"minimumTrials\": 200, \n   32:                       \"onFinish\": \"terminate\", \n   33                        \"periodicRewardAmount\": 0, \n   34                        \"periodicRewardIntervalMsec\": 0, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n   35              \"maximumTrials\": 800, \n   36              \"minimumTrials\": 50, \n   37:             \"onFinish\": \"continue\", \n   38              \"periodicRewardAmount\": 0, \n   39              \"periodicRewardIntervalMsec\": 0\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n   35              \"maximumTrials\": 800, \n   36              \"minimumTrials\": 50, \n   37:             \"onFinish\": \"continue\", \n   38              \"periodicRewardAmount\": 0, \n   39              \"periodicRewardIntervalMsec\": 0\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n   35              \"maximumTrials\": 30, \n   36              \"minimumTrials\": 30, \n   37:             \"onFinish\": \"loop\", \n   38              \"periodicRewardAmount\": 0, \n   39              \"periodicRewardIntervalMsec\": 0\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n   35              \"maximumTrials\": 800, \n   36              \"minimumTrials\": 2, \n   37:             \"onFinish\": \"continue\", \n   38              \"periodicRewardAmount\": 0, \n   39              \"periodicRewardIntervalMsec\": 0\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n   30                        \"maximumTrials\": 200, \n   31                        \"minimumTrials\": 200, \n   32:                       \"onFinish\": \"terminate\", \n   33                        \"periodicRewardAmount\": 0, \n   34                        \"periodicRewardIntervalMsec\": 0, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n  172        \"maximumTrials\": 250, \n  173        \"minimumTrials\": 250, \n  174:       \"onFinish\": \"terminate\", \n  175        \"periodicRewardAmount\": 0, \n  176        \"periodicRewardIntervalMsec\": 0, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n  172        \"maximumTrials\": 250, \n  173        \"minimumTrials\": 250, \n  174:       \"onFinish\": \"terminate\", \n  175        \"periodicRewardAmount\": 0, \n  176        \"periodicRewardIntervalMsec\": 0, \n\n21 matches across 13 files\n\n\nSearching 57 files for \"...\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   40  \n   41  <div id=\"TrialCounter\">-</div>\n   42: <div id=\"DebugMessageTextBox\">Welcome...</div>\n   43  <div id=\"SessionTextBox\"><b>Subject:</b> <br><b>Experiment:</b></div>\n   44  <div id=\"PreviewModeSplash\">\n   ..\n   48  \n   49  <div id=\"MechanicalTurkInstructionsSplash\">\n   50:   <span id='InstructionSplashText'> Loading instructions... </span>\n   51:   <button onclick=\"toggleElement(0, 'MechanicalTurkInstructionsSplash'); FLAGS.clicked_close_instructions(true)\" id='CloseInstructionsButton' disabled> Loading... </button>\n   52  </div>\n   53  \n   ..\n   60  \n   61    <span>\n   62:   <button style=\"text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;\"  onclick=\"toggleElement(0, 'MechanicalTurkCursorDeviceSelectionScreen'); FLAGS.clicked_device_selection(UX.MechanicalTurk_DeviceSelected)\" id='CloseDeviceSelectionButton' disabled> <i>Make selection...</i> </button>\n   63    </span>\n   64  </div>\n   ..\n   70  \n   71    <span>\n   72:   <button style=\"text-align:center; width:30%; height:10%; position:absolute; margin-top:5%; top: 80%; left:35%;\"  onclick=\"toggleElement(0, 'MechanicalTurkHandSelectionScreen'); FLAGS.clicked_hand_selection(UX.MechanicalTurk_Handedness)\" id='CloseHandSelectionButton' disabled> <i>Make selection...</i> </button>\n   73    </span>\n   74  </div>\n   ..\n  123  \n  124  // Load inputs from local storage, web, or Dropbox.\n  125: wdm('Running bootstrapper...')\n  126  var SBS = new SessionBootStrapper() \n  127  var sessionPackage = await SBS.build()\n  128  \n  129  // Verify inputs\n  130: wdm('Verifying inputs...')\n  131  \n  132  VF = new Verifier() \n  ...\n  134  console.log('sessionPackage', sessionPackage)\n  135  // Construct session\n  136: wdm('Setting up session...')\n  137  \n  138  if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){\n  ...\n  152  \n  153  // Attach static data objects \n  154: wdm('Attaching static data probes...')\n  155  DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT'])\n  156  DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE'])\n  ...\n  162  \n  163  // Attach async data probes \n  164: wdm('Attaching async data probes...')\n  165  \n  166  DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')\n  ...\n  170  \n  171  // Kick off async threads \n  172: wdm('Kicking off async threads...')\n  173  Playspace.start_periodic_rewards()\n  174  Playspace.start_action_tracking()\n  ...\n  181  console.log('ENTERING MAIN TRIAL STATE MACHINE')\n  182  console.timeEnd('Done setting up')\n  183: wdm('Entering main trial loop...')\n  184  \n  185  while(TaskStreamer.TERMINAL_STATE == false){\n  ...\n  190    DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk\n  191    DataWriter.write_out()\n  192:   wdm('Starting next trial...')\n  193  }\n  194  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_bluetooth.js:\n   63    document.querySelector(\"button[name=noble]\").style.display = \"block\"\n   64    document.querySelector(\"button[name=noble]\").style.visibility = \"visible\"\n   65:   wdm(\"Waiting for Bluetooth preferences...\")\n   66  \n   67  \n   ..\n   80        document.getElementById(\"connectusb\").style.display = \"none\"\n   81        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n   82:       wdm(\"Bluetooth connection handled...\")\n   83        resolveFunc(buttonclicked);\n   84      }\n   ..\n  115    let result = Promise.resolve()\n  116    if (ble.connected == false){\n  117:     console.log('Requesting ble device...')\n  118      wdm('Requesting bluetooth device list')\n  119      // let options = {filters: [ {name: ble.name}, {services:[ ble.customserviceUUID ]} ]}\n  ...\n  146  // Step 2: Connect server & Cache characteristics -- returns a promise\n  147  async function connectBLEDeviceAndCacheCharacteristics(){\n  148:   console.log('Connecting to GATT Server...')\n  149  \n  150    server = await ble.device.gatt.connect()\n  ...\n  209    exponentialBackoff(100 /* max retries */, 2 /* seconds delay */,\n  210      async function toTry() {\n  211:       time('Connecting to Bluetooth Device... ');\n  212:       var textstr = 'Attempting to reconnect to BLE...'\n  213        console.log(textstr)\n  214        ble.statustext = textstr\n  ...\n  241        return fail();\n  242      }\n  243:     time('Retrying in ' + delay + 's... (' + max + ' tries left)');\n  244      setTimeout(function() {\n  245        exponentialBackoff(--max, delay * 2, toTry, success, fail);\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_CheckPointer.js:\n   40      }\n   41      else{\n   42:         console.log('Could not find checkpoint on disk. Creating default...')\n   43          var checkpoint = this.generate_default_checkpoint()\n   44      }\n   ..\n   76  \n   77      if(verified == false){\n   78:         console.log('Current game does not match checkpoint. Generating default... ')\n   79          checkpoint = this.generate_default_checkpoint()\n   80      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  258              var response = await this.dbx.filesListFolder({path: directory_path, \n  259                                                    recursive: true}) \n  260:             entries.push(... response.entries)\n  261  \n  262              // Use response.has_more to propagate \n  ...\n  265              while(response.has_more == true){\n  266                  response = await this.dbx.filesListFolderContinue(response.cursor)\n  267:                 entries.push(... response.entries)\n  268  \n  269                  num_iterations = num_iterations + 1 \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_ImageBuffer.js:\n  136  \n  137  \t\t\tthis.cache_members = this.cache_members.slice(numDeletableOldEntries)\n  138: \t\t\tthis.cache_members.push(...lockedImageNames) // Push locked images to end of queue\n  139  \t\t\tthis.num_elements_in_cache = this.num_elements_in_cache-numDeleted\n  140  \n  ...\n  177  \n  178  \t\t\t\t\tvar partial_image_array = await Promise.all(partial_image_requests)\n  179: \t\t\t\t\timage_array.push(... partial_image_array); \n  180  \t\t\t\t}\n  181  \t\t\t\t\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   62  \n   63          // Fixation\n   64:         wdm('Buffering fixation...')\n   65          //console.log(trialPackage)\n   66          var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid'] )\n   ..\n   86  \n   87          // Stimulus sequence\n   88:         wdm('Buffering stimulus...')\n   89  \n   90          var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid'])\n   ..\n  110  \n  111          // SHOW BLANK\n  112:         wdm('Running fixation...')\n  113          await this.ScreenDisplayer.displayBlank()\n  114  \n  ...\n  130  \n  131          // RUN STIMULUS SEQUENCE\n  132:         wdm('Running stimulus...')\n  133          var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence()\n  134  \n  ...\n  153          }\n  154  \n  155:         wdm('Awaiting choice...')\n  156          var actionOutcome = await actionPromise\n  157          var rewardAmount = trialPackage['choiceRewardMap'][actionOutcome['actionIndex']]\n  158  \n  159          // Deliver reinforcement\n  160:         wdm('Delivering reinforcement...')\n  161          if (rewardAmount > 0){\n  162              var t_reinforcementOn = Math.round(performance.now()*1000)/1000\n  ...\n  184  \n  185          // *************** Write down trial outcome *************************\n  186:         wdm('Writing down trial outcome...')\n  187          var trialOutcome = {}\n  188          trialOutcome['return'] = rewardAmount \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_screenfunctions.js:\n   90  \n   91  function displayTerminalScreen(){\n   92: \tvar terminal_text = 'Thank you for completing this HIT. Please wait while it is submitted...'\n   93  \tdocument.getElementById('terminal_splash_screen').style.zIndex = 100\n   94  \tdocument.getElementById('terminal_splash_screen').style.innerHTML = terminal_text\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n    6  \n    7      async build(){\n    8:         wdm('Unpacking SESSION_PACKAGE...')\n    9          var unpackedSession = {}\n   10          \n   11          // Retrieve landing page url from localstorage - no need to unpack further\n   12:         wdm('Retrieving LANDING_PAGE_URL...')\n   13          unpackedSession['LANDING_PAGE_URL'] = await this.load_localstorage_string('LANDING_PAGE_URL')\n   14          console.log(unpackedSession['LANDING_PAGE_URL'])\n   ..\n   17          console.log(sessionPackageBootstrapString)\n   18          // Unpack sessionPackage\n   19:         wdm('Download_from_stringing SESSION_PACKAGE...')\n   20          //var sessionPackageBootstrapString = '/MonkeyTurk_upstairs/Subjects/Crypto_session.json' // TODO: fix on tablet (ee issue)\n   21    \n   ..\n   23          console.log(sessionPackage)\n   24          // Unpack elements of game package\n   25:         wdm('Unpacking GAME_PACKAGE...')\n   26          var gamePackage = await this.unpack_game_package(sessionPackage['GAME_PACKAGE'])\n   27          console.log(gamePackage)\n   28          // Unpack elements of environment\n   29:         wdm('Unpacking ENVIRONMENT...')\n   30          var environment = await this.unpack_environment(sessionPackage['ENVIRONMENT'])\n   31          console.log(environment)\n   ..\n   52          console.log('Loading IMAGEBAGS')\n   53          var imagebags = await this.download_from_string(imagebags_bootstrap)\n   54:         console.log('Done downloading imagebags. Unpacking...')\n   55          var loadMethods = []\n   56          var unpacked_imagebags = {}\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n  125  \n  126              var rewardMap = tk['rewardMap'][sampleBag]\n  127:             choiceId.push(... rewardMap.map(function(entry){return 'dot'}))\n  128  \n  129              \n  ...\n  171              var choiceId = [correctId]\n  172              var choiceBag = [correctBag]\n  173:             choiceId.push(...distractorId)\n  174:             choiceBag.push(...distractorBag) \n  175              var choice_shuffle = shuffle(np.arange(choiceId.length))\n  176              choiceId = np.iloc(choiceId, choice_shuffle)\n  ...\n  309        \n  310              if (_this.currently_buffering == true){\n  311:                 console.log('Currently buffering. Skipping...')\n  312                  return \n  313              }\n  ...\n  336              }\n  337              else{\n  338:                 console.log('Trial buffer is FILLED with ', numTrialsInTaskQueue, 'trials. Continuing...')\n  339              }\n  340  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js:\n  246    document.getElementById(\"connectusb\").style.display = \"block\"\n  247    document.getElementById(\"connectusb\").style.visibility = \"visible\"\n  248:   wdm(\"Waiting for USB preferences...\")\n  249  \n  250    var resolveFunc\n  ...\n  260        document.getElementById(\"connectusb\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n  261        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n  262:       wdm(\"USB connection handled...\")\n  263        resolveFunc(buttonclicked);\n  264      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n  137        }\n  138        else{\n  139:         console.log('Hmm....should not be here')\n  140          console.log(iSample, iClosest, whichSide)\n  141        }\n  ...\n  306    var currentIndex = array.length, temporaryValue, randomIndex;\n  307  \n  308:   // While there remain elements to shuffle...\n  309    while (0 !== currentIndex) {\n  310  \n  311:     // Pick a remaining element...\n  312      randomIndex = Math.floor(Math.random() * currentIndex);\n  313      currentIndex -= 1;\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n  211          var original_color = document.querySelector(\"button[name=WorkerCashInButton]\").style['background-color']\n  212  \n  213:         document.querySelector(\"button[name=WorkerCashInButton]\").innerHTML = 'Submitting...'\n  214  \n  215          document.querySelector(\"button[name=WorkerCashInButton]\").style['background-color'] = '#ADFF97'\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Verifier.js:\n   35      \n   36      on_verification_fail(){\n   37:         console.warn(\"Verification FAILED. Using failsafe game...\")\n   38          var sessionPackage = DEFAULT_HIT\n   39          this.verificationLog['usingFailSafeHIT'] = true\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   20  \n   21      UX = new MonkeyUX()\n   22:    wdm('Starting dropbox connection...')\n   23     DIO = new DropboxIO()\n   24     await DIO.build(window.location.href)\n   ..\n   28     DataWriter = new DropboxDataWriter(DIO, debugDir, saveDir, SESSION['agentId'])\n   29  \n   30:    wdm('Starting checkpointer...')\n   31     CheckPointer = new DropboxCheckPointer(DIO, SESSION['agentId'], GAME, TASK_SEQUENCE)\n   32     await CheckPointer.build()\n   ..\n   38  \n   39     TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)\n   40:    wdm('Building taskstreamer...')\n   41     await TaskStreamer.build(5)\n   42     var playspacePackage = {\n   ..\n   52      'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   53    \n   54:     wdm('Building playspace...')\n   55     Playspace = new PlaySpaceClass(playspacePackage)\n   56     await Playspace.build()\n   ..\n   67      gamePackage['UX'] = UX \n   68      gamePackage['SESSION'] = SESSION\n   69:     wdm('Done building session components...')\n   70  \n   71      // Playspace.Reinforcer.juiceRewardPer1000 = 175\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/unit_tests.js:\n    8              continue\n    9          }\n   10:         imageNames.push(...IMAGEBAGS[i])\n   11      }\n   12  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/landing_page_template.html:\n   50      await localStorage.setItem('agentId', btoa(agentId))\n   51  \n   52:     console.log('All items stored. Redirecting...')\n   53      await new Promise(resolve => setTimeout(resolve, 1000));\n   54      go_to_main_page()\n   ..\n   88  \n   89  <body>\n   90:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n   91  </body>\n   92  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/landing_page_template_dynamic.html:\n  114        }\n  115        else{\n  116:         console.log('Hmm....should not be here')\n  117          console.log(iSample, iClosest, whichSide)\n  118        }\n  ...\n  234      await localStorage.setItem('agentId', btoa(agentId))\n  235  \n  236:     console.log('All items stored. Redirecting...')\n  237      await new Promise(resolve => setTimeout(resolve, 1000));\n  238      go_to_main_page()\n  ...\n  272  \n  273  <body>\n  274:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  275  </body>\n  276  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n  132      await localStorage.setItem('agentId', btoa(agentId))\n  133  \n  134:     console.log('All items stored. Redirecting...')\n  135      await new Promise(resolve => setTimeout(resolve, 1000));\n  136      go_to_main_page()\n  ...\n  170  \n  171  <body>\n  172:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  173  </body>\n  174  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR.html:\n   50      await localStorage.setItem('agentId', btoa(agentId))\n   51  \n   52:     console.log('All items stored. Redirecting...')\n   53      await new Promise(resolve => setTimeout(resolve, 1000));\n   54      go_to_main_page()\n   ..\n   88  \n   89  <body>\n   90:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n   91  </body>\n   92  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n  201      await localStorage.setItem('agentId', btoa(agentId))\n  202  \n  203:     console.log('All items stored. Redirecting...')\n  204      await new Promise(resolve => setTimeout(resolve, 1000));\n  205      go_to_main_page()\n  ...\n  239  \n  240  <body>\n  241:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  242  </body>\n  243  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n  156      await localStorage.setItem('agentId', btoa(agentId))\n  157  \n  158:     console.log('All items stored. Redirecting...')\n  159      await new Promise(resolve => setTimeout(resolve, 1000));\n  160      go_to_main_page()\n  ...\n  194  \n  195  <body>\n  196:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  197  </body>\n  198  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n  155      await localStorage.setItem('agentId', btoa(agentId))\n  156  \n  157:     console.log('All items stored. Redirecting...')\n  158      await new Promise(resolve => setTimeout(resolve, 1000));\n  159      go_to_main_page()\n  ...\n  193  \n  194  <body>\n  195:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  196  </body>\n  197  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n  213      await localStorage.setItem('agentId', btoa(agentId))\n  214  \n  215:     console.log('All items stored. Redirecting...')\n  216      await new Promise(resolve => setTimeout(resolve, 1000));\n  217      go_to_main_page()\n  ...\n  251  \n  252  <body>\n  253:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  254  </body>\n  255  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n  160      await localStorage.setItem('agentId', btoa(agentId))\n  161  \n  162:     console.log('All items stored. Redirecting...')\n  163      await new Promise(resolve => setTimeout(resolve, 1000));\n  164      go_to_main_page()\n  ...\n  198  \n  199  <body>\n  200:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  201  </body>\n  202  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n  200      await localStorage.setItem('agentId', btoa(agentId))\n  201  \n  202:     console.log('All items stored. Redirecting...')\n  203      await new Promise(resolve => setTimeout(resolve, 1000));\n  204      go_to_main_page()\n  ...\n  238  \n  239  <body>\n  240:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  241  </body>\n  242  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n   14    var currentIndex = array.length, temporaryValue, randomIndex;\n   15  \n   16:   // While there remain elements to shuffle...\n   17    while (0 !== currentIndex) {\n   18  \n   19:     // Pick a remaining element...\n   20      randomIndex = Math.floor(Math.random() * currentIndex);\n   21      currentIndex -= 1;\n   ..\n  123        }\n  124        else{\n  125:         console.log('Hmm....should not be here')\n  126          console.log(iSample, iClosest, whichSide)\n  127        }\n  ...\n  419      await localStorage.setItem('agentId', btoa(agentId))\n  420  \n  421:     console.log('All items stored. Redirecting...')\n  422      await new Promise(resolve => setTimeout(resolve, 1000));\n  423      go_to_main_page()\n  ...\n  457  \n  458  <body>\n  459:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  460  </body>\n  461  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n   14    var currentIndex = array.length, temporaryValue, randomIndex;\n   15  \n   16:   // While there remain elements to shuffle...\n   17    while (0 !== currentIndex) {\n   18  \n   19:     // Pick a remaining element...\n   20      randomIndex = Math.floor(Math.random() * currentIndex);\n   21      currentIndex -= 1;\n   ..\n  123        }\n  124        else{\n  125:         console.log('Hmm....should not be here')\n  126          console.log(iSample, iClosest, whichSide)\n  127        }\n  ...\n  423      await localStorage.setItem('agentId', btoa(agentId))\n  424  \n  425:     console.log('All items stored. Redirecting...')\n  426      await new Promise(resolve => setTimeout(resolve, 1000));\n  427      go_to_main_page()\n  ...\n  461  \n  462  <body>\n  463:     Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies ENABLED. \n  464  </body>\n  465  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Crypto_landing_page.html:\n   39      localStorage.setItem('agentId', btoa(agentID));\n   40  \n   41:     console.log('All items stored. Redirecting...')\n   42      await new Promise(resolve => setTimeout(resolve, 5000));\n   43     go_to_main_page()\n   ..\n  100  \n  101  <body>\n  102:     Loading HIT...\n  103  </body>\n  104  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Desimone1_landing_page.html:\n   39      localStorage.setItem('agentId', btoa(agentID));\n   40  \n   41:     console.log('All items stored. Redirecting...')\n   42      await new Promise(resolve => setTimeout(resolve, 5000));\n   43     go_to_main_page()\n   ..\n  100  \n  101  <body>\n  102:     Loading HIT...\n  103  </body>\n  104  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Michaelo_landing_page.html:\n   51      await localStorage.setItem('agentId', btoa(agentID))\n   52  \n   53:     console.log('All items stored. Redirecting...')\n   54      await new Promise(resolve => setTimeout(resolve, 500));\n   55      go_to_main_page()\n   ..\n  112  \n  113  <body>\n  114:     Loading HIT...\n  115  </body>\n  116  </html>\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Zico_landing_page.html:\n   51      await localStorage.setItem('agentId', btoa(agentID))\n   52  \n   53:     console.log('All items stored. Redirecting...')\n   54      await new Promise(resolve => setTimeout(resolve, 500));\n   55      go_to_main_page()\n   ..\n  112  \n  113  <body>\n  114:     Loading HIT...\n  115  </body>\n  116  </html>\n\n97 matches across 31 files\n",
+			"file": "public/juicer_tester.html",
 			"settings":
 			{
-				"buffer_size": 54678,
+				"buffer_size": 7269,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "Searching 68 files for \"sleep\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  207    // Assume failure took place in mechanical turk session (this code is irrelevant for inlab)\n  208    // Submit the error message\n  209:   await sleep(1500)\n  210  \n  211    try{\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n  214              // todo: write out to localstorage the data\n  215          }\n  216:         await sleep(1500)\n  217      }\n  218  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  362                          console.log(error)\n  363                          console.log('On retry '+retry_number)\n  364:                         sleep(backoff_time_seed * retry_number)\n  365                          //continue\n  366                      }   \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n  368  \n  369  \n  370: function sleep(ms) {\n  371    return new Promise(resolve => setTimeout(resolve, ms));\n  372  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   72      // Playspace.Reinforcer.juiceRewardPer1000 = 175\n   73      // wdm('20sec')\n   74:     // await sleep(20000)\n   75      // ub = 500\n   76      // for (i = 0; i < ub; i++) {\n   77:     //   await sleep(1500)\n   78      //   Playspace.Reinforcer.deliver_reinforcement(1)\n   79      //   wdm(i + ' of ' + ub + '. juicerewardper1000=' + Playspace.Reinforcer.juiceRewardPer1000)\n\n6 matches across 5 files\n\n\nSearching 68 files for \"connect\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n   33  </div>\n   34  \n   35: <button id=\"connectble\" name=\"connectble\" >Connect to Bluetooth juicer</button>\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   33  </div>\n   34  \n   35: <button id=\"connectble\" name=\"connectble\" >Connect to Bluetooth juicer</button>\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_bluetooth.js:\n   11  // See https://www.chromestatus.com/features/5649871251963904 for more details.\n   12  \n   13: //----retry on disconnect\n   14  //---ble status write\n   15  //---detect multiple ble devices\n   ..\n   23    serviceUUID: 0xFFFF, // Service UUID\n   24    customserviceUUID: 0xA000,\n   25:   connectionUUID: 0xA001, // Connection status\n   26    pumpdurationUUID: 0xA002, //pump duration, 2 bytes (write, write w/o response)\n   27    pumpUUID: 0xA003, //notify pump opened by ble, 4 bytes (read,notify)\n   ..\n   31    server: [],\n   32    service: [],\n   33:   writeconnectioncharacteristic: [],\n   34    writepumpdurationcharacteristic: [],\n   35    pumpcharacteristic: [],\n   36    rfidcharacteristic: [],\n   37:   connected: false,\n   38  \n   39    ping_duration: 200,\n   40    ping_interval: 5000,\n   41:   twrite_connection: 0,\n   42    twrite_pumpduration: 0,\n   43    tnotify_pump: 0,\n   ..\n   46  }\n   47  \n   48: //==================== CONNECT BLE ====================//\n   49: function connectBLEButtonPromise(){\n   50  \n   51:   document.querySelector(\"button[name=connectble]\").addEventListener(\n   52      'touchend',findBLEDevice,false)\n   53:   document.querySelector(\"button[name=connectble]\").addEventListener(\n   54      'mouseup',findBLEDevice,false)\n   55    document.querySelector(\"button[name=noble]\").addEventListener(\n   ..\n   59  \n   60  \n   61:   document.querySelector(\"button[name=connectble]\").style.display = \"block\"\n   62:   document.querySelector(\"button[name=connectble]\").style.visibility = \"visible\"\n   63    document.querySelector(\"button[name=noble]\").style.display = \"block\"\n   64    document.querySelector(\"button[name=noble]\").style.visibility = \"visible\"\n   ..\n   76      while (true){\n   77        buttonclicked = yield buttonclicked;\n   78:       document.querySelector(\"button[name=connectble]\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n   79        document.querySelector(\"button[name=noble]\").style.display = \"none\"\n   80:       document.getElementById(\"connectusb\").style.display = \"none\"\n   81        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n   82:       wdm(\"Bluetooth connection handled...\")\n   83        resolveFunc(buttonclicked);\n   84      }\n   ..\n   98    try{\n   99      await requestBLEDevice()\n  100:     await connectBLEDeviceAndCacheCharacteristics()\n  101        waitforClick.next(1)    \n  102    }\n  103    catch(error){\n  104:     if (ble.connected == false){\n  105        var textstr = 'Error getting ble device/service/characteristic';\n  106        console.log(textstr)\n  ...\n  114  async function requestBLEDevice(){\n  115    let result = Promise.resolve()\n  116:   if (ble.connected == false){\n  117      console.log('Requesting ble device...')\n  118      wdm('Requesting bluetooth device list')\n  ...\n  129          \n  130          ble.device=device\n  131:         ble.device.addEventListener('gattserverdisconnected',onDisconnectedBLE)\n  132      }\n  133      catch(error){\n  134:       if (ble.connected == false){\n  135          var textstr = 'Still waiting for user to select device'\n  136          console.log(textstr)\n  ...\n  144  }\n  145  \n  146: // Step 2: Connect server & Cache characteristics -- returns a promise\n  147: async function connectBLEDeviceAndCacheCharacteristics(){\n  148:   console.log('Connecting to GATT Server...')\n  149  \n  150:   server = await ble.device.gatt.connect()\n  151      var textstr = \"found a GATT server\"\n  152      console.log(textstr,server)\n  ...\n  164  \n  165    characteristics = await Promise.all([\n  166:       service.getCharacteristic(ble.connectionUUID),\n  167        service.getCharacteristic(ble.pumpdurationUUID),\n  168        service.getCharacteristic(ble.pumpUUID),\n  169        service.getCharacteristic(ble.rfidUUID)])\n  170:     var textstr = \"found a connection, pump duration, pump, & rfid characteristics\"\n  171      console.log(textstr,characteristics)\n  172      ble.statustext = ble.statustext + \"<br>\" + textstr\n  173      \n  174:     ble.writeconnectioncharacteristic=characteristics[0]\n  175      ble.writepumpdurationcharacteristic=characteristics[1]\n  176      ble.pumpcharacteristic=characteristics[2]\n  ...\n  189      ble.pumpcharacteristic.addEventListener('characteristicvaluechanged',onPumpNotificationFromBLE)\n  190      ble.rfidcharacteristic.addEventListener('characteristicvaluechanged',onRFIDNotificationFromBLE)\n  191:     ble.connected = true\n  192      pingBLE()\n  193  } \n  194  \n  195  \n  196: //==================== RECONNECT BLE ====================//\n  197: // adapted from: https://googlechrome.github.io/samples/web-bluetooth/automatic-reconnect.html\n  198  \n  199: function onDisconnectedBLE(){\n  200:   ble.connected = false\n  201:   var textstr = 'BLE disconnected'\n  202    console.log(textstr)\n  203    ble.statustext = textstr\n  204  \n  205:   reconnectBLE()\n  206  }\n  207  \n  208: async function reconnectBLE(){\n  209    exponentialBackoff(100 /* max retries */, 2 /* seconds delay */,\n  210      async function toTry() {\n  211:       time('Connecting to Bluetooth Device... ');\n  212:       var textstr = 'Attempting to reconnect to BLE...'\n  213        console.log(textstr)\n  214        ble.statustext = textstr\n  215  \n  216:       await connectBLEDeviceAndCacheCharacteristics()\n  217      },\n  218      function success() {\n  219:       console.log('> Bluetooth Device reconnected. Try disconnect it now.');\n  220:       var textstr = 'Successful reconnection!'\n  221        console.log(textstr)\n  222        ble.statustext = textstr\n  223      },\n  224      function fail() {\n  225:       time('Failed to reconnect.');\n  226:       var textstr = 'Could not reconnect to Bluetooth Device after multipe tries'\n  227        console.log(textstr)\n  228        ble.statustext = textstr\n  ...\n  275  function pingBLE(){\n  276    var arrInt8 = toBytesInt16(ble.ping_duration)\n  277:   if (ble.connected == true){\n  278      console.log('Pinging BLE device')\n  279:     ble.writeconnectioncharacteristic.writeValue(arrInt8)\n  280      pingTimer = setTimeout(function(){\n  281        clearTimeout(pingTimer);\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   35              var RewardDuration = nreward * this.setJuicerRewardDuration();\n   36  \n   37:             if (ble.connected == true){\n   38                  var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))\n   39                  return p2\n   40              }\n   41  \n   42:             if (port.connected == true){\n   43                  var p2 = port.writepumpdurationtoUSB(Math.round(RewardDuration*1000))\n   44                  return p2\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SoundPlayer.js:\n   42          var s = _this.audioContext.createBufferSource()\n   43          s.buffer = bufferList[i] \n   44:         s.connect(_this.audioContext.destination)\n   45          _this.soundInstances[name] == s\n   46          _this.is_buffered[name] = true\n   ..\n   76      \n   77      s.buffer = bufferEntry\n   78:     s.connect(this.audioContext.destination)\n   79      this.soundInstances[name] = s\n   80  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_style.css:\n    1: #connectble{\n    2    z-index:101; \n    3    visibility:hidden; \n    .\n   23  }\n   24  \n   25: #connectusb{\n   26    z-index:101; \n   27    visibility:hidden; \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js:\n    1  \n    2  var port={\n    3:   statustext_connect: \"\",\n    4    statustext_sent: \"\",\n    5    statustext_received: \"\",\n    .\n    7  var serial = {}\n    8  \n    9: navigator.usb.addEventListener('disconnect', device => {\n   10:   port.connected = false\n   11:   port.statustext_connect = \"USB DEVICE DISCONNECTED\"\n   12:   console.log(port.statustext_connect)\n   13  });\n   14  \n   ..\n   17    console.log('AT FIND USB DEVICE')\n   18    // STEP 1A: Auto-Select first port\n   19:   if (event.type == \"AutoConnect\" || \n   20:     event.type == \"Reconnect\"){\n   21  //    ports = await getPorts()\n   22      //STEP 1A: GetPorts - Automatic at initialization\n   ..\n   27  \n   28      if (ports.length == 0) {\n   29:       port.statustext_connect = \"NO USB DEVICE automatically found on page load\"\n   30:       console.log(port.statustext_connect)\n   31      }\n   32      else {\n   33        var statustext = \"\"\n   34:       if (event.type == \"AutoConnect\"){\n   35:         statustext = \"AUTO-CONNECTED USB DEVICE ON PAGE LOAD!\"\n   36        }\n   37:       else if (event.type == \"Reconnect\"){\n   38:         statustext = \"RECONNECTED USB DEVICE!\"\n   39        }\n   40        port = ports[0];\n   41:       await port.connect()\n   42:       port.statustext_connect = statustext\n   43:       console.log(port.statustext_connect)\n   44      }\n   45    }\n   46  \n   47:   // STEP 1B: User connects to Port\n   48  if (event.type == \"touchend\" || event.type == \"mouseup\"){\n   49      event.preventDefault(); //prevents additional downstream call of click listener\n   ..\n   64        port = new serial.Port(device) //return port\n   65  \n   66:       await port.connect()\n   67  \n   68:         port.statustext_connect = \"USB DEVICE CONNECTED BY USER ACTION!\"\n   69      }\n   70      catch(error){\n   ..\n   82  };\n   83  \n   84: //PORT - connect\n   85: serial.Port.prototype.connect = async function(){\n   86    await this.device_.open()\n   87  \n   ..\n  101      }) //send controlTransferOut to work with channels\n  102  \n  103:   this.connected = true\n  104    readLoop(this)\n  105    // pingUSB()\n  ...\n  150  }\n  151  \n  152: //PORT - disconnect\n  153: serial.Port.prototype.disconnect = async function() {\n  154    await this.device_.controlTransferOut({\n  155        'requestType': 'class',\n  ...\n  161    this.device_.close()\n  162  \n  163:   port.statustext_connect = \"USB DEVICE DISCONNECTED\"\n  164:   console.log(port.statustext_connect)\n  165    //updateHeadsUpDisplay()\n  166  };\n  ...\n  187  \n  188  function pingUSB(){\n  189:   if (port.connected == true){\n  190      var pingdur = 100\n  191    let msgstr = \"{\" + pingdur.toString() + \"}\" // start({), end(}) characters\n  ...\n  220  \n  221  function pingUSBBYTE(){\n  222:   if (port.connected == true){\n  223  \n  224      let view = new Uint8Array(1);\n  ...\n  236  \n  237  \n  238: //==================== CONNECT USB ====================//\n  239: function connectUSBButtonPromise(){\n  240  \n  241:   document.getElementById(\"connectusb\").addEventListener(\n  242      'touchend',findUSBDevice,false)\n  243:   document.getElementById(\"connectusb\").addEventListener(\n  244      'mouseup',findUSBDevice,false)\n  245  \n  246:   document.getElementById(\"connectusb\").style.display = \"block\"\n  247:   document.getElementById(\"connectusb\").style.visibility = \"visible\"\n  248    wdm(\"Waiting for USB preferences...\")\n  249  \n  ...\n  258      while (true){\n  259        buttonclicked = yield buttonclicked;\n  260:       document.getElementById(\"connectusb\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n  261        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n  262:       wdm(\"USB connection handled...\")\n  263        resolveFunc(buttonclicked);\n  264      }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   20          'mouseup',this.doneTestingTask_listener,false)\n   21  \n   22:         connectBLEButtonPromise()\n   23:         connectUSBButtonPromise()\n   24      }\n   25  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   20  \n   21      UX = new MonkeyUX()\n   22:    wdm('Starting dropbox connection...')\n   23     DIO = new DropboxIO()\n   24     await DIO.build(window.location.href)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/javascript_utils/seedrandom.js:\n  197  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY\n  198  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\n  199: TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\n  200  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n  201  \n\n/Users/michaellee/Dropbox (MIT)/ptap/docs/installing_ptap_on_tablets.md:\n   30  2. On your tablet's version of Chrome, in chrome://flags, turn on enable-command-line-on-non-rooted-devices. This will allow the tablet running Chrome to utilize command-line arguments when opened, which you will write in the enxt step.\n   31  \n   32: 3. On your workstation's terminal program, write the following command (in iTerm, on my Mac, while the tablet was connected): \n   33  adb shell 'echo --enable-features=WebUSB > /data/local/tmp/chrome-command-line'\n   34  \n\n106 matches across 11 files\n\n\nSearching 68 files for \"writepumpdurationtoBLE\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n   35  <button id=\"connectble\" name=\"connectble\" >Connect to Bluetooth juicer</button>\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37: <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38  <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   35  <button id=\"connectble\" name=\"connectble\" >Connect to Bluetooth juicer</button>\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37: <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38  <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_bluetooth.js:\n  253  \n  254  //============== READ NOTIFICATIONS & WRITES ==============//\n  255: async function writepumpdurationtoBLE(num){\n  256    console.log('Attempting bluetooth write')\n  257    var arrInt8 = toBytesInt16(num)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   36  \n   37              if (ble.connected == true){\n   38:                 var p2 = writepumpdurationtoBLE(Math.round(RewardDuration*1000))\n   39                  return p2\n   40              }\n\n4 matches across 4 files\n\n\nSearching 68 files for \"connectusb\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_bluetooth.js:\n   78        document.querySelector(\"button[name=connectble]\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n   79        document.querySelector(\"button[name=noble]\").style.display = \"none\"\n   80:       document.getElementById(\"connectusb\").style.display = \"none\"\n   81        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n   82        wdm(\"Bluetooth connection handled...\")\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_style.css:\n   23  }\n   24  \n   25: #connectusb{\n   26    z-index:101; \n   27    visibility:hidden; \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js:\n  237  \n  238  //==================== CONNECT USB ====================//\n  239: function connectUSBButtonPromise(){\n  240  \n  241:   document.getElementById(\"connectusb\").addEventListener(\n  242      'touchend',findUSBDevice,false)\n  243:   document.getElementById(\"connectusb\").addEventListener(\n  244      'mouseup',findUSBDevice,false)\n  245  \n  246:   document.getElementById(\"connectusb\").style.display = \"block\"\n  247:   document.getElementById(\"connectusb\").style.visibility = \"visible\"\n  248    wdm(\"Waiting for USB preferences...\")\n  249  \n  ...\n  258      while (true){\n  259        buttonclicked = yield buttonclicked;\n  260:       document.getElementById(\"connectusb\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n  261        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n  262        wdm(\"USB connection handled...\")\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   21  \n   22          connectBLEButtonPromise()\n   23:         connectUSBButtonPromise()\n   24      }\n   25  \n\n11 matches across 6 files\n\n\nSearching 68 files for \"connectusb\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n   ..\n  112  \n  113  var FLAGS = {}; // todo: get rid of\n  114: document.getElementById(\"connectusb\").setAttribute(\"visibility\",true);\n  115  \n  116  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n   36  <button id=\"noble\" name=\"noble\">No Bluetooth juicer</button>\n   37  <button id=\"drive_juice_button\" onclick=\"writepumpdurationtoBLE(500)\">Send juice signal</button>\n   38: <button id=\"connectusb\">Connect to USB juicer</button>\n   39  \n   40  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_bluetooth.js:\n   78        document.querySelector(\"button[name=connectble]\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n   79        document.querySelector(\"button[name=noble]\").style.display = \"none\"\n   80:       document.getElementById(\"connectusb\").style.display = \"none\"\n   81        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n   82        wdm(\"Bluetooth connection handled...\")\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_style.css:\n   23  }\n   24  \n   25: #connectusb{\n   26    z-index:101; \n   27    visibility:hidden; \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js:\n  237  \n  238  //==================== CONNECT USB ====================//\n  239: function connectUSBButtonPromise(){\n  240  \n  241:   document.getElementById(\"connectusb\").addEventListener(\n  242      'touchend',findUSBDevice,false)\n  243:   document.getElementById(\"connectusb\").addEventListener(\n  244      'mouseup',findUSBDevice,false)\n  245  \n  246:   document.getElementById(\"connectusb\").style.display = \"block\"\n  247:   document.getElementById(\"connectusb\").style.visibility = \"visible\"\n  248    wdm(\"Waiting for USB preferences...\")\n  249  \n  ...\n  258      while (true){\n  259        buttonclicked = yield buttonclicked;\n  260:       document.getElementById(\"connectusb\").style.display = \"none\" //if do style.visibility=hidden, element will still occupy space\n  261        document.getElementById('drive_juice_button').style.visibility = \"visible\"\n  262        wdm(\"USB connection handled...\")\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   21  \n   22          connectBLEButtonPromise()\n   23:         connectUSBButtonPromise()\n   24      }\n   25  \n\n12 matches across 6 files\n\n\nSearching 68 files for \"connectUSBButtonPromise\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js:\n  237  \n  238  //==================== CONNECT USB ====================//\n  239: function connectUSBButtonPromise(){\n  240  \n  241    document.getElementById(\"connectusb\").addEventListener(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js:\n   21  \n   22          connectBLEButtonPromise()\n   23:         connectUSBButtonPromise()\n   24      }\n   25  \n\n2 matches across 2 files\n\n\nSearching 68 files for \"JuiceReinforcer\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n  121    //var juiceRewardPer1000 = 150\n  122    //\n  123:   //var Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n  124  \n  125    var RewardDurationMsec = 100\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   23          \n   24          if (primary_reinforcer_type == 'juice'){\n   25:             this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n   26          }\n   27          else if(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   18  \n   19  \n   20: class JuiceReinforcer{\n   21      constructor(juiceRewardPer1000, pumpNumber){\n   22  \n\n3 matches across 3 files\n\n\nSearching 68 files for \"JuiceReinforcer\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n  121    //var juiceRewardPer1000 = 150\n  122    //\n  123:   //var Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n  124  \n  125    var RewardDurationMsec = 100\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n   23          \n   24          if (primary_reinforcer_type == 'juice'){\n   25:             this.Reinforcer = new JuiceReinforcer(juiceRewardPer1000)\n   26          }\n   27          else if(\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Reinforcer.js:\n   18  \n   19  \n   20: class JuiceReinforcer{\n   21      constructor(juiceRewardPer1000, pumpNumber){\n   22  \n\n3 matches across 3 files\n\n\nSearching 68 files for \"PlaySpaceClass\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n    1: class PlaySpaceClass{\n    2      constructor(playspacePackage){\n    3          var playspace_isFullScreen = playspacePackage['playspace_isFullScreen']\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   43      'bonusUSDPerCorrect':ENVIRONMENT['bonusUSDPerCorrect'], \n   44      'juiceRewardPer1000Trials':ENVIRONMENT['juiceRewardPer1000Trials']}\n   45:   Playspace = new PlaySpaceClass(playspacePackage)\n   46    await Playspace.build()\n   47  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   54    \n   55      wdm('Building playspace...')\n   56:    Playspace = new PlaySpaceClass(playspacePackage)\n   57     await Playspace.build()\n   58     Playspace.toggleBorder(1)\n\n3 matches across 3 files\n\n\nSearching 68 files for \"crypto\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_SessionBootStrapper.js:\n   18          // Unpack sessionPackage\n   19          wdm('Download_from_stringing SESSION_PACKAGE...')\n   20:         //var sessionPackageBootstrapString = '/MonkeyTurk_upstairs/Subjects/Crypto_session.json' // TODO: fix on tablet (ee issue)\n   21    \n   22          var sessionPackage = await this.download_from_string(sessionPackageBootstrapString)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n  374  \n  375  function md5Hash(blob){\n  376:   var hash = CryptoJS.MD5(CryptoJS.enc.Latin1.parse(blob));\n  377    return hash\n  378  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/javascript_utils/seedrandom.js:\n  135  The random number sequence is the same as version 1.0 for string seeds.\n  136  * Version 2.0 changed the sequence for non-string seeds.\n  137: * Version 2.1 speeds seeding and uses window.crypto to autoseed if present.\n  138: * Version 2.2 alters non-crypto autoseeding to sweep up entropy from plugins.\n  139  * Version 2.3 adds support for \"new\", module loading, and a null seed arg.\n  140  * Version 2.3.1 adds a build environment, module packaging, and tests.\n  141  * Version 2.3.4 fixes bugs on IE8, and switches to MIT license.\n  142  * Version 2.3.6 adds a readable options object argument.\n  143: * Version 2.3.10 adds support for node.js crypto (contributed by ctd1500).\n  144  \n  145  The standard ARC4 key scheduler cycles short keys, which means that\n  ...\n  152  \n  153  When seedrandom() is called with zero args or a null seed, it uses a\n  154: seed drawn from the browser crypto object if present.  If there is no\n  155: crypto support, seedrandom() uses the current time, the native rng,\n  156  and a walk of several DOM objects to collect a few bits of entropy.\n  157  \n  ...\n  168  * seedrandom('explicit.')       - avg less than 0.2 milliseconds per call\n  169  * seedrandom('explicit.', true) - avg less than 0.2 milliseconds per call\n  170: * seedrandom() with crypto      - avg less than 0.2 milliseconds per call\n  171  \n  172: Autoseeding without crypto is somewhat slower, about 20-30 milliseconds on\n  173  a 2012 windows 7 1.5ghz i5 laptop, as seen on Firefox 19, IE 10, and Opera.\n  174  Seeded rng calls themselves are fast across these browsers, with slowest\n  ...\n  215      overflow = significance * 2,\n  216      mask = width - 1,\n  217:     nodecrypto;\n  218  \n  219  //\n  ...\n  340  //\n  341  // autoseed()\n  342: // Returns an object for autoseeding, using window.crypto if available.\n  343  //\n  344  /** @param {Uint8Array|Navigator=} seed */\n  345  function autoseed(seed) {\n  346    try {\n  347:     if (nodecrypto) return tostring(nodecrypto.randomBytes(width));\n  348:     global.crypto.getRandomValues(seed = new Uint8Array(width));\n  349      return tostring(seed);\n  350    } catch (e) {\n  ...\n  378    module.exports = impl;\n  379    try {\n  380:     // When in node.js, try using crypto package for autoseeding.\n  381:     nodecrypto = require('crypto');\n  382    } catch (ex) {}\n  383  } else if (define && define.amd) {\n  ...\n  386  \n  387  //\n  388: // Node.js native crypto support.\n  389  //\n  390  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Crypto_landing_page.html:\n   12  async function setupSession(){\n   13    \n   14:   SESSION_PACKAGE = '/MonkeyTurk_upstairs/Subjects/Crypto_session.json'\n   15:   agentID = 'Crypto'\n   16    \n   17    console.log(SESSION_PACKAGE)\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/landing_page_selector.html:\n   15      <div style = \"position: absolute; top:20%; left:50%; height:50%; display:flex; flex-direction:column; justify-content:space-around; align-items:center;\">\n   16      Select landing page:\n   17:     <button id=\"Crypto\" onclick=\"window.location='Crypto_landing_page.html';\" \n   18                              style=\"\n   19                                height: 50px; \n   ..\n   22                                background-opacity:0.5;\n   23                                color:black;\n   24:                               background-color:#75FF82FF;\">Crypto</button>\n   25      <button id=\"Zico\" onclick=\"window.location='Zico_landing_page.html';\" \n   26                          style=\"\n\n24 matches across 5 files\n\n\nSearching 68 files for \"sleep\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/juicer_tester.html:\n  128      port.writepumpdurationtoUSB(Math.round(RewardDurationMsec))\n  129      // pause \n  130:     await sleep(RewardDurationMsec + 500)\n  131      console.log('continuing')\n  132    }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html:\n  207    // Assume failure took place in mechanical turk session (this code is irrelevant for inlab)\n  208    // Submit the error message\n  209:   await sleep(1500)\n  210  \n  211    try{\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DataWriter.js:\n  214              // todo: write out to localstorage the data\n  215          }\n  216:         await sleep(1500)\n  217      }\n  218  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_DiskIO.js:\n  362                          console.log(error)\n  363                          console.log('On retry '+retry_number)\n  364:                         sleep(backoff_time_seed * retry_number)\n  365                          //continue\n  366                      }   \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_utils.js:\n  368  \n  369  \n  370: function sleep(ms) {\n  371    return new Promise(resolve => setTimeout(resolve, ms));\n  372  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   73      // Playspace.Reinforcer.juiceRewardPer1000 = 175\n   74      // wdm('20sec')\n   75:     // await sleep(20000)\n   76      // ub = 500\n   77      // for (i = 0; i < ub; i++) {\n   78:     //   await sleep(1500)\n   79      //   Playspace.Reinforcer.deliver_reinforcement(1)\n   80      //   wdm(i + ' of ' + ub + '. juicerewardper1000=' + Playspace.Reinforcer.juiceRewardPer1000)\n\n7 matches across 6 files\n\n\nSearching 68 files for \"dimDistractorButtons\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TrialGenerator.js:\n  133                  choiceId.push(... dotId)\n  134              }\n  135:             else if (tk['dimDistractorButtons'] == true){\n  136                  var dotCorrect = 'dot'\n  137                  var dotDistractor = 'dim_dot'\n\n1 match in 1 file\n\n\nSearching 68 files for \"repeatstim\"\n\n0 matches\n\nSearching 68 files for \"repeat\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n   35                  \"punishStreakTimeOutMultiplier\":1.2,\n   36                  \"rewardTimeOutMsec\":150,\n   37:                 \"probabilityRepeatWhenWrong\":0,\n   38                  \"averageReturnCriterion\":0, \n   39                  \"minTrialsCriterion\":50,\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_TaskStreamer.js:\n   97          this.tStatistic_criticalLb = freturn['tStatistic_criticalLb']\n   98  \n   99:         if (tk['repeatSampleBagIfWrong'] != undefined){\n  100:             if (tk['repeatSampleBagIfWrong'] == true){\n  101                  // Indexes tk['sampleBagNames']\n  102                  if (r < 1){\n  103                      var lastBag = current_trial_outcome['sampleBag']\n  104                      var lastBagIdx = tk['sampleBagNames'].indexOf(lastBag)\n  105:                     this.bagSamplingWeights = np.xvec(tk['sampleBagNames'].length, 0) // probability = 1 of repeating last bag     \n  106                      this.bagSamplingWeights[lastBagIdx] = 1\n  107                  }\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/javascript_utils/seedrandom.js:\n  107  \n  108  var rng = new Math.seedrandom(seed); // A new prng with the same seed.\n  109: document.write(rng());               // Repeat the 'unpredictable' x.\n  110  \n  111  function reseed(event, count) {      // Define a custom entropy collector.\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n   76                  \"fixationYCentroid\": 0.8, \n   77                  \"minTrialsCriterion\": 5, \n   78:                 \"probabilityRepeatWhenWrong\": 0, \n   79                  \"punishStreakTimeOutMultiplier\": 1, \n   80                  \"punishTimeOutMsec\": 100, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n   78                          \"fixationYCentroid\": 0.8, \n   79                          \"minTrialsCriterion\": 5, \n   80:                         \"probabilityRepeatWhenWrong\": 0, \n   81                          \"punishStreakTimeOutMultiplier\": 1, \n   82                          \"punishTimeOutMsec\": 100, \n   ..\n  136                          \"fixationYCentroid\": 0.8, \n  137                          \"minTrialsCriterion\": 10, \n  138:                         \"probabilityRepeatWhenWrong\": 0, \n  139                          \"punishStreakTimeOutMultiplier\": 1, \n  140                          \"punishTimeOutMsec\": 100, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n  100                  \"fixationYCentroid\": 0.8, \n  101                  \"minTrialsCriterion\": 5, \n  102:                 \"probabilityRepeatWhenWrong\": 0, \n  103                  \"punishStreakTimeOutMultiplier\": 1.2, \n  104                  \"punishTimeOutMsec\": 400, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n  100                  \"fixationYCentroid\": 0.8, \n  101                  \"minTrialsCriterion\": 5, \n  102:                 \"probabilityRepeatWhenWrong\": 0, \n  103                  \"punishStreakTimeOutMultiplier\": 1.2, \n  104                  \"punishTimeOutMsec\": 400, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n  100                  \"fixationYCentroid\": 0.8, \n  101                  \"minTrialsCriterion\": 5, \n  102:                 \"probabilityRepeatWhenWrong\": 0, \n  103                  \"punishStreakTimeOutMultiplier\": 1.2, \n  104                  \"punishTimeOutMsec\": 400, \n  ...\n  148                  \"fixationYCentroid\": 0.8, \n  149                  \"minTrialsCriterion\": 5, \n  150:                 \"probabilityRepeatWhenWrong\": 0, \n  151                  \"punishStreakTimeOutMultiplier\": 1.2, \n  152                  \"punishTimeOutMsec\": 400, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n   95                  \"fixationYCentroid\": 0.8, \n   96                  \"minTrialsCriterion\": 5, \n   97:                 \"probabilityRepeatWhenWrong\": 0, \n   98                  \"punishStreakTimeOutMultiplier\": 1.2, \n   99                  \"punishTimeOutMsec\": 400, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n   77                          \"fixationYCentroid\": 0.8, \n   78                          \"minTrialsCriterion\": 10, \n   79:                         \"probabilityRepeatWhenWrong\": 0, \n   80                          \"punishStreakTimeOutMultiplier\": 1, \n   81                          \"punishTimeOutMsec\": 800, \n   ..\n  135                          \"fixationYCentroid\": 0.8, \n  136                          \"minTrialsCriterion\": 10, \n  137:                         \"probabilityRepeatWhenWrong\": 0, \n  138                          \"punishStreakTimeOutMultiplier\": 1, \n  139                          \"punishTimeOutMsec\": 800, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n  214          \"fixationYCentroid\": 0.8, \n  215          \"minTrialsCriterion\": 10, \n  216:         \"probabilityRepeatWhenWrong\": 0, \n  217          \"punishStreakTimeOutMultiplier\": 1, \n  218          \"punishTimeOutMsec\": 800, \n  ...\n  272          \"fixationYCentroid\": 0.8, \n  273          \"minTrialsCriterion\": 100, \n  274:         \"probabilityRepeatWhenWrong\": 0, \n  275          \"punishStreakTimeOutMultiplier\": 1, \n  276          \"punishTimeOutMsec\": 800, \n  ...\n  326          \"fixationYCentroid\": 0.8, \n  327          \"minTrialsCriterion\": 100, \n  328:         \"probabilityRepeatWhenWrong\": 0, \n  329          \"punishStreakTimeOutMultiplier\": 1, \n  330          \"punishTimeOutMsec\": 800, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n  214          \"fixationYCentroid\": 0.8, \n  215          \"minTrialsCriterion\": 10, \n  216:         \"probabilityRepeatWhenWrong\": 0, \n  217          \"punishStreakTimeOutMultiplier\": 1, \n  218          \"punishTimeOutMsec\": 800, \n  ...\n  272          \"fixationYCentroid\": 0.8, \n  273          \"minTrialsCriterion\": 100, \n  274:         \"probabilityRepeatWhenWrong\": 0, \n  275          \"punishStreakTimeOutMultiplier\": 1, \n  276          \"punishTimeOutMsec\": 800, \n  ...\n  326          \"fixationYCentroid\": 0.8, \n  327          \"minTrialsCriterion\": 100, \n  328:         \"probabilityRepeatWhenWrong\": 0, \n  329          \"punishStreakTimeOutMultiplier\": 1, \n  330          \"punishTimeOutMsec\": 800, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/sandbox/ptap_landing_page_1553463155_0.html:\n   77          \"fixationYCentroid\": 0.8, \n   78          \"minTrialsCriterion\": 10, \n   79:         \"probabilityRepeatWhenWrong\": 0, \n   80          \"punishStreakTimeOutMultiplier\": 1, \n   81          \"punishTimeOutMsec\": 800, \n   ..\n  139          \"keepSampleOn\": true, \n  140          \"minTrialsCriterion\": 100, \n  141:         \"probabilityRepeatWhenWrong\": 0, \n  142          \"punishStreakTimeOutMultiplier\": 1, \n  143          \"punishTimeOutMsec\": 800, \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/sandbox/test.html:\n   84          \"fixationYCentroid\": 0.8, \n   85          \"minTrialsCriterion\": 10, \n   86:         \"probabilityRepeatWhenWrong\": 0, \n   87          \"punishStreakTimeOutMultiplier\": 1, \n   88          \"punishTimeOutMsec\": 800, \n   ..\n  151          \"keepSampleOn\": true, \n  152          \"minTrialsCriterion\": 10, \n  153:         \"probabilityRepeatWhenWrong\": 0, \n  154          \"punishStreakTimeOutMultiplier\": 1, \n  155          \"punishTimeOutMsec\": 800, \n  ...\n  228          \"keepSampleOn\": true, \n  229          \"minTrialsCriterion\": 10, \n  230:         \"probabilityRepeatWhenWrong\": 0, \n  231          \"punishStreakTimeOutMultiplier\": 1, \n  232          \"punishTimeOutMsec\": 800, \n  ...\n  305          \"keepSampleOn\": true, \n  306          \"minTrialsCriterion\": 10, \n  307:         \"probabilityRepeatWhenWrong\": 0, \n  308          \"punishStreakTimeOutMultiplier\": 1, \n  309          \"punishTimeOutMsec\": 800, \n  ...\n  382          \"keepSampleOn\": true, \n  383          \"minTrialsCriterion\": 10, \n  384:         \"probabilityRepeatWhenWrong\": 0, \n  385          \"punishStreakTimeOutMultiplier\": 1, \n  386          \"punishTimeOutMsec\": 800, \n  ...\n  459          \"keepSampleOn\": true, \n  460          \"minTrialsCriterion\": 10, \n  461:         \"probabilityRepeatWhenWrong\": 0, \n  462          \"punishStreakTimeOutMultiplier\": 1, \n  463          \"punishTimeOutMsec\": 800, \n  ...\n  536          \"keepSampleOn\": true, \n  537          \"minTrialsCriterion\": 10, \n  538:         \"probabilityRepeatWhenWrong\": 0, \n  539          \"punishStreakTimeOutMultiplier\": 1, \n  540          \"punishTimeOutMsec\": 800, \n  ...\n  613          \"keepSampleOn\": true, \n  614          \"minTrialsCriterion\": 10, \n  615:         \"probabilityRepeatWhenWrong\": 0, \n  616          \"punishStreakTimeOutMultiplier\": 1, \n  617          \"punishTimeOutMsec\": 800, \n  ...\n  690          \"keepSampleOn\": true, \n  691          \"minTrialsCriterion\": 10, \n  692:         \"probabilityRepeatWhenWrong\": 0, \n  693          \"punishStreakTimeOutMultiplier\": 1, \n  694          \"punishTimeOutMsec\": 800, \n  ...\n  767          \"keepSampleOn\": true, \n  768          \"minTrialsCriterion\": 10, \n  769:         \"probabilityRepeatWhenWrong\": 0, \n  770          \"punishStreakTimeOutMultiplier\": 1, \n  771          \"punishTimeOutMsec\": 800, \n  ...\n  844          \"keepSampleOn\": true, \n  845          \"minTrialsCriterion\": 10, \n  846:         \"probabilityRepeatWhenWrong\": 0, \n  847          \"punishStreakTimeOutMultiplier\": 1, \n  848          \"punishTimeOutMsec\": 800, \n  ...\n  921          \"keepSampleOn\": true, \n  922          \"minTrialsCriterion\": 10, \n  923:         \"probabilityRepeatWhenWrong\": 0, \n  924          \"punishStreakTimeOutMultiplier\": 1, \n  925          \"punishTimeOutMsec\": 800, \n  ...\n  998          \"keepSampleOn\": true, \n  999          \"minTrialsCriterion\": 10, \n 1000:         \"probabilityRepeatWhenWrong\": 0, \n 1001          \"punishStreakTimeOutMultiplier\": 1, \n 1002          \"punishTimeOutMsec\": 800, \n ....\n 1075          \"keepSampleOn\": true, \n 1076          \"minTrialsCriterion\": 10, \n 1077:         \"probabilityRepeatWhenWrong\": 0, \n 1078          \"punishStreakTimeOutMultiplier\": 1, \n 1079          \"punishTimeOutMsec\": 800, \n ....\n 1152          \"keepSampleOn\": true, \n 1153          \"minTrialsCriterion\": 10, \n 1154:         \"probabilityRepeatWhenWrong\": 0, \n 1155          \"punishStreakTimeOutMultiplier\": 1, \n 1156          \"punishTimeOutMsec\": 800, \n ....\n 1229          \"keepSampleOn\": true, \n 1230          \"minTrialsCriterion\": 10, \n 1231:         \"probabilityRepeatWhenWrong\": 0, \n 1232          \"punishStreakTimeOutMultiplier\": 1, \n 1233          \"punishTimeOutMsec\": 800, \n ....\n 1306          \"keepSampleOn\": true, \n 1307          \"minTrialsCriterion\": 10, \n 1308:         \"probabilityRepeatWhenWrong\": 0, \n 1309          \"punishStreakTimeOutMultiplier\": 1, \n 1310          \"punishTimeOutMsec\": 800, \n ....\n 1383          \"keepSampleOn\": true, \n 1384          \"minTrialsCriterion\": 10, \n 1385:         \"probabilityRepeatWhenWrong\": 0, \n 1386          \"punishStreakTimeOutMultiplier\": 1, \n 1387          \"punishTimeOutMsec\": 800, \n ....\n 1460          \"keepSampleOn\": true, \n 1461          \"minTrialsCriterion\": 10, \n 1462:         \"probabilityRepeatWhenWrong\": 0, \n 1463          \"punishStreakTimeOutMultiplier\": 1, \n 1464          \"punishTimeOutMsec\": 800, \n ....\n 1537          \"keepSampleOn\": true, \n 1538          \"minTrialsCriterion\": 10, \n 1539:         \"probabilityRepeatWhenWrong\": 0, \n 1540          \"punishStreakTimeOutMultiplier\": 1, \n 1541          \"punishTimeOutMsec\": 800, \n ....\n 1614          \"keepSampleOn\": true, \n 1615          \"minTrialsCriterion\": 10, \n 1616:         \"probabilityRepeatWhenWrong\": 0, \n 1617          \"punishStreakTimeOutMultiplier\": 1, \n 1618          \"punishTimeOutMsec\": 800, \n\n44 matches across 14 files\n\n\nSearching 68 files for \"screen_virtualPixelsPerInch\"\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_defaultHIT_failsafe.js:\n   49                'playspace_verticalOffsetInches':0, \n   50                'playspace_viewingDistanceInches':8, \n   51:               'screen_virtualPixelsPerInch':143.755902965,\n   52                'primary_reinforcer_type':'juice', \n   53                'action_event_type':['mouseup', 'touchstart', 'touchmove'],\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_Playspace.js:\n    5          var playspace_verticalOffsetInches = playspacePackage['playspace_verticalOffsetInches']\n    6          var playspace_viewingDistanceInches = playspacePackage['playspace_viewingDistanceInches']\n    7:         var screen_virtualPixelsPerInch = playspacePackage['screen_virtualPixelsPerInch']\n    8          var primary_reinforcer_type = playspacePackage['primary_reinforcer_type'] \n    9          var action_event_type = playspacePackage['action_event_type'] \n   ..\n   17          this.playspaceSizeDegrees = playspace_degreesVisualAngle\n   18          this.playspace_isFullScreen = playspace_isFullScreen\n   19:         this.virtualPixelsPerInch = screen_virtualPixelsPerInch\n   20          this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees)\n   21  \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_MechanicalTurk_session.js:\n   36      'playspace_verticalOffsetInches':ENVIRONMENT['playspace_verticalOffsetInches'],\n   37      'playspace_viewingDistanceInches':ENVIRONMENT['playspace_viewingDistanceInches'],\n   38:     'screen_virtualPixelsPerInch':ENVIRONMENT['screen_virtualPixelsPerInch'],\n   39      'primary_reinforcer_type':ENVIRONMENT['primary_reinforcer_type'], \n   40      'action_event_type':ENVIRONMENT['action_event_type'], \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/setup_upstairs_session.js:\n   44      'playspace_verticalOffsetInches':ENVIRONMENT['playspace_verticalOffsetInches'],\n   45      'playspace_viewingDistanceInches':ENVIRONMENT['playspace_viewingDistanceInches'],\n   46:     'screen_virtualPixelsPerInch':ENVIRONMENT['screen_virtualPixelsPerInch'],\n   47      'primary_reinforcer_type':ENVIRONMENT['primary_reinforcer_type'], \n   48      'action_event_type':ENVIRONMENT['action_event_type'], \n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabMTS.html:\n   27          \"primary_reinforcer_type\": \"juice\", \n   28          \"rigEnvironment\": \"monkeybox\", \n   29:         \"screen_virtualPixelsPerInch\": 143.755902965\n   30      }, \n   31      \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_InlabSR_blackdiamond.html:\n   18                    \"playspace_verticalOffsetInches\":0, \n   19                    \"playspace_viewingDistanceInches\":12, \n   20:                   \"screen_virtualPixelsPerInch\":143.755902965,\n   21                    \"primary_reinforcer_type\":\"monetary\", \n   22                    \"action_event_type\":[\"mouseup\", \"touchstart\", \"touchmove\"],\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurk_MTS_choicespace.html:\n   28          \"primary_reinforcer_type\": \"monetary\", \n   29          \"rigEnvironment\": \"mechanicalturk\", \n   30:         \"screen_virtualPixelsPerInch\": 143.755902965\n   31      }, \n   32      \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS.html:\n   28          \"primary_reinforcer_type\": \"monetary\", \n   29          \"rigEnvironment\": \"mechanicalturk\", \n   30:         \"screen_virtualPixelsPerInch\": 143.755902965\n   31      }, \n   32      \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkMTS_to_SR.html:\n   28          \"primary_reinforcer_type\": \"monetary\", \n   29          \"rigEnvironment\": \"mechanicalturk\", \n   30:         \"screen_virtualPixelsPerInch\": 143.755902965\n   31      }, \n   32      \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR.html:\n   28          \"primary_reinforcer_type\": \"monetary\", \n   29          \"rigEnvironment\": \"mechanicalturk\", \n   30:         \"screen_virtualPixelsPerInch\": 143.755902965\n   31      }, \n   32      \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/landingPage_MechanicalTurkSR_blackdiamond.html:\n   18                    \"playspace_verticalOffsetInches\":0, \n   19                    \"playspace_viewingDistanceInches\":12, \n   20:                   \"screen_virtualPixelsPerInch\":143.755902965,\n   21                    \"primary_reinforcer_type\":\"monetary\", \n   22                    \"action_event_type\":[\"mouseup\", \"touchstart\", \"touchmove\"],\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539547754_0.html:\n  165      \"primary_reinforcer_type\": \"monetary\", \n  166      \"rigEnvironment\": \"mechanicalturk\", \n  167:     \"screen_virtualPixelsPerInch\": 143.755902965\n  168    }, \n  169    \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/examples/ptap_landing_page_1539549946_0.html:\n  165      \"primary_reinforcer_type\": \"monetary\", \n  166      \"rigEnvironment\": \"mechanicalturk\", \n  167:     \"screen_virtualPixelsPerInch\": 143.755902965\n  168    }, \n  169    \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/sandbox/ptap_landing_page_1553463155_0.html:\n   28      \"primary_reinforcer_type\": \"monetary\", \n   29      \"rigEnvironment\": \"mechanicalturk\", \n   30:     \"screen_virtualPixelsPerInch\": 143.755902965\n   31    }, \n   32    \"GAME_PACKAGE\": {\n\n/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/sandbox/test.html:\n   29      \"primary_reinforcer_type\": \"monetary\", \n   30      \"rigEnvironment\": \"mechanicalturk\", \n   31:     \"screen_virtualPixelsPerInch\": 143.755902965, \n   32      \"showDeviceSelectionSplash\": false\n   33    }, \n\n19 matches across 15 files\n",
+			"settings":
+			{
+				"buffer_size": 48998,
 				"line_ending": "Unix",
 				"name": "Find Results",
 				"scratch": true
+			}
+		},
+		{
+			"file": "public/mkturk_style.css",
+			"settings":
+			{
+				"buffer_size": 6667,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_Reinforcer.js",
+			"settings":
+			{
+				"buffer_size": 2794,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_usb.js",
+			"settings":
+			{
+				"buffer_size": 8286,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/task_specification.json",
+			"settings":
+			{
+				"buffer_size": 2238,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_UX.js",
+			"settings":
+			{
+				"buffer_size": 9333,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/mkturk_BiasDetection.js",
+			"settings":
+			{
+				"buffer_size": 6631,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "public/setup_MechanicalTurk_session.js",
+			"settings":
+			{
+				"buffer_size": 4218,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
 			}
 		},
 		{
@@ -593,7 +680,8 @@
 			"file": "public/setup_upstairs_session.js",
 			"settings":
 			{
-				"buffer_size": 3216,
+				"buffer_size": 3330,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
@@ -616,19 +704,13 @@
 			}
 		},
 		{
+			"contents": "# Launching Google Chrome with WebUSB enabled, on Mac OSX:\n\nThe Chromium team has disabled WebUSB as of March 2018, amid phishing exploits involving WebUSB hardware. \nHowever, one can re-enable WebUSB functionality by typing the following into the command line (e.g. in Terminal or iTerm): \n\n    /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --enable-features=WebUSB\n\n## Source: \nhttps://bugs.chromium.org/p/chromium/issues/detail?id=819197\n\nRefer to the following comment by reillyg@chromium.org: \n\n        As you may be already aware members of the security research community have identified a vulnerability in some models of U2F token that allows them to be exploited via a phishing attack using WebUSB. Out of an abundance of caution we have disabled WebUSB in Chrome to protect users while we roll out an update which includes the ability to block access to these vulnerable devices specifically.\n        We apologize for the inconvenience and thank you for your patience as we work through this issue.\n        To manually re-enable WebUSB you may add the flag \"--enable-features=WebUSB\" to the Chrome command line. To do this on Windows, right click on the \"Google Chrome\" application shortcut, select Properties and add the string \" --enable-features=WebUSB\" to the end of the line in the box labeled \"Target\".\n\n\n# Launching Google Chrome with WebUSB enabled, on Android:\nSince non-rooted Android hardware devices do not allow user access to the terminal, it is not as straightforward to launch chrome with the \"--enable-features=WebUSB\" flag. \n\nApparently, there is a way to do it though, without rooting your device. I followed the instructions written by Josh Lee, found on this StackOverflow post:\nhttps://stackoverflow.com/questions/29280796/run-google-chrome-with-flags-on-android \n\nI'll write out exactly what I did below, though. You can follow these instructions instead of the one in the S.O. post, if you'd like. \n\n0. On your workstation (e.g., your laptop or desktop computer), install ADB, the Android Debug Utility. Running Mac OS, I did it by installing Android Studio, then following Option 3 in this StackOverflow post: \nhttps://stackoverflow.com/questions/17901692/set-up-adb-on-mac-os-x\n\n1. Make sure your Chrome app is version 61 or above on your tablet, where WebUSB begins to be supported.\n2. On your tablet's version of Chrome, in chrome://flags, turn on enable-command-line-on-non-rooted-devices. This will allow the tablet running Chrome to utilize command-line arguments when opened, which you will write in the enxt step.\n\n3. On your workstation's terminal program, write the following command (in iTerm, on my Mac, while the tablet was connected): \nadb shell 'echo --enable-features=WebUSB > /data/local/tmp/chrome-command-line'\n\nBasically, this step writes a file called \"chrome-command-line\" with the string '--enable-features=WebUSB' on your tablet's filesystem. \n\n4. Force stop your tablet's version of Chrome. \n\n5. You should be done. To check, open up the tablet's Chrome's web console with remote debugging, and type in \"navigator.usb\" in the console. It should return a USB object, not undefined. \n\n6. Also, check the startup flags listed in chrome://version to verify that this worked.\n\n\n\n# Disabling swipe down gesture\n\"Enable interaction control in Android Settings (search for accessibility) to disable the swipe-down gesture on the top menu bar and to disable hardware buttons (this enables the subject to exit out of the task), upon a simultaneous home-button + volume-down button press. You can do this at the beginning of each session. \"\n\n# Installing ptap on a new android tablet\n\nOn the tablet,\n1. Update Chrome to version 61+\n2. Turn off notifications.\n2. Turn on Remote USB debugging (https://www.phonearena.com/news/How-to-enable-USB-debugging-on-Android_id53909)\n3. Turn on 'stay-awake' under Developer Options\n3. Go to chrome://flags, turn on enable-command-line-on-non-rooted-devices.\n4. Go to chrome://flags, enable Experimental Web Platform Features, \n5. activate experimental canvas features (where is this?)\n6. Deactivate the redirect on the ptap landing page \n7. Add the landing page to your homescreen\n8. On the tablet, Install Caffeine; disable auto brightness adjustment\n9. Enable interaction control in Android Settings (search for accessibility -> dexterity and interaction) to disable the swipe-down gesture on the top menu bar and to disable hardware buttons (this enables the subject to exit out of the task), upon a simultaneous home-button + volume-down button press. You can do this at the beginning of each session. \n10. Turn off \"Use page predictions\" in Chrome (optional?)\n8. Done!\n\nTroubleshooting: \nClear browsing data in Chrome",
 			"file": "docs/installing_ptap_on_tablets.md",
+			"file_size": 4726,
+			"file_write_time": 131992107570000000,
 			"settings":
 			{
-				"buffer_size": 4370,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "public/landing_pages/inlab/Desimone1_landing_page.html",
-			"settings":
-			{
-				"buffer_size": 2616,
-				"encoding": "UTF-8",
+				"buffer_size": 4726,
 				"line_ending": "Unix"
 			}
 		}
@@ -685,6 +767,7 @@
 	],
 	"file_history":
 	[
+		"/Users/michaellee/Dropbox (MIT)/ptap/public/landing_pages/inlab/Desimone1_landing_page.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk.html",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_UX.js",
 		"/Users/michaellee/Dropbox (MIT)/ptap/public/mkturk_usb.js",
@@ -811,8 +894,7 @@
 		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_automator.js",
 		"/Users/michaellee/dicarlo5/public_html/MonkeyTurk/mkturk/public/mkturk_bluetooth.js",
 		"/Users/michaellee/Dropbox (MIT)/MonkeyTurk/parameterfiles/subjects/Zico_params.txt",
-		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/BehavioralComparisons.py",
-		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/Analyses/BehavioralComparisons.py"
+		"/Users/michaellee/Dropbox (MIT)/PrimatePsychophysics/BehavioralComparisons.py"
 	],
 	"find":
 	{
@@ -831,6 +913,84 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"playspace_isFullScreen",
+			"playspace_degreesVisualAngle",
+			"virtualPixelsPerInch",
+			"screen_virtualPixelsPerInch",
+			"repeat",
+			"repeatstim",
+			"dimDistractorButtons",
+			"sleep",
+			"crypto",
+			"PlaySpaceClass",
+			"JuiceReinforcer",
+			"connectUSBButtonPromise",
+			"connectusb",
+			"writepumpdurationtoBLE",
+			"connect",
+			"sleep",
+			"JuiceReinforcer",
+			"reinforcer.",
+			"juiceRewardPer1000",
+			"juicereinforcer",
+			"reinforcer",
+			"findUSBDevice",
+			"writepumpdurationtoUSB",
+			"reinforcer",
+			"setup",
+			"for",
+			"get_sampling_weights",
+			"get_trial",
+			"device_selection",
+			"splash",
+			"fixationSpacebarText",
+			"drawDotWithText",
+			"run_trial",
+			"bufferFixation",
+			"fixation",
+			"drawDotWithText",
+			"instructionsDialogueString",
+			"instructions",
+			"create_button_mappings",
+			"keypress",
+			"handleKeyPressEvent",
+			"key2actionIndex",
+			"supportedEventTypes",
+			"create_button_mappings",
+			"key2actionIndex",
+			"tp",
+			"sampleBag",
+			"repeatSampleBagIfWrong",
+			"bag2idx",
+			"get_image_idx",
+			"trialPackage",
+			"i_sampleBag",
+			"current_trial_outcome",
+			"repeatSampleBagIfWrong",
+			"i_sampleBag",
+			"trialoutcome",
+			"update_state",
+			"update_staet",
+			"get_sampling_weights",
+			"get_trial",
+			"bagSamplingWeights",
+			"get_sampling_weights",
+			"var a",
+			"a = ",
+			"drawDot",
+			"dot",
+			"drawDot",
+			"'dot'",
+			"choiceXCentroid",
+			"handleActionEvent",
+			"recordActionEvent",
+			"trackNullActions",
+			"screen_margin",
+			"PlaySpaceClass",
+			"playspaceSizePixels",
+			"deg2pixels",
+			"playspaceSizeDegrees",
+			"playspace_degreesVisualAngle",
 			"...",
 			"trialpackage",
 			"choice",
@@ -880,85 +1040,7 @@
 			"create_button_mappings",
 			"keyCode2actionIndex",
 			"create_action_regions",
-			"create_button_mappings",
-			"attached",
-			"keyCode2actionIndex",
-			"handleKeyPressEvent",
-			"handleTouchEvent",
-			"handleKeyPressEvent",
-			"keyCode2actionIndex",
-			"performance.now",
-			"download_from_string",
-			"unpack_game_package",
-			"SessionBootStrapper",
-			"setup_upstairs_session",
-			"localstorageio",
-			"localSavePackage",
-			"reactionTime",
-			"actionOutcome",
-			"handleActionEvent",
-			"resolve",
-			"actionpoller",
-			"actionOutcome",
-			"actionOutcome['timestamp",
-			"waitforClick",
-			"skipBLEDevice",
-			"noble",
-			"usbbutton",
-			"reward",
-			"sleep",
-			"waitforclickGenerator",
-			"waitforClick",
-			"writepumpdurationtoUSB",
-			"findUSBDevice",
-			"waitforClick",
-			"skipBLEDevice",
-			"noble",
-			"connectble",
-			"skip",
-			"find",
-			"connectBLEButtonPromise",
-			"MonkeyUX",
-			"connectBLEButtonPromise",
-			"button",
-			"blankCanvas",
-			"renderBlank",
-			"blankcanvas",
-			"window.performance.timing.navigationStart",
-			"unix",
-			"load",
-			"onpageload",
-			"recordTouchEvent",
-			"add_event_listener",
-			"timestamp",
-			"Promise_wait_until_active_response",
-			"fixationOutcome",
-			"timestampStart",
-			"shuffle",
-			"replace",
-			"setupSession",
-			"writepump",
-			"crypto",
-			"localStorage",
-			"LocalStorageIO",
-			"agentID",
-			"download_from_string",
-			"load_localstorage_string",
-			"sessionPackageBootstrapString",
-			"could not infer",
-			"btoa",
-			" ee ",
-			"ee ",
-			"ee",
-			"ée",
-			"class np",
-			"bagSamplingWeights",
-			"get_bag_from_idx",
-			"bagSamplingWeights",
-			"get_trial",
-			"canvas_punish",
-			"displaypunish",
-			"rewardMap"
+			"create_button_mappings"
 		],
 		"highlight": false,
 		"in_selection": false,
@@ -976,7 +1058,7 @@
 	"groups":
 	[
 		{
-			"selected": 4,
+			"selected": 2,
 			"sheets":
 			[
 				{
@@ -985,15 +1067,1656 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 10334,
+						"buffer_size": 10330,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1564,
-								1564
+								2129,
+								2129
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 19,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "public/mkturk_ScreenDisplayer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 19669,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6146,
+								6146
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 18,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "public/mkturk_Playspace.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 22764,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								14271,
+								14271
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4565.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "public/mkturk_TrialGenerator.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14393,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4785,
+								4805
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1993.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "public/mkturk_utils.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10936,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								862,
+								862
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "public/mkturk_ImageBuffer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6317,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1132,
+								1132
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 16,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "public/mkturk_TaskStreamer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7867,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3892,
+								3914
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 1276.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "public/mkturk.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10731,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6048,
+								6048
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 0,
+								"count": 265,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "public/juicer_tester.html",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7269,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								6499,
+								6499
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 464,
+								"count": 92,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"syntax": "Packages/HTML/HTML.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 48998,
+						"regions":
+						{
+							"match":
+							{
+								"flags": 112,
+								"regions":
+								[
+									[
+										242,
+										247
+									],
+									[
+										444,
+										449
+									],
+									[
+										691,
+										696
+									],
+									[
+										899,
+										904
+									],
+									[
+										1164,
+										1169
+									],
+									[
+										1263,
+										1268
+									],
+									[
+										1609,
+										1616
+									],
+									[
+										1627,
+										1634
+									],
+									[
+										1640,
+										1647
+									],
+									[
+										1868,
+										1875
+									],
+									[
+										1880,
+										1887
+									],
+									[
+										2026,
+										2033
+									],
+									[
+										2044,
+										2051
+									],
+									[
+										2057,
+										2064
+									],
+									[
+										2285,
+										2292
+									],
+									[
+										2297,
+										2304
+									],
+									[
+										2530,
+										2537
+									],
+									[
+										2704,
+										2711
+									],
+									[
+										2731,
+										2738
+									],
+									[
+										2978,
+										2985
+									],
+									[
+										3129,
+										3136
+									],
+									[
+										3230,
+										3237
+									],
+									[
+										3357,
+										3364
+									],
+									[
+										3408,
+										3415
+									],
+									[
+										3488,
+										3495
+									],
+									[
+										3608,
+										3615
+									],
+									[
+										3821,
+										3828
+									],
+									[
+										3904,
+										3911
+									],
+									[
+										4238,
+										4245
+									],
+									[
+										4459,
+										4466
+									],
+									[
+										4611,
+										4618
+									],
+									[
+										4762,
+										4769
+									],
+									[
+										4895,
+										4902
+									],
+									[
+										5133,
+										5140
+									],
+									[
+										5368,
+										5375
+									],
+									[
+										5384,
+										5391
+									],
+									[
+										5457,
+										5464
+									],
+									[
+										5626,
+										5633
+									],
+									[
+										5708,
+										5715
+									],
+									[
+										5773,
+										5780
+									],
+									[
+										5852,
+										5859
+									],
+									[
+										6052,
+										6059
+									],
+									[
+										6274,
+										6281
+									],
+									[
+										6473,
+										6480
+									],
+									[
+										6871,
+										6878
+									],
+									[
+										6967,
+										6974
+									],
+									[
+										7091,
+										7098
+									],
+									[
+										7133,
+										7140
+									],
+									[
+										7162,
+										7169
+									],
+									[
+										7211,
+										7218
+									],
+									[
+										7305,
+										7312
+									],
+									[
+										7359,
+										7366
+									],
+									[
+										7502,
+										7509
+									],
+									[
+										7584,
+										7591
+									],
+									[
+										7702,
+										7709
+									],
+									[
+										7837,
+										7844
+									],
+									[
+										7855,
+										7862
+									],
+									[
+										7915,
+										7922
+									],
+									[
+										8074,
+										8081
+									],
+									[
+										8126,
+										8133
+									],
+									[
+										8352,
+										8359
+									],
+									[
+										8437,
+										8444
+									],
+									[
+										8750,
+										8757
+									],
+									[
+										8948,
+										8955
+									],
+									[
+										9283,
+										9290
+									],
+									[
+										9481,
+										9488
+									],
+									[
+										9640,
+										9647
+									],
+									[
+										9735,
+										9742
+									],
+									[
+										9905,
+										9912
+									],
+									[
+										10061,
+										10068
+									],
+									[
+										10097,
+										10104
+									],
+									[
+										10140,
+										10147
+									],
+									[
+										10165,
+										10172
+									],
+									[
+										10213,
+										10220
+									],
+									[
+										10366,
+										10373
+									],
+									[
+										10407,
+										10414
+									],
+									[
+										10596,
+										10603
+									],
+									[
+										10696,
+										10703
+									],
+									[
+										10805,
+										10812
+									],
+									[
+										10850,
+										10857
+									],
+									[
+										10940,
+										10947
+									],
+									[
+										10982,
+										10989
+									],
+									[
+										11074,
+										11081
+									],
+									[
+										11113,
+										11120
+									],
+									[
+										11175,
+										11182
+									],
+									[
+										11242,
+										11249
+									],
+									[
+										11511,
+										11518
+									],
+									[
+										11560,
+										11567
+									],
+									[
+										11582,
+										11589
+									],
+									[
+										11687,
+										11694
+									],
+									[
+										11724,
+										11731
+									],
+									[
+										11885,
+										11892
+									],
+									[
+										11990,
+										11997
+									],
+									[
+										12030,
+										12037
+									],
+									[
+										12214,
+										12221
+									],
+									[
+										12239,
+										12246
+									],
+									[
+										12287,
+										12294
+									],
+									[
+										12399,
+										12406
+									],
+									[
+										12595,
+										12602
+									],
+									[
+										12716,
+										12723
+									],
+									[
+										12767,
+										12774
+									],
+									[
+										12836,
+										12843
+									],
+									[
+										12944,
+										12951
+									],
+									[
+										13059,
+										13066
+									],
+									[
+										13130,
+										13137
+									],
+									[
+										13346,
+										13353
+									],
+									[
+										13557,
+										13564
+									],
+									[
+										13779,
+										13786
+									],
+									[
+										13820,
+										13827
+									],
+									[
+										14010,
+										14017
+									],
+									[
+										14388,
+										14395
+									],
+									[
+										14925,
+										14932
+									],
+									[
+										15380,
+										15402
+									],
+									[
+										15767,
+										15789
+									],
+									[
+										16058,
+										16080
+									],
+									[
+										16333,
+										16355
+									],
+									[
+										16763,
+										16773
+									],
+									[
+										17071,
+										17081
+									],
+									[
+										17466,
+										17476
+									],
+									[
+										17730,
+										17740
+									],
+									[
+										17943,
+										17953
+									],
+									[
+										18012,
+										18022
+									],
+									[
+										18120,
+										18130
+									],
+									[
+										18235,
+										18245
+									],
+									[
+										18306,
+										18316
+									],
+									[
+										18522,
+										18532
+									],
+									[
+										18880,
+										18890
+									],
+									[
+										19248,
+										19258
+									],
+									[
+										19396,
+										19406
+									],
+									[
+										19707,
+										19717
+									],
+									[
+										20102,
+										20112
+									],
+									[
+										20366,
+										20376
+									],
+									[
+										20579,
+										20589
+									],
+									[
+										20648,
+										20658
+									],
+									[
+										20756,
+										20766
+									],
+									[
+										20871,
+										20881
+									],
+									[
+										20942,
+										20952
+									],
+									[
+										21158,
+										21168
+									],
+									[
+										21516,
+										21526
+									],
+									[
+										21790,
+										21813
+									],
+									[
+										22013,
+										22036
+									],
+									[
+										22278,
+										22293
+									],
+									[
+										22539,
+										22554
+									],
+									[
+										22712,
+										22727
+									],
+									[
+										23011,
+										23026
+									],
+									[
+										23272,
+										23287
+									],
+									[
+										23445,
+										23460
+									],
+									[
+										23673,
+										23687
+									],
+									[
+										24068,
+										24082
+									],
+									[
+										24290,
+										24304
+									],
+									[
+										24718,
+										24724
+									],
+									[
+										25003,
+										25009
+									],
+									[
+										25016,
+										25022
+									],
+									[
+										25352,
+										25358
+									],
+									[
+										25415,
+										25421
+									],
+									[
+										25812,
+										25818
+									],
+									[
+										26053,
+										26059
+									],
+									[
+										26102,
+										26108
+									],
+									[
+										26448,
+										26454
+									],
+									[
+										26537,
+										26543
+									],
+									[
+										26845,
+										26851
+									],
+									[
+										26966,
+										26972
+									],
+									[
+										27114,
+										27120
+									],
+									[
+										27142,
+										27148
+									],
+									[
+										27188,
+										27194
+									],
+									[
+										27393,
+										27399
+									],
+									[
+										27440,
+										27446
+									],
+									[
+										27458,
+										27464
+									],
+									[
+										27584,
+										27590
+									],
+									[
+										27815,
+										27821
+									],
+									[
+										27856,
+										27862
+									],
+									[
+										28225,
+										28231
+									],
+									[
+										28259,
+										28265
+									],
+									[
+										28566,
+										28572
+									],
+									[
+										28937,
+										28942
+									],
+									[
+										29228,
+										29233
+									],
+									[
+										29430,
+										29435
+									],
+									[
+										29677,
+										29682
+									],
+									[
+										29885,
+										29890
+									],
+									[
+										30150,
+										30155
+									],
+									[
+										30249,
+										30254
+									],
+									[
+										30674,
+										30694
+									],
+									[
+										31126,
+										31132
+									],
+									[
+										31423,
+										31429
+									],
+									[
+										31490,
+										31496
+									],
+									[
+										31888,
+										31894
+									],
+									[
+										32214,
+										32220
+									],
+									[
+										32563,
+										32569
+									],
+									[
+										32960,
+										32966
+									],
+									[
+										33273,
+										33279
+									],
+									[
+										33672,
+										33678
+									],
+									[
+										34044,
+										34050
+									],
+									[
+										34422,
+										34428
+									],
+									[
+										34696,
+										34702
+									],
+									[
+										35067,
+										35073
+									],
+									[
+										35476,
+										35482
+									],
+									[
+										35789,
+										35795
+									],
+									[
+										36153,
+										36159
+									],
+									[
+										36387,
+										36393
+									],
+									[
+										36621,
+										36627
+									],
+									[
+										36953,
+										36959
+									],
+									[
+										37187,
+										37193
+									],
+									[
+										37421,
+										37427
+									],
+									[
+										37752,
+										37758
+									],
+									[
+										37982,
+										37988
+									],
+									[
+										38287,
+										38293
+									],
+									[
+										38516,
+										38522
+									],
+									[
+										38745,
+										38751
+									],
+									[
+										38974,
+										38980
+									],
+									[
+										39203,
+										39209
+									],
+									[
+										39432,
+										39438
+									],
+									[
+										39661,
+										39667
+									],
+									[
+										39890,
+										39896
+									],
+									[
+										40119,
+										40125
+									],
+									[
+										40348,
+										40354
+									],
+									[
+										40577,
+										40583
+									],
+									[
+										40806,
+										40812
+									],
+									[
+										41035,
+										41041
+									],
+									[
+										41264,
+										41270
+									],
+									[
+										41493,
+										41499
+									],
+									[
+										41722,
+										41728
+									],
+									[
+										41951,
+										41957
+									],
+									[
+										42180,
+										42186
+									],
+									[
+										42409,
+										42415
+									],
+									[
+										42638,
+										42644
+									],
+									[
+										42867,
+										42873
+									],
+									[
+										43281,
+										43308
+									],
+									[
+										43756,
+										43783
+									],
+									[
+										43804,
+										43831
+									],
+									[
+										44191,
+										44218
+									],
+									[
+										44586,
+										44613
+									],
+									[
+										44628,
+										44655
+									],
+									[
+										45071,
+										45098
+									],
+									[
+										45113,
+										45140
+									],
+									[
+										45498,
+										45525
+									],
+									[
+										45845,
+										45872
+									],
+									[
+										46278,
+										46305
+									],
+									[
+										46593,
+										46620
+									],
+									[
+										46914,
+										46941
+									],
+									[
+										47228,
+										47255
+									],
+									[
+										47584,
+										47611
+									],
+									[
+										47993,
+										48020
+									],
+									[
+										48293,
+										48320
+									],
+									[
+										48592,
+										48619
+									],
+									[
+										48865,
+										48892
+									]
+								],
+								"scope": ""
+							}
+						},
+						"selection":
+						[
+							[
+								44179,
+								44179
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": 42,
+								"count": 1954,
+								"modified": false,
+								"selection": true,
+								"status": -1,
+								"syntax": "plain text"
+							},
+							"detect_indentation": false,
+							"line_numbers": false,
+							"output_tag": 15,
+							"result_base_dir": "",
+							"result_file_regex": "^([^ \t].*):$",
+							"result_line_regex": "^ +([0-9]+):",
+							"scroll_past_end": true,
+							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 16120.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "public/mkturk_style.css",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6667,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								380,
+								380
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "css"
+							},
+							"syntax": "Packages/CSS/CSS.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "public/mkturk_Reinforcer.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2794,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								538,
+								538
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "public/mkturk_usb.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8286,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7129,
+								7152
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "public/task_specification.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2238,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								871,
+								871
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "json"
+							},
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "public/mkturk_UX.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9333,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								687,
+								687
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 15,
+					"file": "public/mkturk_BiasDetection.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6631,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2084,
+								2084
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "public/setup_MechanicalTurk_session.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4218,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2157,
+								2157
+							]
+						],
+						"settings":
+						{
+							"WordCount":
+							{
+								"changes": -1,
+								"modified": true,
+								"selection": true,
+								"status": -1,
+								"syntax": "javascript"
+							},
+							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 17,
+					"type": "text"
+				},
+				{
+					"buffer": 17,
+					"file": "public/mkturk_SessionBootStrapper.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7799,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1076,
+								1076
 							]
 						],
 						"settings":
@@ -1018,20 +2741,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "public/mkturk_Playspace.js",
+					"buffer": 18,
+					"file": "public/setup_upstairs_session.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 21793,
+						"buffer_size": 3330,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								4485,
-								4485
+								883,
+								883
 							]
 						],
 						"settings":
@@ -1045,150 +2768,6 @@
 								"syntax": "javascript"
 							},
 							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 848.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "public/mkturk_ScreenDisplayer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 17435,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4169,
-								4169
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1241.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "public/mkturk_TaskStreamer.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7302,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1824,
-								1826
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 304.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "public/mkturk_TrialGenerator.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 13086,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								4230,
-								4230
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": -1,
-								"modified": true,
-								"selection": true,
-								"status": -1,
-								"syntax": "javascript"
-							},
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 1309.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "public/mkturk.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10731,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								8521,
-								8521
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
 							"tab_size": 2,
 							"translate_tabs_to_spaces": true
 						},
@@ -1200,1171 +2779,7 @@
 					"type": "text"
 				},
 				{
-					"buffer": 6,
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 54678,
-						"regions":
-						{
-							"match":
-							{
-								"flags": 112,
-								"regions":
-								[
-									[
-										125,
-										142
-									],
-									[
-										389,
-										406
-									],
-									[
-										856,
-										869
-									],
-									[
-										904,
-										917
-									],
-									[
-										1201,
-										1214
-									],
-									[
-										1650,
-										1663
-									],
-									[
-										1686,
-										1699
-									],
-									[
-										1713,
-										1726
-									],
-									[
-										1819,
-										1832
-									],
-									[
-										1833,
-										1846
-									],
-									[
-										1903,
-										1916
-									],
-									[
-										1946,
-										1959
-									],
-									[
-										1994,
-										2007
-									],
-									[
-										2046,
-										2059
-									],
-									[
-										2103,
-										2116
-									],
-									[
-										2120,
-										2133
-									],
-									[
-										2194,
-										2207
-									],
-									[
-										2249,
-										2262
-									],
-									[
-										2304,
-										2317
-									],
-									[
-										2351,
-										2364
-									],
-									[
-										2602,
-										2615
-									],
-									[
-										2718,
-										2731
-									],
-									[
-										2982,
-										2995
-									],
-									[
-										3190,
-										3203
-									],
-									[
-										3410,
-										3423
-									],
-									[
-										3782,
-										3795
-									],
-									[
-										4167,
-										4180
-									],
-									[
-										4237,
-										4250
-									],
-									[
-										4402,
-										4415
-									],
-									[
-										4581,
-										4594
-									],
-									[
-										4839,
-										4852
-									],
-									[
-										4896,
-										4909
-									],
-									[
-										5067,
-										5080
-									],
-									[
-										5126,
-										5139
-									],
-									[
-										5427,
-										5440
-									],
-									[
-										5457,
-										5470
-									],
-									[
-										5700,
-										5713
-									],
-									[
-										5730,
-										5743
-									],
-									[
-										5946,
-										5959
-									],
-									[
-										6128,
-										6141
-									],
-									[
-										6342,
-										6355
-									],
-									[
-										6432,
-										6445
-									],
-									[
-										6630,
-										6643
-									],
-									[
-										6818,
-										6831
-									],
-									[
-										7105,
-										7118
-									],
-									[
-										7202,
-										7215
-									],
-									[
-										7542,
-										7555
-									],
-									[
-										7909,
-										7922
-									],
-									[
-										8189,
-										8202
-									],
-									[
-										8438,
-										8451
-									],
-									[
-										8693,
-										8706
-									],
-									[
-										8941,
-										8954
-									],
-									[
-										9317,
-										9330
-									],
-									[
-										9684,
-										9697
-									],
-									[
-										9849,
-										9862
-									],
-									[
-										9939,
-										9952
-									],
-									[
-										10059,
-										10072
-									],
-									[
-										10178,
-										10191
-									],
-									[
-										10500,
-										10513
-									],
-									[
-										10597,
-										10610
-									],
-									[
-										10934,
-										10947
-									],
-									[
-										11096,
-										11109
-									],
-									[
-										11186,
-										11199
-									],
-									[
-										11384,
-										11397
-									],
-									[
-										11572,
-										11585
-									],
-									[
-										11859,
-										11872
-									],
-									[
-										11956,
-										11969
-									],
-									[
-										12323,
-										12336
-									],
-									[
-										12371,
-										12384
-									],
-									[
-										12668,
-										12681
-									],
-									[
-										13117,
-										13130
-									],
-									[
-										13153,
-										13166
-									],
-									[
-										13180,
-										13193
-									],
-									[
-										13286,
-										13299
-									],
-									[
-										13300,
-										13313
-									],
-									[
-										13370,
-										13383
-									],
-									[
-										13413,
-										13426
-									],
-									[
-										13461,
-										13474
-									],
-									[
-										13513,
-										13526
-									],
-									[
-										13570,
-										13583
-									],
-									[
-										13587,
-										13600
-									],
-									[
-										13661,
-										13674
-									],
-									[
-										13716,
-										13729
-									],
-									[
-										13771,
-										13784
-									],
-									[
-										13818,
-										13831
-									],
-									[
-										14069,
-										14082
-									],
-									[
-										14185,
-										14198
-									],
-									[
-										14449,
-										14462
-									],
-									[
-										14657,
-										14670
-									],
-									[
-										14877,
-										14890
-									],
-									[
-										15249,
-										15262
-									],
-									[
-										15634,
-										15647
-									],
-									[
-										15704,
-										15717
-									],
-									[
-										15869,
-										15882
-									],
-									[
-										16048,
-										16061
-									],
-									[
-										16306,
-										16319
-									],
-									[
-										16363,
-										16376
-									],
-									[
-										16534,
-										16547
-									],
-									[
-										16593,
-										16606
-									],
-									[
-										16894,
-										16907
-									],
-									[
-										16924,
-										16937
-									],
-									[
-										17167,
-										17180
-									],
-									[
-										17197,
-										17210
-									],
-									[
-										17413,
-										17426
-									],
-									[
-										17595,
-										17608
-									],
-									[
-										17809,
-										17822
-									],
-									[
-										17899,
-										17912
-									],
-									[
-										18097,
-										18110
-									],
-									[
-										18285,
-										18298
-									],
-									[
-										18572,
-										18585
-									],
-									[
-										18669,
-										18682
-									],
-									[
-										19009,
-										19022
-									],
-									[
-										19376,
-										19389
-									],
-									[
-										19656,
-										19669
-									],
-									[
-										19905,
-										19918
-									],
-									[
-										20160,
-										20173
-									],
-									[
-										20408,
-										20421
-									],
-									[
-										20784,
-										20797
-									],
-									[
-										21151,
-										21164
-									],
-									[
-										21316,
-										21329
-									],
-									[
-										21406,
-										21419
-									],
-									[
-										21526,
-										21539
-									],
-									[
-										21645,
-										21658
-									],
-									[
-										21967,
-										21980
-									],
-									[
-										22064,
-										22077
-									],
-									[
-										22401,
-										22414
-									],
-									[
-										22563,
-										22576
-									],
-									[
-										22653,
-										22666
-									],
-									[
-										22851,
-										22864
-									],
-									[
-										23039,
-										23052
-									],
-									[
-										23326,
-										23339
-									],
-									[
-										23423,
-										23436
-									],
-									[
-										23737,
-										23758
-									],
-									[
-										23942,
-										23963
-									],
-									[
-										24237,
-										24258
-									],
-									[
-										24442,
-										24463
-									],
-									[
-										24500,
-										24521
-									],
-									[
-										24780,
-										24801
-									],
-									[
-										24985,
-										25006
-									],
-									[
-										25280,
-										25301
-									],
-									[
-										25485,
-										25506
-									],
-									[
-										25543,
-										25564
-									],
-									[
-										25764,
-										25781
-									],
-									[
-										26043,
-										26060
-									],
-									[
-										26272,
-										26289
-									],
-									[
-										26577,
-										26585
-									],
-									[
-										26954,
-										26962
-									],
-									[
-										27175,
-										27183
-									],
-									[
-										27197,
-										27205
-									],
-									[
-										27234,
-										27242
-									],
-									[
-										27437,
-										27445
-									],
-									[
-										27658,
-										27666
-									],
-									[
-										27974,
-										27982
-									],
-									[
-										28131,
-										28139
-									],
-									[
-										28142,
-										28150
-									],
-									[
-										28268,
-										28276
-									],
-									[
-										28568,
-										28576
-									],
-									[
-										28822,
-										28830
-									],
-									[
-										29191,
-										29199
-									],
-									[
-										29556,
-										29564
-									],
-									[
-										29885,
-										29893
-									],
-									[
-										30219,
-										30227
-									],
-									[
-										30542,
-										30550
-									],
-									[
-										30914,
-										30922
-									],
-									[
-										31250,
-										31258
-									],
-									[
-										31554,
-										31562
-									],
-									[
-										31874,
-										31877
-									],
-									[
-										32125,
-										32128
-									],
-									[
-										32303,
-										32306
-									],
-									[
-										32688,
-										32691
-									],
-									[
-										33070,
-										33073
-									],
-									[
-										33224,
-										33227
-									],
-									[
-										33380,
-										33383
-									],
-									[
-										33539,
-										33542
-									],
-									[
-										33726,
-										33729
-									],
-									[
-										34003,
-										34006
-									],
-									[
-										34171,
-										34174
-									],
-									[
-										34400,
-										34403
-									],
-									[
-										34623,
-										34626
-									],
-									[
-										34920,
-										34923
-									],
-									[
-										35156,
-										35159
-									],
-									[
-										35345,
-										35348
-									],
-									[
-										35696,
-										35699
-									],
-									[
-										35925,
-										35928
-									],
-									[
-										35991,
-										35994
-									],
-									[
-										36158,
-										36161
-									],
-									[
-										36476,
-										36479
-									],
-									[
-										36696,
-										36699
-									],
-									[
-										37039,
-										37042
-									],
-									[
-										37312,
-										37315
-									],
-									[
-										37592,
-										37595
-									],
-									[
-										37859,
-										37862
-									],
-									[
-										38050,
-										38053
-									],
-									[
-										38286,
-										38289
-									],
-									[
-										38473,
-										38476
-									],
-									[
-										38634,
-										38637
-									],
-									[
-										38809,
-										38812
-									],
-									[
-										39058,
-										39061
-									],
-									[
-										39330,
-										39333
-									],
-									[
-										39645,
-										39648
-									],
-									[
-										39972,
-										39975
-									],
-									[
-										40171,
-										40174
-									],
-									[
-										40513,
-										40516
-									],
-									[
-										40809,
-										40812
-									],
-									[
-										41041,
-										41044
-									],
-									[
-										41384,
-										41387
-									],
-									[
-										41643,
-										41646
-									],
-									[
-										41854,
-										41857
-									],
-									[
-										41905,
-										41908
-									],
-									[
-										42208,
-										42211
-									],
-									[
-										42426,
-										42429
-									],
-									[
-										42709,
-										42712
-									],
-									[
-										43021,
-										43024
-									],
-									[
-										43208,
-										43211
-									],
-									[
-										43440,
-										43443
-									],
-									[
-										43528,
-										43531
-									],
-									[
-										43912,
-										43915
-									],
-									[
-										44217,
-										44220
-									],
-									[
-										44487,
-										44490
-									],
-									[
-										44712,
-										44715
-									],
-									[
-										44979,
-										44982
-									],
-									[
-										45187,
-										45190
-									],
-									[
-										45419,
-										45422
-									],
-									[
-										45629,
-										45632
-									],
-									[
-										45879,
-										45882
-									],
-									[
-										46032,
-										46035
-									],
-									[
-										46330,
-										46333
-									],
-									[
-										46558,
-										46561
-									],
-									[
-										46711,
-										46714
-									],
-									[
-										47069,
-										47072
-									],
-									[
-										47222,
-										47225
-									],
-									[
-										47579,
-										47582
-									],
-									[
-										47732,
-										47735
-									],
-									[
-										48102,
-										48105
-									],
-									[
-										48255,
-										48258
-									],
-									[
-										48635,
-										48638
-									],
-									[
-										48788,
-										48791
-									],
-									[
-										49155,
-										49158
-									],
-									[
-										49308,
-										49311
-									],
-									[
-										49681,
-										49684
-									],
-									[
-										49834,
-										49837
-									],
-									[
-										50200,
-										50203
-									],
-									[
-										50353,
-										50356
-									],
-									[
-										50732,
-										50735
-									],
-									[
-										50885,
-										50888
-									],
-									[
-										51257,
-										51260
-									],
-									[
-										51345,
-										51348
-									],
-									[
-										51517,
-										51520
-									],
-									[
-										51745,
-										51748
-									],
-									[
-										51898,
-										51901
-									],
-									[
-										52270,
-										52273
-									],
-									[
-										52358,
-										52361
-									],
-									[
-										52530,
-										52533
-									],
-									[
-										52758,
-										52761
-									],
-									[
-										52911,
-										52914
-									],
-									[
-										53260,
-										53263
-									],
-									[
-										53412,
-										53415
-									],
-									[
-										53660,
-										53663
-									],
-									[
-										53812,
-										53815
-									],
-									[
-										54064,
-										54067
-									],
-									[
-										54216,
-										54219
-									],
-									[
-										54464,
-										54467
-									],
-									[
-										54616,
-										54619
-									]
-								],
-								"scope": ""
-							}
-						},
-						"selection":
-						[
-							[
-								31697,
-								31697
-							]
-						],
-						"settings":
-						{
-							"WordCount":
-							{
-								"changes": 34,
-								"count": 1817,
-								"modified": false,
-								"selection": false,
-								"status": -1,
-								"syntax": "plain text"
-							},
-							"detect_indentation": false,
-							"line_numbers": false,
-							"output_tag": 8,
-							"result_base_dir": "",
-							"result_file_regex": "^([^ \t].*):$",
-							"result_line_regex": "^ +([0-9]+):",
-							"scroll_past_end": true,
-							"syntax": "Packages/Default/Find Results.hidden-tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 12586.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "public/mkturk_SessionBootStrapper.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 7799,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1326,
-								1326
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "public/setup_upstairs_session.js",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3216,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								15,
-								37
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/JavaScript/JavaScript.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
+					"buffer": 19,
 					"file": "public/mkturk_CheckPointer.js",
 					"semi_transient": false,
 					"settings":
@@ -2390,11 +2805,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 20,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
+					"buffer": 20,
 					"file": "public/landing_pages/inlab/landing_page_selector.html",
 					"semi_transient": false,
 					"settings":
@@ -2420,65 +2835,44 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 12,
+					"stack_index": 21,
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 21,
 					"file": "docs/installing_ptap_on_tablets.md",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 4370,
+						"buffer_size": 4726,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								295,
-								383
+								3249,
+								3249
 							]
 						],
 						"settings":
 						{
+							"WordCount":
+							{
+								"changes": 17,
+								"count": 694,
+								"modified": false,
+								"selection": false,
+								"status": -1,
+								"syntax": "plain text"
+							},
 							"syntax": "Packages/Markdown/Markdown.sublime-syntax"
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 92.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "public/landing_pages/inlab/Desimone1_landing_page.html",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2616,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1500,
-								1500
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/HTML/HTML.sublime-syntax",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]
