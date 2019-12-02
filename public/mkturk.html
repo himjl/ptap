@@ -1,9 +1,7 @@
 <!doctype html>
 
 <head>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
+
 <link rel="stylesheet" type="text/css" href="mkturk_style.css">
 
 <form style="display: none;" id="MechanicalTurk_SubmissionForm" action="https://www.mturk.com/mturk/externalSubmit" method="post">
@@ -12,14 +10,8 @@
   <input type="text" name="hitId" id="hitId" value="">
 </form>
 
-<meta name="mobile-web-app-capable" content="yes"> 
-<!-- full screen https://developer.chrome.com/multidevice/android/installtohomescreen -->
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"> 
-<!-- do not allow window rescaling.  To avoid window rescaling in portrait mode, added with=device-width from http://stackoverflow.com/questions/22771523/ipad-w-retina-safari-reported-dimensions-in-landscape-make-no-sense. Also, removes 300-350ms tap delay (https://developers.google.com/web/updates/2013/12/300ms-tap-delay-gone-away) -->
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
-<link rel="manifest" href="mkturkmanifest.json">
-<link rel="icon" href="mkturklogo48.png">
-</head>
 
 <body style="overflow-y: hidden; overflow-x:hidden; background-color:#494c51">
 
@@ -79,7 +71,6 @@
 
 
 <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
-<script src="setup_upstairs_session.js" type="text/javascript"></script>
 <script src="setup_MechanicalTurk_session.js" type="text/javascript"></script>
 
 <script src="mkturk_installsettings.js"></script>
@@ -103,7 +94,7 @@
 <script src="mkturk_SessionBootStrapper.js" type="text/javascript"></script>
 <script src="mkturk_defaultHIT_failsafe.js" type="text/javascript"></script>
 
-<script src="mkturk_screenfunctions.js"></script>
+<scriptLZString src="mkturk_screenfunctions.js"></scriptLZString>
 <script src="unit_tests.js"></script>
 <script src="mkturk_BiasDetection.js"></script>
 <script src="mkturk_TrialGenerator.js"></script>
@@ -138,9 +129,7 @@ wdm('Setting up session...')
 if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'mechanicalturk'){
   var freturn = await setup_mechanicalturk_session(sessionPackage)
 }
-else if (sessionPackage['ENVIRONMENT']['rigEnvironment'] == 'monkeybox'){
-  var freturn = await setup_upstairs_session(sessionPackage)
-}
+
 // error must be happening before this point, "\"TypeError: Cannot read property 'constructor' of undefined\""
 // Unpack objects
 var TaskStreamer = freturn['TaskStreamer']
@@ -182,7 +171,7 @@ console.log('ENTERING MAIN TRIAL STATE MACHINE')
 console.timeEnd('Done setting up')
 wdm('Entering main trial loop...')
 
-while(TaskStreamer.TERMINAL_STATE == false){
+while(TaskStreamer.TERMINAL_STATE === false){
   var trialPackage = await TaskStreamer.get_trial()
 	var trialOutcome = await Playspace.run_trial(trialPackage) 
   TaskStreamer.update_state(trialOutcome)

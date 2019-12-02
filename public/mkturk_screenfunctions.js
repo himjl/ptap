@@ -60,7 +60,7 @@ function toggleProgressbar(on_or_off, bar_id){
 function updateCashInButtonText(trials, bonus_earned, cash_in_option){
 	var elem = document.querySelector("button[name=WorkerCashInButton]")
 
-	var button_string = 'Bonus cents: '+(100*bonus_earned).toFixed(3)
+	var button_string = 'Bonus cents2: '+(100*bonus_earned).toFixed(3)
 
 	//if(cash_in_option == false){
 		
