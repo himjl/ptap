@@ -106,7 +106,7 @@ class SessionBootStrapper{
             var constructors = []
             for (var k in loadMethods){
                 var lM = loadMethods[k]
-                if (lM == 'dropbox' || lM == 'url'){
+                if (lM == 'url'){
                     constructors.push(imagebags[k])
                 } 
                 else{
@@ -182,15 +182,6 @@ class SessionBootStrapper{
         if(loadMethod == 'localstorage'){
             return JSON.parse(local_val)
         }
-        else if(loadMethod == 'dropbox'){
-            if (this.DIO == undefined){
-                this.DIO = new DropboxIO()
-                await this.DIO.build(window.location.href)
-            }
-            
-            var s = await this.DIO.read_textfile(local_val)
-            return JSON.parse(s)
-        }
         else if(loadMethod == 'url'){
             var s = await this.SIO.read_textfile(local_val)
             return JSON.parse(s)
@@ -217,9 +208,6 @@ class SessionBootStrapper{
         
         if(s.startsWith('http') || s.startsWith('www')){
             return 'url'
-        }
-        else if(s.startsWith('/')){
-            return 'dropbox'
         }
         else if(s.startsWith('{') || s.startsWith('[')){
             return 'localstorage'

@@ -58,23 +58,13 @@
   left: 89%; 
   font-size: 12px; 
   color: #f7fcf8;  
-  border-radius:5px border:0px solid #959595; 
+  border-radius:5px;
   z-index:101; 
   background-color: #00cc66; 
   text-align:center; 
   opacity: 0.8
 }
 
-#doneTestingTask{
-  visibility:hidden; 
-  position: absolute; 
-  top: 55%; 
-  left: 70%; 
-  height: 75px; 
-  width: 200px; 
-  border-radius: 20px; 
-  z-index:101
-}
 
 #drive_juice_button{
   visibility:hidden; 
@@ -89,21 +79,6 @@
 }
 
 
-
-#ReloadButton{
-  visibility:visible; 
-  position: absolute; 
-  margin-top:4px; 
-  left: 93%; 
-  font-size: 6px; 
-  color: #000000; 
-  padding:10px 10px; 
-  border-radius:5px solid #000000; 
-  z-index:101; 
-  background-color: #66ccff; 
-  text-align:center;
-  visibility:hidden;
-}
 #MechanicalTurk_TrialBar{
   width: 0.2%;
   height: 100%;
@@ -115,35 +90,6 @@
   z-index:103;
   position: absolute;
   overflow:hidden;
-}
-
-#AutomatorLoadBar {
-  margin:;
-  width: 0.2%;
-  height: 15px;
-  background-color: #4CAF50;
-  color:white;
-  font-size: 8px; 
-  font-family: 'Helvetica Neue';
-  z-index:101;
-  position: absolute;
-  overflow:hidden;
-  visibility:hidden;
-}
-
-
-#StageBar {
-  margin-top: 34px;
-  width: 0.2%;
-  height: 15px;
-  background-color: #aed3f4;
-  color:white;
-  font-size: 8px; 
-  font-family: 'Helvetica Neue';
-  z-index:101;
-  position: absolute;
-  overflow:hidden;
-  visibility:hidden;
 }
 
 #TrialCounter {
