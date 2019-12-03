@@ -81,9 +81,9 @@ async function setupSession(){
                     4
                 ], 
                 "choiceMap": {
-                    "stimulus_objectome_dog": {"choice1":{"token_objectome_dog":1}, "choice2":{"token_objectome_dog":0}}, 
-                    "stimulus_objectome_flute": {"choice1":{"token_objectome_flute":1}, "choice2":{"token_objectome_dog":0}}, 
-                    "stimulus_objectome_pineapple": {"choice1":{"token_objectome_pineapple":1}, "choice2":{"token_objectome_dog":0}}
+                    "stimulus_objectome_dog": "token_objectome_dog", 
+                    "stimulus_objectome_flute": "token_objectome_flute", 
+                    "stimulus_objectome_pineapple": "token_objectome_pineapple"
                 }, 
                 "choiceTimeLimitMsec": 5000, 
                 "choiceXCentroid": [
@@ -107,14 +107,13 @@ async function setupSession(){
                     "stimulus_objectome_pineapple", 
                     "stimulus_objectome_flute"
                 ], 
-                "bagSamplingWeights":[1, 0],
                 "sampleDiameterDegrees": 8, 
                 "sampleOffMsec": 0, 
                 "sampleOnMsec": 200, 
                 "sampleSampleWithReplacement": false, 
                 "sampleXCentroid": 0.5, 
                 "sampleYCentroid": 0.5, 
-                "taskType": "MTS_choice_space"
+                "taskType": "MTS"
             }
         ]
     }
@@ -171,7 +170,7 @@ function go_to_main_page(){
         window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
       }
       catch(error){
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "../../public/ptap.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
       }
         
     }

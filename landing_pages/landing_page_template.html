@@ -1,0 +1,73 @@
+<!doctype html>
+
+<head>
+    <script>
+        async function setupSession() {
+
+            try {
+                SESSION_PACKAGE = __SESSION_PACKAGE_GOES_HERE__;
+            } catch (error) {
+                console.log(error);
+                SESSION_PACKAGE = undefined
+            }
+
+            var localSavePackage = {
+                    'SESSION_PACKAGE': SESSION_PACKAGE,
+                    'LANDING_PAGE_URL': window.location.href
+                };
+
+            await concludeLandingPage(localSavePackage)
+        }
+
+    </script>
+
+    <script>
+        async function concludeLandingPage(localSavePackage) {
+
+            SESSION_PACKAGE = localSavePackage['SESSION_PACKAGE'];
+            agentId = localSavePackage['agentId'];
+            LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL'];
+
+            console.log('landing page url', window.location.href);
+
+            await localStorage.setItem("SESSION_PACKAGE", btoa(JSON.stringify(SESSION_PACKAGE)));
+            await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL));
+            await localStorage.setItem('agentId', btoa(agentId));
+
+            console.log('All items stored. Redirecting...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            go_to_main_page()
+        }
+
+        function go_to_main_page() {
+            var currentURL = window.location.href;
+            if (currentURL.indexOf('localhost') !== -1) {
+                window.location.href = '/public/mkturk.html?loadtime=' + Math.round(window.performance.timing.navigationStart)
+            } else {
+                try {
+                    s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
+                    window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/mkturk.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
+                } catch (error) {
+                    window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
+                }
+            }
+        }
+
+    </script>
+
+
+    <script>
+        (async function () {
+                await setupSession();
+            }
+        )()
+    </script>
+    <title>ptap landing page</title>
+
+</head>
+
+<body>
+Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies enabled.
+</body>
+
+</html>

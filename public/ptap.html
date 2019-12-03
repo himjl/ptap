@@ -91,7 +91,7 @@
 
 <script>
 
-var FLAGS = {}; // todo: get rid of
+var FLAGS = {};
 
 
 (async function(){
@@ -175,7 +175,7 @@ await DataWriter.conclude_session()
 //******* FAILSAFE HANDLING FOR MECHANICAL TURK *******
 catch(error){
   console.log('ptap failed with the following error:')
-  console.error(error)usingFailSafeHIT
+  console.error(error)
   var errorMessage = String(error)
 }
 

@@ -20,7 +20,7 @@ async function setupSession(){
             "touchmove"
         ], 
         "bonusUSDPerCorrect": 0.0005, 
-        "instructionsDialogueString": "<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>", 
+        "instructionsDialogueString": "<ul><p><text style=\"font-weight:bold; font-size:large\">Thank you for your interest and contributing to research at at MIT!</text><pi><li>Please use the latest version of <b>Google Chrome</b> to work on this HIT. It may not work correctly on other browsers.<p><li>You will be presented with rapidly flashed images. <b>Your task is to match images with the one that was rapidly flashed (this will become clear after you try a few trials).</b><p><li>The sound of a bell means you did something right, and received a small bonus reward.<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.<p><text style=\"color:#7A7A7A; font-size:smaller; font-style:italic\">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text></ul>", 
         "juiceRewardPer1000Trials": 250, 
         "playspace_degreesVisualAngle": 24, 
         "playspace_verticalOffsetInches": 0, 
@@ -31,10 +31,10 @@ async function setupSession(){
     }, 
     "GAME_PACKAGE": {
         "GAME": {
-            "gameId": "example_MechanicalTurk_MTS_to_SR", 
-            "maximumTrials": 30, 
-            "minimumTrials": 30, 
-            "onFinish": "loop", 
+            "gameId": "example_MechanicalTurk_MTS", 
+            "maximumTrials": 800, 
+            "minimumTrials": 50, 
+            "onFinish": "continue", 
             "periodicRewardAmount": 0, 
             "periodicRewardIntervalMsec": 0
         }, 
@@ -81,9 +81,9 @@ async function setupSession(){
                     4
                 ], 
                 "choiceMap": {
-                    "stimulus_objectome_dog": "token_objectome_dog", 
-                    "stimulus_objectome_flute": "token_objectome_flute", 
-                    "stimulus_objectome_pineapple": "token_objectome_pineapple"
+                    "stimulus_objectome_dog": {"choice1":{"token_objectome_dog":1}, "choice2":{"token_objectome_dog":0}}, 
+                    "stimulus_objectome_flute": {"choice1":{"token_objectome_flute":1}, "choice2":{"token_objectome_dog":0}}, 
+                    "stimulus_objectome_pineapple": {"choice1":{"token_objectome_pineapple":1}, "choice2":{"token_objectome_dog":0}}
                 }, 
                 "choiceTimeLimitMsec": 5000, 
                 "choiceXCentroid": [
@@ -107,71 +107,14 @@ async function setupSession(){
                     "stimulus_objectome_pineapple", 
                     "stimulus_objectome_flute"
                 ], 
+                "bagSamplingWeights":[1, 0],
                 "sampleDiameterDegrees": 8, 
                 "sampleOffMsec": 0, 
                 "sampleOnMsec": 200, 
                 "sampleSampleWithReplacement": false, 
                 "sampleXCentroid": 0.5, 
                 "sampleYCentroid": 0.5, 
-                "taskType": "MTS"
-            }, 
-            {
-                "actionDiameterDegrees": [
-                    6, 
-                    6
-                ], 
-                "actionXCentroid": [
-                    0.3, 
-                    0.7
-                ], 
-                "actionYCentroid": [
-                    0.8, 
-                    0.8
-                ], 
-                "averageReturnCriterion": 0.8, 
-                "choiceDiameterDegrees": [
-                    4, 
-                    4
-                ], 
-                "choiceTimeLimitMsec": 5000, 
-                "choiceXCentroid": [
-                    0.3, 
-                    0.7
-                ], 
-                "choiceYCentroid": [
-                    0.8, 
-                    0.8
-                ], 
-                "drawEyeFixationDot": true, 
-                "fixationDiameterDegrees": 3, 
-                "fixationXCentroid": 0.5, 
-                "fixationYCentroid": 0.8, 
-                "minTrialsCriterion": 5, 
-                "probabilityRepeatWhenWrong": 0, 
-                "punishStreakTimeOutMultiplier": 1.2, 
-                "punishTimeOutMsec": 400, 
-                "rewardMap": {
-                    "stimulus_objectome_flute": [
-                        0, 
-                        1
-                    ], 
-                    "stimulus_objectome_pineapple": [
-                        1, 
-                        0
-                    ]
-                }, 
-                "rewardTimeOutMsec": 150, 
-                "sampleBagNames": [
-                    "stimulus_objectome_pineapple", 
-                    "stimulus_objectome_flute"
-                ], 
-                "sampleDiameterDegrees": 8, 
-                "sampleOffMsec": 0, 
-                "sampleOnMsec": 200, 
-                "sampleSampleWithReplacement": false, 
-                "sampleXCentroid": 0.5, 
-                "sampleYCentroid": 0.5, 
-                "taskType": "SR"
+                "taskType": "MTS_choice_space"
             }
         ]
     }
@@ -228,7 +171,7 @@ function go_to_main_page(){
         window.location.href = "https://s3.amazonaws.com/"+s3_bucket+"/public/mkturk.html" //?loadtime="+Math.round(window.performance.timing.navigationStart)
       }
       catch(error){
-        window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
+        window.location.href = "../../public/ptap.html"//?loadtime="+Math.round(window.performance.timing.navigationStart)
       }
         
     }
