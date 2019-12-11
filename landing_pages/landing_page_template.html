@@ -42,14 +42,10 @@
         function go_to_main_page() {
             var currentURL = window.location.href;
             if (currentURL.indexOf('localhost') !== -1) {
-                window.location.href = '/public/mkturk.html?loadtime=' + Math.round(window.performance.timing.navigationStart)
+                window.location.href = '/public/ptap.html?loadtime=' + Math.round(window.performance.timing.navigationStart)
             } else {
-                try {
-                    s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
-                    window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/mkturk.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
-                } catch (error) {
-                    window.location.href = "https://s3.amazonaws.com/ptapscratch/public/mkturk.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
-                }
+                s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
+                window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/ptap.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
             }
         }
 

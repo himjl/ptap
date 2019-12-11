@@ -85,7 +85,6 @@ class S3_IO{
 
         var xhttp = new XMLHttpRequest(); 
 
-
         try{
             xhttp.onreadystatechange = function(){
                 if (this.readyState == 4 && this.status == 200){
