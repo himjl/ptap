@@ -25,10 +25,15 @@ async function setup_mechanicalturk_session(sessionPackage) {
     console.log('SESSION', SESSION)
     SIO = new S3_IO()
     IB = new ImageBuffer(SIO)
+
     CheckPointer = new MechanicalTurkCheckPointer(GAME_PACKAGE)
     await CheckPointer.build()
     TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer)
-    await TaskStreamer.build(5)
+    var trial_buffers = []
+    for (var i = 0; i < TASK_SEQUENCE.length; i++){
+        trial_buffers.push(TaskStreamer.build(i, TASK_SEQUENCE[i]['minTrialsCriterion']))
+    }
+    await Promise.all(trial_buffers);
     DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode'])
 
     var playspacePackage = {
