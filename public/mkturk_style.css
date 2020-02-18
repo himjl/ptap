@@ -1,40 +1,3 @@
-#connectble{
-  z-index:101; 
-  visibility:hidden; 
-  position: absolute; 
-  top: 45%; 
-  left: 40%; 
-  height: 50px; 
-  width: 20%; 
-  border-radius: 20px;
-  background-opacity:0.5;
-  color:white;
-  background-color:#305CC6;
-}
-#noble{
-  z-index:101; 
-  visibility:hidden; 
-  position: absolute; 
-  top: 55%; 
-  left: 40%; 
-  height: 50px; 
-  width: 20%; 
-  border-radius: 20px
-}
-
-#connectusb{
-  z-index:101; 
-  visibility:hidden; 
-  position: absolute; 
-  top: 45%; 
-  left: 20%; 
-  height: 50px; 
-  width: 20%; 
-  border-radius: 20px;
-  background-opacity:0.5;
-  color:white;
-  background-color:#305CC6;
-}
 
 #SyncButton{
   visibility:hidden; 
@@ -117,22 +80,6 @@
    visibility:visible;
 }
 
-#SessionTextBox {
-   position: fixed;
-   margin-top: 15px;
-   left: 40%; /* space between top of browser and annoying box */
-   height: 34px;
-   color:white;
-   font-size:14px; 
-   z-index:102;
-   font-family: 'Helvetica Neue';
-   vertical-align:middle;
-   color:#4B4B4B;
-   background-color:#E4E4E4;
-   border-radius:3px;
-   visibility:hidden;
-
-}
 
 #PreviewModeSplash{
   display: table;

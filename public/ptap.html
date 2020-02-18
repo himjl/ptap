@@ -16,26 +16,15 @@
 
 <body style="overflow-y: hidden; overflow-x:hidden; background-color:#494c51">
 
-<div id="myProgress" , style="overflow:hidden">
-    <div id="AutomatorLoadBar"></div>
-    <div id="StageBar"></div>
-</div>
-
 <div id="MechanicalTurk_ProgressBar" ,
      style="position: absolute; overflow:hidden; height: 3%; width:30%; margin-left:35%; margin-right:35%; border:1px solid #BDBDBD; background-color:#BDBDBD; z-index:102; visibility:hidden"
      ; ;>
     <div id="MechanicalTurk_TrialBar"></div>
 </div>
 
-<button id="connectble" name="connectble">Connect to Bluetooth juicer</button>
-<button id="noble" name="noble">No Bluetooth juicer</button>
-<button id="drive_juice_button" onclick="writepumpdurationtoBLE(500)">Send juice signal</button>
-<button id="connectusb">Connect to USB juicer</button>
-
 
 <div id="TrialCounter">-</div>
 <div id="DebugMessageTextBox">Welcome...</div>
-<div id="SessionTextBox"><b>Subject:</b> <br><b>Experiment:</b></div>
 <div id="PreviewModeSplash">
   <span id='PreviewSplashText'><p
           style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text
@@ -115,26 +104,23 @@
 
             console.time('Done setting up');
 
-// Load inputs from local storage, web, or Dropbox.
+            // Load inputs from local storage or web
             wdm('Running bootstrapper...');
             var SBS = new SessionBootStrapper();
             var sessionPackage = await SBS.build();
 
-// Verify inputs
+            // Verify inputs
             wdm('Verifying inputs...');
 
             VF = new Verifier();
             sessionPackage = VF.verify_session_package(sessionPackage);
             console.log('sessionPackage', sessionPackage);
-// Construct session
+            // Construct session
             wdm('Setting up session...');
-
-
             var freturn = await setup_mechanicalturk_session(sessionPackage);
 
 
-// error must be happening before this point, "\"TypeError: Cannot read property 'constructor' of undefined\""
-// Unpack objects
+            // Unpack objects
             var TaskStreamer = freturn['TaskStreamer'];
             var DataWriter = freturn['DataWriter'];
             var Playspace = freturn['Playspace'];
@@ -142,7 +128,7 @@
             var SESSION = freturn['SESSION'];
 
 
-// Attach static data objects 
+            // Attach static data objects
             wdm('Attaching static data probes...');
             DataWriter.deposit_key_data('ENVIRONMENT', sessionPackage['ENVIRONMENT']);
             DataWriter.deposit_key_data('TASK_SEQUENCE', sessionPackage['GAME_PACKAGE']['TASK_SEQUENCE']);
@@ -152,52 +138,49 @@
             DataWriter.deposit_key_data('BOOTSTRAP_LOG', SBS.get_bootstrap_log());
             DataWriter.deposit_key_data('VERIFICATION_LOG', VF.get_verification_log());
 
-// Attach async data probes 
+            // Attach async data probes
             wdm('Attaching async data probes...');
 
-            DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG')
-            DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG')
-            DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG')
-            DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG')
+            DataWriter.attach_probe(Playspace, 'deviceLog', 'DEVICE_LOG');
+            DataWriter.attach_probe(Playspace.ActionPoller, 'actionLog', 'ACTION_LOG');
+            DataWriter.attach_probe(Playspace, 'rewardLog', 'REWARD_LOG');
+            DataWriter.attach_probe(Playspace, 'playspaceLog', 'PLAYSPACE_LOG');
 
-// Kick off async threads 
-            wdm('Kicking off async threads...')
-            Playspace.start_periodic_rewards()
-            Playspace.start_action_tracking()
-            Playspace.start_device_tracking()
-            DataWriter.start_polling()
-            TaskStreamer.start_buffering_continuous()
+            // Kick off async threads
+            wdm('Kicking off async threads...');
+            Playspace.start_action_tracking();
+            Playspace.start_device_tracking();
+            DataWriter.start_polling();
+            TaskStreamer.start_buffering_continuous();
 
-
-// Main trial loop
-            console.log('ENTERING MAIN TRIAL STATE MACHINE')
-            console.timeEnd('Done setting up')
-            wdm('Entering main trial loop...')
+            // Main trial loop
+            console.log('ENTERING MAIN TRIAL STATE MACHINE');
+            console.timeEnd('Done setting up');
+            wdm('Entering main trial loop...');
 
             while (TaskStreamer.TERMINAL_STATE === false) {
-                var trialPackage = await TaskStreamer.get_trial()
-                var trialOutcome = await Playspace.run_trial(trialPackage)
-                TaskStreamer.update_state(trialOutcome)
-                UX.poll(trialOutcome)
-                DataWriter.deposit_trial_outcome(trialOutcome) // checkpoints; saves to disk
-                DataWriter.write_out()
+                var trialPackage = await TaskStreamer.get_trial();
+                var trialOutcome = await Playspace.run_trial(trialPackage);
+                TaskStreamer.update_state(trialOutcome);
+                UX.poll(trialOutcome);
+                DataWriter.deposit_trial_outcome(trialOutcome); // checkpoints; saves to disk
+                DataWriter.write_out();
                 wdm('Starting next trial...')
             }
 
             await DataWriter.conclude_session()
         }// End try
 
-
-//******* FAILSAFE HANDLING FOR MECHANICAL TURK *******
+        // ******* FAILSAFE HANDLING FOR MECHANICAL TURK *******
         catch (error) {
-            console.log('ptap failed with the following error:')
-            console.error(error)
+            console.log('ptap failed with the following error:');
+            console.error(error);
             var errorMessage = String(error)
         } finally {
             // Should not get here unless an error took place
             // Assume failure took place in mechanical turk session (this code is irrelevant for inlab)
             // Submit the error message
-            await sleep(1500)
+            await sleep(1500);
 
             try {
                 var dataobj = DataWriter.package_data()
@@ -205,25 +188,25 @@
                 var dataobj = {'ERROR_DataWriter.package_data()': String(error)}
             }
             try {
-                var s = JSON.stringify(errorMessage)
+                var s = JSON.stringify(errorMessage);
                 dataobj['ERROR_main_loop'] = s
             } catch (error) {
                 dataobj['ERROR_main_loop_not_found'] = JSON.stringify(String(error))
             }
-            dataobj = {'SESSION_DATA': dataobj}
+            dataobj = {'SESSION_DATA': dataobj};
             document.getElementById("submission_data").value = JSON.stringify(dataobj);
 
             // Extract assignmentId from localstorage
-            var landingPageURL = await localStorage.getItem('LANDING_PAGE_URL')
-            landingPageURL = atob(landingPageURL)
-            var assignmentId = az.get_assignmentId_from_url(landingPageURL)
+            var landingPageURL = await localStorage.getItem('LANDING_PAGE_URL');
+            landingPageURL = atob(landingPageURL);
+            var assignmentId = az.get_assignmentId_from_url(landingPageURL);
             document.getElementById("assignmentId").value = assignmentId;
 
-            var submit_url = "https://www.mturk.com/mturk/externalSubmit"
+            var submit_url = "https://www.mturk.com/mturk/externalSubmit";
             //var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
 
-            document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
-            console.log('Submitting failed session to mechanical turk')
+            document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
+            console.log('Submitting failed session to mechanical turk');
 
             document.getElementById("MechanicalTurk_SubmissionForm").submit();
         }
