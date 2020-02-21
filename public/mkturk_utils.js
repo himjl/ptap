@@ -19,6 +19,12 @@ function _dpr(){
   return devicePixelRatio
 }
 
+function wdm_large_red(s){
+    console.log(s)
+    var elem = document.getElementById('RedDebugMessageTextBox')
+    elem.innerHTML = s; // text
+}
+
 function wdm(s){
   // Write debug message
   console.log(s)

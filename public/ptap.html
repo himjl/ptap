@@ -25,6 +25,8 @@
 
 <div id="TrialCounter">-</div>
 <div id="DebugMessageTextBox">Welcome...</div>
+<div id="RedDebugMessageTextBox"></div>
+
 <div id="PreviewModeSplash">
   <span id='PreviewSplashText'><p
           style="color:red; font-size:large; font-weight:bold; text-align:center">PREVIEW MODE</p>Please use <b>Google Chrome</b> and turn your <b>sound on</b>. For the HIT to load properly, <b>cookies</b> must be enabled. Test your computer is compatible by playing with the <text
@@ -98,7 +100,6 @@
 
     var FLAGS = {};
 
-
     (async function () {
         try {
 
@@ -162,7 +163,7 @@
                 var trialPackage = await TaskStreamer.get_trial();
                 var trialOutcome = await Playspace.run_trial(trialPackage);
                 TaskStreamer.update_state(trialOutcome);
-                UX.poll(trialOutcome);
+                UX.poll(trialOutcome, TaskStreamer);
                 DataWriter.deposit_trial_outcome(trialOutcome); // checkpoints; saves to disk
                 DataWriter.write_out();
                 wdm('Starting next trial...')

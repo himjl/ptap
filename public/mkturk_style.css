@@ -76,8 +76,20 @@
    font-size: 8px; 
    z-index:102;
    font-family: 'Helvetica Neue';
-   color:white;
    visibility:visible;
+}
+
+
+#RedDebugMessageTextBox {
+    position: fixed;
+    margin-top: 51px;
+    left: 1px; /* space between top of browser and annoying box */
+    height: 30px;
+    font-size: 64px;
+    z-index:102;
+    font-family: 'Helvetica Neue', serif;
+    color:red;
+    visibility:visible;
 }
 
 

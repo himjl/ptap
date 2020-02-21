@@ -30,10 +30,20 @@ async function setup_mechanicalturk_session(sessionPackage) {
     await CheckPointer.build();
     TaskStreamer = new TaskStreamerClass(GAME_PACKAGE, IB, CheckPointer);
     var trial_buffers = [];
+
+    TOTAL_TRIALS_TO_BUFFER = 0;
+    NUM_TRIALS_BUFFERED = 0;
     for (var i = 0; i < TASK_SEQUENCE.length; i++) {
-        trial_buffers.push(TaskStreamer.build(i, TASK_SEQUENCE[i]['minTrialsCriterion']))
+        //trial_buffers.push(TaskStreamer.build(i, TASK_SEQUENCE[i]['minTrialsCriterion'])); // leads to extreme lag, even on desktop machine
+        //trial_buffers.push(TaskStreamer.build(i, 400));
+        trial_buffers.push(TaskStreamer.build(i, 2));
+        TOTAL_TRIALS_TO_BUFFER += TASK_SEQUENCE[i]['minTrialsCriterion']
     }
+
     await Promise.all(trial_buffers);
+    wdm_large_red("");
+    toggleElement(0, "RedDebugMessageTextBox");
+
     DataWriter = new MechanicalTurkDataWriter(SESSION['assignmentId'], SESSION['hitId'], SESSION['inSandboxMode']);
 
     var playspacePackage = {

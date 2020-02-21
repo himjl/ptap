@@ -324,7 +324,7 @@ class PlaySpaceClass {
 
         // ******** Battery ******** 
         // http://www.w3.org/TR/battery-status/
-
+        /*
         this.deviceLog['battery'] = {};
         this.deviceLog['battery']['level'] = [];
         this.deviceLog['battery']['dischargingTime'] = [];
@@ -346,7 +346,7 @@ class PlaySpaceClass {
         } catch (error) {
             console.log('Battery logging error:', error)
         }
-
+        */
 
         // ******** Window resize ****
         this.deviceLog['window'] = {};
