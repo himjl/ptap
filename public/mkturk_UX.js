@@ -18,28 +18,7 @@ class MechanicalTurkUX extends UXclass {
         this.bonusEarned = 0
     }
 
-    turn_on_pbar(){
-        toggleElement(1, 'MechanicalTurk_ProgressBar');
-    }
-    debug2record() {
-        toggleElement(1, 'MechanicalTurk_ProgressBar');
-        toggleElement(1, 'MechanicalTurk_TrialBar');
-        document.querySelector("button[name=WorkerCashInButton]").style.visibility = 'visible';
-        toggleCashInButtonClickability(0);
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('mouseup', this.cash_in_listener, false);
-        document.querySelector("button[name=WorkerCashInButton]").addEventListener('touchstart', this.cash_in_listener, false);
-        toggleElement(0, "DebugMessageTextBox");
-    }
-
-    async run_instructions_dialogue(instructionsDialogueString) {
-        if (instructionsDialogueString != undefined) {
-            if (instructionsDialogueString.constructor == String) {
-                if (instructionsDialogueString.length > 0) {
-                    await this.showMechanicalTurkInstructions(instructionsDialogueString);
-                    return
-                }
-            }
-        }
+    async run_instructions_dialogue() {
 
         var screen1_instructions = "";
         screen1_instructions += "<ul>";
@@ -48,43 +27,12 @@ class MechanicalTurkUX extends UXclass {
         screen1_instructions += "<p><li>You will be presented with rapidly flashed images. <b>Your task is to figure out where to click on parts of the screen based on the information in the images.</b>";
         screen1_instructions += '<p><li>The sound of a bell means you did something right, and received a small bonus reward.';
         screen1_instructions += "<p><li>Each trial begins with a <b>WHITE DOT</b>. Click the dot to begin the trial.";
-        //screen1_instructions += '<p><li>When the top right button turns  <text style="font-weight:bold; color:green">GREEN</text> you can press it to submit early, though we encourage you to continue working for bonus rewards.'
         screen1_instructions += "<p><li>The HIT will submit <b>AUTOMATICALLY</b> after a certain number of trials. If the HIT freezes or does not submit, please contact us to resolve the issue and receive compensation for your time.";
 
-        //screen1_instructions += '<p><li>Highly productive workers may be contacted for exclusive, higher-paying HITs.' 
         screen1_instructions += '<p><text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if doing so could cause discomfort or injury, do not accept this HIT. You will not be penalized in any way.</text>';
         screen1_instructions += "</ul>";
 
         await this.showMechanicalTurkInstructions(screen1_instructions)
-
-    }
-
-    async run_hand_selection_dialogue() {
-        var hand_used = await this.showHandSelectionDialogue_and_getUserSelection();
-        return hand_used
-    }
-
-    async run_device_selection_dialogue() {
-        var device_selected = await this.showDeviceSelectionDialogue_and_getUserSelection();
-        return device_selected
-    }
-
-    async showDeviceSelectionDialogue_and_getUserSelection() {
-        // Turn on dialogue
-        this.MechanicalTurk_DeviceSelected = 'not_selected';
-        document.getElementById("MechanicalTurkCursorDeviceSelectionScreen").style.visibility = 'visible';
-        return new Promise(function (resolve, reject) {
-            FLAGS.clicked_device_selection = resolve
-        })
-    }
-
-    async showHandSelectionDialogue_and_getUserSelection() {
-        // Turn on dialogue
-        this.MechanicalTurk_Handedness = 'not_selected';
-        document.getElementById("MechanicalTurkHandSelectionScreen").style.visibility = 'visible';
-        return new Promise(function (resolve, reject) {
-            FLAGS.clicked_hand_selection = resolve
-        })
     }
 
     show_preview_splash() {

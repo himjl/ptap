@@ -73,50 +73,53 @@ class DataWriter{
 }
 
 
-class MechanicalTurkDataWriter extends DataWriter{
-    constructor(assignmentId, hitId, inSandboxMode){
-        super()
-        console.log(this)
-        this.inSandboxMode = inSandboxMode || false
-        this.assignmentId = assignmentId
-        this.hitId = hitId
+class ListDict{
+    constructor(){
+        this.data = {}
+    }
+    update(update_dict){
+        for (var key in update_dict){
+            if(!update_dict.hasOwnProperty(key)){
+                continue
+            }
+            if(!this.data.hasOwnProperty(key)){
+                this.data[key] = []
+            }
+            this.data[key].push(update_dict[key])
+        }
+    }
+}
+
+class MechanicalTurkSubmitter{
+    constructor(){
     }
 
-    start_polling(){
-        return
-    }
-    async write_out(){
-        return
-    }
+    static async submit_data(assignmentId, hitId, sandbox_mode, data_obj){
+        // Submits data to Amazon
 
-    async conclude_session(){
-    
-        var dataobj = this.package_data()
-        var result_str = JSON.stringify({'SESSION_DATA':dataobj})
- 
 
-        console.log('Packaged data of size', memorySizeOf(result_str, 1), 'for submission to Amazon.')
-        document.getElementById("assignmentId").value = this.assignmentId; 
-        //document.getElementById("hitId").value = this.hitId
+        // jsonify the data object
+        var result_str = JSON.stringify({'SESSION_DATA':data_obj});
+
+        console.log('Packaged data of size', memorySizeOf(result_str, 1), 'for submission to Amazon.');
+
+
+        document.getElementById("assignmentId").value = assignmentId;
         document.getElementById("submission_data").value = result_str;
 
-        var submit_url = "https://www.mturk.com/mturk/externalSubmit"
+        var submit_url = "https://www.mturk.com/mturk/externalSubmit";
 
-        if(this.inSandboxMode == true){
-            var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit" 
+        if (sandbox_mode){
+            submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
         }
-        else if(this.inSandboxMode == false){
-            var submit_url = "https://www.mturk.com/mturk/externalSubmit"
-        }
-        document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url
+        document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
 
         try{
             await document.getElementById("MechanicalTurk_SubmissionForm").submit();
-            console.log('EXECUTED SUBMISSION TO TURK')
+            console.log('Executed submission to Mechanical Turk servers. Sandbox:', sandbox_mode)
         }
         catch(error){
             console.log(error)
-            // todo: write out to localstorage the data
         }
         await sleep(1500)
     }

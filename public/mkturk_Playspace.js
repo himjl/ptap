@@ -38,21 +38,18 @@ class PlaySpaceClass {
 
     }
 
-    async run_trial(trialPackage) {
+    async run_trial(trial_data) {
 
         // ************ Prebuffer trial assets ***************
 
         // Fixation
-        wdm('Buffering fixation...');
-        //console.log(trialPackage)
-        var fixationXCentroidPixels = this.xprop2pixels(trialPackage['fixationXCentroid']);
-        var fixationYCentroidPixels = this.yprop2pixels(trialPackage['fixationYCentroid']);
-        var fixationDiameterPixels = this.deg2pixels(trialPackage['fixationDiameterDegrees']);
+        var fixationXCentroidPixels = this.xprop2pixels(trial_data['fixationXCentroid']);
+        var fixationYCentroidPixels = this.yprop2pixels(trial_data['fixationYCentroid']);
+        var fixationDiameterPixels = this.deg2pixels(trial_data['fixationDiameterDegrees']);
 
-
-        var sampleXCentroidPixels = this.xprop2pixels(trialPackage['sampleXCentroid']);
-        var sampleYCentroidPixels = this.yprop2pixels(trialPackage['sampleYCentroid']);
-        var sampleDiameterPixels = this.deg2pixels(trialPackage['sampleDiameterDegrees']);
+        var sampleXCentroidPixels = this.xprop2pixels(trial_data['sampleXCentroid']);
+        var sampleYCentroidPixels = this.yprop2pixels(trial_data['sampleYCentroid']);
+        var sampleDiameterPixels = this.deg2pixels(trial_data['sampleDiameterDegrees']);
 
         var fixationFramePackage = {
             'fixationXCentroidPixels': fixationXCentroidPixels,
@@ -61,8 +58,8 @@ class PlaySpaceClass {
             'eyeFixationXCentroidPixels': sampleXCentroidPixels,
             'eyeFixationYCentroidPixels': sampleYCentroidPixels,
             'eyeFixationDiameterPixels': Math.max(this.deg2pixels(0.2), 4),
-            'drawEyeFixationDot': trialPackage['drawEyeFixationDot'] || false,
-            'fixationSpacebarText': trialPackage['fixationSpacebarText'] || false,
+            'drawEyeFixationDot': trial_data['drawEyeFixationDot'] || false,
+            'fixationSpacebarText': trial_data['fixationSpacebarText'] || false,
         };
 
         await this.ScreenDisplayer.bufferFixation(fixationFramePackage);
@@ -70,18 +67,18 @@ class PlaySpaceClass {
         // Stimulus sequence
         wdm('Buffering stimulus...');
 
-        var choiceXCentroidPixels = this.xprop2pixels(trialPackage['choiceXCentroid']);
-        var choiceYCentroidPixels = this.yprop2pixels(trialPackage['choiceYCentroid']);
-        var choiceDiameterPixels = this.deg2pixels(trialPackage['choiceDiameterDegrees']);
+        var choiceXCentroidPixels = this.xprop2pixels(trial_data['choiceXCentroid']);
+        var choiceYCentroidPixels = this.yprop2pixels(trial_data['choiceYCentroid']);
+        var choiceDiameterPixels = this.deg2pixels(trial_data['choiceDiameterDegrees']);
 
         var stimulusFramePackage = {
-            'sampleImage': trialPackage['sampleImage'],
-            'sampleOn': trialPackage['sampleOnMsec'],
-            'sampleOff': trialPackage['sampleOffMsec'],
+            'sampleImage': trial_data['sampleImage'],
+            'sampleOn': trial_data['sampleOnMsec'],
+            'sampleOff': trial_data['sampleOffMsec'],
             'sampleDiameterPixels': sampleDiameterPixels,
             'sampleXCentroid': sampleXCentroidPixels,
             'sampleYCentroid': sampleYCentroidPixels,
-            'choiceImage': trialPackage['choiceImage'],
+            'choiceImage': trial_data['choiceImage'],
             'choiceDiameterPixels': choiceDiameterPixels,
             'choiceXCentroid': choiceXCentroidPixels,
             'choiceYCentroid': choiceYCentroidPixels,
@@ -105,7 +102,7 @@ class PlaySpaceClass {
 
         var t_fixationOn = {};
         var fixationOutcome = {};
-        if (trialPackage['fixationDiameterDegrees'] > 0) {
+        if (trial_data['fixationDiameterDegrees'] > 0) {
             var t_fixationOn = await this.ScreenDisplayer.displayFixation();
             var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
         }
@@ -115,9 +112,9 @@ class PlaySpaceClass {
         wdm('Running stimulus...');
         var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence();
 
-        var actionXCentroidPixels = this.xprop2pixels(trialPackage['actionXCentroid']);
-        var actionYCentroidPixels = this.yprop2pixels(trialPackage['actionYCentroid']);
-        var actionDiameterPixels = this.deg2pixels(trialPackage['actionDiameterDegrees']);
+        var actionXCentroidPixels = this.xprop2pixels(trial_data['actionXCentroid']);
+        var actionYCentroidPixels = this.yprop2pixels(trial_data['actionYCentroid']);
+        var actionDiameterPixels = this.deg2pixels(trial_data['actionDiameterDegrees']);
 
         this.ActionPoller.create_action_regions(
             actionXCentroidPixels,
@@ -126,24 +123,24 @@ class PlaySpaceClass {
 
         this.ActionPoller.create_button_mappings({'f': 0, 'j': 1});
 
-        if (trialPackage['choiceTimeLimitMsec'] > 0) {
+        if (trial_data['choiceTimeLimitMsec'] > 0) {
             var actionPromise = Promise.race([
                 this.ActionPoller.Promise_wait_until_active_response(),
-                this.ActionPoller.timeout(trialPackage['choiceTimeLimitMsec'])])
+                this.ActionPoller.timeout(trial_data['choiceTimeLimitMsec'])])
         } else {
             var actionPromise = this.ActionPoller.Promise_wait_until_active_response()
         }
 
         wdm('Awaiting choice...');
         var actionOutcome = await actionPromise;
-        var rewardAmount = trialPackage['choiceRewardMap'][actionOutcome['actionIndex']];
+        var rewardAmount = trial_data['choiceRewardMap'][actionOutcome['actionIndex']];
 
         // Deliver reinforcement
         wdm('Delivering reinforcement...');
         if (rewardAmount > 0) {
             var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
             var p_sound = this.SoundPlayer.play_sound('reward_sound');
-            var p_visual = this.ScreenDisplayer.displayReward(trialPackage['rewardTimeOutMsec']);
+            var p_visual = this.ScreenDisplayer.displayReward(trial_data['rewardTimeOutMsec']);
             var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount);
             await Promise.all([p_primaryReinforcement, p_visual]);
             var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
@@ -151,7 +148,7 @@ class PlaySpaceClass {
         if (rewardAmount <= 0) {
             var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
             var p_sound = this.SoundPlayer.play_sound('punish_sound');
-            var p_visual = this.ScreenDisplayer.displayPunish(trialPackage['punishTimeOutMsec']);
+            var p_visual = this.ScreenDisplayer.displayPunish(trial_data['punishTimeOutMsec']);
             await Promise.all([p_sound, p_visual]);
             var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
         }
@@ -167,7 +164,7 @@ class PlaySpaceClass {
         // *************** Write down trial outcome *************************
         wdm('Writing down trial outcome...');
         var trialOutcome = {};
-        trialOutcome['return'] = rewardAmount;
+        trialOutcome['perf'] = rewardAmount;
         trialOutcome['action'] = actionOutcome['actionIndex'];
         trialOutcome['responseX'] = actionOutcome['x'];
         trialOutcome['responseY'] = actionOutcome['y'];
@@ -183,26 +180,6 @@ class PlaySpaceClass {
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1];
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0];
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0]);
-
-        // todo: remove these internal references to TaskStreamer (violates modularity of main objects)
-        trialOutcome['taskNumber'] = TaskStreamer.taskNumber;
-        trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask;
-        trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession;
-        trialOutcome['sampleBagProbabilities'] = TaskStreamer.bagSamplingWeights;
-        trialOutcome['tStatistic'] = TaskStreamer.tStatistic;
-        trialOutcome['empiricalEffectSize'] = TaskStreamer.empiricalEffectSize;
-        trialOutcome['a'] = TaskStreamer.a;
-        trialOutcome['b'] = TaskStreamer.b;
-        trialOutcome['c'] = TaskStreamer.c;
-        trialOutcome['d'] = TaskStreamer.d;
-        trialOutcome['tStatistic_criticalUb'] = TaskStreamer.tStatistic_criticalUb;
-        trialOutcome['tStatistic_criticalLb'] = TaskStreamer.tStatistic_criticalLb;
-
-        trialOutcome['sampleBag'] = trialPackage['sampleBag'];
-        trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag'];
-        trialOutcome['i_sampleId'] = trialPackage['i_sampleId'];
-        trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag'];
-        trialOutcome['i_choiceId'] = trialPackage['i_choiceId'];
 
         return trialOutcome
     }
