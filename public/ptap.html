@@ -114,7 +114,7 @@
 
             // Set up session
             var TrialIterator = new Trial_Iterator_Class(task_def);
-            var freturn = await setup_session(task_def);
+            var freturn = await setup_session(task_def, assignmentId);
             var Playspace = freturn['Playspace'];
             var UX = freturn['UX'];
 

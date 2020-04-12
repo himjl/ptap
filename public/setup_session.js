@@ -1,4 +1,4 @@
-async function setup_session(task_def) {
+async function setup_session(task_def, assignmentId) {
     // Before trials initiate, several tasks must be completed, based on the task_def.
 
     /*
@@ -28,7 +28,7 @@ async function setup_session(task_def) {
     }
     // Show preview mode if simply a previewer
     else {
-        if (SESSION['assignmentId'] === 'assignmentId_not_found' || SESSION['assignmentId'] === 'ASSIGNMENT_ID_NOT_AVAILABLE') {
+        if (assignmentId === 'assignmentId_not_found' || assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE') {
             run_preview_mode = true
         }
         else {
@@ -38,7 +38,7 @@ async function setup_session(task_def) {
 
     // Catch previewers and keep them in preview mode
     if (run_preview_mode === true) {
-        var image_buffer = ImageBuffer();
+        var image_buffer = new ImageBuffer();
         var tutorial_image = await image_buffer.get_by_url('image_assets/TutorialClickMe.png');
 
         UX.show_preview_splash();
