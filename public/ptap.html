@@ -91,9 +91,6 @@
 <script>
 
     // Todo:
-    // Verify defaults
-    // add bonus USD UI
-    // 3. write new experiment synthesizer
     // 4. Write new data downloader / parser
     // 5. test on sandbox
 
@@ -122,6 +119,7 @@
             session_data.data['url'] = window.location.href;
             session_data.data['unixTimestampPageLoad'] = window.performance.timing.navigationStart;
             session_data.data['landingPageURL'] = landing_page_url;
+            session_data.data['sandbox'] = sandbox_mode;
 
             // Turn on progressbar display; USD
             toggleElement(1, 'MechanicalTurk_ProgressBar');
@@ -183,7 +181,7 @@
             document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
             console.log('Submitting failed session to mechanical turk');
 
-            //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+            document.getElementById("MechanicalTurk_SubmissionForm").submit();
         }
     }())
 

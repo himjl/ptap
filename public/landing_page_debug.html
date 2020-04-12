@@ -72,7 +72,7 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             console.log(TASK_DEF);
 
             await localStorage.setItem("TASK_DEF", btoa(JSON.stringify(TASK_DEF)));
-            await localStorage.setItem('LANDING_PAGE_URL2', btoa(LANDING_PAGE_URL));
+            await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL));
 
             console.log('All items stored. Redirecting...');
             await new Promise(resolve => setTimeout(resolve, 1000));
