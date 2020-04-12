@@ -27,7 +27,7 @@ class Trial_Iterator_Class {
         return this.image_url_prefix.concat(current_suffix)
     }
     async get_next_trial(){
-        console.log(this.trial_pool);
+        console.log('trial', this.trial_number);
         // Load the next trial
         if (this.trial_pool[this.trial_number] === undefined){
             await this._buffer_trial(this.trial_number)

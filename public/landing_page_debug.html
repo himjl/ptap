@@ -28,17 +28,10 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
 
     <script>
         async function encode_task_def() {
-            /*
-             this.image_url_prefix = task_def['image_url_prefix'];
-        this.image_url_suffixes = task_def['image_url_suffixes'];
-
-        this.task_def = task_def;
-        this.trial_sequence = this.task_def['trial_sequence'];
-
-             */
             var TASK_DEF = undefined;
             try {
                 TASK_DEF = {
+                    'bonus_USD_per_correct':0.005,
                     'image_url_prefix':"https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/",
                     'image_url_suffixes':[
                         'objectome_dog_e1ed016de5e47e8a6567123ce134d72b7187db73_ty0.43294_tz-0.29943_rxy-112.6794_rxz75.5665_ryz127.211_s1.6328.png',
@@ -76,9 +69,10 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL'];
 
             console.log('landing page url', window.location.href);
+            console.log(TASK_DEF);
 
             await localStorage.setItem("TASK_DEF", btoa(JSON.stringify(TASK_DEF)));
-            await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL));
+            await localStorage.setItem('LANDING_PAGE_URL2', btoa(LANDING_PAGE_URL));
 
             console.log('All items stored. Redirecting...');
             await new Promise(resolve => setTimeout(resolve, 1000));
@@ -90,8 +84,8 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             if (currentURL.indexOf('localhost') !== -1) {
                 window.location.href = '/ptap.html'
             } else {
-                s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
-                window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/ptap.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
+                s3_bucket = 'ptap2';
+                window.location.href = 'https://' + s3_bucket + '.s3.amazonaws.com/public/ptap.html'
             }
         }
 

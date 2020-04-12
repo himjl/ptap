@@ -14,7 +14,7 @@ class MechanicalTurkUX extends UXclass {
         super();
         this.num_trials = num_trials;
         this.bonusUSDPerCorrect = bonusUSDPerCorrect;
-        this.bonusEarned = 0;
+        this.bonus_usd_earned = 0;
         this.ntrials_performed = 0;
     }
 
@@ -78,7 +78,7 @@ class MechanicalTurkUX extends UXclass {
         this.ntrials_performed+=1;
         var pbarupdate = this.ntrials_performed / this.num_trials * 100;
         this.writeToTrialCounterDisplay(this.ntrials_performed);
-        this.bonusEarned += (trial_outcome['perf'] * this.bonusUSDPerCorrect);
+        this.bonus_usd_earned += (trial_outcome['perf'] * this.bonusUSDPerCorrect);
 
 
         updateProgressbar(
@@ -88,8 +88,9 @@ class MechanicalTurkUX extends UXclass {
             100,
             ' ');
 
-        if (!isNaN(this.bonusEarned)) {
-            updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
+        if (!isNaN(this.bonus_usd_earned)) {
+            var elem = document.querySelector("button[name=WorkerCashInButton]");
+            elem.innerHTML = 'Bonus cents: ' + (100 * this.bonus_usd_earned).toFixed(3);
         }
     }
 

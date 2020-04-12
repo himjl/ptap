@@ -71,7 +71,7 @@
   </span>
 </div>
 
-<button id='WorkerCashInButton' name="WorkerCashInButton">Turn in</button>
+<button id='WorkerCashInButton' name="WorkerCashInButton">Bonus earned:</button>
 
 <script src="setup_session.js" type="text/javascript"></script>
 <script src="io_utils/image_loading/ImageBuffer.js" type="text/javascript"></script>
@@ -91,9 +91,8 @@
 <script>
 
     // Todo:
-    // change task_def to list form
-    // attach im number etc
     // Verify defaults
+    // add bonus USD UI
     // 3. write new experiment synthesizer
     // 4. Write new data downloader / parser
     // 5. test on sandbox
@@ -124,8 +123,9 @@
             session_data.data['unixTimestampPageLoad'] = window.performance.timing.navigationStart;
             session_data.data['landingPageURL'] = landing_page_url;
 
-            // Turn on progressbar display
+            // Turn on progressbar display; USD
             toggleElement(1, 'MechanicalTurk_ProgressBar');
+            toggleElement(1, 'WorkerCashInButton');
 
             // Execute tutorial
             if (true){
@@ -153,9 +153,13 @@
                 session_data.update(trial_outcome);
                 UX.update_progressbar(trial_outcome);
             }
+            // Attach image info to session_data
+            session_data.data['bonus_USD_per_correct'] = task_def['bonus_USD_per_correct'];
+            session_data.data['image_url_prefix'] = task_def['image_url_prefix'];
+            session_data.data['image_url_suffixes'] = task_def['image_url_suffixes'];
 
             // Submit the data to Mechanical Turk
-            await MechanicalTurkSubmitter.submit_data(assignmentId, hitId, sandbox_mode, session_data.data)
+            await MechanicalTurkSubmitter.submit_data(assignmentId, hitId, sandbox_mode, {'SESSION_DATA':session_data.data})
         }
         catch (error) {
             // Error catch
@@ -166,22 +170,20 @@
             // Error handling
             await sleep(1500);
 
-            dataobj = {'SESSION_DATA': dataobj};
+            var dataobj = {'SESSION_DATA': session_data.data};
             document.getElementById("submission_data").value = JSON.stringify(dataobj);
 
             // Extract assignmentId from localstorage
-            var landingPageURL = await localStorage.getItem('LANDING_PAGE_URL');
-            landingPageURL = atob(landingPageURL);
-            assignmentId = az.get_assignmentId_from_url(landingPageURL);
+            var landing_page_url = await localstorage_io.load_landing_page_url();
+            var assignmentId = az.get_assignmentId_from_url(landing_page_url);
             document.getElementById("assignmentId").value = assignmentId;
 
             var submit_url = "https://www.mturk.com/mturk/externalSubmit";
-            //var submit_url = "https://workersandbox.mturk.com/mturk/externalSubmit"
 
             document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
             console.log('Submitting failed session to mechanical turk');
 
-            document.getElementById("MechanicalTurk_SubmissionForm").submit();
+            //document.getElementById("MechanicalTurk_SubmissionForm").submit();
         }
     }())
 
