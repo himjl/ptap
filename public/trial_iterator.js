@@ -71,13 +71,14 @@ class Trial_Iterator_Class {
 
         var bufferTrials = async function () {
 
-            if (_this.currently_buffering === true) {
-                console.log('Currently buffering.');
+            if (_this.next_buffer_trial_number >= _this.trial_sequence.length){
+                console.log('Buffered all trials. Returning')
                 return
             }
 
-            if (_this.next_buffer_trial_number >= _this.trial_sequence.length){
-                console.log('Buffered all trials. Returning')
+            if (_this.currently_buffering === true) {
+                console.log('Currently buffering.');
+                return
             }
 
             var num_trials_in_buffer = _this.trial_queue.length;

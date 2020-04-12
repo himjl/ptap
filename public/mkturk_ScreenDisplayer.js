@@ -107,7 +107,6 @@ class ScreenDisplayer {
                              ycentroids_pixels,
                              diameter_pixels,
                              canvasobj) {
-        console.log('draw', xcentroids_pixels, ycentroids_pixels, diameter_pixels ,images);
         if (images.constructor === Array) {
             // Iterate over the images in this frame and draw them all
             for (var i_image = 0; i_image < images.length; i_image++) {
@@ -131,7 +130,6 @@ class ScreenDisplayer {
 
         // Special cases for 'image'
         if (image == 'dot') {
-            console.log('dot', canvasobj, xcentroid_pixel,  ycentroid_pixel, diameter_pixels)
             await this.drawDot(xcentroid_pixel, ycentroid_pixel, diameter_pixels, 'white', canvasobj);
             return
         }
@@ -371,7 +369,6 @@ class ScreenDisplayer {
     }
 
     displayScreenSequence(sequence, t_durations) {
-        //console.log('calling screen sequence. t_durations', t_durations)
         if (typeof (t_durations) == "number") {
             t_durations = [t_durations]
         }
@@ -384,7 +381,6 @@ class ScreenDisplayer {
             resolveFunc = resolve;
             errFunc = reject;
         }).then();
-        //console.log('seq', sequence, 'tseq', tsequence)
 
         var lastframe_timestamp = undefined;
         var frame_unix_timestamps = [];
@@ -397,7 +393,6 @@ class ScreenDisplayer {
 
         var _this = this;
 
-        console.log('display', sequence, t_durations)
 
         function updateCanvas(timestamp) {
 
@@ -412,7 +407,6 @@ class ScreenDisplayer {
                 prev_canvasobj = curr_canvasobj;
 
                 lastframe_timestamp = timestamp;
-                //console.log('lastframe_timestamp', lastframe_timestamp)
                 frames_left_to_animate--
 
             }

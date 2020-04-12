@@ -64,8 +64,6 @@ class PlaySpaceClass {
             });
 
         // Stimulus sequence
-        wdm('Buffering stimulus...');
-
         var choiceXCentroidPixels = this.xprop2pixels(choiceXCentroid);
         var choiceYCentroidPixels = this.yprop2pixels(choiceYCentroid);
         var choiceDiameterPixels = this.deg2pixels(choiceDiameterDegrees);
@@ -87,7 +85,6 @@ class PlaySpaceClass {
         // *************** Run trial *************************
 
         // Blank screen
-        wdm('Running fixation...');
         await this.ScreenDisplayer.displayBlank();
 
         // Await fixation
@@ -145,7 +142,6 @@ class PlaySpaceClass {
         this.rewardLog['n'].push(rewardAmount);
 
         // *************** Write down trial outcome *************************
-        wdm('Writing down trial outcome...');
         var trialOutcome = {};
         trialOutcome['perf'] = rewardAmount;
         trialOutcome['action'] = actionOutcome['actionIndex'];

@@ -9,8 +9,7 @@ async function setup_session(task_def) {
     */
 
     var bonus_USD_per_correct =  task_def['bonus_USD_per_correct'];
-    var min_trials = task_def['trial_sequence'].length + 10;
-    var max_trials = min_trials + 50;
+    var num_trials = task_def['trial_sequence'].length;
 
     // Defaults
     var Playspace = new PlaySpaceClass(bonus_USD_per_correct);
@@ -19,7 +18,7 @@ async function setup_session(task_def) {
     Playspace.start_action_tracking();
     Playspace.start_device_tracking();
 
-    var UX = new MechanicalTurkUX(min_trials, max_trials, bonus_USD_per_correct);
+    var UX = new MechanicalTurkUX(num_trials, bonus_USD_per_correct);
 
     var run_preview_mode = true;
 
@@ -40,7 +39,7 @@ async function setup_session(task_def) {
     // Catch previewers and keep them in preview mode
     if (run_preview_mode === true) {
         var image_buffer = ImageBuffer();
-        var tutorial_image = await image_buffer.get_by_url('tutorial_images/TutorialClickMe.png');
+        var tutorial_image = await image_buffer.get_by_url('image_assets/TutorialClickMe.png');
 
         UX.show_preview_splash();
 

@@ -43,11 +43,11 @@
 
 <div id="MechanicalTurkCursorDeviceSelectionScreen">
 
-    <input type="image" class='DeviceButton' id='MouseImage' style="" src="tutorial_images/mouse.png " alt="Mouse"
+    <input type="image" class='DeviceButton' id='MouseImage' style="" src="image_assets/mouse.png " alt="Mouse"
            onclick="setDeviceSelection(this, 'mouse')"/>
-    <input type="image" class='DeviceButton' id='TrackPadImage' src="tutorial_images/trackpad.png " alt="Trackpad"
+    <input type="image" class='DeviceButton' id='TrackPadImage' src="image_assets/trackpad.png " alt="Trackpad"
            onclick="setDeviceSelection(this, 'trackpad')"/>
-    <input type="image" class='DeviceButton' id='TabletImage' src="tutorial_images/tablet.png " alt="Tablet"
+    <input type="image" class='DeviceButton' id='TabletImage' src="image_assets/tablet.png " alt="Tablet"
            onclick="setDeviceSelection(this, 'touchscreen')"/>
 
     <span>
@@ -59,9 +59,9 @@
 
 <div id="MechanicalTurkHandSelectionScreen">
 
-    <input type="image" class='HandButton' id='LeftHandImage' style="" src="tutorial_images/left_hand.png "
+    <input type="image" class='HandButton' id='LeftHandImage' style="" src="image_assets/left_hand.png "
            alt="Lefthanded" onclick="setHandSelection(this, 'left')"/>
-    <input type="image" class='HandButton' id='RightHandImage' src="tutorial_images/right_hand.png " alt="Righthanded"
+    <input type="image" class='HandButton' id='RightHandImage' src="image_assets/right_hand.png " alt="Righthanded"
            onclick="setHandSelection(this, 'right')"/>
 
     <span>
@@ -77,26 +77,28 @@
 <script src="io_utils/image_loading/ImageBuffer.js" type="text/javascript"></script>
 <script src="mkturk_utils.js" type="text/javascript"></script>
 <script src="mkturk_SoundPlayer.js" type="text/javascript"></script>
-<script src="data_recording/mkturk_DataWriter.js" type="text/javascript"></script>
+<script src="data_recording/data_recording.js" type="text/javascript"></script>
 <script src="trial_iterator.js" type="text/javascript"></script>
 <script src="mkturk_UX.js" type="text/javascript"></script>
 <script src="mkturk_Playspace.js" type="text/javascript"></script>
 <script src="mkturk_ActionPoller.js" type="text/javascript"></script>
-<script src="mkturk_Reinforcer.js" type="text/javascript"></script>
 <script src="mkturk_ScreenDisplayer.js" type="text/javascript"></script>
 <script src="mkturk_amazon_utils.js" type="text/javascript"></script>
 <script src="mkturk_screenfunctions.js"></script>
 <script src="io_utils/local_storage_io/load_task_def.js" type="text/javascript"></script>
+<script src="tutorial/blue_orange_tutorial_generator.js" type="text/javascript"></script>
 
 <script>
 
     // Todo:
-    // 1b. alter Playspace to work with new trial_data (action poller)
+    // Add blue/orange tutorial with 60 trials, criterion
+    // Verify defaults
     // 3. write new experiment synthesizer
     // 4. Write new data downloader / parser
     // 5. test on sandbox
 
     var FLAGS = {};
+    var session_data = new ListDict;
 
     (async function () {
         try {
@@ -116,18 +118,40 @@
             var Playspace = freturn['Playspace'];
             var UX = freturn['UX'];
 
-            // Set up data for submission
-            var session_data = new ListDict;
-            session_data.data['url'] = 'url';
+            // Attach metadata for session
+            session_data.data['url'] = window.location.href;
             session_data.data['unixTimestampPageLoad'] = window.performance.timing.navigationStart;
             session_data.data['landingPageURL'] = landing_page_url;
+
+            // Turn on progressbar display
+            toggleElement(1, 'MechanicalTurk_ProgressBar');
+
+            // Execute tutorial
+            if (true){
+                TutorialIterator = new Tutorial_Generator_Class();
+                while(true){
+                    var tutorial_trial_data = await TutorialIterator.get_next_trial();
+                    var tutorial_trial_outcome = await Playspace.run_trial(tutorial_trial_data);
+                    var tutorial_state = TutorialIterator.update_state(tutorial_trial_outcome);
+                    console.log(tutorial_trial_outcome)
+                    session_data.update(tutorial_trial_outcome, 'tutorial_');
+                    if (tutorial_state !== 'in_progress'){
+                        break
+                    }
+                }
+            }
+
+            if (tutorial_state === 'failure'){
+                // Submit to turk; subject did not pass.
+                await MechanicalTurkSubmitter.submit_data(assignmentId, hitId, sandbox_mode, session_data.data)
+            }
 
             // Execute main trial loop
             while (TrialIterator.terminal === false) {
                 var trial_data = await TrialIterator.get_next_trial();
                 var trial_outcome = await Playspace.run_trial(trial_data);
                 session_data.update(trial_outcome);
-                //UX.poll(trial_outcome);
+                UX.update_progressbar(trial_outcome);
             }
 
             // Submit the data to Mechanical Turk
@@ -141,17 +165,7 @@
         finally {
             // Error handling
             await sleep(1500);
-            try {
-                var dataobj = DataWriter.package_data()
-            } catch (error) {
-                var dataobj = {'ERROR_DataWriter.package_data()': String(error)}
-            }
-            try {
-                var s = JSON.stringify(errorMessage);
-                dataobj['ERROR_main_loop'] = s
-            } catch (error) {
-                dataobj['ERROR_main_loop_not_found'] = JSON.stringify(String(error))
-            }
+
             dataobj = {'SESSION_DATA': dataobj};
             document.getElementById("submission_data").value = JSON.stringify(dataobj);
 
@@ -167,7 +181,7 @@
             document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
             console.log('Submitting failed session to mechanical turk');
 
-            //document.getElementById("MechanicalTurk_SubmissionForm").submit();
+            document.getElementById("MechanicalTurk_SubmissionForm").submit();
         }
     }())
 

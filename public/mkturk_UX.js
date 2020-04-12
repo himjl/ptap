@@ -10,12 +10,12 @@ class UXclass {
 }
 
 class MechanicalTurkUX extends UXclass {
-    constructor(minimumTrials, maximumTrials, bonusUSDPerCorrect) {
+    constructor(num_trials, bonusUSDPerCorrect) {
         super();
-        this.minimumTrials = minimumTrials; // for enabling early turn-in
-        this.maximumTrials = maximumTrials;
+        this.num_trials = num_trials;
         this.bonusUSDPerCorrect = bonusUSDPerCorrect;
-        this.bonusEarned = 0
+        this.bonusEarned = 0;
+        this.ntrials_performed = 0;
     }
 
     async run_instructions_dialogue() {
@@ -54,9 +54,9 @@ class MechanicalTurkUX extends UXclass {
         })
     }
 
-    async poll(trialOutcome, TaskStreamer_state) {
+    async update_progressbar(trial_outcome) {
         /*var trialOutcome = {};
-        trialOutcome['return'] = rewardAmount;
+        trialOutcome['perf'] = rewardAmount;
         trialOutcome['action'] = actionOutcome['actionIndex'];
         trialOutcome['responseX'] = actionOutcome['x'];
         trialOutcome['responseY'] = actionOutcome['y'];
@@ -72,88 +72,25 @@ class MechanicalTurkUX extends UXclass {
         trialOutcome['timestampStimulusOff'] = t_SequenceTimestamps[1];
         trialOutcome['timestampChoiceOn'] = t_SequenceTimestamps.slice(-1)[0];
         trialOutcome['reactionTime'] = Math.round(actionOutcome['timestamp'] - t_SequenceTimestamps.slice(-1)[0]);
-        trialOutcome['taskNumber'] = TaskStreamer.taskNumber;
-        trialOutcome['trialNumberTask'] = TaskStreamer.trialNumberTask;
-        trialOutcome['trialNumberSession'] = TaskStreamer.trialNumberSession;
-        trialOutcome['sampleBagProbabilities'] = TaskStreamer.bagSamplingWeights;
-        trialOutcome['tStatistic'] = TaskStreamer.tStatistic;
-        trialOutcome['empiricalEffectSize'] = TaskStreamer.empiricalEffectSize;
-        trialOutcome['a'] = TaskStreamer.a;
-        trialOutcome['b'] = TaskStreamer.b;
-        trialOutcome['c'] = TaskStreamer.c;
-        trialOutcome['d'] = TaskStreamer.d;
-        trialOutcome['tStatistic_criticalUb'] = TaskStreamer.tStatistic_criticalUb;
-        trialOutcome['tStatistic_criticalLb'] = TaskStreamer.tStatistic_criticalLb;
-        trialOutcome['sampleBag'] = trialPackage['sampleBag'];
-        trialOutcome['i_sampleBag'] = trialPackage['i_sampleBag'];
-        trialOutcome['i_sampleId'] = trialPackage['i_sampleId'];
-        trialOutcome['i_choiceBag'] = trialPackage['i_choiceBag'];
-        trialOutcome['i_choiceId'] = trialPackage['i_choiceId'];*/
+        ];*/
 
-        var trialNumberTask = TaskStreamer_state.trialNumberTask;
-        var curTaskMinTrials = TaskStreamer_state.taskSequence[TaskStreamer_state.taskNumber]['minTrialsCriterion'];
-        var curTaskPerfCriterion = TaskStreamer_state.taskSequence[TaskStreamer_state.taskNumber]['averageReturnCriterion'];
-        var pbarupdate =0;
-        if (curTaskPerfCriterion > 0){
-            pbarupdate = 0;
+
+        this.ntrials_performed+=1;
+        var pbarupdate = this.ntrials_performed / this.num_trials * 100;
+        this.writeToTrialCounterDisplay(this.ntrials_performed);
+        this.bonusEarned += (trial_outcome['perf'] * this.bonusUSDPerCorrect);
+
+
+        updateProgressbar(
+             pbarupdate,
+            'MechanicalTurk_TrialBar',
+            '',
+            100,
+            ' ');
+
+        if (!isNaN(this.bonusEarned)) {
+            updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
         }
-        else{
-            pbarupdate = trialNumberTask / curTaskMinTrials * 100;
-        }
-
-        this.writeToTrialCounterDisplay(trialNumberTask);
-        this.bonusEarned += (trialOutcome['return'] * this.bonusUSDPerCorrect);
-
-        var minimum_trials_left = Math.max(curTaskMinTrials - trialNumberTask, 0);
-        if (minimum_trials_left > 0) {
-            updateProgressbar(
-                 pbarupdate,
-                'MechanicalTurk_TrialBar',
-                '',
-                100,
-                ' ');
-
-            if (!isNaN(this.bonusEarned)) {
-                updateCashInButtonText(minimum_trials_left, this.bonusEarned, false)
-            }
-
-        } else {
-
-            document.getElementById('MechanicalTurk_TrialBar').style['background-color'] = '#00cc66';
-            document.getElementById('MechanicalTurk_TrialBar').style['opacity'] = 1;
-
-            updateProgressbar(pbarupdate, 'MechanicalTurk_TrialBar', '', 100);
-
-            //toggleCashInButtonClickability(1)
-            var num_bonus_trials_performed = trialNumberTask - this.minimumTrials;
-            if (!isNaN(this.bonusEarned)) {
-                updateCashInButtonText(num_bonus_trials_performed, this.bonusEarned, true)
-            }
-        }
-
-        if (trialNumberTask >= this.minimumTrials) { //if(trialNumberSession >= this.maximumTrials){
-            // TODO: TEMPORARY while cash in listener is fixed - switch back to this.maximumTrials 
-            TaskStreamer.TERMINAL_STATE = true
-
-        }
-        if (trialNumberTask >= this.maximumTrials) {
-            TaskStreamer.TERMINAL_STATE = true
-        }
-    }
-
-    async cash_in_listener(event) {
-        console.log('Worker called cash in');
-        var original_text = document.querySelector("button[name=WorkerCashInButton]").innerHTML;
-        var original_color = document.querySelector("button[name=WorkerCashInButton]").style['background-color'];
-
-        document.querySelector("button[name=WorkerCashInButton]").innerHTML = 'Submitting...';
-
-        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = '#ADFF97';
-
-        document.querySelector("button[name=WorkerCashInButton]").style['background-color'] = original_color;
-
-        DataWriter.conclude_session();
-
     }
 
 }
