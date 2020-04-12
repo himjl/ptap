@@ -9,7 +9,7 @@ async function setup_session(task_def) {
     */
 
     var bonus_USD_per_correct =  task_def['bonus_USD_per_correct'];
-    var num_trials = task_def['trial_sequence'].length;
+    var num_trials = task_def['trial_sequence']['stimulus_number'].length;
 
     // Defaults
     var Playspace = new PlaySpaceClass(bonus_USD_per_correct);

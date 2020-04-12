@@ -1,0 +1,114 @@
+<!doctype html>
+
+<body>
+Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies enabled.
+</body>
+
+<head>
+    <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        //http://uniqueturker.myleott.com/
+
+        // In the case where workers can accept a HIT which is designed for (un)qualified workers, this
+        // code catches these workers and presents them with a splash screen asking them to return the HIT.
+        allow_worker = true;
+        NOVEL_WORKERS_ONLY = false;
+        if (NOVEL_WORKERS_ONLY) {
+            (function(){
+                var ut_id = 'c3f75daeee93e4f1c6bec080e1b06655';
+                if (UTWorkerLimitReached(ut_id)) {
+                    allow_worker = false;
+                    document.getElementsByTagName('body')[0].innerHTML = "You have already completed the maximum number of HITs allowed by this requester for this HIT group. " +
+                        "Please click 'Return HIT' to avoid any impact on your approval rating.";
+                }
+            })();
+        }
+    </script>
+
+
+    <script>
+        async function encode_task_def() {
+            /*
+             this.image_url_prefix = task_def['image_url_prefix'];
+        this.image_url_suffixes = task_def['image_url_suffixes'];
+
+        this.task_def = task_def;
+        this.trial_sequence = this.task_def['trial_sequence'];
+
+             */
+            var TASK_DEF = undefined;
+            try {
+                TASK_DEF = {
+                    'image_url_prefix':"https://s3.amazonaws.com/milresources/Images/MonkeyTurkSets/objectome/images/",
+                    'image_url_suffixes':[
+                        'objectome_dog_e1ed016de5e47e8a6567123ce134d72b7187db73_ty0.43294_tz-0.29943_rxy-112.6794_rxz75.5665_ryz127.211_s1.6328.png',
+                        'objectome_dog_28ebb7db56691da21fa6d640f5ef719f916cb7ff_ty-0.48998_tz-0.20078_rxy-84.7937_rxz-117.8076_ryz175.5429_s1.3151.png',
+                        'objectome_pineapple_5946318bc2cdd1947534ae15d43aa7a0d820506e_ty-0.64759_tz0.33642_rxy-5.6836_rxz-71.4586_ryz62.4466_s1.169.png',
+                        'objectome_pineapple_c50790daa826f1d3fbed5580820c6c91fdded273_ty-0.57074_tz0.84081_rxy-157.3224_rxz64.5421_ryz167.7568_s0.86084.png',
+                    ],
+                    'trial_sequence':{
+                        'stimulus_number':[0, 1, 2, 3],
+                        'label':[0, 0, 1, 1],
+                        'presentation_dur_msec':[200, 200, 200, 200],
+                        'punish_dur_msec':[800, 800, 800, 800],
+                        'reward_dur_msec':[100, 100, 100, 100],
+                        'timeout_dur_msec':[5000, 5000, 5000, 5000],
+                    }
+                };
+            } catch (error) {
+                console.log(error);
+            }
+
+            var localSavePackage = {
+                    'TASK_DEF': TASK_DEF,
+                    'LANDING_PAGE_URL': window.location.href
+                };
+
+            await concludeLandingPage(localSavePackage)
+        }
+
+    </script>
+
+    <script>
+        async function concludeLandingPage(localSavePackage) {
+
+            TASK_DEF = localSavePackage['TASK_DEF'];
+            LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL'];
+
+            console.log('landing page url', window.location.href);
+
+            await localStorage.setItem("TASK_DEF", btoa(JSON.stringify(TASK_DEF)));
+            await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL));
+
+            console.log('All items stored. Redirecting...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            go_to_main_page()
+        }
+
+        function go_to_main_page() {
+            var currentURL = window.location.href;
+            if (currentURL.indexOf('localhost') !== -1) {
+                window.location.href = '/ptap.html'
+            } else {
+                s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
+                window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/ptap.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
+            }
+        }
+
+    </script>
+
+
+    <script>
+        if (allow_worker){
+            (async function () {
+                    await encode_task_def();
+                }
+            )();
+        }
+    </script>
+    <title>ptap landing page</title>
+
+</head>
+
+
+</html>
