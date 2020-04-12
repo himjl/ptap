@@ -50,6 +50,8 @@ class Tutorial_Generator_Class {
 
         var trial_package = {};
         trial_package['sampleImage'] = sample_image;
+        trial_package['stimulus_number'] = +label;
+        trial_package['trial_number'] = this.reward_history.length;
         trial_package['label'] = +label;
         trial_package['presentation_dur_msec'] = this.presentation_dur_msec;
         trial_package['punish_dur_msec'] = this.punish_dur_msec;

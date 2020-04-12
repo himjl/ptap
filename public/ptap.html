@@ -91,7 +91,8 @@
 <script>
 
     // Todo:
-    // Add blue/orange tutorial with 60 trials, criterion
+    // change task_def to list form
+    // attach im number etc
     // Verify defaults
     // 3. write new experiment synthesizer
     // 4. Write new data downloader / parser
@@ -128,12 +129,11 @@
 
             // Execute tutorial
             if (true){
-                TutorialIterator = new Tutorial_Generator_Class();
+                var TutorialIterator = new Tutorial_Generator_Class();
                 while(true){
                     var tutorial_trial_data = await TutorialIterator.get_next_trial();
                     var tutorial_trial_outcome = await Playspace.run_trial(tutorial_trial_data);
                     var tutorial_state = TutorialIterator.update_state(tutorial_trial_outcome);
-                    console.log(tutorial_trial_outcome)
                     session_data.update(tutorial_trial_outcome, 'tutorial_');
                     if (tutorial_state !== 'in_progress'){
                         break

@@ -143,6 +143,14 @@ class PlaySpaceClass {
 
         // *************** Write down trial outcome *************************
         var trialOutcome = {};
+        trialOutcome['stimulus_number'] = trial_data['stimulus_number'];
+        trialOutcome['trial_number'] = trial_data['trial_number'];
+        trialOutcome['label'] = trial_data['label'];
+        trialOutcome['presentation_dur_msec'] = trial_data['punish_dur_msec'];
+        trialOutcome['punish_dur_msec'] = trial_data['punish_dur_msec'];
+        trialOutcome['reward_dur_msec'] = trial_data['reward_dur_msec'];
+        trialOutcome['timeout_dur_msec'] = trial_data['timeout_dur_msec'];
+
         trialOutcome['perf'] = rewardAmount;
         trialOutcome['action'] = actionOutcome['actionIndex'];
         trialOutcome['responseX'] = actionOutcome['x'];

@@ -9,7 +9,7 @@ class Trial_Iterator_Class {
 
         this.trial_number = 0;
         this.next_buffer_trial_number = 0;
-        this.trial_queue = [];
+        this.trial_pool = {};
         this._start_buffering_continuous();
 
         if (this.trial_sequence.length === 0){
@@ -25,18 +25,25 @@ class Trial_Iterator_Class {
         return this.image_url_prefix.concat(current_suffix)
     }
     async get_next_trial(){
+        console.log(this.trial_pool);
         // Load the next trial
-        if (this.trial_queue.length === 0){
+        if (this.trial_pool[this.trial_number] === undefined){
             await this._buffer_trial(this.trial_number)
         }
-        this.trial_number+=1;
 
+        // Pop trial data
+        var trial_data = this.trial_pool[this.trial_number];
+        delete this.trial_pool[this.trial_number];
+
+
+        this.trial_number+=1;
         if (this.trial_number >= this.trial_sequence.length){
             // This was the last trial.
             this.terminal = true;
         }
 
-        return this.trial_queue.shift()
+
+        return trial_data
     }
 
     async _buffer_trial(trial_number) {
@@ -53,18 +60,21 @@ class Trial_Iterator_Class {
         var stimulus_image = await this.image_buffer.get_by_url(stimulus_url);
 
         var trial_package = {};
+        trial_package['trial_number'] = trial_number;
         trial_package['sampleImage'] = stimulus_image;
+        trial_package['stimulus_number'] = stimulus_number;
         trial_package['label'] = current_trial_dict['label'];
         trial_package['presentation_dur_msec'] = current_trial_dict['presentation_dur_msec'];
         trial_package['punish_dur_msec'] = current_trial_dict['punish_dur_msec'];
         trial_package['reward_dur_msec'] = current_trial_dict['reward_dur_msec'];
         trial_package['timeout_dur_msec'] = current_trial_dict['timeout_dur_msec'];
 
-        this.trial_queue.push(trial_package)
-        this.next_buffer_trial_number += 1;
+        this.trial_pool[trial_number] = trial_package;
     }
 
     async _start_buffering_continuous() {
+        // Buffer trials in the background
+
         var _this = this;
         this.currently_buffering = false;
         this.max_buffered_trials = 100;
@@ -72,7 +82,7 @@ class Trial_Iterator_Class {
         var bufferTrials = async function () {
 
             if (_this.next_buffer_trial_number >= _this.trial_sequence.length){
-                console.log('Buffered all trials. Returning')
+                console.log('Buffered all trials. Returning');
                 return
             }
 
@@ -81,22 +91,24 @@ class Trial_Iterator_Class {
                 return
             }
 
-            var num_trials_in_buffer = _this.trial_queue.length;
-            if (num_trials_in_buffer < _this.max_buffered_trials) {
+            var num_trials_in_pool = Object.keys(_this.trial_pool).length;
+            if (num_trials_in_pool < _this.max_buffered_trials) {
                 _this.currently_buffering = true;
                 var trialRequests = [];
                 var num_trials_to_buffer = 5;
                 for (var i = 0; i < num_trials_to_buffer; i++) {
                     trialRequests.push(_this._buffer_trial(_this.next_buffer_trial_number));
+                    _this.next_buffer_trial_number += 1;
                 }
                 console.log('Buffering', trialRequests.length, 'trials');
                 await Promise.all(trialRequests);
                 // Unlock
                 _this.currently_buffering = false
             } else {
-                console.log('Trial buffer is filled with ', num_trials_in_buffer, 'trials.')
+                console.log('Trial buffer is filled with ', num_trials_in_pool, 'trials.')
             }
         };
+        bufferTrials()
         window.setInterval(bufferTrials, 10000)
     }
 }
