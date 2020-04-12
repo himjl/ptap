@@ -5,7 +5,7 @@ class Trial_Iterator_Class {
 
         this.task_def = task_def;
         this.trial_sequence = this.task_def['trial_sequence'];
-        this.image_buffer = ImageBuffer();
+        this.image_buffer = new ImageBuffer();
 
         this.trial_number = 0;
         this.next_buffer_trial_number = 0;
@@ -22,7 +22,7 @@ class Trial_Iterator_Class {
 
     _get_url(stimulus_number){
         var current_suffix = this.image_url_suffixes[stimulus_number];
-        return this.url_prefix.concat(current_suffix)
+        return this.image_url_prefix.concat(current_suffix)
     }
     async get_next_trial(){
         // Load the next trial
@@ -42,6 +42,11 @@ class Trial_Iterator_Class {
     async _buffer_trial(trial_number) {
         // trial_number: integer
         // Loads the trial defined at trial_number
+
+        if (trial_number >= this.trial_sequence.length){
+            return
+        }
+
         var current_trial_dict = this.trial_sequence[trial_number];
         var stimulus_number = current_trial_dict['stimulus_number'];
         var stimulus_url = this._get_url(stimulus_number);
@@ -54,7 +59,9 @@ class Trial_Iterator_Class {
         trial_package['punish_dur_msec'] = current_trial_dict['punish_dur_msec'];
         trial_package['reward_dur_msec'] = current_trial_dict['reward_dur_msec'];
         trial_package['timeout_dur_msec'] = current_trial_dict['timeout_dur_msec'];
+
         this.trial_queue.push(trial_package)
+        this.next_buffer_trial_number += 1;
     }
 
     async _start_buffering_continuous() {
@@ -80,7 +87,6 @@ class Trial_Iterator_Class {
                 var num_trials_to_buffer = 5;
                 for (var i = 0; i < num_trials_to_buffer; i++) {
                     trialRequests.push(_this._buffer_trial(_this.next_buffer_trial_number));
-                    _this.next_buffer_trial_number += 1;
                 }
                 console.log('Buffering', trialRequests.length, 'trials');
                 await Promise.all(trialRequests);

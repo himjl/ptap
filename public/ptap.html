@@ -85,16 +85,13 @@
 <script src="mkturk_Reinforcer.js" type="text/javascript"></script>
 <script src="mkturk_ScreenDisplayer.js" type="text/javascript"></script>
 <script src="mkturk_amazon_utils.js" type="text/javascript"></script>
-<script src="io_utils/local_storage_io/load_task_def.js" type="text/javascript"></script>
 <script src="mkturk_screenfunctions.js"></script>
-
+<script src="io_utils/local_storage_io/load_task_def.js" type="text/javascript"></script>
 
 <script>
 
-
     // Todo:
-    // 1. get defaults for Playspace from ptap buddy
-    // 1b. alter Playspace to work with new trial_data
+    // 1b. alter Playspace to work with new trial_data (action poller)
     // 3. write new experiment synthesizer
     // 4. Write new data downloader / parser
     // 5. test on sandbox
@@ -127,10 +124,10 @@
 
             // Execute main trial loop
             while (TrialIterator.terminal === false) {
-                var trial_data = await TaskStreamer.get_trial();
+                var trial_data = await TrialIterator.get_next_trial();
                 var trial_outcome = await Playspace.run_trial(trial_data);
                 session_data.update(trial_outcome);
-                UX.poll(trial_outcome, TaskStreamer);
+                //UX.poll(trial_outcome);
             }
 
             // Submit the data to Mechanical Turk
@@ -170,7 +167,7 @@
             document.getElementById("MechanicalTurk_SubmissionForm").action = submit_url;
             console.log('Submitting failed session to mechanical turk');
 
-            document.getElementById("MechanicalTurk_SubmissionForm").submit();
+            //document.getElementById("MechanicalTurk_SubmissionForm").submit();
         }
     }())
 

@@ -5,12 +5,12 @@ class localstorage_io {
     static async load_task_def() {
         // Load stuff from local storage
         // Retrieve sessionPackage bootstraps from localstorage
-        var task_def_raw_string = await localstorage_io.load_localstorage_string('TASK_DEF');
+        var task_def_raw_string = await localstorage_io.load_string('TASK_DEF');
         return JSON.parse(task_def_raw_string)
     }
 
     static async load_landing_page_url() {
-        return await localstorage_io.load_localstorage_string('LANDING_PAGE_URL')
+        return await localstorage_io.load_string('LANDING_PAGE_URL')
     }
 
     static async load_string(key) {

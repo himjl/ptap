@@ -1,84 +1,82 @@
 class PlaySpaceClass {
-    constructor(playspacePackage) {
-        var playspace_isFullScreen = playspacePackage['playspace_isFullScreen'];
-        var playspace_degreesVisualAngle = playspacePackage['playspace_degreesVisualAngle'];
-        var playspace_viewingDistanceInches = playspacePackage['playspace_viewingDistanceInches'];
-        var screen_virtualPixelsPerInch = playspacePackage['screen_virtualPixelsPerInch'];
-        var action_event_type = playspacePackage['action_event_type'];
-        var bonusUSDPerCorrect = playspacePackage['bonusUSDPerCorrect'];
-        this.viewingDistanceInches = playspace_viewingDistanceInches;
-        this.playspaceSizeDegrees = playspace_degreesVisualAngle;
-        this.playspace_isFullScreen = playspace_isFullScreen;
-        this.virtualPixelsPerInch = screen_virtualPixelsPerInch;
+    constructor(bonus_USD_per_correct) {
+
+        this.viewingDistanceInches = 12;
+        this.playspaceSizeDegrees = 24;
+        this.playspace_isFullScreen = undefined;
+        this.virtualPixelsPerInch = 143.755902965;
         this.playspaceSizePixels = this.deg2pixels(this.playspaceSizeDegrees);
 
         var bounds = this.getPlayspaceBounds();
         this.ScreenDisplayer = new ScreenDisplayer(bounds);
-        this.Reinforcer = new MonetaryReinforcer(bonusUSDPerCorrect);
-        this.ActionPoller = new ActionPollerClass(action_event_type, bounds);
+        this.ActionPoller = new ActionPollerClass(["mouseup", "touchstart", "touchmove"], bounds);
         this.SoundPlayer = new SoundPlayerClass();
 
         // Async trackers 
         this.rewardLog = {'t': [], 'n': []}
     }
 
-    debug2record() {
-        this.rewardLog = {'t': [], 'n': []};
-        this.start_device_tracking();
-        this.ActionPoller.start_action_tracking();
-        this.toggleBorder(0);
-        console.log('debug2record: Playspace performed a reset of reward, device, and action logs')
-    }
-
     async build() {
-
         this.attachWindowResizeMonitor();
         await this.SoundPlayer.build();
         await this.ScreenDisplayer.build()
-
     }
 
     async run_trial(trial_data) {
 
-        // ************ Prebuffer trial assets ***************
+        // Default parameters
+        var fixationXCentroid = 0.5;
+        var fixationYCentroid = 0.8;
+        var fixationDiameterDegrees = 4;
+        var sampleXCentroid = 0.5;
+        var sampleYCentroid = 0.5;
+        var sampleDiameterDegrees = 8;
+        var choiceXCentroid = [0.35, 0.65];
+        var choiceYCentroid = [0.8, 0.8];
+        var choiceDiameterDegrees = [4, 4];
+        var sampleOffMsec = 0;
 
-        // Fixation
-        var fixationXCentroidPixels = this.xprop2pixels(trial_data['fixationXCentroid']);
-        var fixationYCentroidPixels = this.yprop2pixels(trial_data['fixationYCentroid']);
-        var fixationDiameterPixels = this.deg2pixels(trial_data['fixationDiameterDegrees']);
+        // Default action
+        var actionXCentroid = [0.35, 0.65];
+        var actionYCentroid = [0.8, 0.8];
+        var actionDiameterDegrees = [4, 4];
 
-        var sampleXCentroidPixels = this.xprop2pixels(trial_data['sampleXCentroid']);
-        var sampleYCentroidPixels = this.yprop2pixels(trial_data['sampleYCentroid']);
-        var sampleDiameterPixels = this.deg2pixels(trial_data['sampleDiameterDegrees']);
 
-        var fixationFramePackage = {
-            'fixationXCentroidPixels': fixationXCentroidPixels,
-            'fixationYCentroidPixels': fixationYCentroidPixels,
-            'fixationDiameterPixels': fixationDiameterPixels,
-            'eyeFixationXCentroidPixels': sampleXCentroidPixels,
-            'eyeFixationYCentroidPixels': sampleYCentroidPixels,
-            'eyeFixationDiameterPixels': Math.max(this.deg2pixels(0.2), 4),
-            'drawEyeFixationDot': trial_data['drawEyeFixationDot'] || false,
-            'fixationSpacebarText': trial_data['fixationSpacebarText'] || false,
-        };
+        // Buffer fixation
+        var fixationXCentroidPixels = this.xprop2pixels(fixationXCentroid);
+        var fixationYCentroidPixels = this.yprop2pixels(fixationYCentroid);
+        var fixationDiameterPixels = this.deg2pixels(fixationDiameterDegrees);
 
-        await this.ScreenDisplayer.bufferFixation(fixationFramePackage);
+        var sampleXCentroidPixels = this.xprop2pixels(sampleXCentroid);
+        var sampleYCentroidPixels = this.yprop2pixels(sampleYCentroid);
+        var sampleDiameterPixels = this.deg2pixels(sampleDiameterDegrees);
+
+        await this.ScreenDisplayer.bufferFixation(
+            {
+                                'fixationXCentroidPixels': fixationXCentroidPixels,
+                                'fixationYCentroidPixels': fixationYCentroidPixels,
+                                'fixationDiameterPixels': fixationDiameterPixels,
+                                'eyeFixationXCentroidPixels': sampleXCentroidPixels,
+                                'eyeFixationYCentroidPixels': sampleYCentroidPixels,
+                                'eyeFixationDiameterPixels': Math.max(this.deg2pixels(0.2), 4),
+                                'drawEyeFixationDot': true,
+                                'fixationSpacebarText': false,
+            });
 
         // Stimulus sequence
         wdm('Buffering stimulus...');
 
-        var choiceXCentroidPixels = this.xprop2pixels(trial_data['choiceXCentroid']);
-        var choiceYCentroidPixels = this.yprop2pixels(trial_data['choiceYCentroid']);
-        var choiceDiameterPixels = this.deg2pixels(trial_data['choiceDiameterDegrees']);
+        var choiceXCentroidPixels = this.xprop2pixels(choiceXCentroid);
+        var choiceYCentroidPixels = this.yprop2pixels(choiceYCentroid);
+        var choiceDiameterPixels = this.deg2pixels(choiceDiameterDegrees);
 
         var stimulusFramePackage = {
             'sampleImage': trial_data['sampleImage'],
-            'sampleOn': trial_data['sampleOnMsec'],
-            'sampleOff': trial_data['sampleOffMsec'],
+            'sampleOn': trial_data['presentation_dur_msec'],
+            'sampleOff': sampleOffMsec,
             'sampleDiameterPixels': sampleDiameterPixels,
             'sampleXCentroid': sampleXCentroidPixels,
             'sampleYCentroid': sampleYCentroidPixels,
-            'choiceImage': trial_data['choiceImage'],
             'choiceDiameterPixels': choiceDiameterPixels,
             'choiceXCentroid': choiceXCentroidPixels,
             'choiceYCentroid': choiceYCentroidPixels,
@@ -88,11 +86,11 @@ class PlaySpaceClass {
 
         // *************** Run trial *************************
 
-        // SHOW BLANK
+        // Blank screen
         wdm('Running fixation...');
         await this.ScreenDisplayer.displayBlank();
 
-        // RUN FIXATION
+        // Await fixation
         this.ActionPoller.create_action_regions(
             fixationXCentroidPixels,
             fixationYCentroidPixels,
@@ -100,21 +98,15 @@ class PlaySpaceClass {
 
         this.ActionPoller.create_button_mappings({' ': 0});
 
-        var t_fixationOn = {};
-        var fixationOutcome = {};
-        if (trial_data['fixationDiameterDegrees'] > 0) {
-            var t_fixationOn = await this.ScreenDisplayer.displayFixation();
-            var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response()
-        }
+        var t_fixationOn = await this.ScreenDisplayer.displayFixation();
+        var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response();
 
-
-        // RUN STIMULUS SEQUENCE
-        wdm('Running stimulus...');
+        // Display stimulus
         var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence();
 
-        var actionXCentroidPixels = this.xprop2pixels(trial_data['actionXCentroid']);
-        var actionYCentroidPixels = this.yprop2pixels(trial_data['actionYCentroid']);
-        var actionDiameterPixels = this.deg2pixels(trial_data['actionDiameterDegrees']);
+        var actionXCentroidPixels = this.xprop2pixels(actionXCentroid);
+        var actionYCentroidPixels = this.yprop2pixels(actionYCentroid);
+        var actionDiameterPixels = this.deg2pixels(actionDiameterDegrees);
 
         this.ActionPoller.create_action_regions(
             actionXCentroidPixels,
@@ -123,40 +115,31 @@ class PlaySpaceClass {
 
         this.ActionPoller.create_button_mappings({'f': 0, 'j': 1});
 
-        if (trial_data['choiceTimeLimitMsec'] > 0) {
+        if (trial_data['timeout_dur_msec'] > 0) {
             var actionPromise = Promise.race([
                 this.ActionPoller.Promise_wait_until_active_response(),
-                this.ActionPoller.timeout(trial_data['choiceTimeLimitMsec'])])
+                this.ActionPoller.timeout(trial_data['timeout_dur_msec'])])
         } else {
             var actionPromise = this.ActionPoller.Promise_wait_until_active_response()
         }
 
-        wdm('Awaiting choice...');
         var actionOutcome = await actionPromise;
-        var rewardAmount = trial_data['choiceRewardMap'][actionOutcome['actionIndex']];
+        var rewardAmount = trial_data['label'] === actionOutcome['actionIndex'];
 
         // Deliver reinforcement
-        wdm('Delivering reinforcement...');
+        var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
         if (rewardAmount > 0) {
-            var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
-            var p_sound = this.SoundPlayer.play_sound('reward_sound');
-            var p_visual = this.ScreenDisplayer.displayReward(trial_data['rewardTimeOutMsec']);
-            var p_primaryReinforcement = this.Reinforcer.deliver_reinforcement(rewardAmount);
-            await Promise.all([p_primaryReinforcement, p_visual]);
-            var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
+            this.SoundPlayer.play_sound('reward_sound');
+            await this.ScreenDisplayer.displayReward(trial_data['reward_dur_msec']);
         }
-        if (rewardAmount <= 0) {
-            var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
-            var p_sound = this.SoundPlayer.play_sound('punish_sound');
-            var p_visual = this.ScreenDisplayer.displayPunish(trial_data['punishTimeOutMsec']);
-            await Promise.all([p_sound, p_visual]);
-            var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
+        else if (rewardAmount <= 0) {
+            this.SoundPlayer.play_sound('punish_sound');
+            await this.ScreenDisplayer.displayPunish(trial_data['punish_dur_msec'])
         }
-        if (rewardAmount == undefined) {
+        else {
             rewardAmount = 0;
-            var t_reinforcementOn = Math.round(performance.now() * 1000) / 1000;
-            var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
         }
+        var t_reinforcementOff = Math.round(performance.now() * 1000) / 1000
 
         this.rewardLog['t'].push(t_reinforcementOn);
         this.rewardLog['n'].push(rewardAmount);
@@ -183,12 +166,6 @@ class PlaySpaceClass {
 
         return trialOutcome
     }
-
-
-    toggleBorder(on_or_off) {
-        this.ScreenDisplayer.togglePlayspaceBorder(on_or_off)
-    }
-
 
     start_action_tracking() {
         this.ActionPoller.start_action_tracking()
@@ -298,32 +275,6 @@ class PlaySpaceClass {
         // battery
         // resize events
         this.deviceLog = {};
-
-        // ******** Battery ******** 
-        // http://www.w3.org/TR/battery-status/
-        /*
-        this.deviceLog['battery'] = {};
-        this.deviceLog['battery']['level'] = [];
-        this.deviceLog['battery']['dischargingTime'] = [];
-        this.deviceLog['battery']['timestamp'] = [];
-
-        try {
-            var _this = this;
-            navigator.getBattery().then(function (batteryobj) {
-                _this.deviceLog['battery']['level'].push(batteryobj.level);
-                _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime);
-                _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now() * 1000) / 1000);
-
-                batteryobj.addEventListener('levelchange', function () {
-                    _this.deviceLog['battery']['level'].push(batteryobj.level);
-                    _this.deviceLog['battery']['dischargingTime'].push(batteryobj.dischargingTime);
-                    _this.deviceLog['battery']['timestamp'].push(Math.round(performance.now() * 1000) / 1000)
-                })
-            });
-        } catch (error) {
-            console.log('Battery logging error:', error)
-        }
-        */
 
         // ******** Window resize ****
         this.deviceLog['window'] = {};
