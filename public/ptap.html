@@ -91,7 +91,7 @@
 <script>
 
     // Todo:
-    // 4. Write new data downloader / parser
+    // experiment writer
     // 5. test on sandbox
 
     var FLAGS = {};
@@ -109,6 +109,10 @@
             var assignmentId = az.get_assignmentId_from_url(landing_page_url);
             var sandbox_mode = az.detect_sandbox_mode(landing_page_url);
 
+            console.log('landing_page_url', landing_page_url);
+            console.log('assignmentId', assignmentId);
+            console.log('sandbox_mode',sandbox_mode);
+            console.log('hitId', hitId);
             // Set up session
             var TrialIterator = new Trial_Iterator_Class(task_def);
             var freturn = await setup_session(task_def, assignmentId);

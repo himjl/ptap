@@ -26,10 +26,10 @@ class Tutorial_Generator_Class {
     async _cache_images(){
 
         if (this.blue_diamond_image === undefined){
-            this.blue_diamond_image = await this.image_buffer.get_by_url('/image_assets/blue_orange/bluediamond.png');
+            this.blue_diamond_image = await this.image_buffer.get_by_url('https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png');
         }
         if (this.orange_diamond_image === undefined){
-            this.orange_diamond_image = await this.image_buffer.get_by_url('/image_assets/blue_orange/orangediamond.png');
+            this.orange_diamond_image = await this.image_buffer.get_by_url('https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png');
         }
     }
 

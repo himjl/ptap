@@ -12,7 +12,7 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
         // In the case where workers can accept a HIT which is designed for (un)qualified workers, this
         // code catches these workers and presents them with a splash screen asking them to return the HIT.
         allow_worker = true;
-        NOVEL_WORKERS_ONLY = __NOVEL_WORKERS_ONLY_true_false__;
+        NOVEL_WORKERS_ONLY = false;
         if (NOVEL_WORKERS_ONLY) {
             (function(){
                 var ut_id = 'c3f75daeee93e4f1c6bec080e1b06655';
@@ -36,9 +36,9 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             }
 
             var localSavePackage = {
-                    'TASK_DEF': TASK_DEF,
-                    'LANDING_PAGE_URL': window.location.href
-                };
+                'TASK_DEF': TASK_DEF,
+                'LANDING_PAGE_URL': window.location.href
+            };
 
             await concludeLandingPage(localSavePackage)
         }
@@ -52,6 +52,7 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             LANDING_PAGE_URL = localSavePackage['LANDING_PAGE_URL'];
 
             console.log('landing page url', window.location.href);
+            console.log(TASK_DEF);
 
             await localStorage.setItem("TASK_DEF", btoa(JSON.stringify(TASK_DEF)));
             await localStorage.setItem('LANDING_PAGE_URL', btoa(LANDING_PAGE_URL));
@@ -66,8 +67,8 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
             if (currentURL.indexOf('localhost') !== -1) {
                 window.location.href = '/ptap.html'
             } else {
-                s3_bucket = __S3_INSTALL_BUCKET_GOES_HERE__;
-                window.location.href = "https://s3.amazonaws.com/" + s3_bucket + "/public/ptap.html?loadtime=" + Math.round(window.performance.timing.navigationStart)
+                s3_bucket = 'ptap2';
+                window.location.href = 'https://' + s3_bucket + '.s3.amazonaws.com/public/ptap.html'
             }
         }
 

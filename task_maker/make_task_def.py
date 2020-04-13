@@ -61,9 +61,5 @@ def make_task_def(
 
     html_string = html_string.replace('__TASK_DEF_GOES_HERE__', json.dumps(TASK_DEF, indent=2))
 
-    s3_bucket = 'ptap_v2'
-    html_string = html_string.replace("__S3_INSTALL_BUCKET_GOES_HERE__", s3_bucket)
-
-
     return
 
