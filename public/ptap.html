@@ -71,6 +71,7 @@
   </span>
 </div>
 
+
 <button id='WorkerCashInButton' name="WorkerCashInButton">Bonus earned:</button>
 
 <script src="setup_session.js" type="text/javascript"></script>
@@ -129,7 +130,7 @@
             toggleElement(1, 'MechanicalTurk_ProgressBar');
             toggleElement(1, 'WorkerCashInButton');
 
-            // Execute tutorial
+            // Execute blue diamond tutorial
             if (true){
                 var TutorialIterator = new Tutorial_Generator_Class();
                 while(true){
@@ -161,7 +162,7 @@
             session_data.data['image_url_suffixes'] = task_def['image_url_suffixes'];
 
             // Submit the data to Mechanical Turk
-            await MechanicalTurkSubmitter.submit_data(assignmentId, hitId, sandbox_mode, {'SESSION_DATA':session_data.data})
+            await MechanicalTurkSubmitter.submit_data(assignmentId, hitId, sandbox_mode, session_data.data)
         }
         catch (error) {
             // Error catch

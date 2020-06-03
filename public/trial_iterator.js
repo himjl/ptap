@@ -12,6 +12,15 @@ class Trial_Iterator_Class {
         this.trial_number = 0;
         this.next_buffer_trial_number = 0;
         this.trial_pool = {};
+
+        this.new_task_screen_trials = this.trial_sequence['new_task_screen_trials'];
+        console.log(this.task_def);
+
+        if (this.new_task_screen_trials !== undefined){
+            this.next_new_task_trial = this.new_task_screen_trials.shift()
+        }
+        console.log(this)
+
         this._start_buffering_continuous();
 
         if (this.ntrials === 0){
@@ -27,6 +36,15 @@ class Trial_Iterator_Class {
         return this.image_url_prefix.concat(current_suffix)
     }
     async get_next_trial(){
+        // Check if a "new task" splash screen is to be shown here
+        if (this.trial_number === this.next_new_task_trial){
+            console.log('New task splash screen, next trial = ', this.trial_number);
+            var trial_package = {};
+            trial_package['show_next_task_splash'] = true;
+            this.next_new_task_trial = this.new_task_screen_trials.shift();
+            return trial_package
+        }
+        // Otherwise
         console.log('trial', this.trial_number);
         // Load the next trial
         if (this.trial_pool[this.trial_number] === undefined){
@@ -37,13 +55,11 @@ class Trial_Iterator_Class {
         var trial_data = this.trial_pool[this.trial_number];
         delete this.trial_pool[this.trial_number];
 
-
         this.trial_number+=1;
         if (this.trial_number >= this.ntrials){
             // This was the last trial.
             this.terminal = true;
         }
-
 
         return trial_data
     }

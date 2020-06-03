@@ -59,8 +59,38 @@ class ScreenDisplayer {
         return this._sequence_canvases[sequence_id][i_frame]
     }
 
+    async bufferStimulusMultiple(stimulusFramePackage){
 
-    async bufferStimulusSequence(stimulusFramePackage) {
+        var sampleImageSequence = stimulusFramePackage['sampleImageSequence'];
+        var sampleOnSequence = stimulusFramePackage['sampleOnSequence'];
+        var sampleDiameterPixelsSequence = stimulusFramePackage['sampleDiameterPixelsSequence'];
+        var sampleXCentroidSequence = stimulusFramePackage['sampleXCentroidSequence'];
+        var sampleYCentroidSequence = stimulusFramePackage['sampleYCentroidSequence'];
+
+        var frame_canvases = [];
+        var frame_durations = [];
+
+        // Iterate over image sequences
+        for (var i_image = 0; i_image < sampleImageSequence.length; i_image++) {
+            var frameImage = sampleImageSequence[i_image];
+            var frameXCentroid = sampleXCentroidSequence[i_image];
+            var frameYCentroid = sampleYCentroidSequence[i_image];
+            var frameDiameterPixels = sampleDiameterPixelsSequence[i_image];
+            var frameSampleOn = sampleOnSequence[i_image];
+
+            var frameCanvas = this.getSequenceCanvas('stimulus_sequence', i_image);
+            await this.renderBlank(frameCanvas);
+            await this.drawImagesOnCanvas(frameImage, frameXCentroid, frameYCentroid, frameDiameterPixels, frameCanvas);
+            frame_canvases.push(frameCanvas);
+            frame_durations.push(frameSampleOn);
+        }
+
+        this.canvas_sequences['stimulus_sequence'] = frame_canvases;
+        this.time_sequences['stimulus_sequence'] = frame_durations;
+
+    }
+
+    async bufferStimulusSingle(stimulusFramePackage) {
         var sampleImage = stimulusFramePackage['sampleImage'];
         var sampleOn = stimulusFramePackage['sampleOn'];
         var sampleOff = stimulusFramePackage['sampleOff'];

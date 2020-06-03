@@ -22,7 +22,47 @@ class PlaySpaceClass {
         await this.ScreenDisplayer.build()
     }
 
+    async show_next_task_splash_screen(){
+        var trialOutcome = {};
+
+        if (this.splash1_image === undefined){
+            var image_buffer = new ImageBuffer();
+            this.splash1_image = await image_buffer.get_by_url('https://milresources.s3.amazonaws.com/Images/splashes/newtask_splash1.png');
+            this.splash2_image = await image_buffer.get_by_url('https://milresources.s3.amazonaws.com/Images/splashes/newtask_splash2.png');
+        }
+
+        var sampleXCentroidPixels = this.xprop2pixels(0.5);
+        var sampleYCentroidPixels = this.yprop2pixels(0.5);
+        var sampleDiameterPixels = this.deg2pixels(16);
+
+        var stimulusFramePackage = {
+            'sampleImageSequence': [this.splash1_image, this.splash2_image],
+            'sampleOnSequence': [5000, 50],
+            'sampleDiameterPixelsSequence': [sampleDiameterPixels, sampleDiameterPixels],
+            'sampleXCentroidSequence': [sampleXCentroidPixels, sampleXCentroidPixels],
+            'sampleYCentroidSequence': [sampleYCentroidPixels, sampleYCentroidPixels],
+        };
+
+        await this.ScreenDisplayer.bufferStimulusMultiple(stimulusFramePackage);
+        var t_SequenceTimestamps = await this.ScreenDisplayer.displayStimulusSequence();
+        console.log(t_SequenceTimestamps);
+        this.ActionPoller.create_action_regions(
+            sampleXCentroidPixels,
+            sampleYCentroidPixels,
+            sampleDiameterPixels);
+        console.log(sampleXCentroidPixels, sampleYCentroidPixels);
+        this.ActionPoller.create_button_mappings({' ': 0});
+
+        var fixationOutcome = await this.ActionPoller.Promise_wait_until_active_response();
+        console.log(fixationOutcome);
+
+        return trialOutcome
+    }
     async run_trial(trial_data) {
+        // Check if this is a next task splash
+        if (trial_data['show_next_task_splash'] === true){
+            return await this.show_next_task_splash_screen()
+        }
 
         // Default parameters
         var fixationXCentroid = 0.5;
@@ -80,7 +120,7 @@ class PlaySpaceClass {
             'choiceYCentroid': choiceYCentroidPixels,
         };
 
-        await this.ScreenDisplayer.bufferStimulusSequence(stimulusFramePackage);
+        await this.ScreenDisplayer.bufferStimulusSingle(stimulusFramePackage);
 
         // *************** Run trial *************************
 
