@@ -40,14 +40,15 @@ async function run_binary_sr_trials(
     var action_recorder = new action_poller_class(false, true);
 
     // Iterate over trials
-    var canvases = await initialize_canvases();
+    var size = 768;
+    var canvases = await initialize_canvases(size);
 
     for (var i_trial = 0; i_trial < image_url_sequence.length; i_trial++){
         // Buffer stimulus
         var current_image = await trial_images.get_by_url(image_url_sequence[i_trial]);
-        await draw_image(canvases['stimulus_canvas'], current_image, 256, 256, diameter_pixels);
+        await draw_image(canvases['stimulus_canvas'], current_image, size/2, size/2, diameter_pixels);
 
-        // Run fixation
+        // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
         var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
@@ -89,7 +90,7 @@ async function run_binary_sr_trials(
             perf = 0
         }
 
-        // Give feedback
+        // Give feedback (no sound)
         var timestamp_feedback = undefined;
         if (perf === 0){
             var current_punish_dur = punish_duration_msec_sequence[i_trial];
@@ -125,16 +126,15 @@ async function run_binary_sr_trials(
     return session_data
 }
 
-async function initialize_canvases(){
+async function initialize_canvases(size){
+    var width = size;
+    var height = size;
     var canvases = {};
-
-    var width = 768;
-    var height = 768;
 
     // Create fixation canvas
     canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
-    await draw_dot_with_text(canvases['fixation_canvas'], 'spacebar', width*0.5, height*0.8, 100, "white", 1);
-
+    await draw_dot_with_text(canvases['fixation_canvas'], 'Press space', width*0.5, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
     // Create stimulus canvas
     canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);
 
@@ -158,10 +158,9 @@ async function initialize_canvases(){
 
     // Create choice canvas
     canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
-    await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.8, 50, "white", 1);
-    await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.8, 50, "white", 1);
+    await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.75, size * 0.15, "white", 1);
     canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
-    set_canvas_level(canvases['blank_canvas'], 50);
 
     return canvases
 }
