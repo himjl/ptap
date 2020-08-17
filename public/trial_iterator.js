@@ -19,7 +19,6 @@ class Trial_Iterator_Class {
         if (this.new_task_screen_trials !== undefined){
             this.next_new_task_trial = this.new_task_screen_trials.shift()
         }
-        console.log(this)
 
         this._start_buffering_continuous();
 

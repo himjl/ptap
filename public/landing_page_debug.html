@@ -3,7 +3,6 @@
 <body>
 Loading HIT...If you are stuck on this screen, please make sure you are using Google Chrome and have cookies enabled.
 </body>
-
 <head>
     <script src="//uniqueturker.myleott.com/lib.js" type="text/javascript"></script>
     <script type="text/javascript">
@@ -83,7 +82,7 @@ Loading HIT...If you are stuck on this screen, please make sure you are using Go
         function go_to_main_page() {
             var currentURL = window.location.href;
             if (currentURL.indexOf('localhost') !== -1) {
-                window.location.href = '/ptap.html'
+                window.location.href = 'ptap.html'
             } else {
                 s3_bucket = 'ptap2';
                 window.location.href = 'https://' + s3_bucket + '.s3.amazonaws.com/public/ptap.html'

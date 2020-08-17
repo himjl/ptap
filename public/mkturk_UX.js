@@ -41,11 +41,11 @@ class MechanicalTurkUX extends UXclass {
 
     async showMechanicalTurkInstructions(instructions_text) {
 
-        document.getElementById("MechanicalTurkInstructionsSplash").style.visibility = 'visible';
-        document.getElementById("InstructionSplashText").innerHTML = instructions_text;
+        document.getElementById("instructions_splash").style.visibility = 'visible';
+        document.getElementById("instructions_splash_text").innerHTML = instructions_text;
 
 
-        var btn = document.getElementById('CloseInstructionsButton');
+        var btn = document.getElementById('instructions_done_button');
         btn.disabled = false;
         btn.innerHTML = 'Continue';
 

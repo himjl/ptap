@@ -1,0 +1,84 @@
+<!doctype html>
+
+<div id="instructions_splash"
+     style="
+        position:fixed;
+        top:50%;
+        left:50%;
+        height:500px;
+        width:500px;
+        transform:translate(-50%, -50%);
+        display: flex;
+        align-items:center;
+        flex-direction:column;
+        font-size:14px;
+        z-index:103;
+        font-family: 'Helvetica Neue', serif;
+        text-align: left;
+        color:#4B4B4B;
+        background-color:#E4E4E4;
+        visibility:visible;
+        border-radius:8px;
+        border-color:#E6E6E6;
+        border-style:solid;
+        padding-right:1%;
+        padding-left:1%;"
+>
+    <span id='instructions_splash_text'> Instructions placeholder </span>
+    <button onclick="window.location.href = target_url;" id='instructions_done_button' disabled> I understand the instructions and would like to begin the task.</button>
+</div>
+
+<head>
+    <script>
+
+        function get_workerId_from_url(url){
+            var workerId = this._extract_url_string(url, 'workerId', 'workerId_not_found');
+            console.log('workerId:', workerId);
+            return workerId
+        }
+
+        function get_assignmentId_from_url(url){
+            var assignmentId = this._extract_url_string(url, 'assignmentId', 'assignmentId_not_found');
+            console.log('assignmentId', assignmentId);
+
+            return assignmentId
+        }
+
+        function get_hitId_from_url(url){
+            var hitId = this._extract_url_string(url, 'hitId', 'hitId_not_found');
+            console.log('hitId', hitId);
+            return hitId
+        }
+
+
+        function _extract_url_string(url, key, defaultValue){
+            var name = key;
+            key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regexS = "[\\?&]" + key + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(url) || ["", defaultValue];
+
+            return results[1]
+        }
+
+        var current_url = window.location.href;
+        var hit_id = get_hitId_from_url(current_url);
+        var assignment_id = get_assignmentId_from_url(current_url);
+        var worker_id = get_workerId_from_url(current_url);
+
+        // Select condition to redirect to here
+        var target_url = 'new_task_page.html';
+
+        // Inject key-value pairs
+        target_url = target_url + '?HITId='+hit_id + '&WorkerId='+worker_id + '&AssignmentId='+assignment_id;
+        var btn = document.getElementById('instructions_done_button');
+        btn.disabled = false;
+
+    </script>
+
+    <title>DiCarlo Lab Mechanical Turk</title>
+
+</head>
+
+
+</html>
