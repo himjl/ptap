@@ -5,6 +5,7 @@ New task page
 </body>
 
 <head>
+    <script src="sr_task.js" type="text/javascript"></script>
 
     <script>
         // Extract session info
@@ -14,8 +15,26 @@ New task page
         var HITId = urlParams.get('HITId');
 
         // Assemble task info
+        var image_url_sequence = [];
+        var label_sequence = [];
+        var stimulus_duration_msec_sequence = [];
+        var reward_duration_msec_sequence = [];
+        var punish_duration_msec_sequence = [];
+        var choice_duration_msec_sequence = [];
+        var post_stimulus_delay_duration_msec_sequence = [];
 
+        // Run task
+        run_binary_sr_trials(image_url_sequence,
+            label_sequence,
+            stimulus_duration_msec_sequence,
+            reward_duration_msec_sequence,
+            punish_duration_msec_sequence,
+            choice_duration_msec_sequence,
+            post_stimulus_delay_duration_msec_sequence,)
     </script>
+
+
+
 </head>
 
 

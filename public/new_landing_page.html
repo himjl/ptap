@@ -25,7 +25,7 @@
         padding-left:1%;"
 >
     <span id='instructions_splash_text'> Instructions placeholder </span>
-    <button onclick="window.location.href = target_url;" id='instructions_done_button' disabled> I understand the instructions and would like to begin the task.</button>
+    <button onclick="window.location.href = target_url;" id='instructions_done_button' disabled>Preview Mode. Accept the HIT if you would like to participate!</button>
 </div>
 
 <head>
@@ -66,13 +66,32 @@
         var assignment_id = get_assignmentId_from_url(current_url);
         var worker_id = get_workerId_from_url(current_url);
 
+        // Detect if the worker is a previewer
+        var in_preview_mode = true;
+        if (window.location.href.indexOf('localhost') !== -1) {
+            // It's a developer running this on his/her machine; disable preview mode
+            in_preview_mode = false;
+        }
+        else {
+            // It's a live human viewing the page in preview mode on the Mechanical Turk Website
+            in_preview_mode = assignmentId === 'assignmentId_not_found' || assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE';
+        }
+
         // Select condition to redirect to here
         var target_url = 'new_task_page.html';
 
-        // Inject key-value pairs
+        // Inject the HITId, WorkerId, and AssignmentId as key-value pairs to the URL.
         target_url = target_url + '?HITId='+hit_id + '&WorkerId='+worker_id + '&AssignmentId='+assignment_id;
-        var btn = document.getElementById('instructions_done_button');
-        btn.disabled = false;
+
+        // Enable the continue button if the worker is not in preview mode
+
+        if (in_preview_mode === false){
+            var btn = document.getElementById('instructions_done_button');
+            btn.disabled = false;
+            btn.value = "I understand the instructions and would like to begin the task."
+        }
+
+
 
     </script>
 
