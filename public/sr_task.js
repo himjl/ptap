@@ -8,6 +8,16 @@ async function run_binary_sr_trials(
     post_stimulus_delay_duration_msec_sequence,
     ){
 
+    /*
+    image_url_sequence: [t]
+    label_sequence: [t]. 0 or 1.
+    stimulus_duration_msec_sequence: [t]
+    reward_duration_msec_sequence: [t]
+    punish_duration_msec_sequence: [t]
+    choice_duration_msec_sequence: [t]
+    post_stimulus_delay_duration_msec_sequence: [t]
+     */
+
     var diameter_pixels = 100;
 
     var session_data = {};
@@ -27,32 +37,78 @@ async function run_binary_sr_trials(
     }
 
     // Begin tracking actions
-    var bounds = {};
-    var action_recorder = new action_poller_class(false, true, bounds);
+    var action_recorder = new action_poller_class(false, true);
 
     // Iterate over trials
     var canvases = await initialize_canvases();
 
     for (var i_trial = 0; i_trial < image_url_sequence.length; i_trial++){
         // Buffer stimulus
-        var current_image = trial_images.get_by_url(image_url_sequence[i_image]);
-        await draw_image(canvases['stimulus_canvas'], current_image, 0.5, 0.5, diameter_pixels);
+        var current_image = await trial_images.get_by_url(image_url_sequence[i_trial]);
+        await draw_image(canvases['stimulus_canvas'], current_image, 256, 256, diameter_pixels);
 
         // Run fixation
-        await display_canvas_sequence([canvases['fixation_canvas']], [0]);
-        var timestamp_start = await wait_for_fixation();
+        await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
+        var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
         // Run stimulus
         var current_stimulus_duration = stimulus_duration_msec_sequence[i_trial];
-        var timestamp_stimulus = await display_canvas_sequence([canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']], [0, current_stimulus_duration, 0]);
+        var current_post_stimulus_delay_duration = post_stimulus_delay_duration_msec_sequence[i_trial];
+
+        var _stimulus_seq = undefined;
+        var _t_seq = undefined;
+        if (current_post_stimulus_delay_duration > 0){
+            // Insert delay before showing choices
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
+            _t_seq = [0, current_stimulus_duration, current_post_stimulus_delay_duration, 0]
+        }
+        else{
+            // No delay before showing choices
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
+            _t_seq = [0, current_stimulus_duration, 0]
+        }
+        var timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
         // Show choices and wait for response
-        var choice_outcome = await get_subject_choice();
+        var choice_duration = choice_duration_msec_sequence[i_trial];
+        var choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration);
+        var reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
+
+        // Evaluate choice
+        var perf = undefined;
+        var cur_label = label_sequence[i_trial];
+        var action = choice_outcome['actionIndex'];
+        if (action === -1){
+            // Timed out
+            perf = 0
+        }
+        else if (action === cur_label){
+            perf = 1
+        }
+        else{
+            perf = 0
+        }
 
         // Give feedback
-        await transmit_feedback(choice_outcome);
-        
+        var timestamp_feedback = undefined;
+        if (perf === 0){
+            var current_punish_dur = punish_duration_msec_sequence[i_trial];
+            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, current_punish_dur, 0]);
+        }
+        else if (perf === 1){
+            var current_reward_dur = reward_duration_msec_sequence[i_trial];
+            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, current_reward_dur, 0]);
+        }
+
         // Record outcomes
+        session_data['perf'].push(perf);
+        session_data['action'].push(action);
+        session_data['reaction_time_msec'].push(reaction_time_msec);
+        session_data['rel_timestamp_start'].push(fixation_outcome['t']); // The time the subject engaged the fixation button; is relative to the start time of calling this function
+        session_data['rel_timestamp_stimulus_on'].push(timestamp_stimulus[1]);
+        session_data['rel_timestamp_stimulus_off'].push(timestamp_stimulus[2]);
+        session_data['rel_timestamp_choices_on'].push(timestamp_stimulus[timestamp_stimulus.length-1]);
+        session_data['trial_number'].push(i_trial);
     }
 
     // Delete canvases
@@ -63,7 +119,7 @@ async function run_binary_sr_trials(
     canvases['choice_canvas'].remove();
     canvases['blank_canvas'].remove();
 
-    // Remove event listeners
+    // Remove event listeners from window
     action_recorder.close_listeners();
 
     return session_data
@@ -435,7 +491,7 @@ class action_poller_class {
         this.actionRadii = [];
 
         this.handleKeyPressEvent = function (event) {
-            if (_this.listening_for_mouse !== true) {
+            if (_this.listening_for_keypress !== true) {
                 return
             }
 
@@ -445,17 +501,15 @@ class action_poller_class {
                 return
             }
 
-            _this.listening_for_mouse = false;
+            _this.listening_for_keypress = false;
             _this._resolveFunc({
                 'actionIndex': actionIndex,
                 'timestamp': performance.now(),
-                'x': undefined,
-                'y': undefined,
             })
         };
 
         this.handleMouseEvent = function (event) {
-            if (_this.listening_for_keypress === false){
+            if (_this.listening_for_mouse === false){
                 return
             }
 
@@ -471,12 +525,12 @@ class action_poller_class {
                     _this.actionCentroids[i][1],
                     _this.actionRadii[i]);
                 if (inside === true) {
-                    _this.listening_for_keypress = false;
+                    _this.listening_for_mouse = false;
                     _this._resolveFunc({
                         'actionIndex': i,
                         'timestamp': performance.now(),
-                        'x': x,
-                        'y': y
+                        'mouse_x': x,
+                        'mouse_y': y
                     })
                 }
             }
@@ -556,10 +610,8 @@ class action_poller_class {
             function (resolve, reject) {
                 var timer_return = function () {
                     resolve({
-                        "actionIndex": 'timed_out',
-                        'timestamp': Math.round(performance.now() * 1000) / 1000,
-                        'x': 'timed_out',
-                        'y': 'timed_out'
+                        "actionIndex": -1,
+                        'timestamp': performance.now(),
                     })
                 };
 

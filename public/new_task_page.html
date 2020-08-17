@@ -15,22 +15,26 @@ New task page
         var HITId = urlParams.get('HITId');
 
         // Assemble task info
-        var image_url_sequence = [];
-        var label_sequence = [];
-        var stimulus_duration_msec_sequence = [];
-        var reward_duration_msec_sequence = [];
-        var punish_duration_msec_sequence = [];
-        var choice_duration_msec_sequence = [];
-        var post_stimulus_delay_duration_msec_sequence = [];
+        var blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png';
+        var orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png';
+
+        var image_url_sequence = [blue, blue, blue, orange];
+        var label_sequence = [0, 0, 0, 1];
+        var stimulus_duration_msec_sequence = [500, 500, 500, 500];
+        var reward_duration_msec_sequence = [50, 50, 50, 50];
+        var punish_duration_msec_sequence = [1000, 1000, 1000, 1000];
+        var choice_duration_msec_sequence = [5000, 5000, 5000, 5000];
+        var post_stimulus_delay_duration_msec_sequence = [0, 2000, 0, 200];
 
         // Run task
-        run_binary_sr_trials(image_url_sequence,
+        var session_data = run_binary_sr_trials(image_url_sequence,
             label_sequence,
             stimulus_duration_msec_sequence,
             reward_duration_msec_sequence,
             punish_duration_msec_sequence,
             choice_duration_msec_sequence,
-            post_stimulus_delay_duration_msec_sequence,)
+            post_stimulus_delay_duration_msec_sequence,);
+        console.log(session_data)
     </script>
 
 
