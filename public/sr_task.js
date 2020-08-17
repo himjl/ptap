@@ -8,6 +8,7 @@ async function run_binary_sr_trials(
     post_stimulus_delay_duration_msec_sequence,
     ){
 
+    var diameter_pixels = 100;
 
     var session_data = {};
     session_data['perf'] = [];
@@ -25,27 +26,32 @@ async function run_binary_sr_trials(
         await trial_images.get_by_url(image_url_sequence[i_image]);
     }
 
+    // Begin tracking actions
+    var bounds = {};
+    var action_recorder = new action_poller_class(false, true, bounds);
+
     // Iterate over trials
     var canvases = await initialize_canvases();
 
-    var frame_durations = await display_canvas_sequence([canvases['fixation_canvas'], canvases['reward_canvas'], canvases['punish_canvas']],
-        [100, 200, 1000]);
-
-    console.log(frame_durations)
     for (var i_trial = 0; i_trial < image_url_sequence.length; i_trial++){
+        // Buffer stimulus
+        var current_image = trial_images.get_by_url(image_url_sequence[i_image]);
+        await draw_image(canvases['stimulus_canvas'], current_image, 0.5, 0.5, diameter_pixels);
 
         // Run fixation
+        await display_canvas_sequence([canvases['fixation_canvas']], [0]);
         var timestamp_start = await wait_for_fixation();
 
         // Run stimulus
-        var timestamps_stimulus = await show_stimulus_images();
+        var current_stimulus_duration = stimulus_duration_msec_sequence[i_trial];
+        var timestamp_stimulus = await display_canvas_sequence([canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']], [0, current_stimulus_duration, 0]);
 
         // Show choices and wait for response
         var choice_outcome = await get_subject_choice();
 
         // Give feedback
         await transmit_feedback(choice_outcome);
-
+        
         // Record outcomes
     }
 
@@ -55,6 +61,10 @@ async function run_binary_sr_trials(
     canvases['reward_canvas'].remove();
     canvases['punish_canvas'].remove();
     canvases['choice_canvas'].remove();
+    canvases['blank_canvas'].remove();
+
+    // Remove event listeners
+    action_recorder.close_listeners();
 
     return session_data
 }
@@ -94,6 +104,8 @@ async function initialize_canvases(){
     canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
     await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.8, 50, "white", 1);
     await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.8, 50, "white", 1);
+    canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
+    set_canvas_level(canvases['blank_canvas'], 50);
 
     return canvases
 }
@@ -255,6 +267,14 @@ function create_canvas(canvas_id, width, height){
     return canvasobj
 }
 
+function set_canvas_level(canvas, z){
+    /*
+    canvas: Canvas object reference
+    z: integer
+     */
+    canvas.style.zIndex = z.toString();
+}
+
 
 async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel, diameter_pixel, dot_color, alpha, ) {
     var context = canvas.getContext('2d');
@@ -294,7 +314,7 @@ async function draw_rectangle(canvas, width_pixels, height_pixels, color, alpha)
 }
 
 
-async function draw_image(canvasobj, image, xcentroid_pixel, ycentroid_pixel, diameter_pixels) {
+async function draw_image(canvas, image, xcentroid_pixel, ycentroid_pixel, diameter_pixels) {
 
     var nativeWidth = image.naturalWidth;
     var nativeHeight = image.naturalHeight;
@@ -312,7 +332,7 @@ async function draw_image(canvasobj, image, xcentroid_pixel, ycentroid_pixel, di
     var original_left_start = xcentroid_pixel - diameter_pixels / 2;
     var original_top_start = ycentroid_pixel - diameter_pixels / 2;
 
-    var context = canvasobj.getContext('2d');
+    var context = canvas.getContext('2d');
     await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight);
 
 }
@@ -356,30 +376,28 @@ function display_canvas_sequence(canvas_sequence, t_durations) {
 
         if (on_first_call === true){
             on_first_call = false;
-            canvas_sequence[i_canvas_next].style.zIndex = "100";
+            set_canvas_level(canvas_sequence[i_canvas_next], 100);
             i_canvas_next++;
             timestamp_draw = timestamp;
-            frame_timestamps.push(timestamp);
+            frame_timestamps.push(performance.now());
         }
         else{
             var time_elapsed = timestamp - timestamp_draw;
             var canvas_duration_fulfilled = time_elapsed >= (t_durations[i_canvas_next - 1] - epsilon);
 
             if ((canvas_duration_fulfilled) && (i_canvas_next < nframes)){
-                canvas_sequence[i_canvas_next].style.zIndex = "100";
-                canvas_sequence[i_canvas_next-1].style.zIndex = "0";
+                set_canvas_level(canvas_sequence[i_canvas_next], 100);
+                set_canvas_level(canvas_sequence[i_canvas_next-1], 0);
                 i_canvas_next++;
                 timestamp_draw = timestamp;
-                frame_timestamps.push(timestamp)
+                frame_timestamps.push(performance.now())
             }
         }
-        console.log('canvas', i_canvas_next, timestamp);
 
         // On last canvas
         var on_last_canvas = i_canvas_next === nframes;
         if (on_last_canvas === true){
             // Time remaining on this canvas has elapsed
-            console.log('Time since draw', timestamp - timestamp_draw)
             if ((timestamp - timestamp_draw) >= t_durations[i_canvas_next-1]){
                 resolveFunc(frame_timestamps)
             }
@@ -391,10 +409,172 @@ function display_canvas_sequence(canvas_sequence, t_durations) {
         else{
             window.requestAnimationFrame(check_frame)
         }
-
-
     }
 
     window.requestAnimationFrame(check_frame);
     return promise_done_with_sequence
+}
+
+
+class action_poller_class {
+    constructor(track_mouseclick, track_keypress, ) {
+        /*
+        track_mouseclick: bool
+        track_keys: bool
+        */
+
+        this._resolveFunc;
+        this._errFunc;
+
+        var _this = this;
+
+        this.listening_for_keypress = false;
+        this.listening_for_mouse = false;
+
+        this.actionCentroids = [];
+        this.actionRadii = [];
+
+        this.handleKeyPressEvent = function (event) {
+            if (_this.listening_for_mouse !== true) {
+                return
+            }
+
+            var actionIndex = _this.key2actionIndex[event.key];
+            if (actionIndex === undefined) {
+                // Invalid keypress
+                return
+            }
+
+            _this.listening_for_mouse = false;
+            _this._resolveFunc({
+                'actionIndex': actionIndex,
+                'timestamp': performance.now(),
+                'x': undefined,
+                'y': undefined,
+            })
+        };
+
+        this.handleMouseEvent = function (event) {
+            if (_this.listening_for_keypress === false){
+                return
+            }
+
+            var x = event.pageX - _this.leftBound;
+            var y = event.pageY - _this.topBound;
+            var inside = false;
+
+            for (var i = 0; i < _this.actionCentroids.length; i++) {
+                inside = check_if_inside_circle(
+                    x,
+                    y,
+                    _this.actionCentroids[i][0],
+                    _this.actionCentroids[i][1],
+                    _this.actionRadii[i]);
+                if (inside === true) {
+                    _this.listening_for_keypress = false;
+                    _this._resolveFunc({
+                        'actionIndex': i,
+                        'timestamp': performance.now(),
+                        'x': x,
+                        'y': y
+                    })
+                }
+            }
+        };
+
+        if (track_keypress === true){
+            window.addEventListener('keypress', this.handleKeyPressEvent)
+        }
+        if (track_mouseclick === true){
+            window.addEventListener('mouseup', this.handleMouseEvent)
+        }
+    }
+
+    Promise_get_subject_mouseclick_response(xy_centroids, diameterPixels, timeout_msec, bounds) {
+
+        this.leftBound = bounds['leftBound'];
+        this.rightBound = bounds['rightBound'];
+        this.topBound = bounds['topBound'];
+        this.bottomBound = bounds['bottomBound'];
+
+
+        this.actionRadii = [];
+        this.actionCentroids = [];
+
+
+        for (var i = 0; i < xy_centroids.length; i++) {
+            this.actionCentroids.push([xy_centroids[i][0], xy_centroids[i][1]]);
+            this.actionRadii.push(diameterPixels[i] / 2)
+        }
+
+        this.key2actionIndex = key2actionIndex;
+        this.listening_for_mouse = true;
+        var _this = this;
+        var choice_promise = new Promise(function (resolve, reject) {
+            _this._resolveFunc = resolve;
+            _this._errFunc = reject
+        });
+
+        if (timeout_msec > 0){
+            choice_promise = Promise.race([choice_promise, this.timeout(timeout_msec)])
+        }
+
+        return choice_promise
+    }
+
+    Promise_get_subject_keypress_response(key2actionIndex, timeout_msec) {
+
+        this.key2actionIndex = key2actionIndex;
+        var _this = this;
+        this.listening_for_keypress = true;
+        var choice_promise = new Promise(function (resolve, reject) {
+            _this._resolveFunc = resolve;
+            _this._errFunc = reject
+        });
+
+        if (timeout_msec > 0){
+            choice_promise = Promise.race([choice_promise, this.timeout(timeout_msec)])
+        }
+
+        return choice_promise
+    }
+
+
+    close_listeners() {
+        if (this.track_mouseclick === true){
+            window.removeEventListener('mouseup', this.handleMouseEvent)
+        }
+
+        if (this.track_keypress === true){
+            window.removeEventListener('keypress', this.handleKeyPressEvent)
+        }
+
+    }
+
+    timeout(timeoutMsec) {
+        return new Promise(
+            function (resolve, reject) {
+                var timer_return = function () {
+                    resolve({
+                        "actionIndex": 'timed_out',
+                        'timestamp': Math.round(performance.now() * 1000) / 1000,
+                        'x': 'timed_out',
+                        'y': 'timed_out'
+                    })
+                };
+
+                setTimeout(timer_return, timeoutMsec)
+            })
+    }
+}
+
+function check_if_inside_circle(x, y, xc, yc, r) {
+    var dxs = Math.pow(x - xc, 2);
+    var dys = Math.pow(y - yc, 2);
+
+    if ((dxs + dys) <= Math.pow(r, 2)) {
+        return true
+    } else {
+        return false
+    }
 }
