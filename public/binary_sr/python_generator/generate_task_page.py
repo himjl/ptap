@@ -96,6 +96,17 @@ def generate_subtask_call_string(
     return template_string
 
 
+def load_text(fpath):
+
+    with open(fpath, 'r') as myfile:
+        string = myfile.read()
+    return string
+
+def save_text(string:str, fpath):
+    with open(fpath, 'w') as f:
+        f.write(string)
+
+
 if __name__ == '__main__':
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
@@ -121,4 +132,12 @@ if __name__ == '__main__':
     js_string2 = generate_subtask_call_string(train_url_sequence, train_label_sequence, ntest_trials, test_urls_0, test_urls_1,)
 
     total_string = '\n'.join([js_string, js_string2])
-    
+
+    html_string = load_text('./sr_task_template.html')
+
+    html_string = html_string.replace('__INSERT_SUBTASK_POOL_STRING__', total_string)
+
+    base_url = '../..'
+    html_string = html_string.replace('__URL_ROOT__', base_url)
+
+    save_text(string=html_string, fpath='example.html')

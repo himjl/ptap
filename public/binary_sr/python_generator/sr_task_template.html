@@ -29,13 +29,13 @@
 
 <head>
 
-    <script src="../../binary_sr/sr_task.js" type="text/javascript"></script>
-    <script src="../../common/mturk_submission.js" type="text/javascript"></script>
-    <script src="../../common/canvas.js" type="text/javascript"></script>
-    <script src="../../common/image_loading.js" type="text/javascript"></script>
-    <script src="../../common/subject_action.js" type="text/javascript"></script>
-    <script src="../../common/math_utils.js" type="text/javascript"></script>
-    <script src="../../common/instructions_splash.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/binary_sr/sr_task.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/mturk_submission.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/canvas.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/image_loading.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/subject_action.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/math_utils.js" type="text/javascript"></script>
+    <script src="__URL_ROOT__/common/instructions_splash.js" type="text/javascript"></script>
 
     <title>DiCarlo Lab - Mechanical Turk</title>
     <script>
@@ -48,12 +48,6 @@
         var post_stimulus_delay_duration_msec = 0;
 
         // Assemble task info, randomly on-load
-        var blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png';
-        var orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png';
-
-        var image_url_sequence = [blue, blue, blue, orange];
-        var label_sequence = [0, 0, 0, 1];
-
         function generate_subtask_sequence(train_url_sequence, train_label_sequence, test_pool_urls_0, test_pool_urls_1, ntest){
             /*
             train_url_sequence: Array of urls.
@@ -74,8 +68,6 @@
             // Randomly sample the label sequence for the test phase, evenly populating the test phase with each category.
             let test_label_sequence = new Array(ntest/2).fill(0);
             test_label_sequence.push(... new Array(ntest/2).fill(1));
-            console.log(test_label_sequence);
-
             test_label_sequence = MathUtils.permute(test_label_sequence);
 
             // Randomly permute the test pools
@@ -96,6 +88,17 @@
                 }
             }
 
+            // Randomly flip the label assignments
+            if (Math.random() < 0.5){
+                // Execute flip
+                const flipped_label_sequence = [];
+                for (let i_trial = 0; i_trial < label_sequence.length; i_trial++){
+                    flipped_label_sequence.push(1 - label_sequence[i_trial])
+                }
+                label_sequence = [... flipped_label_sequence];
+                console.log('Flipped labels')
+            }
+
             return {
                 'image_url_seq':image_url_sequence,
                 'label_seq':label_sequence,
@@ -109,13 +112,10 @@
 
         // Run tasks
         let subtask_pool = [
-            generate_subtask_sequence(image_url_sequence, label_sequence, [blue, blue], [orange, orange], 4),
-            generate_subtask_sequence(image_url_sequence, label_sequence, [blue, blue], [orange, orange], 4)
+            __INSERT_SUBTASK_POOL_STRING__
         ];
 
         let subtask_sequence = MathUtils.permute(subtask_pool);
-        console.log(subtask_sequence[0]['image_url_seq']);
-        console.log(subtask_sequence[0]['label_seq']);
 
         // Extract session info
         const url = window.location.href;

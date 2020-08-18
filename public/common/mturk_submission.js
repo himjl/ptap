@@ -45,7 +45,6 @@ class mechanical_turk_util_functions{
         }
         else{
             console.log('Currently on localhost; not submitting to turk');
-            console.log(submission_form);
         }
 
     }
@@ -105,7 +104,6 @@ class mechanical_turk_util_functions{
         return: bool
          */
         // todo:
-        console.log(url);
         let sandbox = false;
         return sandbox
 
