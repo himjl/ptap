@@ -2,8 +2,31 @@
 
 
 <body>
-Task page
+<div>
+    Welcome!
+</div>
 </body>
+
+
+<div id="instructions_html" style="visibility:hidden">
+    <text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at MIT!</text>
+
+    <ul>
+        <li>Please use a laptop or desktop with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT as intended.
+        <li>You will be completing several trials. On each trial, you'll view a rapidly flashed image of an object.
+        <li><b>Your task</b> is to figure out which button to press (either "F" or "J" on your keyboard) after viewing a particular object.
+        <li>If you made a correct choice, you will see a <text style="color:green; font-style:italic">green</text> square pop up. <b>You will also increase your bonus</b>, so give it your best shot!
+        <li>If you made an incorrect choice, you will see a <text style="color:black; font-style:italic">black</text> square instead, and have to wait a bit before you can try again.
+        <li>To actually start a trial, press the spacebar. The image will immediately appear, so be ready!
+        <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive compensation for your time.
+    </ul>
+    <p>
+        <text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if
+            doing so could cause discomfort or injury, do not accept this HIT. If you are uncomfortable during the HIT, please feel free return it.
+            You will not be penalized in any way.
+        </text>
+    </p>
+</div>
 
 <head>
     <script src="sr_task.js" type="text/javascript"></script>
@@ -15,7 +38,7 @@ Task page
     <script src="../common/instructions_splash.js" type="text/javascript"></script>
 
     <script>
-
+        // Write instructions
         // Extract session info
         const url = window.location.href;
         var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
@@ -58,7 +81,7 @@ Task page
 
         // Execute the task
         (async function (){
-            await run_instructions('instructions placeholder text', in_preview_mode);
+            await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
             var session_data = await run_subtasks(subtask_sequence);
             await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
         }());
