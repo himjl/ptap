@@ -41,7 +41,9 @@ async function run_subtasks(subtask_sequence){
                 await inter_subtask_splash_screen(playspace_size_pixels)
             }
         }
-        await congratulations_screen(playspace_size_pixels)
+
+        await provide_session_end(return_values['data'])
+
     }
     catch(error){
         console.log(error);
@@ -52,72 +54,6 @@ async function run_subtasks(subtask_sequence){
 }
 
 
-async function congratulations_screen(size){
-    /*
-    Displays a canvas informing the subject they are finished with the HIT, and they can press "space" to submit.
-     */
-
-    var splash1_canvas = create_canvas('splash1_canvas', size, size);
-
-    var ctx = splash1_canvas.getContext("2d");
-    var font = '30px Times New Roman';
-    var color = '#66ff33';
-    var text_align = 'center';
-    var congrats_string = 'Great job finishing! Press space to submit.';
-    ctx.font = font;
-    ctx.fillStyle = color;
-    ctx.textAlign = text_align;
-    ctx.fillText(congrats_string, size/2, size/2);
-
-    await display_canvas_sequence([splash1_canvas], [0]);
-    var action_recorder = new ActionListenerClass(false, true);
-    await action_recorder.Promise_get_subject_keypress_response({' ': 0});
-    splash1_canvas.remove()
-}
-
-async function inter_subtask_splash_screen(size){
-    /*
-    Displays a series of canvases informing the subject that the current task has ended, and a new one will begin.
-    Requires that the subject press "b" to continue, after a timeout.
-     */
-
-    var timeout_msec = 3000;
-
-    var splash1_canvas = create_canvas('splash1_canvas', size, size);
-    var splash2_canvas = create_canvas('splash2_canvas', size, size);
-
-    var ctx = splash1_canvas.getContext("2d");
-    var font = '30px Times New Roman';
-    var color = 'white';
-    var text_align = 'center';
-    var string1 = 'End of current task. A new task will start in 5 seconds.';
-    var string2 = 'Press "b" on your keyboard to continue!';
-    ctx.font = font;
-    ctx.fillStyle = color;
-    ctx.textAlign = text_align;
-    ctx.fillText(string1, size/2, size*0.4);
-
-    ctx = splash2_canvas.getContext("2d");
-    ctx.font = font;
-    ctx.fillStyle = color;
-    ctx.textAlign = text_align;
-    ctx.fillText(string1, size/2, size*0.4);
-
-    ctx.font = font;
-    ctx.fillStyle = "#66ff33";
-    ctx.textAlign = text_align;
-    ctx.fillText(string2, size/2, size*0.55);
-
-
-    await display_canvas_sequence([splash1_canvas, splash2_canvas], [timeout_msec, 0]);
-    var action_recorder = new ActionListenerClass(false, true);
-    await action_recorder.Promise_get_subject_keypress_response({'b': 0});
-
-    splash1_canvas.remove();
-    splash2_canvas.remove();
-
-}
-
 async function run_binary_sr_trials(
     image_url_sequence,
     label_sequence,
@@ -127,7 +63,7 @@ async function run_binary_sr_trials(
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
     size,
-    ){
+){
 
     /*
     Core function for getting behavioral data on a binary-SR task from a human subject.
@@ -244,6 +180,124 @@ async function run_binary_sr_trials(
     return session_data
 }
 
+async function provide_session_end(session_data){
+    var perf_per_subtask = [];
+    for (let i_subtask = 0; i_subtask < session_data.length; i_subtask++){
+        let cur_data = session_data[i_subtask];
+        perf_per_subtask.push(MathUtils.mean(cur_data['perf']));
+    }
+    var grand_mean = MathUtils.mean(perf_per_subtask);
+    var best = Math.max(...perf_per_subtask);
+    var worst = Math.min(...perf_per_subtask);
+
+    var playspace_size_pixels = infer_canvas_size();
+
+    await congratulations_screen(playspace_size_pixels, grand_mean, best, worst)
+}
+
+async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
+    /*
+    Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
+    size: () of canvas, in units of pixels
+    mean_perf: (), from [0, 1]
+    best_perf: (), from [0, 1]
+    worst_perf: (), from [0, 1]
+     */
+
+    mean_perf = Math.round(mean_perf * 100);
+    best_perf = Math.round(best_perf * 100);
+    worst_perf = Math.round(worst_perf * 100);
+
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+    var font_size = (size * 0.05).toString();
+    var font = font_size+'px Times New Roman';
+
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    function color_interpolation(performance){
+        /*
+        performance: () between [0, 100]
+        Returns a color hex code based on performance, from fully red (50 performance or below) to fully green (100 performance)
+         */
+        var green = Math.min(Math.max(0, 2 * performance/100 - 1), 0.8);
+        var red = 0;
+        var blue = 0;
+        return rgbToHex(Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255));
+    }
+
+    var high_color = color_interpolation(best_perf);
+    var average_color = color_interpolation(mean_perf);
+    var low_color = color_interpolation(worst_perf);
+
+    console.log(high_color);
+    console.log(average_color);
+    console.log(low_color);
+
+    await draw_text(splash1_canvas, 'Thank you for your work!', font, 'black', size/2, size * 0.3, 'center');
+    await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * 0.7, size * 0.15, average_color, 1)
+    await draw_text(splash1_canvas, 'You scored: '+mean_perf.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
+
+    //await draw_text(splash1_canvas, 'Your best performance was ' + best_perf.toString()+'%', font, high_color, size/2, size * 0.3);
+    //await draw_text(splash1_canvas, 'Your worst performance was ' + worst_perf.toString()+'%', font, low_color, size/2, size * 0.4);
+    await draw_text(splash1_canvas, 'Press space to submit.', font, '#66ff33', size/2, size * 0.65, 'center');
+
+    await display_canvas_sequence([splash1_canvas], [0]);
+    var action_recorder = new ActionListenerClass(false, true);
+    await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
+    splash1_canvas.remove()
+}
+
+async function inter_subtask_splash_screen(size){
+    /*
+    Displays a series of canvases informing the subject that the current task has ended, and a new one will begin.
+    Requires that the subject press "b" to continue, after a timeout.
+     */
+
+    var timeout_msec = 3000;
+
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+    var splash2_canvas = create_canvas('splash2_canvas', size, size);
+
+    var ctx = splash1_canvas.getContext("2d");
+    var font = '30px Times New Roman';
+    var color = 'white';
+    var text_align = 'center';
+    var string1 = 'End of current task. A new task will start in 5 seconds.';
+    var string2 = 'Press "b" on your keyboard to continue!';
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = text_align;
+    ctx.fillText(string1, size/2, size*0.4);
+
+    ctx = splash2_canvas.getContext("2d");
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = text_align;
+    ctx.fillText(string1, size/2, size*0.4);
+
+    ctx.font = font;
+    ctx.fillStyle = "#66ff33";
+    ctx.textAlign = text_align;
+    ctx.fillText(string2, size/2, size*0.55);
+
+    set_canvas_level(splash1_canvas, 100);
+    await display_canvas_sequence([splash1_canvas, splash2_canvas], [timeout_msec, 0]);
+    var action_recorder = new ActionListenerClass(false, true);
+    await action_recorder.Promise_get_subject_keypress_response({'b': 0});
+
+    splash1_canvas.remove();
+    splash2_canvas.remove();
+
+}
+
+
 async function initialize_sr_task_canvases(size){
     var width = size;
     var height = size;
@@ -260,6 +314,8 @@ async function initialize_sr_task_canvases(size){
     canvases['reward_canvas'] = create_canvas('reward_canvas', width, height);
     await draw_rectangle(
         canvases['reward_canvas'],
+        width * 0.5,
+        height*0.5,
         width * 1/3,
         height * 1/3,
         "#00cc00",
@@ -269,7 +325,9 @@ async function initialize_sr_task_canvases(size){
     canvases['punish_canvas'] = create_canvas('punish_canvas', width, height);
     await draw_rectangle(
         canvases['punish_canvas'],
-        width * 1/3,
+        width * 0.5,
+        height*0.5,
+    width * 1/3,
         height * 1/3,
         "black",
         0.8);

@@ -117,16 +117,26 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
     context.globalAlpha = 1
 }
 
-async function draw_rectangle(canvas, width_pixels, height_pixels, color, alpha) {
+async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height_pixels, color, alpha) {
     var context = canvas.getContext('2d');
     context.fillStyle = color;
     context.globalAlpha = alpha;
     var width = parseFloat(canvas.style.width);
     var height = parseFloat(canvas.style.height);
-    context.fillRect(width / 2 - width_pixels / 2, height / 2 - width_pixels / 2, width_pixels, height_pixels);
+    context.fillRect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
     context.fill()
+    context.globalAlpha = 1
 }
 
+async function draw_text(canvas, string, font, color, x, y, align){
+    var ctx = canvas.getContext("2d");
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(string, x, y);
+    ctx.globalAlpha = 1
+}
 
 async function draw_image(canvas, image, xcentroid_pixel, ycentroid_pixel, diameter_pixels) {
     /*
@@ -234,3 +244,4 @@ function display_canvas_sequence(canvas_sequence, t_durations) {
     window.requestAnimationFrame(check_frame);
     return promise_done_with_sequence
 }
+
