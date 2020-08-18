@@ -1,12 +1,12 @@
 <!doctype html>
 
 <body>
-New task page
+Task page
 </body>
 
 <head>
     <script src="sr_task.js" type="text/javascript"></script>
-    <script src="ptap_utils/mechanical_turk_utils.js" type="text/javascript"></script>
+    <script src="../common/submission.js" type="text/javascript"></script>
 
     <script>
         // Extract session info
@@ -51,7 +51,7 @@ New task page
         (async function (){
             var session_data = await run_subtasks(subtask_sequence);
             var sandbox = false;
-            mechanical_turk_util_functions.submit_data(assignmentId, sandbox, session_data)
+            await mechanical_turk_util_functions.submit_data(assignmentId, sandbox, session_data)
         }());
 
     </script>

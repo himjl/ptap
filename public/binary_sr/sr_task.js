@@ -223,7 +223,7 @@ async function run_binary_sr_trials(
 
     // Remove event listeners from window
     action_recorder.close_listeners();
-    delete trial_images.cache_dict
+    delete trial_images.cache_dict;
 
     return session_data
 }
