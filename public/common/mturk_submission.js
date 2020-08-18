@@ -43,4 +43,51 @@ class mechanical_turk_util_functions{
         console.log(submission_form);
         //submission_form.submit();
     }
+
+    static get_workerId_from_url(url){
+        var workerId = this._extract_url_string(url, 'workerId', 'workerId_not_found');
+        console.log('workerId:', workerId);
+        return workerId
+    }
+
+    static get_assignmentId_from_url(url){
+        var assignmentId = this._extract_url_string(url, 'assignmentId', 'assignmentId_not_found');
+        console.log('assignmentId', assignmentId);
+
+        return assignmentId
+    }
+
+    static get_hitId_from_url(url){
+        var hitId = this._extract_url_string(url, 'hitId', 'hitId_not_found');
+        console.log('hitId', hitId);
+        return hitId
+    }
+
+    static _extract_url_string(url, key, defaultValue){
+        var name = key;
+        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regexS = "[\\?&]" + key + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(url) || ["", defaultValue];
+
+        return results[1]
+    }
+
+    static detect_previewer(url){
+
+        var in_preview_mode;
+
+        if (window.location.href.indexOf('localhost') !== -1) {
+            // It's a developer running this on his/her machine; disable preview mode
+            in_preview_mode = false;
+        }
+        else {
+            // It's a live human viewing the page in preview mode on the Mechanical Turk Website
+            in_preview_mode = assignmentId === 'assignmentId_not_found' || assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE';
+        }
+
+        return in_preview_mode
+
+    }
+
 }

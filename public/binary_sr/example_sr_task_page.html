@@ -1,4 +1,31 @@
 <!doctype html>
+<div id="instructions_splash"
+     style="
+        position:fixed;
+        top:50%;
+        left:50%;
+        height:80%;
+        width:80%;
+        transform:translate(-50%, -50%);
+        display: flex;
+        align-items:center;
+        flex-direction:column;
+        font-size:14px;
+        z-index:103;
+        font-family: 'Helvetica Neue', serif;
+        text-align: left;
+        color:#4B4B4B;
+        background-color:#E4E4E4;
+        visibility:visible;
+        border-radius:8px;
+        border-color:#E6E6E6;
+        border-style:solid;
+        padding-right:1%;
+        padding-left:1%;"
+>
+    <span id='instructions_splash_text'> Instructions placeholder </span>
+    <button onclick="document.getElementById('instructions_splash').style.display = 'none';" id='instructions_done_button' disabled>Preview Mode. Accept the HIT if you would like to participate!</button>
+</div>
 
 <body>
 Task page
@@ -13,15 +40,19 @@ Task page
     <script src="../common/math_utils.js" type="text/javascript"></script>
 
     <script>
+
         // Extract session info
-        var urlParams = new URLSearchParams(window.location.search);
-        var workerId = urlParams.get('WorkerId');
-        var assignmentId = urlParams.get('AssignmentId');
-        var HITId = urlParams.get('HITId');
+        var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(window.location);
+        var in_preview_mode = mechanical_turk_util_functions.detect_previewer(window.location);
+
+        if (in_preview_mode === false){
+            console.log('hello');
+            var btn = document.getElementById('instructions_done_button');
+            btn.disabled = false;
+            btn.innerHTML = "I understand the instructions and would like to begin the task."
+        }
 
         // Assemble task info, possibly randomly on-load
-        var usd_per_correct = 0.0025;
-
         var blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png';
         var orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png';
 
@@ -58,7 +89,6 @@ Task page
             var session_data = await run_subtasks(subtask_sequence);
             var sandbox = false;
             await mechanical_turk_util_functions.submit_data(assignmentId, sandbox, session_data);
-
         }());
 
     </script>
