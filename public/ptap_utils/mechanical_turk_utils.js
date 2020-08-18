@@ -1,7 +1,4 @@
 class mechanical_turk_util_functions{
-    constructor(){
-    }
-
     static async submit_data(assignmentId, sandbox_mode, data_obj){
         /*
         assignmentId: str
@@ -20,6 +17,7 @@ class mechanical_turk_util_functions{
 
         // Create the submission form
         var submission_form = document.createElement("form");
+        document.body.appendChild(submission_form);
         submission_form.setAttribute("method", "post");
         submission_form.setAttribute("action", external_question_submission_url);
         submission_form.style = "display: none;";
@@ -38,7 +36,11 @@ class mechanical_turk_util_functions{
 
         assignmentId_input.value = assignmentId;
         submission_data_input.value = session_data_string;
+        console.log(assignmentId_input)
+        console.log(assignmentId_input.value)
+        console.log(submission_data_input.value)
 
-        submission_form.submit();
+        console.log(submission_form);
+        //submission_form.submit();
     }
 }

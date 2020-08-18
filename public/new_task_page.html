@@ -6,39 +6,56 @@ New task page
 
 <head>
     <script src="sr_task.js" type="text/javascript"></script>
+    <script src="ptap_utils/mechanical_turk_utils.js" type="text/javascript"></script>
 
     <script>
         // Extract session info
         var urlParams = new URLSearchParams(window.location.search);
-        var WorkerId = urlParams.get('WorkerId');
-        var AssignmentId = urlParams.get('AssignmentId');
+        var workerId = urlParams.get('WorkerId');
+        var assignmentId = urlParams.get('AssignmentId');
         var HITId = urlParams.get('HITId');
 
-        // Assemble task info
+        // Assemble task info, possibly randomly on-load
         var blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png';
         var orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png';
 
         var image_url_sequence = [blue, blue, blue, orange];
         var label_sequence = [0, 0, 0, 1];
-        var stimulus_duration_msec_sequence = [500, 500, 500, 500];
-        var reward_duration_msec_sequence = [50, 50, 50, 50];
-        var punish_duration_msec_sequence = [1000, 1000, 1000, 1000];
-        var choice_duration_msec_sequence = [5000, 5000, 5000, 5000];
-        var post_stimulus_delay_duration_msec_sequence = [0, 2000, 0, 200];
+        var stimulus_duration_msec = 200;
+        var reward_duration_msec = 100;
+        var punish_duration_msec = 1000;
+        var choice_duration_msec = 5000;
+        var post_stimulus_delay_duration_msec = 0;
 
-        // Run task
-        var session_data = run_binary_sr_trials(image_url_sequence,
-            label_sequence,
-            stimulus_duration_msec_sequence,
-            reward_duration_msec_sequence,
-            punish_duration_msec_sequence,
-            choice_duration_msec_sequence,
-            post_stimulus_delay_duration_msec_sequence,);
+        // Run tasks
+        var subtask_sequence = [
+            {
+                'image_url_seq':image_url_sequence,
+                'label_seq':label_sequence,
+                'stimulus_duration_msec':stimulus_duration_msec,
+                'reward_duration_msec':reward_duration_msec,
+                'punish_duration_msec':punish_duration_msec,
+                'choice_duration_msec':choice_duration_msec,
+                'post_stimulus_delay_duration_msec':post_stimulus_delay_duration_msec,
+            },
+            {
+                'image_url_seq':image_url_sequence,
+                'label_seq':label_sequence,
+                'stimulus_duration_msec':stimulus_duration_msec,
+                'reward_duration_msec':reward_duration_msec,
+                'punish_duration_msec':punish_duration_msec,
+                'choice_duration_msec':choice_duration_msec,
+                'post_stimulus_delay_duration_msec':post_stimulus_delay_duration_msec,
+            },
+        ];
+        (async function (){
+            var session_data = await run_subtasks(subtask_sequence);
+            var sandbox = false;
+            mechanical_turk_util_functions.submit_data(assignmentId, sandbox, session_data)
+        }());
+
     </script>
-
-
-
+    <title>DiCarlo Lab - Mechanical Turk</title>
 </head>
 
 
-</html>

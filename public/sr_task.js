@@ -1,21 +1,128 @@
+async function run_subtasks(subtask_sequence){
+    /*
+    subtask_sequence: Array of Objects, which detail the subtasks which will be run
+
+    This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
+    subtasks be run back-to-back.
+
+    Between each subtask, a "splash" screen appears in which the subject is informed the last subtask has concluded.
+
+    If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
+    that have been completed so far. It also attaches the error message which was associated with the error.
+     */
+
+    var nsubtasks = subtask_sequence.length;
+    var return_values = {'data':[]};
+
+    try {
+        for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
+            var cur_subtask = subtask_sequence[i_subtask];
+            var cur_image_url_sequence = cur_subtask['image_url_seq'];
+            var cur_label_sequence = cur_subtask['label_seq'];
+            var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
+            var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
+            var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
+            var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
+            var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+
+            var cur_session_data = await run_binary_sr_trials(cur_image_url_sequence, cur_label_sequence, cur_stimulus_duration_msec, cur_reward_duration_msec, cur_punish_duration_msec, cur_choice_duration_msec, cur_post_stimulus_delay_duration_msec)
+            return_values['data'].push(cur_session_data);
+
+            // Run the "end of subtask" splash screen if there are tasks that remain after this one
+            if ((i_subtask + 1) < (nsubtasks)){
+                await inter_subtask_splash_screen()
+            }
+        }
+        await congratulations_screen()
+    }
+    catch(error){
+        console.log(error);
+        return_values['error'] = error;
+    }
+
+    return return_values
+}
+
+
+async function congratulations_screen(){
+    var size = 768;
+
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+
+    var ctx = splash1_canvas.getContext("2d");
+    var font = '30px Times New Roman';
+    var color = '#66ff33';
+    var text_align = 'center';
+    var congrats_string = 'Great job finishing! Press space to submit.';
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = text_align;
+    ctx.fillText(congrats_string, size/2, size/2);
+
+    await display_canvas_sequence([splash1_canvas], [0]);
+    var action_recorder = new action_poller_class(false, true);
+    await action_recorder.Promise_get_subject_keypress_response({' ': 0});
+    splash1_canvas.remove()
+}
+
+async function inter_subtask_splash_screen(){
+    var size = 768;
+    var draw_size = 512;
+    var timeout_msec = 3000;
+
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+    var splash2_canvas = create_canvas('splash2_canvas', size, size);
+
+    var ctx = splash1_canvas.getContext("2d");
+    var font = '30px Times New Roman';
+    var color = 'white';
+    var text_align = 'center';
+    var string1 = 'End of current task. A new task will start in 5 seconds.';
+    var string2 = 'Press "b" on your keyboard to continue!';
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = text_align;
+    ctx.fillText(string1, size/2, size*0.4);
+
+    ctx = splash2_canvas.getContext("2d");
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = text_align;
+    ctx.fillText(string1, size/2, size*0.4);
+
+    ctx.font = font;
+    ctx.fillStyle = "#66ff33";
+    ctx.textAlign = text_align;
+    ctx.fillText(string2, size/2, size*0.55);
+
+
+    await display_canvas_sequence([splash1_canvas, splash2_canvas], [timeout_msec, 0]);
+    var action_recorder = new action_poller_class(false, true);
+    await action_recorder.Promise_get_subject_keypress_response({'b': 0});
+
+    splash1_canvas.remove();
+    splash2_canvas.remove();
+
+}
+
 async function run_binary_sr_trials(
     image_url_sequence,
     label_sequence,
-    stimulus_duration_msec_sequence,
-    reward_duration_msec_sequence,
-    punish_duration_msec_sequence,
-    choice_duration_msec_sequence,
-    post_stimulus_delay_duration_msec_sequence,
+    stimulus_duration_msec,
+    reward_duration_msec,
+    punish_duration_msec,
+    choice_duration_msec,
+    post_stimulus_delay_duration_msec,
     ){
 
     /*
     image_url_sequence: [t]
     label_sequence: [t]. 0 or 1.
-    stimulus_duration_msec_sequence: [t]
-    reward_duration_msec_sequence: [t]
-    punish_duration_msec_sequence: [t]
-    choice_duration_msec_sequence: [t]
-    post_stimulus_delay_duration_msec_sequence: [t]
+    stimulus_duration_msec: ()
+    reward_duration_msec: ()
+    punish_duration_msec: ()
+    choice_duration_msec: ()
+    post_stimulus_delay_duration_msec: ()
      */
 
     var diameter_pixels = 100;
@@ -53,26 +160,22 @@ async function run_binary_sr_trials(
         var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
         // Run stimulus
-        var current_stimulus_duration = stimulus_duration_msec_sequence[i_trial];
-        var current_post_stimulus_delay_duration = post_stimulus_delay_duration_msec_sequence[i_trial];
-
         var _stimulus_seq = undefined;
         var _t_seq = undefined;
-        if (current_post_stimulus_delay_duration > 0){
+        if (post_stimulus_delay_duration_msec > 0){
             // Insert delay before showing choices
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
-            _t_seq = [0, current_stimulus_duration, current_post_stimulus_delay_duration, 0]
+            _t_seq = [0, stimulus_duration_msec, post_stimulus_delay_duration_msec, 0]
         }
         else{
             // No delay before showing choices
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
-            _t_seq = [0, current_stimulus_duration, 0]
+            _t_seq = [0, stimulus_duration_msec, 0]
         }
         var timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
         // Show choices and wait for response
-        var choice_duration = choice_duration_msec_sequence[i_trial];
-        var choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration);
+        var choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
         var reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
 
         // Evaluate choice
@@ -90,25 +193,23 @@ async function run_binary_sr_trials(
             perf = 0
         }
 
-        // Give feedback (no sound)
+        // Provide visual feedback, and apply a timeout
         var timestamp_feedback = undefined;
         if (perf === 0){
-            var current_punish_dur = punish_duration_msec_sequence[i_trial];
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, current_punish_dur, 0]);
+            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
         }
         else if (perf === 1){
-            var current_reward_dur = reward_duration_msec_sequence[i_trial];
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, current_reward_dur, 0]);
+            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
 
         // Record outcomes
         session_data['perf'].push(perf);
         session_data['action'].push(action);
-        session_data['reaction_time_msec'].push(reaction_time_msec);
-        session_data['rel_timestamp_start'].push(fixation_outcome['t']); // The time the subject engaged the fixation button; is relative to the start time of calling this function
-        session_data['rel_timestamp_stimulus_on'].push(timestamp_stimulus[1]);
-        session_data['rel_timestamp_stimulus_off'].push(timestamp_stimulus[2]);
-        session_data['rel_timestamp_choices_on'].push(timestamp_stimulus[timestamp_stimulus.length-1]);
+        session_data['reaction_time_msec'].push(Math.round(reaction_time_msec));
+        session_data['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
+        session_data['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
+        session_data['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
+        session_data['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         session_data['trial_number'].push(i_trial);
     }
 
@@ -122,6 +223,7 @@ async function run_binary_sr_trials(
 
     // Remove event listeners from window
     action_recorder.close_listeners();
+    delete trial_images.cache_dict
 
     return session_data
 }
@@ -142,8 +244,8 @@ async function initialize_canvases(size){
     canvases['reward_canvas'] = create_canvas('reward_canvas', width, height);
     await draw_rectangle(
         canvases['reward_canvas'],
-        width * 2/3,
-        height * 2/3,
+        width * 1/3,
+        height * 1/3,
         "#00cc00",
         0.5);
 
@@ -151,8 +253,8 @@ async function initialize_canvases(size){
     canvases['punish_canvas'] = create_canvas('punish_canvas', width, height);
     await draw_rectangle(
         canvases['punish_canvas'],
-        width * 2/3,
-        height * 2/3,
+        width * 1/3,
+        height * 1/3,
         "black",
         0.8);
 
@@ -183,25 +285,21 @@ class image_buffer {
 
     async get_by_url(url) {
         // url: string
-        try {
-            // Requested image not in buffer. Add it, then return.
-            if (url in this.cache_dict) {
-                return this.cache_dict[url]
-            } else if (!(url in this.cache_dict)) {
-                await this.download_image(url);
-                return this.cache_dict[url]
-            }
-        } catch (error) {
-            console.error("get_by_name failed with error:", error)
+        // Requested image not in buffer. Add it, then return.
+        if (url in this.cache_dict) {
+            return this.cache_dict[url]
+        } else if (!(url in this.cache_dict)) {
+            await this.download_image(url);
+            return this.cache_dict[url]
         }
         console.log('Downloaded image at', url)
     }
 
-    async remove_image_from_cache(filename) {
+    async remove_image_from_cache(url) {
         // Currently unused
         try {
-            window.URL.revokeObjectURL(this.cache_dict[filename].src);
-            delete this.cache_dict[filename];
+            window.URL.revokeObjectURL(this.cache_dict[url].src);
+            delete this.cache_dict[url];
         } catch (error) {
             console.log('removal of', filename, 'failed with:', error)
         }
@@ -503,7 +601,7 @@ class action_poller_class {
             _this.listening_for_keypress = false;
             _this._resolveFunc({
                 'actionIndex': actionIndex,
-                'timestamp': performance.now(),
+                't': performance.now(),
             })
         };
 
@@ -527,7 +625,7 @@ class action_poller_class {
                     _this.listening_for_mouse = false;
                     _this._resolveFunc({
                         'actionIndex': i,
-                        'timestamp': performance.now(),
+                        't': performance.now(),
                         'mouse_x': x,
                         'mouse_y': y
                     })
@@ -569,7 +667,7 @@ class action_poller_class {
         });
 
         if (timeout_msec > 0){
-            choice_promise = Promise.race([choice_promise, this.timeout(timeout_msec)])
+            choice_promise = Promise.race([choice_promise, timeout(timeout_msec)])
         }
 
         return choice_promise
@@ -586,7 +684,7 @@ class action_poller_class {
         });
 
         if (timeout_msec > 0){
-            choice_promise = Promise.race([choice_promise, this.timeout(timeout_msec)])
+            choice_promise = Promise.race([choice_promise, timeout(timeout_msec)])
         }
 
         return choice_promise
@@ -604,19 +702,21 @@ class action_poller_class {
 
     }
 
-    timeout(timeoutMsec) {
-        return new Promise(
-            function (resolve, reject) {
-                var timer_return = function () {
-                    resolve({
-                        "actionIndex": -1,
-                        'timestamp': performance.now(),
-                    })
-                };
 
-                setTimeout(timer_return, timeoutMsec)
-            })
-    }
+}
+
+function timeout(timeoutMsec) {
+    return new Promise(
+        function (resolve, reject) {
+            var timer_return = function () {
+                resolve({
+                    "actionIndex": -1,
+                    'timestamp': performance.now(),
+                })
+            };
+
+            setTimeout(timer_return, timeoutMsec)
+        })
 }
 
 function check_if_inside_circle(x, y, xc, yc, r) {
