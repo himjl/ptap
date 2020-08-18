@@ -106,13 +106,14 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
 
     var nLetters = text.length;
     if (nLetters > 0){
-        var letterSize = Math.min((diameter_pixel) / (nLetters + 0.5), 40);
+        var letterSize = Math.min((diameter_pixel*2) / (nLetters + 0.5), 40);
         context.font = letterSize.toString() + "px Arial";
         context.fillStyle = "gray";
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(text, xcentroid_pixel, ycentroid_pixel);
     }
+
     // So further calls to this canvas context are not necessarily alpha'd out.
     context.globalAlpha = 1
 }

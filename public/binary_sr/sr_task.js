@@ -236,10 +236,6 @@ async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
     var average_color = color_interpolation(mean_perf);
     var low_color = color_interpolation(worst_perf);
 
-    console.log(high_color);
-    console.log(average_color);
-    console.log(low_color);
-
     await draw_text(splash1_canvas, 'Thank you for your work!', font, 'black', size/2, size * 0.3, 'center');
     await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * 0.7, size * 0.15, average_color, 1)
     await draw_text(splash1_canvas, 'You scored: '+mean_perf.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
@@ -334,8 +330,8 @@ async function initialize_sr_task_canvases(size){
 
     // Create choice canvas
     canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
-    await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.75, size * 0.15, "white", 1);
-    await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.75, size * 0.1, "white", 1);
+    await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.75, size * 0.1, "white", 1);
     canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
 
     return canvases

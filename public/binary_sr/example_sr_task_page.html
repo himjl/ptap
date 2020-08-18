@@ -16,12 +16,12 @@ Task page
 
     <script>
 
-
         // Extract session info
-        var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(window.location);
-        var in_preview_mode = mechanical_turk_util_functions.detect_previewer(window.location);
+        const url = window.location.href;
+        var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
+        var in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
+        var in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
 
-        run_instructions('instructions placeholder', in_preview_mode);
 
 
         // Assemble task info, possibly randomly on-load
@@ -57,10 +57,12 @@ Task page
                 'post_stimulus_delay_duration_msec':post_stimulus_delay_duration_msec,
             },
         ];
+
+        // Execute the task
         (async function (){
+            await run_instructions('instructions placeholder text', in_preview_mode);
             var session_data = await run_subtasks(subtask_sequence);
-            var sandbox = false;
-            await mechanical_turk_util_functions.submit_data(assignmentId, sandbox, session_data);
+            await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
         }());
 
     </script>

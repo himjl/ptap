@@ -36,12 +36,18 @@ class mechanical_turk_util_functions{
 
         assignmentId_input.value = assignmentId;
         submission_data_input.value = session_data_string;
-        console.log(assignmentId_input)
-        console.log(assignmentId_input.value)
-        console.log(submission_data_input.value)
 
-        console.log(submission_form);
-        //submission_form.submit();
+
+        var currently_debugging = window.location.href.includes('localhost:');
+
+        if (currently_debugging === false){
+            submission_form.submit();
+        }
+        else{
+            console.log('Currently on localhost; not submitting to turk');
+            console.log(submission_form);
+        }
+
     }
 
     static get_workerId_from_url(url){
@@ -74,8 +80,12 @@ class mechanical_turk_util_functions{
     }
 
     static detect_previewer(url){
+        /*
+        Detect if the current url reflects the one given to a previewer.
+        return: bool
+         */
 
-        var in_preview_mode;
+        let in_preview_mode;
 
         if (window.location.href.indexOf('localhost') !== -1) {
             // It's a developer running this on his/her machine; disable preview mode
@@ -87,6 +97,18 @@ class mechanical_turk_util_functions{
         }
 
         return in_preview_mode
+    }
+
+    static detect_sandbox(url){
+        /*
+        Detect if the current url reflects the one given to a subject using Mechanical Turk in sandbox mode.
+        return: bool
+         */
+        // todo:
+        console.log(url);
+        let sandbox = false;
+        return sandbox
+
 
     }
 

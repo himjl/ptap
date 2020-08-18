@@ -38,7 +38,13 @@ function run_instructions(instructions_html, disable_button){
 
     var button = document.createElement('button');
 
-    button.onclick = function(){div.style.display='none'};
+
+    var resolve_func;
+    function _user_clicked(){
+        div.style.display = 'none';
+        resolve_func()
+    }
+    button.onclick = _user_clicked;
     button.disabled = disable_button;
     if (disable_button === true){
         button.innerHTML = 'Preview Mode. Accept the HIT if you would like to participate!'
@@ -51,4 +57,9 @@ function run_instructions(instructions_html, disable_button){
 
     document.body.appendChild(div);
     //document.getElementById("main").appendChild(div);
+
+    return new Promise(function(resolve, reject){
+        resolve_func = resolve;
+    })
+
 }
