@@ -187,15 +187,11 @@ async function provide_session_end(session_data){
         perf_per_subtask.push(MathUtils.mean(cur_data['perf']));
     }
     var grand_mean = MathUtils.mean(perf_per_subtask);
-    var best = Math.max(...perf_per_subtask);
-    var worst = Math.min(...perf_per_subtask);
-
     var playspace_size_pixels = infer_canvas_size();
-
-    await congratulations_screen(playspace_size_pixels, grand_mean, best, worst)
+    await congratulations_screen(playspace_size_pixels, grand_mean)
 }
 
-async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
+async function congratulations_screen(size, mean_perf){
     /*
     Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
     size: () of canvas, in units of pixels
@@ -204,9 +200,7 @@ async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
     worst_perf: (), from [0, 1]
      */
 
-    mean_perf = Math.round(mean_perf * 100);
-    best_perf = Math.round(best_perf * 100);
-    worst_perf = Math.round(worst_perf * 100);
+    let mean_perf_percentage = Math.round(mean_perf * 100);
 
     var splash1_canvas = create_canvas('splash1_canvas', size, size);
     var font_size = (size * 0.05).toString();
@@ -236,9 +230,12 @@ async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
     var average_color = color_interpolation(mean_perf);
     var low_color = color_interpolation(worst_perf);
 
-    await draw_text(splash1_canvas, 'Thank you for your work!', font, 'black', size/2, size * 0.3, 'center');
-    await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * 0.7, size * 0.15, average_color, 1)
-    await draw_text(splash1_canvas, 'You scored: '+mean_perf.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
+    var total_pbar_width = 0.6;
+    var filled_pbar_width = total_pbar_width * (mean_perf);
+    await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
+    await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * total_pbar_width, size * 0.15, '#DCDCDC', 1);
+    await draw_rectangle(splash1_canvas, size*(1 - total_pbar_width)/2 + size*(filled_pbar_width/2), size * 0.5, size * filled_pbar_width, size * 0.15, '#66ff33', 0.8);
+    await draw_text(splash1_canvas, 'Score: '+mean_perf_percentage.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
 
     //await draw_text(splash1_canvas, 'Your best performance was ' + best_perf.toString()+'%', font, high_color, size/2, size * 0.3);
     //await draw_text(splash1_canvas, 'Your worst performance was ' + worst_perf.toString()+'%', font, low_color, size/2, size * 0.4);
@@ -246,6 +243,8 @@ async function congratulations_screen(size, mean_perf, best_perf, worst_perf){
 
     await display_canvas_sequence([splash1_canvas], [0]);
     var action_recorder = new ActionListenerClass(false, true);
+
+    await timeout(500);
     await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
     splash1_canvas.remove()
 }
@@ -290,7 +289,6 @@ async function inter_subtask_splash_screen(size){
 
     splash1_canvas.remove();
     splash2_canvas.remove();
-
 }
 
 

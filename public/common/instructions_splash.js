@@ -44,6 +44,8 @@ function run_instructions(instructions_html, disable_button){
         div.style.display = 'none';
         resolve_func()
     }
+    button.style.position = "fixed";
+    button.style.top = '95%';
     button.onclick = _user_clicked;
     button.disabled = disable_button;
     if (disable_button === true){

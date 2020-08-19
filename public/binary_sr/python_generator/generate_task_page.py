@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     train_url_sequence = [blue, blue, blue, orange]
     train_label_sequence = [0, 0, 0, 1]
-    ntest_trials = 6
+    ntest_trials = 2
     test_urls_0 = [blue, blue, blue]
     test_urls_1 = [orange, orange, orange]
 
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     train_url_sequence = [orange, orange, orange, blue]
     train_label_sequence = [1, 1, 1, 0]
-    ntest_trials = 6
+    ntest_trials = 2
     test_urls_0 = [blue, blue, blue]
     test_urls_1 = [orange, orange, orange]
 

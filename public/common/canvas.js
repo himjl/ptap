@@ -125,7 +125,7 @@ async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height
     var width = parseFloat(canvas.style.width);
     var height = parseFloat(canvas.style.height);
     context.fillRect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
-    context.fill()
+    context.fill();
     context.globalAlpha = 1
 }
 
