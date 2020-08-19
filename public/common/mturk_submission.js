@@ -32,7 +32,7 @@ class mechanical_turk_util_functions{
         submission_form.appendChild(assignmentId_input);
 
         // Fill out form
-        var session_data_string = JSON.stringify({'SESSION_DATA':data_obj});
+        var session_data_string = JSON.stringify(data_obj);
 
         assignmentId_input.value = assignmentId;
         submission_data_input.value = session_data_string;
@@ -103,11 +103,11 @@ class mechanical_turk_util_functions{
         Detect if the current url reflects the one given to a subject using Mechanical Turk in sandbox mode.
         return: bool
          */
-        // todo:
         let sandbox = false;
+        const submit_to_string = this._extract_url_string(url, 'turkSubmitTo', 'turkSubmitToNotFound');
+        if (submit_to_string.includes('sandbox') === true){
+            sandbox = true;
+        }
         return sandbox
-
-
     }
-
 }

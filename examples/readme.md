@@ -1,1 +1,0 @@
-Example HTMLs that can be run on ```localhost``` with server root at ```public```.
