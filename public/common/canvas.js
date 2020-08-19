@@ -1,4 +1,3 @@
-
 function get_screen_dims(){
     var h = window.screen.height;
     var w = window.screen.width;

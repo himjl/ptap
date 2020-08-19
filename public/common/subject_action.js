@@ -1,4 +1,3 @@
-
 class ActionListenerClass {
     constructor(track_mouseclick, track_keypress, ) {
         /*

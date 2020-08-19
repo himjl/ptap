@@ -196,8 +196,6 @@ async function congratulations_screen(size, mean_perf){
     Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
     size: () of canvas, in units of pixels
     mean_perf: (), from [0, 1]
-    best_perf: (), from [0, 1]
-    worst_perf: (), from [0, 1]
      */
 
     let mean_perf_percentage = Math.round(mean_perf * 100);

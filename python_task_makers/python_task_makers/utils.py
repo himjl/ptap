@@ -53,12 +53,17 @@ def make_javascript_common_injection_string():
     common_loc = os.path.join(ptap_public_location, 'common')
     assert os.path.exists(common_loc), 'Could not find ptap/public/common at %s'%(common_loc)
 
-    fpaths = glob.glob(os.path.join(common_loc, '*.js'))
+    fpaths = sorted(glob.glob(os.path.join(common_loc, '*.js')))
 
+
+    common_path = os.path.commonpath(fpaths)
     texts = []
     for js_fpath in fpaths:
+        base_name = js_fpath.split(ptap_public_location)[-1]
 
-        texts.append(load_text(js_fpath))
+        js_text = load_text(js_fpath)
+        js_text = '////////// IMPORT from %s//////////\n'%(base_name) + js_text
+        texts.append(js_text)
 
     common_string = '\n\n'.join(texts)
     return common_string
