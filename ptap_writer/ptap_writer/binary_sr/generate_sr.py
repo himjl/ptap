@@ -3,8 +3,8 @@ Generates an HTML which allows any user to run the task.
 """
 import numpy as np
 from tqdm import tqdm
-import python_task_makers.utils as utils
-import python_task_makers.config as config
+import ptap_writer.utils as utils
+import ptap_writer.config as config
 
 from typing import List
 import os
@@ -99,7 +99,7 @@ class Subtask():
         return
 
 
-def generate_html(
+def write_html(
         subtask_pool: List[Subtask],
 ):
     """
@@ -191,24 +191,3 @@ def _check_urls_have_image(url_list):
         url_checked_cache[url] = utils.check_url_has_image(url)
 
     return
-
-if __name__ == '__main__':
-    blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
-    orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
-    train_url_sequence = [blue, blue, blue, orange]
-    train_label_sequence = [0, 0, 0, 1]
-
-    ntest_trials = 2
-    test_urls_0 = [blue, blue, blue]
-    test_urls_1 = [orange, orange, orange]
-
-    subtask0 = Subtask(
-        train_url_seq = train_url_sequence,
-        train_label_seq=train_label_sequence,
-        test_url_pool_0=test_urls_0,
-        test_url_pool_1 = test_urls_1,
-        ntest_trials=ntest_trials,
-    )
-
-    string = generate_html([subtask0, subtask0])
-    utils.save_text(string, '/home/umjl/WebstormProjects/ptap/public/examples/example_sr_task.html')

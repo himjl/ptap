@@ -6,7 +6,7 @@ import PIL.Image
 import numpy as np
 import requests
 
-from python_task_makers import config as config
+from ptap_writer import config as config
 
 
 def load_text(fpath):

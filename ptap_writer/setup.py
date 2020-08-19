@@ -9,7 +9,7 @@ else:
 
 print(find_packages())
 setup(
-    name="python_task_makers",
+    name="ptap_writer",
     version="0.01.dev",
     packages=find_packages(),
     # Project uses reStructuredText, so ensure that the docutils get
@@ -18,7 +18,7 @@ setup(
     # metadata to display on PyPI
     author="Michael Lee",
     author_email="mil@mit.edu",
-    description="generate HTML-based tasks that use ptap JavaScript functions",
+    description="write HTML strings which implement psychophysical tasks, using ptap JavaScript functions",
     keywords="",
     # could also include long_description, download_url, etc.
 )
