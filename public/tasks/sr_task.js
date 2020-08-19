@@ -226,9 +226,7 @@ async function congratulations_screen(size, mean_perf){
         return rgbToHex(Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255));
     }
 
-    var high_color = color_interpolation(best_perf);
     var average_color = color_interpolation(mean_perf);
-    var low_color = color_interpolation(worst_perf);
 
     var total_pbar_width = 0.6;
     var filled_pbar_width = total_pbar_width * (mean_perf);
