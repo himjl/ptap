@@ -82,6 +82,7 @@ __INJECT_JAVASCRIPT_HERE__
             test_pool_urls_0 = MathUtils.permute(test_pool_urls_0);
             test_pool_urls_1 = MathUtils.permute(test_pool_urls_1);
 
+
             for (let i_test_trial=0; i_test_trial < ntest; i_test_trial++){
                 let _cur_label = test_label_sequence[i_test_trial];
                 if (_cur_label === 0){
@@ -97,19 +98,18 @@ __INJECT_JAVASCRIPT_HERE__
             }
 
             // Randomly flip the label assignments
+            let label_to_key;
             if (Math.random() < 0.5){
-                // Execute flip
-                const flipped_label_sequence = [];
-                for (let i_trial = 0; i_trial < label_sequence.length; i_trial++){
-                    flipped_label_sequence.push(1 - label_sequence[i_trial])
-                }
-                label_sequence = [... flipped_label_sequence];
-                console.log('Flipped labels')
+                label_to_key = 'fj';
+            }
+            else{
+                label_to_key = 'jf';
             }
 
             return {
                 'image_url_seq':image_url_sequence,
                 'label_seq':label_sequence,
+                'label_to_key':label_to_key,
                 'stimulus_duration_msec':stimulus_duration_msec,
                 'reward_duration_msec':reward_duration_msec,
                 'punish_duration_msec':punish_duration_msec,

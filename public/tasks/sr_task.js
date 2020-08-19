@@ -19,6 +19,7 @@ async function run_subtasks(subtask_sequence){
             var cur_subtask = subtask_sequence[i_subtask];
             var cur_image_url_sequence = cur_subtask['image_url_seq'];
             var cur_label_sequence = cur_subtask['label_seq'];
+            var cur_label_to_key = cur_subtask['label_to_key'];
             var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
             var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
             var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
@@ -29,6 +30,7 @@ async function run_subtasks(subtask_sequence){
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_sequence,
                 cur_label_sequence,
+                cur_label_to_key,
                 cur_stimulus_duration_msec,
                 cur_reward_duration_msec,
                 cur_punish_duration_msec,
@@ -59,6 +61,7 @@ async function run_subtasks(subtask_sequence){
 async function run_binary_sr_trials(
     image_url_sequence,
     label_sequence,
+    label_to_key,
     stimulus_duration_msec,
     reward_duration_msec,
     punish_duration_msec,
@@ -73,6 +76,7 @@ async function run_binary_sr_trials(
 
     image_url_sequence: [t]
     label_sequence: [t]. 0 or 1.
+    label_to_key: 'fj' (for 0 to f, 1 to j) or 'jf' (for 0 to j, 1 to f)
     stimulus_duration_msec: ()
     reward_duration_msec: ()
     punish_duration_msec: ()
@@ -84,15 +88,31 @@ async function run_binary_sr_trials(
 
     var diameter_pixels = size * 0.25;
 
-    var session_data = {};
-    session_data['perf'] = [];
-    session_data['action'] = [];
-    session_data['reaction_time_msec'] = [];
-    session_data['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
-    session_data['rel_timestamp_stimulus_on'] = [];
-    session_data['rel_timestamp_stimulus_off'] = [];
-    session_data['rel_timestamp_choices_on'] = [];
-    session_data['trial_number'] = [];
+    var coords = {};
+    coords['stimulus_duration_msec'] = stimulus_duration_msec;
+    coords['reward_duration_msec'] = reward_duration_msec;
+    coords['punish_duration_msec'] = punish_duration_msec;
+    coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['usd_per_reward'] = usd_per_reward;
+    coords['playspace_size_px'] = size;
+    coords['label_to_key'] = label_to_key;
+
+    const [hcur, wcur] = get_screen_dims();
+    coords['screen_height_px'] = hcur;
+    coords['screen_width_px'] = wcur;
+    coords['device_pixel_ratio'] = window.devicePixelRatio || 1;
+
+    var data_vars = {};
+    data_vars['perf'] = [];
+    data_vars['action'] = [];
+    data_vars['stimulus_url'] = image_url_sequence;
+    data_vars['label'] = label_sequence;
+    data_vars['reaction_time_msec'] = [];
+    data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
+    data_vars['rel_timestamp_stimulus_on'] = [];
+    data_vars['rel_timestamp_stimulus_off'] = [];
+    data_vars['rel_timestamp_choices_on'] = [];
+    data_vars['trial_number'] = [];
 
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
@@ -136,13 +156,28 @@ async function run_binary_sr_trials(
 
         // Evaluate choice
         var perf = undefined;
+
+        // Get correct action
         var cur_label = label_sequence[i_trial];
+
+        let correct_action;
+        if (label_to_key === 'fj'){
+            correct_action = cur_label;
+        }
+        else if (label_to_key === 'jf'){
+            correct_action = 1 - cur_label;
+        }
+        else{
+            correct_action = cur_label;
+        }
+
+        // Evaluate subject action
         var action = choice_outcome['actionIndex'];
         if (action === -1){
             // Timed out
             perf = 0
         }
-        else if (action === cur_label){
+        else if (action === correct_action){
             perf = 1
         }
         else{
@@ -150,23 +185,22 @@ async function run_binary_sr_trials(
         }
 
         // Provide visual feedback, and apply a timeout
-        var timestamp_feedback = undefined;
         if (perf === 0){
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
         }
         else if (perf === 1){
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
 
         // Record outcomes
-        session_data['perf'].push(perf);
-        session_data['action'].push(action);
-        session_data['reaction_time_msec'].push(Math.round(reaction_time_msec));
-        session_data['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
-        session_data['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
-        session_data['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
-        session_data['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
-        session_data['trial_number'].push(i_trial);
+        data_vars['perf'].push(perf);
+        data_vars['action'].push(action);
+        data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
+        data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
+        data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
+        data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
+        data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
+        data_vars['trial_number'].push(i_trial);
 
         // Callback
         await update_hud(perf, usd_per_reward);
@@ -183,8 +217,7 @@ async function run_binary_sr_trials(
     // Remove event listeners from window
     action_recorder.close_listeners();
     delete trial_images.cache_dict;
-
-    return session_data
+    return {'coords':coords, 'data_vars':data_vars}
 }
 
 async function update_hud(perf, usd_per_reward){

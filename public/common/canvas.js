@@ -25,6 +25,7 @@ function infer_canvas_size() {
     return Math.round(Math.min(screen_height, screen_width)) * (1 - screen_margin);
 }
 
+
 function create_canvas(canvas_id, width, height){
     /*
     Creates and returns a canvas with id canvas_id
