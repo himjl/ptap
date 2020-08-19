@@ -14,7 +14,7 @@ function run_instructions(instructions_html, disable_button){
     div.style.top = "50%";
     div.style.left = "50%";
     div.style.height = "50%";
-    div.style.width = "70%";
+    div.style.width = "auto";
     div.style.transform = "translate(-50%, -50%)";
     div.style.display = 'flex';
     div.style['align-items'] = 'center';

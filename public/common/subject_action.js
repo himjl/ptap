@@ -17,9 +17,13 @@ class ActionListenerClass {
         this.actionRadii = [];
 
         this.handleKeyPressEvent = function (event) {
+
+            event.preventDefault();
+
             if (_this.listening_for_keypress !== true) {
                 return
             }
+
 
             var actionIndex = _this.key2actionIndex[event.key];
             if (actionIndex === undefined) {

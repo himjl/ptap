@@ -21,7 +21,7 @@ function get_window_dims() {
 function infer_canvas_size() {
     // Present the canvases at 85% of the smallest screen dimension
     var [screen_height, screen_width] = get_screen_dims();
-    var screen_margin = 0.25;
+    var screen_margin = 0.3;
     return Math.round(Math.min(screen_height, screen_width)) * (1 - screen_margin);
 }
 
@@ -61,7 +61,7 @@ function create_canvas(canvas_id, width, height){
     canvasobj.style.bottom = 0;
     canvasobj.style.left = 0;
     canvasobj.style.right = 0;
-    canvasobj.style.border = '1px dotted #E6E6E6';
+    //canvasobj.style.border = '1px dotted #E6E6E6';
     canvasobj.style.width = width + 'px'; // Set browser canvas display style to be workspace_width
     canvasobj.style.height = height + 'px';
 
@@ -105,7 +105,7 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
 
     var nLetters = text.length;
     if (nLetters > 0){
-        var letterSize = Math.min((diameter_pixel*2) / (nLetters + 0.5), 40);
+        var letterSize = Math.min((diameter_pixel*2) / (nLetters + 0.6), 40);
         context.font = letterSize.toString() + "px Arial";
         context.fillStyle = "gray";
         context.textAlign = "center";

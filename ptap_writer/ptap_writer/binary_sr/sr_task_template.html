@@ -1,10 +1,18 @@
 <!doctype html>
 
-<body>
-<div id = 'user_header'>
-    Welcome!
+<body style="background-color:#7F7F7F">
+
+<div hidden>
+    <p style="color:#7F7F7F">Trials completed: <text id="hud_total_trials">0</text></p>
+    <p style="color:#7F7F7F">Rewards: <text id="hud_total_rewards">0</text></p>
+</div>
+
+<div id = 'user_hud' style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:visible">
+    <p style="margin-right: 5px;margin-left: 5px;">Performance:<text id="hud_current_performance">&nbsp&nbsp0</text>%</p>
+    <p style="margin-right: 5px;margin-left: 5px;">Bonus:&nbsp<text id="hud_current_bonus">0.0</text>&cent</p>
 </div>
 </body>
+
 
 
 <div id="instructions_html" style="visibility:hidden">
@@ -44,6 +52,7 @@ __INJECT_JAVASCRIPT_HERE__
         var reward_duration_msec = 100;
         var punish_duration_msec = 1000;
         var choice_duration_msec = 5000;
+        var usd_per_reward = 0.0025;
         var post_stimulus_delay_duration_msec = 0;
 
         // Assemble task info, randomly on-load
@@ -106,6 +115,7 @@ __INJECT_JAVASCRIPT_HERE__
                 'punish_duration_msec':punish_duration_msec,
                 'choice_duration_msec':choice_duration_msec,
                 'post_stimulus_delay_duration_msec':post_stimulus_delay_duration_msec,
+                'usd_per_reward':usd_per_reward,
             }
         }
 
@@ -125,6 +135,7 @@ __INJECT_JAVASCRIPT_HERE__
         // Execute the task
         (async function (){
             await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+            document.getElementById('user_hud').style.visibility = 'visible';
             var session_data = await run_subtasks(subtask_sequence);
             await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
         }());

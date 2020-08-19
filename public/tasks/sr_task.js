@@ -24,6 +24,7 @@ async function run_subtasks(subtask_sequence){
             var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
             var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
             var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            var usd_per_reward = cur_subtask['usd_per_reward'];
 
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_sequence,
@@ -33,6 +34,7 @@ async function run_subtasks(subtask_sequence){
                 cur_punish_duration_msec,
                 cur_choice_duration_msec,
                 cur_post_stimulus_delay_duration_msec,
+                usd_per_reward,
                 playspace_size_pixels);
             return_values['data'].push(cur_session_data);
 
@@ -62,7 +64,8 @@ async function run_binary_sr_trials(
     punish_duration_msec,
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
-    size,
+    usd_per_reward,
+    size
 ){
 
     /*
@@ -75,6 +78,7 @@ async function run_binary_sr_trials(
     punish_duration_msec: ()
     choice_duration_msec: ()
     post_stimulus_delay_duration_msec: ()
+    usd_per_reward: ()
     size: () in pixels
      */
 
@@ -163,6 +167,9 @@ async function run_binary_sr_trials(
         session_data['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         session_data['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         session_data['trial_number'].push(i_trial);
+
+        // Callback
+        await update_hud(perf, usd_per_reward);
     }
 
     // Delete canvases
@@ -179,6 +186,46 @@ async function run_binary_sr_trials(
 
     return session_data
 }
+
+async function update_hud(perf, usd_per_reward){
+    /*
+    A function which is called at the end of every trial.
+    It displays the subject's performance, remaining trials, and amount earned.
+     */
+    var hud_current_trial_count = document.getElementById('hud_total_trials');
+    const current_trial_count = parseInt(hud_current_trial_count.innerText);
+    hud_current_trial_count.innerHTML = (current_trial_count+1).toString();
+
+    var hud_current_rewards = document.getElementById('hud_total_rewards');
+    const current_rewards = parseInt(hud_current_rewards.innerText);
+    hud_current_rewards.innerHTML = (current_rewards + perf).toString();
+
+    let current_performance = 0;
+    if (current_trial_count > 0){
+        current_performance = current_rewards / current_trial_count;
+    }
+
+    let next_performance = (current_performance * current_trial_count + perf) / (current_trial_count + 1);
+
+    let hud_current_performance = document.getElementById('hud_current_performance');
+    next_performance = Math.round(next_performance * 100).toString();
+    if (next_performance.length === 1){
+        next_performance = '&nbsp&nbsp'.concat(next_performance);
+    }
+    else if(next_performance.length === 2){
+        next_performance = '&nbsp'.concat(next_performance);
+    }
+    hud_current_performance.innerHTML = next_performance;
+
+    var hud_current_bonus = document.getElementById('hud_current_bonus');
+    let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
+    next_bonus = (next_bonus).toPrecision(1).toString();
+    if(next_bonus.length === 1){
+        next_bonus = next_bonus.concat('.0');
+    }
+    hud_current_bonus.innerHTML = next_bonus;
+}
+
 
 async function provide_session_end(session_data){
     var perf_per_subtask = [];
@@ -204,37 +251,12 @@ async function congratulations_screen(size, mean_perf){
     var font_size = (size * 0.05).toString();
     var font = font_size+'px Times New Roman';
 
-    function componentToHex(c) {
-        var hex = c.toString(16);
-        return hex.length === 1 ? "0" + hex : hex;
-    }
-
-    function rgbToHex(r, g, b) {
-        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-    }
-
-    function color_interpolation(performance){
-        /*
-        performance: () between [0, 100]
-        Returns a color hex code based on performance, from fully red (50 performance or below) to fully green (100 performance)
-         */
-        var green = Math.min(Math.max(0, 2 * performance/100 - 1), 0.8);
-        var red = 0;
-        var blue = 0;
-        return rgbToHex(Math.round(red * 255), Math.round(green * 255), Math.round(blue * 255));
-    }
-
-    var average_color = color_interpolation(mean_perf);
-
     var total_pbar_width = 0.6;
     var filled_pbar_width = total_pbar_width * (mean_perf);
     await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
     await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * total_pbar_width, size * 0.15, '#DCDCDC', 1);
     await draw_rectangle(splash1_canvas, size*(1 - total_pbar_width)/2 + size*(filled_pbar_width/2), size * 0.5, size * filled_pbar_width, size * 0.15, '#66ff33', 0.8);
     await draw_text(splash1_canvas, 'Score: '+mean_perf_percentage.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
-
-    //await draw_text(splash1_canvas, 'Your best performance was ' + best_perf.toString()+'%', font, high_color, size/2, size * 0.3);
-    //await draw_text(splash1_canvas, 'Your worst performance was ' + worst_perf.toString()+'%', font, low_color, size/2, size * 0.4);
     await draw_text(splash1_canvas, 'Press space to submit.', font, '#66ff33', size/2, size * 0.65, 'center');
 
     await display_canvas_sequence([splash1_canvas], [0]);
@@ -244,6 +266,7 @@ async function congratulations_screen(size, mean_perf){
     await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
     splash1_canvas.remove()
 }
+
 
 async function inter_subtask_splash_screen(size){
     /*

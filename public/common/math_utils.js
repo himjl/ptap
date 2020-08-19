@@ -26,6 +26,17 @@ class MathUtils{
         return array;
     }
 
+
+    static sum(array) {
+        let i = 0, sum = 0, len = array.length;
+
+        while (i < len) {
+            sum = sum + array[i++];
+        }
+
+        return sum;
+    }
+
     static mean(array) {
         let i = 0, sum = 0, len = array.length;
 
