@@ -51,7 +51,7 @@ async function run_subtasks(subtask_sequence){
             }
         }
 
-        await provide_session_end(return_values)
+        await provide_session_end(return_values['data'])
     }
 
     catch(error){
