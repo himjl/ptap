@@ -12,12 +12,13 @@ async function run_subtasks(subtask_sequence){
      */
 
     var nsubtasks = subtask_sequence.length;
-    var return_values = {'data':[]};
+    var return_values = [];
     var playspace_size_pixels = infer_canvas_size();
     try {
         for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
             var cur_subtask = subtask_sequence[i_subtask];
-            var cur_image_url_sequence = cur_subtask['image_url_seq'];
+            var cur_image_url_prefix = cur_subtask['image_url_prefix'];
+            var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
             var cur_label_sequence = cur_subtask['label_seq'];
             var cur_label_to_key = cur_subtask['label_to_key'];
             var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
@@ -28,7 +29,8 @@ async function run_subtasks(subtask_sequence){
             var usd_per_reward = cur_subtask['usd_per_reward'];
 
             var cur_session_data = await run_binary_sr_trials(
-                cur_image_url_sequence,
+                cur_image_url_prefix,
+                cur_image_url_suffix_sequence,
                 cur_label_sequence,
                 cur_label_to_key,
                 cur_stimulus_duration_msec,
@@ -38,7 +40,7 @@ async function run_subtasks(subtask_sequence){
                 cur_post_stimulus_delay_duration_msec,
                 usd_per_reward,
                 playspace_size_pixels);
-            return_values['data'].push(cur_session_data);
+            return_values.push(cur_session_data);
 
             // Run the "end of subtask" splash screen if there are tasks that remain after this one
             if ((i_subtask + 1) < (nsubtasks)){
@@ -46,9 +48,9 @@ async function run_subtasks(subtask_sequence){
             }
         }
 
-        await provide_session_end(return_values['data'])
-
+        await provide_session_end(return_values)
     }
+
     catch(error){
         console.log(error);
         return_values['error'] = error;
@@ -59,7 +61,8 @@ async function run_subtasks(subtask_sequence){
 
 
 async function run_binary_sr_trials(
-    image_url_sequence,
+    image_url_prefix,
+    image_url_suffix_sequence,
     label_sequence,
     label_to_key,
     stimulus_duration_msec,
@@ -89,6 +92,7 @@ async function run_binary_sr_trials(
     var diameter_pixels = size * 0.25;
 
     var coords = {};
+    coords['stimulus_url_prefix'] = image_url_prefix;
     coords['stimulus_duration_msec'] = stimulus_duration_msec;
     coords['reward_duration_msec'] = reward_duration_msec;
     coords['punish_duration_msec'] = punish_duration_msec;
@@ -105,7 +109,7 @@ async function run_binary_sr_trials(
     var data_vars = {};
     data_vars['perf'] = [];
     data_vars['action'] = [];
-    data_vars['stimulus_url'] = image_url_sequence;
+    data_vars['stimulus_url_suffix'] = image_url_suffix_sequence;
     data_vars['label'] = label_sequence;
     data_vars['reaction_time_msec'] = [];
     data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
@@ -116,8 +120,10 @@ async function run_binary_sr_trials(
 
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
-    for (var i_image = 0; i_image < image_url_sequence.length; i_image++){
-        await trial_images.get_by_url(image_url_sequence[i_image]);
+    for (let i_image = 0; i_image < image_url_suffix_sequence.length; i_image++){
+        let current_suffix = image_url_suffix_sequence[i_image];
+        let current_url = image_url_prefix.concat(current_suffix);
+        await trial_images.get_by_url(current_url);
     }
 
     // Begin tracking actions
@@ -126,9 +132,11 @@ async function run_binary_sr_trials(
     // Iterate over trials
     var canvases = await initialize_sr_task_canvases(size);
 
-    for (var i_trial = 0; i_trial < image_url_sequence.length; i_trial++){
+    for (let i_trial = 0; i_trial < image_url_suffix_sequence.length; i_trial++){
         // Buffer stimulus
-        var current_image = await trial_images.get_by_url(image_url_sequence[i_trial]);
+        let current_suffix = image_url_suffix_sequence[i_trial];
+        let current_url = image_url_prefix.concat(current_suffix);
+        var current_image = await trial_images.get_by_url(current_url);
         await draw_image(canvases['stimulus_canvas'], current_image, size/2, size/2, diameter_pixels);
 
         // Run trial initiation
@@ -264,7 +272,7 @@ async function provide_session_end(session_data){
     var perf_per_subtask = [];
     for (let i_subtask = 0; i_subtask < session_data.length; i_subtask++){
         let cur_data = session_data[i_subtask];
-        perf_per_subtask.push(MathUtils.mean(cur_data['perf']));
+        perf_per_subtask.push(MathUtils.mean(cur_data['data_vars']['perf']));
     }
     var grand_mean = MathUtils.mean(perf_per_subtask);
     var playspace_size_pixels = infer_canvas_size();

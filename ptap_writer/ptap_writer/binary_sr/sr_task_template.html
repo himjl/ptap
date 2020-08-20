@@ -7,7 +7,7 @@
     <p style="color:#7F7F7F">Rewards: <text id="hud_total_rewards">0</text></p>
 </div>
 
-<div id = 'user_hud' style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:visible">
+<div id = 'user_hud' style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:hidden">
     <p style="margin-right: 5px;margin-left: 5px;">Performance:<text id="hud_current_performance">&nbsp&nbsp0</text>%</p>
     <p style="margin-right: 5px;margin-left: 5px;">Bonus:&nbsp<text id="hud_current_bonus">0.0</text>&cent</p>
 </div>
@@ -36,8 +36,6 @@
 </div>
 
 <head>
-
-
     <title>DiCarlo Lab - Mechanical Turk</title>
 
     <script>
@@ -45,9 +43,7 @@ __INJECT_JAVASCRIPT_HERE__
     </script>
 
     <script>
-        // https://s3.amazonaws.com/milresources/tmp/turkr_dev/example_sr_task.html?assignmentId=ASSIGNMENT_ID_NOT_AVAILABLE&hitId=37MQ8Z1JQE6INCKT55GJMIPBYM32YZ
-        // https://s3.amazonaws.com/milresources/tmp/turkr_dev/example_sr_task.html?assignmentId=3U84XHCDIDNUH07FV76SIORRQUC4Z1&hitId=37MQ8Z1JQE6INCKT55GJMIPBYM32YZ&workerId=A2J5FDWXI0FX8O&turkSubmitTo=https%3A%2F%2Fworkersandbox.mturk.com
-        // Hardcoded experimental parameters
+       // Hardcoded experimental parameters
         var stimulus_duration_msec = 200;
         var reward_duration_msec = 100;
         var punish_duration_msec = 1000;
@@ -55,13 +51,26 @@ __INJECT_JAVASCRIPT_HERE__
         var usd_per_reward = 0.0025;
         var post_stimulus_delay_duration_msec = 0;
 
-        // Assemble task info, randomly on-load
-        function generate_subtask_sequence(train_url_sequence, train_label_sequence, test_pool_urls_0, test_pool_urls_1, ntest){
+
+        function pick_sequence(sequence_list){
+            return MathUtils.random_choice(sequence_list)
+        }
+
+        function generate_sequence(
+            image_url_prefix,
+            train_url_suffix_sequence,
+            train_label_sequence,
+            test_pool_0_url_suffix_sequence,
+            test_pool_1_url_suffix_sequence,
+            ntest){
             /*
-            train_url_sequence: Array of urls.
+            url_prefix: a String which is prepended to train_url_suffix_sequence, test_pool_0_url_suffix_sequence, and test_pool_1_url_suffix_sequence.
+                        By encoding arguments in this way, one can potentially save the number of characters necessary to specify the subtask.
+                        Additionally, this cuts down on the number of characters needed in the POST submission at the conclusion of the task.
+            train_url_suffix_sequence: Array of url suffixes.
             train_label_sequence: Array of labels (0 or 1).
-            test_pool_urls_0: Array of urls to class "0" test images. Has at least ntest/2 entries.
-            test_pool_urls_1: Array of urls to class "1" test images. Has at least ntest/2 entries.
+            test_pool_0_url_suffix_sequence: Array of url suffixes to class "0" test images. Has at least ntest/2 entries.
+            test_pool_1_url_suffix_sequence: Array of url suffixes to class "1" test images. Has at least ntest/2 entries.
             ntest: an even Integer (e.g. 0, 2, 4...)
 
             Function for dynamically populating the test trials for a given subtask.
@@ -69,9 +78,8 @@ __INJECT_JAVASCRIPT_HERE__
 
             Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
              */
-            let image_url_sequence = [... train_url_sequence];
+            let image_url_suffix_sequence = [... train_url_suffix_sequence];
             let label_sequence = [... train_label_sequence];
-
 
             // Randomly sample the label sequence for the test phase, evenly populating the test phase with each category.
             let test_label_sequence = new Array(ntest/2).fill(0);
@@ -79,20 +87,19 @@ __INJECT_JAVASCRIPT_HERE__
             test_label_sequence = MathUtils.permute(test_label_sequence);
 
             // Randomly permute the test pools
-            test_pool_urls_0 = MathUtils.permute(test_pool_urls_0);
-            test_pool_urls_1 = MathUtils.permute(test_pool_urls_1);
-
+            test_pool_0_url_suffix_sequence = MathUtils.permute(test_pool_0_url_suffix_sequence);
+            test_pool_1_url_suffix_sequence = MathUtils.permute(test_pool_1_url_suffix_sequence);
 
             for (let i_test_trial=0; i_test_trial < ntest; i_test_trial++){
                 let _cur_label = test_label_sequence[i_test_trial];
                 if (_cur_label === 0){
                     // Attach a sample from class 0
-                    image_url_sequence.push(test_pool_urls_0.shift());
+                    image_url_suffix_sequence.push(test_pool_0_url_suffix_sequence.shift());
                     label_sequence.push(_cur_label);
                 }
                 else{
                     // Attach a sample from class 1
-                    image_url_sequence.push(test_pool_urls_1.shift());
+                    image_url_suffix_sequence.push(test_pool_1_url_suffix_sequence.shift());
                     label_sequence.push(_cur_label);
                 }
             }
@@ -107,7 +114,8 @@ __INJECT_JAVASCRIPT_HERE__
             }
 
             return {
-                'image_url_seq':image_url_sequence,
+                'image_url_prefix':image_url_prefix,
+                'image_url_suffix_seq':image_url_suffix_sequence,
                 'label_seq':label_sequence,
                 'label_to_key':label_to_key,
                 'stimulus_duration_msec':stimulus_duration_msec,
@@ -119,12 +127,14 @@ __INJECT_JAVASCRIPT_HERE__
             }
         }
 
-        // Run tasks
-        let subtask_pool = [
-            __INSERT_SUBTASK_POOL_STRING__
+        // Define list of possible conditions
+        // Randomly select a condition
+        let sequence_pool = [
+__INSERT_SEQUENCE_POOL_HERE__
         ];
 
-        let subtask_sequence = MathUtils.permute(subtask_pool);
+        // Permute order of sequences
+        let sequences = MathUtils.permute(sequence_pool);
 
         // Extract session info
         const url = window.location.href;
@@ -136,7 +146,7 @@ __INJECT_JAVASCRIPT_HERE__
         (async function (){
             await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
             document.getElementById('user_hud').style.visibility = 'visible';
-            var session_data = await run_subtasks(subtask_sequence);
+            var session_data = await run_subtasks(sequences);
             await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
         }());
 

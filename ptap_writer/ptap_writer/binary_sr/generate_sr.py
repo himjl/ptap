@@ -5,7 +5,7 @@ import numpy as np
 from tqdm import tqdm
 import ptap_writer.utils as utils
 import ptap_writer.config as config
-
+import json
 from typing import List
 import os
 
@@ -15,7 +15,8 @@ assert os.path.exists(TEMPLATE_LOCATION), 'Could not find template at %s' % (TEM
 TASK_LOCATION = os.path.join(config.PTAP_PUBLIC_LOCATION, 'tasks/sr_task.js')
 assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATION)
 
-class Subtask():
+
+class Sequence():
 
     def __init__(self,
                  train_url_seq: list,
@@ -39,7 +40,7 @@ class Subtask():
         :type ntest_trials:
         """
 
-        self._check_subtask_arg_validity(
+        self._check_sequence_arg_validity(
             train_url_sequence=train_url_seq,
             train_label_sequence=train_label_seq,
             ntest_trials=ntest_trials,
@@ -55,7 +56,7 @@ class Subtask():
         return
 
     @staticmethod
-    def _check_subtask_arg_validity(
+    def _check_sequence_arg_validity(
             train_url_sequence: list,
             train_label_sequence: list,
             ntest_trials: int,
@@ -100,61 +101,78 @@ class Subtask():
 
 
 def write_html(
-        subtask_pool: List[Subtask],
+        requested_sequence_pools: List[List[Sequence]],
 ):
     """
-    Generate an HTML string which, when loaded in a web browser, runs a series of 2-way, AFC image-to-button "subtasks".
+    Generate an HTML string which, when loaded in a web browser, runs a series of 2-way, AFC image-to-button trial "sequences".
 
-    Each subtask begins with 'train trials' (n>=0) which are given in predetermined order, followed by 'test trials' (n>=0)
+    Each sequence begins with 'train trials' (n>=0) which are given in predetermined order, followed by 'test trials' (n>=0)
     which are presented in random order.
 
-    The experimenter supplies a list of Subtask objects, which define each subtask.
+    This function takes a list as an input. Each entry is itself a list containing some number of possible Sequences.
+    For each entry in the input argument, the subject will be given one Sequence, sampled randomly among them.
 
-    When a subject loads the HTML, three randomizations occur via client-side JavaScript:
-        1) The order of subtasks is permuted.
-        2) For each subtask, any "test image" trials are selected without replacement and presented in a random order.
+    Example:
+
+        subtask_pool = [[SequenceA, SequenceB], [Sequence1, Sequence2, Sequence3]]
+
+    A subject will perform one of SequenceA or SequenceB, and one of Sequences[1-3].
+
+    When a subject loads the HTML, four randomizations occur via client-side JavaScript:
+        1) For each provided entry in sequence_pool, a sequence is sampled randomly, with equal probability amongst all sequences.
+        2) For each sequence, the "test" trials are selected without replacement and presented in a random order.
            An equal number of trials from both categories is sampled.
-        3) For each subtask, the mapping of the two possible labels (0 and 1) to buttons ("f" and "j" on the keyboard) is randomized.
-
-    :param subtask_pool: list of Subtask objects
-    :param base_url: str. Assumed to point to the "public" folder of the ptap project, which is uploaded at some URL.
+        3) The order in which sequences are given to the subject are permuted.
+        4) For each sequence, the mapping of the two possible labels (0 and 1) to buttons ("f" and "j" on the keyboard) is randomized.
+        
+    :param requested_sequence_pools: list of list of Sequences
     :return: HTML string
     """
 
-    assert len(subtask_pool) > 0
+    assert len(requested_sequence_pools) > 0
 
-    # Get unique list of urls that will be used in this experiment
+    # Perform type checks, and collect image urls
     url_pool = set()
-    for subtask in subtask_pool:
-        assert isinstance(subtask, Subtask)
-        [url_pool.add(url) for url in subtask.train_url_seq]
-        [url_pool.add(url) for url in subtask.test_url_pool_0]
-        [url_pool.add(url) for url in subtask.test_url_pool_1]
+    for entry in requested_sequence_pools:
+        assert len(entry) > 0
+
+        for seq in entry:
+            assert isinstance(seq, Sequence)
+            [url_pool.add(url) for url in seq.train_url_seq]
+            [url_pool.add(url) for url in seq.test_url_pool_0]
+            [url_pool.add(url) for url in seq.test_url_pool_1]
 
     # Check all URLs exist
     _check_urls_have_image(list(url_pool))
 
     # Assemble HTML
-    subtask_strings = []
-    for subtask in subtask_pool:
-        js_string = _generate_subtask_call_string(
-            train_url_sequence=subtask.train_url_seq,
-            train_label_sequence=subtask.train_label_seq,
-            ntest_trials=subtask.ntest_trials,
-            test_urls_0=subtask.test_url_pool_0,
-            test_urls_1=subtask.test_url_pool_1, )
-        subtask_strings.append(js_string)
+    js_strings = []
+    for sequence_pool in requested_sequence_pools:
+        sequence_pool_strings = []
+        for sequence in sequence_pool:
+            js_string = _generate_subtask_call_string(
+                train_url_sequence=sequence.train_url_seq,
+                train_label_sequence=sequence.train_label_seq,
+                ntest_trials=sequence.ntest_trials,
+                test_urls_0=sequence.test_url_pool_0,
+                test_urls_1=sequence.test_url_pool_1, )
+            sequence_pool_strings.append(js_string)
 
-    # Randomize the order of the subtask pool expression, in case the JavaScript permute function is not fully random
-    subtask_strings = list(np.random.permutation(subtask_strings))
+        # Randomize the order of the sequence pool expression, in case the JavaScript permute function is not fully random
+        sequence_pool_strings = list(np.random.permutation(sequence_pool_strings))
+        sequence_pool_strings = 'pick_sequence([\n     ' + ',\n     '.join(sequence_pool_strings) + '\n])'
+        js_strings.append(sequence_pool_strings)
 
-    total_subtask_string = '\n'.join(subtask_strings)
+    # Randomize again
+    sequence_strings = list(np.random.permutation(js_strings))
+
+    total_string = ',\n'.join(sequence_strings)
 
     # Load template
     html_string = utils.load_text(TEMPLATE_LOCATION)
 
     # Inject subtask pool
-    html_string = html_string.replace('__INSERT_SUBTASK_POOL_STRING__', total_subtask_string)
+    html_string = html_string.replace('__INSERT_SEQUENCE_POOL_HERE__', total_string)
 
     # Load ptap/public/common/*.js files into a string
     javascript_common = utils.make_javascript_common_injection_string()
@@ -176,7 +194,15 @@ def _generate_subtask_call_string(
         ntest_trials: int,
         test_urls_0: list,
         test_urls_1: list, ):
-    template_string = f'generate_subtask_sequence({train_url_sequence}, {train_label_sequence}, {test_urls_0}, {test_urls_1}, {ntest_trials}),'
+
+    # Get common prefix of the URLs
+    common_prefix = os.path.commonprefix(train_url_sequence + test_urls_0 + test_urls_1)
+    train_url_suffix_sequence = [s.split(common_prefix)[-1] for s in train_url_sequence]
+    test_url_suffixes_0 = [s.split(common_prefix)[-1] for s in test_urls_0]
+    test_url_suffixes_1 = [s.split(common_prefix)[-1] for s in test_urls_1]
+
+    # Build string
+    template_string = f'generate_sequence("{common_prefix}", {train_url_suffix_sequence}, {train_label_sequence}, {test_url_suffixes_0}, {test_url_suffixes_1}, {ntest_trials})'
 
     return template_string
 
