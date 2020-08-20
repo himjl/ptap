@@ -22,7 +22,7 @@ def _get_bonus_amount_for_sequence(sequence_data:dict):
             errors.append('Could not find key "usd_per_reward" in behavioral_data; found only %s. Defaulting to %f' % (str(sequence_data['coords'].keys()), DEFAULT_BONUS_USD_PER_REWARD))
             usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
         else:
-            usd_per_reward = sequence_data['coords']
+            usd_per_reward = sequence_data['coords']['usd_per_reward']
 
             if not isinstance(usd_per_reward, float):
                 errors.append('Could not identify a float usd_per_reward; got %s of dtype %s'%(str(usd_per_reward), type(usd_per_reward)))
@@ -36,7 +36,7 @@ def _get_bonus_amount_for_sequence(sequence_data:dict):
             errors.append('Could not find key "perf" in behavioral_data["data_vars"]; found only %s. Defaulting to []' % (str(sequence_data['data_vars'].keys())))
             perf = []
         else:
-            perf = sequence_data['perf']
+            perf = sequence_data['data_vars']['perf']
 
             if not isinstance(perf, list):
                 errors.append('Could not identify a list of performance outcomes; got %s of dtype %s' % (str(perf), type(perf)))
@@ -100,9 +100,10 @@ def assignment_post_process_function(
     assignment_id = asn['AssignmentId']
     worker_id = asn['WorkerId']
 
-    # Approve the assignment
-    turkr.mturk.manage_hit.approve_assignment(assignment_id=assignment_id, client=client)
-    print('(workerId:%s, assignmentId:%s): approved' % (worker_id, assignment_id))
+    # Approve the assignment, if not already approved
+    if(asn['AssignmentStatus'] != 'Approved'):
+        turkr.mturk.manage_hit.approve_assignment(assignment_id=assignment_id, client=client)
+        print('(workerId:%s, assignmentId:%s): approved' % (worker_id, assignment_id))
 
     # Grant a dicarlo lab "previous worker" qualification
     sandbox = 'sandbox' in client.meta.endpoint_url.lower()

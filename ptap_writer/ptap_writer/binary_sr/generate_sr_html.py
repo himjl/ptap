@@ -4,15 +4,13 @@ Generates an HTML which allows any user to run the task.
 import numpy as np
 from tqdm import tqdm
 import ptap_writer.utils as utils
-import ptap_writer.config as config
-import json
 from typing import List
 import os
 
 TEMPLATE_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task_template.html')
 assert os.path.exists(TEMPLATE_LOCATION), 'Could not find template at %s' % (TEMPLATE_LOCATION)
 
-TASK_LOCATION = os.path.join(config.PTAP_PUBLIC_LOCATION, 'tasks/sr_task.js')
+TASK_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task.js')
 assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATION)
 
 
