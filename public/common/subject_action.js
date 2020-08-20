@@ -24,8 +24,7 @@ class ActionListenerClass {
                 return
             }
 
-
-            var actionIndex = _this.key2actionIndex[event.key];
+            const actionIndex = _this.key2actionIndex[event.key];
             if (actionIndex === undefined) {
                 // Invalid keypress
                 return
@@ -43,9 +42,9 @@ class ActionListenerClass {
                 return
             }
 
-            var x = event.pageX - _this.leftBound;
-            var y = event.pageY - _this.topBound;
-            var inside = false;
+            const x = event.pageX - _this.leftBound;
+            const y = event.pageY - _this.topBound;
+            let inside = false;
 
             for (var i = 0; i < _this.actionCentroids.length; i++) {
                 inside = check_if_inside_circle(

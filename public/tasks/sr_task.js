@@ -12,7 +12,7 @@ async function run_subtasks(subtask_sequence){
      */
 
     var nsubtasks = subtask_sequence.length;
-    var return_values = [];
+    var return_values = {'data':[]};
     var playspace_size_pixels = infer_canvas_size();
     try {
         for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
@@ -27,6 +27,7 @@ async function run_subtasks(subtask_sequence){
             var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
             var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
             var usd_per_reward = cur_subtask['usd_per_reward'];
+            var cur_sequence_name = cur_subtask['sequence_name'];
 
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_prefix,
@@ -39,8 +40,10 @@ async function run_subtasks(subtask_sequence){
                 cur_choice_duration_msec,
                 cur_post_stimulus_delay_duration_msec,
                 usd_per_reward,
-                playspace_size_pixels);
-            return_values.push(cur_session_data);
+                playspace_size_pixels,
+                cur_sequence_name,
+                );
+            return_values['data'].push(cur_session_data);
 
             // Run the "end of subtask" splash screen if there are tasks that remain after this one
             if ((i_subtask + 1) < (nsubtasks)){
@@ -71,7 +74,8 @@ async function run_binary_sr_trials(
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
     usd_per_reward,
-    size
+    size,
+    sequence_name,
 ){
 
     /*
@@ -87,6 +91,7 @@ async function run_binary_sr_trials(
     post_stimulus_delay_duration_msec: ()
     usd_per_reward: ()
     size: () in pixels
+    sequence_name: String
      */
 
     var diameter_pixels = size * 0.25;
@@ -100,6 +105,7 @@ async function run_binary_sr_trials(
     coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
     coords['label_to_key'] = label_to_key;
+    coords['sequence_name'] = sequence_name;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;

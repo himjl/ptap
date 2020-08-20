@@ -62,7 +62,9 @@ __INJECT_JAVASCRIPT_HERE__
             train_label_sequence,
             test_pool_0_url_suffix_sequence,
             test_pool_1_url_suffix_sequence,
-            ntest){
+            ntest,
+            name,
+        ){
             /*
             url_prefix: a String which is prepended to train_url_suffix_sequence, test_pool_0_url_suffix_sequence, and test_pool_1_url_suffix_sequence.
                         By encoding arguments in this way, one can potentially save the number of characters necessary to specify the subtask.
@@ -72,6 +74,8 @@ __INJECT_JAVASCRIPT_HERE__
             test_pool_0_url_suffix_sequence: Array of url suffixes to class "0" test images. Has at least ntest/2 entries.
             test_pool_1_url_suffix_sequence: Array of url suffixes to class "1" test images. Has at least ntest/2 entries.
             ntest: an even Integer (e.g. 0, 2, 4...)
+            name: a String which is attached as a coordinate for the data object created from running this sequence.
+                  Useful, for example, for adding identifiers to sequences to make them easier to parse.
 
             Function for dynamically populating the test trials for a given subtask.
             The test trials are sampled evenly; each class is represented evenly. Images are sampled without replacement.
@@ -124,6 +128,7 @@ __INJECT_JAVASCRIPT_HERE__
                 'choice_duration_msec':choice_duration_msec,
                 'post_stimulus_delay_duration_msec':post_stimulus_delay_duration_msec,
                 'usd_per_reward':usd_per_reward,
+                'sequence_name':name,
             }
         }
 
