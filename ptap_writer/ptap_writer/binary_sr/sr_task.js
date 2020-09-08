@@ -17,7 +17,6 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
 
 
     try {
-
         for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
             var playspace_size_pixels = infer_canvas_size();
             var cur_subtask = subtask_sequence[i_subtask];
@@ -55,8 +54,9 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             // Push data to return values
             return_values['data'].push(cur_session_data);
 
-            // Run the "end of subtask" splash screen if there are tasks that remain after this one
-            if ((i_subtask + 1) < (nsubtasks)){
+            // Run the "end of subtask" splash screen if there are tasks that remain after this one, and the subject has performed trials
+            const performed_trials = cur_session_data['meta']['performed_trials'];
+            if (((i_subtask + 1) < (nsubtasks)) && performed_trials){
                 await inter_subtask_splash_screen(playspace_size_pixels)
             }
         }
@@ -137,6 +137,7 @@ async function run_binary_sr_trials(
     data_vars['rel_timestamp_choices_on'] = [];
     data_vars['trial_number'] = [];
 
+    var meta = {'performed_trials':false};
 
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
@@ -145,10 +146,17 @@ async function run_binary_sr_trials(
         cur_subtask_datavars = _loaded_data;
     }
 
-    // If there is savedata, load it, and set the data_vars
+    // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
     let start_trial = 0;
     if (cur_subtask_datavars['perf'] != null) {
         start_trial = cur_subtask_datavars['perf'].length;
+        for (let i_trial = 0; i_trial < start_trial; i_trial++){
+            // Increment progressbar
+            progressbar_callback();
+
+            // Update HUD
+            update_hud(cur_subtask_datavars['perf'][i_trial], usd_per_reward)
+        }
         data_vars = cur_subtask_datavars
     }
 
@@ -245,6 +253,7 @@ async function run_binary_sr_trials(
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
+        meta['performed_trials'] = true;
 
         // Checkpoint data vars to local storage
         console.log('Checkpointing', i_trial);
@@ -253,6 +262,7 @@ async function run_binary_sr_trials(
 
         // Callback
         await update_hud(perf, usd_per_reward);
+        progressbar_callback();
     }
 
     // Delete canvases
@@ -266,8 +276,9 @@ async function run_binary_sr_trials(
     // Remove event listeners from window
     action_recorder.close_listeners();
     delete trial_images.cache_dict;
-    return {'coords':coords, 'data_vars':data_vars}
+    return {'coords':coords, 'data_vars':data_vars, 'meta':meta}
 }
+
 
 async function update_hud(perf, usd_per_reward){
     /*

@@ -11,6 +11,10 @@
     </p>
 </div>
 
+<div id="progressbar" style="width: 35%; background-color: rgba(178,178,178,0.58); opacity:0.4; position:fixed; height:2.5%; top:2.5%; transform: translate(-50%, 0); left:50%; z-index:200">
+    <div id="progressbar_state" style="width:1%; height:100%; line-height:100%; background-color:rgba(0,0,0,0.58); vertical-align: center; margin:0"></div>
+</div>
+
 <div id='user_hud'
      style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:hidden">
     <p style="margin-right: 5px;margin-left: 5px;">Performance:
@@ -171,23 +175,26 @@
             console.log('Retrieving previously stored session parameters for assignment', assignmentId)
         }
 
-        // Get load times
-        if (in_preview_mode === false) {
-            const load_time_key = assignmentId.concat('_load_times');
-            let load_times = LocalStorageUtils.retrieve_json_object(load_time_key);
-            if(load_times == null){
-                load_times = []
-            }
 
-            // Record current time
-            var d = new Date();
-            var n = d.getTime();
-            load_times.push(n);
-            LocalStorageUtils.store_object_as_json(load_time_key, load_times);
-            console.log('Page load times:', load_times)
+
+        // Setup progressbar callback function, which is to be called at the end of each trial
+        var ntotal_trials = 0;
+        for (let i_sequence =0; i_sequence<sequences.length; i_sequence++){
+            let cur_len = sequences[i_sequence]['image_url_suffix_seq'].length;
+            ntotal_trials = ntotal_trials + cur_len
         }
 
-        // Execute the experiments from exactly where the subject left off
+        function set_progressbar(width_percent){
+            document.getElementById('progressbar_state').style.width = width_percent.toString().concat('%');
+        }
+        function progressbar_callback(){
+            // Adjust the width of the progressbar
+            const cur_width = parseFloat(document.getElementById('progressbar_state').style.width);
+            const increment_width = 100/ntotal_trials;
+            const new_width = cur_width + increment_width;
+            set_progressbar(new_width);
+        }
+
         (async function () {
             // Run instructions if they have not been clicked through
             const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
@@ -202,6 +209,7 @@
 
             if (in_preview_mode === false){
                 // Turn on HUD
+                document.getElementById('progressbar').style.visibility = 'visible';
                 document.getElementById('user_hud').style.visibility = 'visible';
 
                 // Run trials
