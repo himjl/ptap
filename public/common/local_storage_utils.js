@@ -18,7 +18,6 @@ class LocalStorageUtils {
             return val
         }
         else{
-            console.log('Parsing key', key, 'value:', val);
             // Parse the string
             return JSON.parse(val)
         }
@@ -27,7 +26,6 @@ class LocalStorageUtils {
     static store_object_as_json(key, object){
         // Stores a JavaScript object as a JSON string
         const stringified_object = JSON.stringify(object);
-        console.log('Stored at key', key, 'object:', object);
         return window.localStorage.setItem(key, stringified_object)
     }
 

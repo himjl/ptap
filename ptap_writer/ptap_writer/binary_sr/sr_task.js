@@ -34,7 +34,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             var cur_sequence_name = cur_subtask['sequence_name'];
 
             // Load savedata for this subtask
-            const cur_checkpoint_key = checkpoint_key_prefix.join('_subtask', i_subtask.toString());
+            const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
 
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_prefix,

@@ -158,7 +158,7 @@
 
 
         // Randomly set conditions for this assignment, and store in local storage
-        const session_parameters_key = assignmentId.join('_session_parameters');
+        const session_parameters_key = assignmentId.concat('_session_parameters');
         let sequences = LocalStorageUtils.retrieve_json_object(session_parameters_key);
         if (sequences==null){
             let sequence_pool = [
@@ -166,7 +166,7 @@
             ];
 
             // Permute order of sequences
-            let sequences = MathUtils.permute(sequence_pool);
+            sequences = MathUtils.permute(sequence_pool);
             LocalStorageUtils.store_object_as_json(session_parameters_key, sequences);
             console.log('Retrieving previously stored session parameters for assignment', assignmentId)
         }
@@ -190,7 +190,7 @@
         // Execute the experiments from exactly where the subject left off
         (async function () {
             // Run instructions if they have not been clicked through
-            const assignment_instructions_completed_key = assignmentId.join('_instructions_done');
+            const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
             const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
             if (completed_instructions == null){
                 await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
@@ -205,7 +205,7 @@
                 document.getElementById('user_hud').style.visibility = 'visible';
 
                 // Run trials
-                const checkpoint_key_prefix = assignmentId.join('_checkpointed_data');
+                const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
                 var session_data = await run_subtasks(sequences, checkpoint_key_prefix);
 
                 // Submit
