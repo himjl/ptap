@@ -42,24 +42,25 @@ class ActionListenerClass {
                 return
             }
 
+            // Get coordinates of the mouse event with origins provided by this.leftBound and this.topBound
             const x = event.pageX - _this.leftBound;
             const y = event.pageY - _this.topBound;
+
+            // Check if click in any of the active regions
             let inside = false;
 
-            for (var i = 0; i < _this.actionCentroids.length; i++) {
+            for (let i = 0; i < _this.actionCentroids.length; i++) {
                 inside = check_if_inside_circle(
                     x,
                     y,
-                    _this.actionCentroids[i][0],
-                    _this.actionCentroids[i][1],
-                    _this.actionRadii[i]);
+                    _this.actionCentroids[i]['xcenter_px'],
+                    _this.actionCentroids[i]['ycenter_px'],
+                    _this.actionCentroids[i]['radius_px']);
                 if (inside === true) {
                     _this.listening_for_mouse = false;
                     _this._resolveFunc({
-                        'actionIndex': i,
+                        'actionIndex': _this.actionCentroids[i]['action_index'],
                         't': performance.now(),
-                        'mouse_x': x,
-                        'mouse_y': y
                     })
                 }
             }
@@ -73,27 +74,21 @@ class ActionListenerClass {
         }
     }
 
-    Promise_get_subject_mouseclick_response(xy_centroids, diameterPixels, timeout_msec, bounds) {
+    Promise_get_subject_mouseclick_response(regions_info, timeout_msec, left_bound_px, top_bound_px) {
+        /*
+        regions_info: list of Objects with keys: [{'xcenter_px': Integer, 'ycenter_px': Integer, 'radius_px': Integer, 'action_index':Integer}]
 
-        this.leftBound = bounds['leftBound'];
-        this.rightBound = bounds['rightBound'];
-        this.topBound = bounds['topBound'];
-        this.bottomBound = bounds['bottomBound'];
+        left_bound_px: in pageX coordinates, the origin of the region
+        top_bound_px: in pageY coordinates, the origin of the region
+         */
+        this.leftBound = left_bound_px;
+        this.topBound = top_bound_px;
 
+        this.actionCentroids = regions_info;
 
-        this.actionRadii = [];
-        this.actionCentroids = [];
-
-
-        for (var i = 0; i < xy_centroids.length; i++) {
-            this.actionCentroids.push([xy_centroids[i][0], xy_centroids[i][1]]);
-            this.actionRadii.push(diameterPixels[i] / 2)
-        }
-
-        this.key2actionIndex = key2actionIndex;
         this.listening_for_mouse = true;
         var _this = this;
-        var choice_promise = new Promise(function (resolve, reject) {
+        let choice_promise = new Promise(function (resolve, reject) {
             _this._resolveFunc = resolve;
             _this._errFunc = reject
         });

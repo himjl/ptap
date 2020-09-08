@@ -23,7 +23,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             var cur_image_url_prefix = cur_subtask['image_url_prefix'];
             var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
             var cur_label_sequence = cur_subtask['label_seq'];
-            var cur_label_to_key = cur_subtask['label_to_key'];
+            var cur_label_to_action = cur_subtask['label_to_action'];
             var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
             var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
             var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
@@ -39,7 +39,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
                 cur_image_url_prefix,
                 cur_image_url_suffix_sequence,
                 cur_label_sequence,
-                cur_label_to_key,
+                cur_label_to_action,
                 cur_stimulus_duration_msec,
                 cur_reward_duration_msec,
                 cur_punish_duration_msec,
@@ -77,7 +77,7 @@ async function run_binary_sr_trials(
     image_url_prefix,
     image_url_suffix_sequence,
     label_sequence,
-    label_to_key,
+    label_to_action,
     stimulus_duration_msec,
     reward_duration_msec,
     punish_duration_msec,
@@ -94,7 +94,7 @@ async function run_binary_sr_trials(
 
     image_url_sequence: [t]
     label_sequence: [t]. 0 or 1.
-    label_to_key: 'fj' (for 0 to f, 1 to j) or 'jf' (for 0 to j, 1 to f)
+    label_to_action: '01' (for label=0 to action 0, label=1 to action 1) or '10'
     stimulus_duration_msec: ()
     reward_duration_msec: ()
     punish_duration_msec: ()
@@ -116,7 +116,7 @@ async function run_binary_sr_trials(
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
     coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
-    coords['label_to_key'] = label_to_key;
+    coords['label_to_action'] = label_to_action;
     coords['sequence_name'] = sequence_name;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
 
@@ -211,10 +211,10 @@ async function run_binary_sr_trials(
         var cur_label = label_sequence[i_trial];
 
         let correct_action;
-        if (label_to_key === 'fj'){
+        if (label_to_action === '01'){
             correct_action = cur_label;
         }
-        else if (label_to_key === 'jf'){
+        else if (label_to_action === '10'){
             correct_action = 1 - cur_label;
         }
         else{

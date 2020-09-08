@@ -130,19 +130,19 @@
                 }
             }
 
-            // Randomly flip the label assignments
-            let label_to_key;
+            // Randomly flip the label-to-action assignments
+            let label_to_action;
             if (Math.random() < 0.5) {
-                label_to_key = 'fj';
+                label_to_action = '01';
             } else {
-                label_to_key = 'jf';
+                label_to_action = '10';
             }
 
             return {
                 'image_url_prefix': image_url_prefix,
                 'image_url_suffix_seq': image_url_suffix_sequence,
                 'label_seq': label_sequence,
-                'label_to_key': label_to_key,
+                'label_to_action': label_to_action,
                 'stimulus_duration_msec': stimulus_duration_msec,
                 'reward_duration_msec': reward_duration_msec,
                 'punish_duration_msec': punish_duration_msec,
@@ -174,7 +174,6 @@
             LocalStorageUtils.store_object_as_json(session_parameters_key, sequences);
             console.log('Retrieving previously stored session parameters for assignment', assignmentId)
         }
-
 
 
         // Setup progressbar callback function, which is to be called at the end of each trial

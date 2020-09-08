@@ -56,14 +56,13 @@ function create_canvas(canvas_id, width, height){
     // Center canvas: https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
     canvasobj.style.padding = 0;
     canvasobj.style.margin = 'auto';
-    canvasobj.style.display = "block"; //visible
+    canvasobj.style.display = "block";
     canvasobj.style.position = 'absolute';
     canvasobj.style.top = 0;
     canvasobj.style.bottom = 0;
     canvasobj.style.left = 0;
     canvasobj.style.right = 0;
-    //canvasobj.style.border = '1px dotted #E6E6E6';
-    canvasobj.style.width = width + 'px'; // Set browser canvas display style to be workspace_width
+    canvasobj.style.width = width + 'px';
     canvasobj.style.height = height + 'px';
 
     // Set background
