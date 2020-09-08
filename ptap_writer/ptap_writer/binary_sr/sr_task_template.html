@@ -89,6 +89,11 @@
             name,
         ) {
             /*
+            Function for dynamically populating the test trials for a given subtask, and setting the mapping from label to action.
+            The test trials are sampled evenly; each class is represented evenly. Images are sampled without replacement.
+
+            Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
+
             url_prefix: a String which is prepended to train_url_suffix_sequence, test_pool_0_url_suffix_sequence, and test_pool_1_url_suffix_sequence.
                         By encoding arguments in this way, one can potentially save the number of characters necessary to specify the subtask.
                         Additionally, this cuts down on the number of characters needed in the POST submission at the conclusion of the task.
@@ -100,10 +105,6 @@
             qual_name: a String which is attached as a coordinate for the data object created from running this sequence.
                   Useful, for example, for adding identifiers to sequences to make them easier to parse.
 
-            Function for dynamically populating the test trials for a given subtask.
-            The test trials are sampled evenly; each class is represented evenly. Images are sampled without replacement.
-
-            Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
              */
             let image_url_suffix_sequence = [...train_url_suffix_sequence];
             let label_sequence = [...train_label_sequence];
@@ -214,6 +215,8 @@
                 // Run trials
                 const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
                 var session_data = await run_subtasks(sequences, checkpoint_key_prefix);
+
+                // Delete checkpoint data
 
                 // Submit
                 await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
