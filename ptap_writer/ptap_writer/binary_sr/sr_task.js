@@ -13,9 +13,11 @@ async function run_subtasks(subtask_sequence){
 
     var nsubtasks = subtask_sequence.length;
     var return_values = {'data':[]};
-    var playspace_size_pixels = infer_canvas_size();
+
+
     try {
         for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
+            var playspace_size_pixels = infer_canvas_size();
             var cur_subtask = subtask_sequence[i_subtask];
             var cur_image_url_prefix = cur_subtask['image_url_prefix'];
             var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
@@ -106,6 +108,7 @@ async function run_binary_sr_trials(
     coords['playspace_size_px'] = size;
     coords['label_to_key'] = label_to_key;
     coords['sequence_name'] = sequence_name;
+    coords['timestamp_session_start'] = performance.timing.navigationStart;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;
@@ -266,7 +269,7 @@ async function update_hud(perf, usd_per_reward){
 
     var hud_current_bonus = document.getElementById('hud_current_bonus');
     let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
-    next_bonus = (next_bonus).toPrecision(1).toString();
+    next_bonus = (next_bonus).toPrecision(2).toString();
     if(next_bonus.length === 1){
         next_bonus = next_bonus.concat('.0');
     }

@@ -71,7 +71,7 @@ def get_total_bonus(answer:dict):
     return total_usd_reward, errors
 
 
-def extract_behavioral_data(asn):
+def extract_answer(asn):
     parse_errors = []
     try:
         answer = asn['Answer']
@@ -117,7 +117,7 @@ def assignment_post_process_function(
     print('(workerId:%s, assignmentId:%s): Granted "previous worker" qualification' % (worker_id, assignment_id))
 
     # Extract answer string and convert to JSON
-    answer, parse_errors = extract_behavioral_data(asn)
+    answer, parse_errors = extract_answer(asn)
     errors.extend(parse_errors)
 
     # Attempt to extract bonus amount.
@@ -138,12 +138,31 @@ def assignment_post_process_function(
         return errors
 
 
-def to_dataset(answer):
+def to_dataset(assignment_json:dict):
+
+    answer, errors = extract_answer(assignment_json)
+    answer = answer['data']
+
+    # Attach session coords
 
     dlist = []
     for cur in answer:
         data_vars = cur['data_vars']
         coords = cur['coords']
+
+        # Adjust timestamps to be in Unix time (seconds since epoch start)
+        timestamp_session_start = float(coords['timestamp_session_start'])
+
+        coords['timestamp_session_start'] = timestamp_session_start/1000
+        data_vars['timestamp_start'] = (timestamp_session_start + np.array(data_vars['rel_timestamp_start']))/1000
+        data_vars['timestamp_stimulus_on'] = (timestamp_session_start + np.array(data_vars['rel_timestamp_stimulus_on']))/1000
+        data_vars['timestamp_stimulus_off'] = (timestamp_session_start + np.array(data_vars['rel_timestamp_stimulus_off']))/1000
+        data_vars['timestamp_choices_on'] = (timestamp_session_start + np.array(data_vars['rel_timestamp_choices_on']))/1000
+
+        del data_vars['rel_timestamp_start']
+        del data_vars['rel_timestamp_stimulus_on']
+        del data_vars['rel_timestamp_stimulus_off']
+        del data_vars['rel_timestamp_choices_on']
 
         # Unpack URLs
         stimulus_url_prefix = coords['stimulus_url_prefix']
@@ -163,18 +182,8 @@ def to_dataset(answer):
         coords['trial_sequence'] = np.arange(ntrials)
 
         ds = xr.Dataset(data_vars = cur['data_vars'], coords = cur['coords'], )
+
         dlist.append(ds)
     ds_all = xr.concat(dlist, 'subtask_position', coords = 'all')
     ds_all['subtask_position'] = np.arange(len(answer))
     return ds_all
-
-if __name__ == '__main__':
-    import turkr.utils.io as io
-
-    fpath = '/home/umjl/PycharmProjects/turkr/examples/assignments/3YLTXLH3DFGSTOVAX3N7WV21J2AHPY/3DBQWDE4Y78IWUXW6OE8STQWGC5N5E.json'
-    asn = io.load_json(fpath)
-
-
-    # Approve assignment
-
-    # Extract answer

@@ -74,18 +74,14 @@ class Sequence(object):
         assert isinstance(ntest_trials, int)
         assert isinstance(test_urls_0, list)
         assert isinstance(test_urls_1, list)
-        assert np.mod(ntest_trials,
-                      2) == 0, f'Gave odd number of test trials (n = {ntest_trials}); requires even number'
-        assert len(train_url_sequence) == len(
-            train_label_sequence), f'Mismatch between urls (n = {len(train_url_sequence)}) and labels (n = {len(train_label_sequence)})'
+        assert np.mod(ntest_trials,2) == 0, f'Gave odd number of test trials (n = {ntest_trials}); requires even number'
+        assert len(train_url_sequence) == len(train_label_sequence), f'Mismatch between urls (n = {len(train_url_sequence)}) and labels (n = {len(train_label_sequence)})'
 
-        assert len(
-            test_urls_0) >= ntest_trials / 2, f'Insufficient number of test urls 0 provided (need {ntest_trials / 2}; gave {len(test_urls_0)}'
-        assert len(
-            test_urls_1) >= ntest_trials / 2, f'Insufficient number of test urls 1 provided (need {ntest_trials / 2}; gave {len(test_urls_1)}'
+        assert len(test_urls_0) >= ntest_trials / 2, f'Insufficient number of test urls 0 provided (need {ntest_trials / 2}; gave {len(test_urls_0)}'
+        assert len(test_urls_1) >= ntest_trials / 2, f'Insufficient number of test urls 1 provided (need {ntest_trials / 2}; gave {len(test_urls_1)}'
 
-        assert set(train_label_sequence) == {0, 1}, 'Invalid labels found: %s' % (str(set(train_label_sequence)))
         assert len(train_url_sequence) + len(test_urls_0) + len(test_urls_1) > 0, 'No trials provided?'
+        assert len(set(train_label_sequence).difference({0, 1}))==0, 'Invalid labels found: %s' % (str(set(train_label_sequence)))
         assert isinstance(name, str), 'Name should be of type str; gave %s'%(type(name))
 
         return
@@ -93,6 +89,7 @@ class Sequence(object):
 
 def write_html(
         requested_sequence_pools: List[List[Sequence]],
+        check_urls = True,
 ):
     """
     Generate an HTML string which, when loaded in a web browser, runs a series of 2-way, AFC image-to-button trial "sequences".
@@ -134,7 +131,8 @@ def write_html(
             [url_pool.add(url) for url in seq.test_url_pool_1]
 
     # Check all URLs exist
-    _check_urls_have_image(list(url_pool))
+    if check_urls:
+        _check_urls_have_image(list(url_pool))
 
     # Assemble HTML
     js_strings = []

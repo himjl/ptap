@@ -1,3 +1,60 @@
+async function run_mts_session(mts_sequence){
+    /*
+    mts_sequence: Array of Objects, which detail the MTS tasks which will be run in series.
+
+    This function returns a list of returns from "run_mts_trials".
+
+    If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
+    that have been completed so far. It also attaches the error message which was associated with the error.
+     */
+
+    var nsettings = mts_sequence.length;
+    var return_values = {'data':[]};
+
+    try {
+        for (var i_subtask = 0; i_subtask < nsettings; i_subtask++) {
+            var playspace_size_pixels = infer_canvas_size();
+            var cur_subtask = subtask_sequence[i_subtask];
+            var cur_image_url_prefix = cur_subtask['image_url_prefix'];
+            var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
+            var cur_label_sequence = cur_subtask['label_seq'];
+            var cur_label_to_key = cur_subtask['label_to_key'];
+            var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
+            var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
+            var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
+            var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
+            var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            var usd_per_reward = cur_subtask['usd_per_reward'];
+            var cur_sequence_name = cur_subtask['sequence_name'];
+
+            var cur_session_data = await run_mts_trials(
+                cur_image_url_prefix,
+                cur_image_url_suffix_sequence,
+                cur_label_sequence,
+                cur_label_to_key,
+                cur_stimulus_duration_msec,
+                cur_reward_duration_msec,
+                cur_punish_duration_msec,
+                cur_choice_duration_msec,
+                cur_post_stimulus_delay_duration_msec,
+                usd_per_reward,
+                playspace_size_pixels,
+                cur_sequence_name,
+                );
+            return_values['data'].push(cur_session_data);
+        }
+
+        await provide_session_end(return_values['data'])
+    }
+
+    catch(error){
+        console.log(error);
+        return_values['error'] = error;
+    }
+
+    return return_values
+}
+
 async function run_mts_trials(
     ntrials,
     image_url_manifest,
@@ -9,6 +66,7 @@ async function run_mts_trials(
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
     size,
+    usd_per_reward,
     ){
 
     /*
@@ -23,9 +81,10 @@ async function run_mts_trials(
     choice_duration_msec: ()
     post_stimulus_delay_duration_msec: ()
     size: () in pixels
+    usd_per_reward: ()
      */
 
-    // Make a lookup table of {index : category name} and {category name : index}
+    // Make a lookup table of {index : category qual_name} and {category qual_name : index}
     const ncategories = Object.keys(image_url_manifest).length;
     var category_index2category = {};
     var category2index = {};
@@ -40,7 +99,7 @@ async function run_mts_trials(
         }
     }
 
-    // Make a lookup table of {index : block name}
+    // Make a lookup table of {index : block qual_name}
     const nblocks = Object.keys(block_manifest).length;
     var block_probs_flat = [];
     var block_names_flat = [];
@@ -193,6 +252,9 @@ async function run_mts_trials(
         session_data['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         session_data['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         session_data['trial_number'].push(i_trial);
+
+        // Update HUD
+        update_hud(perf, usd_per_reward)
     }
 
     // Delete canvases
@@ -208,6 +270,46 @@ async function run_mts_trials(
     delete image_buffer.cache_dict;
 
     return session_data;
+}
+
+
+async function update_hud(perf, usd_per_reward){
+    /*
+    A function which is called at the end of every trial.
+    It displays the subject's performance, remaining trials, and amount earned.
+     */
+    var hud_current_trial_count = document.getElementById('hud_total_trials');
+    const current_trial_count = parseInt(hud_current_trial_count.innerText);
+    hud_current_trial_count.innerHTML = (current_trial_count+1).toString();
+
+    var hud_current_rewards = document.getElementById('hud_total_rewards');
+    const current_rewards = parseInt(hud_current_rewards.innerText);
+    hud_current_rewards.innerHTML = (current_rewards + perf).toString();
+
+    let current_performance = 0;
+    if (current_trial_count > 0){
+        current_performance = current_rewards / current_trial_count;
+    }
+
+    let next_performance = (current_performance * current_trial_count + perf) / (current_trial_count + 1);
+
+    let hud_current_performance = document.getElementById('hud_current_performance');
+    next_performance = Math.round(next_performance * 100).toString();
+    if (next_performance.length === 1){
+        next_performance = '&nbsp&nbsp'.concat(next_performance);
+    }
+    else if(next_performance.length === 2){
+        next_performance = '&nbsp'.concat(next_performance);
+    }
+    hud_current_performance.innerHTML = next_performance;
+
+    var hud_current_bonus = document.getElementById('hud_current_bonus');
+    let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
+    next_bonus = (next_bonus).toPrecision(1).toString();
+    if(next_bonus.length === 1){
+        next_bonus = next_bonus.concat('.0');
+    }
+    hud_current_bonus.innerHTML = next_bonus;
 }
 
 async function initialize_mts_task_canvases(size){
