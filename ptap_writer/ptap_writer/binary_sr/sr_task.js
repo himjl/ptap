@@ -1,6 +1,7 @@
-async function run_subtasks(subtask_sequence){
+async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
     /*
     subtask_sequence: Array of Objects, which detail the subtasks which will be run
+    checkpoint_key: a String which is used for checkpointing behavioral data
 
     This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
     subtasks be run back-to-back.
@@ -16,6 +17,7 @@ async function run_subtasks(subtask_sequence){
 
 
     try {
+
         for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
             var playspace_size_pixels = infer_canvas_size();
             var cur_subtask = subtask_sequence[i_subtask];
@@ -31,6 +33,9 @@ async function run_subtasks(subtask_sequence){
             var usd_per_reward = cur_subtask['usd_per_reward'];
             var cur_sequence_name = cur_subtask['sequence_name'];
 
+            // Load savedata for this subtask
+            const cur_checkpoint_key = checkpoint_key_prefix.join('_subtask', i_subtask.toString());
+
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_prefix,
                 cur_image_url_suffix_sequence,
@@ -44,7 +49,10 @@ async function run_subtasks(subtask_sequence){
                 usd_per_reward,
                 playspace_size_pixels,
                 cur_sequence_name,
+                cur_checkpoint_key,
                 );
+
+            // Push data to return values
             return_values['data'].push(cur_session_data);
 
             // Run the "end of subtask" splash screen if there are tasks that remain after this one
@@ -78,6 +86,7 @@ async function run_binary_sr_trials(
     usd_per_reward,
     size,
     sequence_name,
+    checkpoint_key,
 ){
 
     /*
@@ -94,6 +103,7 @@ async function run_binary_sr_trials(
     usd_per_reward: ()
     size: () in pixels
     sequence_name: String
+    checkpoint_key: String which is used as a key for LocalStorage
      */
 
     var diameter_pixels = size * 0.25;
@@ -118,8 +128,8 @@ async function run_binary_sr_trials(
     var data_vars = {};
     data_vars['perf'] = [];
     data_vars['action'] = [];
-    data_vars['stimulus_url_suffix'] = image_url_suffix_sequence;
-    data_vars['label'] = label_sequence;
+    data_vars['stimulus_url_suffix'] = [];
+    data_vars['label'] = [];
     data_vars['reaction_time_msec'] = [];
     data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
     data_vars['rel_timestamp_stimulus_on'] = [];
@@ -127,9 +137,24 @@ async function run_binary_sr_trials(
     data_vars['rel_timestamp_choices_on'] = [];
     data_vars['trial_number'] = [];
 
+
+    // Resume task if there is checkpoint data
+    let cur_subtask_datavars = {};
+    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
+    if (_loaded_data != null){
+        cur_subtask_datavars = _loaded_data;
+    }
+
+    // If there is savedata, load it, and set the data_vars
+    let start_trial = 0;
+    if (cur_subtask_datavars['perf'] != null) {
+        start_trial = cur_subtask_datavars['perf'].length;
+        data_vars = cur_subtask_datavars
+    }
+
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
-    for (let i_image = 0; i_image < image_url_suffix_sequence.length; i_image++){
+    for (let i_image = start_trial; i_image < image_url_suffix_sequence.length; i_image++){
         let current_suffix = image_url_suffix_sequence[i_image];
         let current_url = image_url_prefix.concat(current_suffix);
         await trial_images.get_by_url(current_url);
@@ -141,7 +166,7 @@ async function run_binary_sr_trials(
     // Iterate over trials
     var canvases = await initialize_sr_task_canvases(size);
 
-    for (let i_trial = 0; i_trial < image_url_suffix_sequence.length; i_trial++){
+    for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
         // Buffer stimulus
         let current_suffix = image_url_suffix_sequence[i_trial];
         let current_url = image_url_prefix.concat(current_suffix);
@@ -212,12 +237,19 @@ async function run_binary_sr_trials(
         // Record outcomes
         data_vars['perf'].push(perf);
         data_vars['action'].push(action);
+        data_vars['stimulus_url_suffix'].push(current_suffix);
+        data_vars['label'].push(cur_label);
         data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
         data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
         data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
+
+        // Checkpoint data vars to local storage
+        console.log('Checkpointing', i_trial);
+        LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
+        console.log('Done checkpointing', i_trial);
 
         // Callback
         await update_hud(perf, usd_per_reward);
