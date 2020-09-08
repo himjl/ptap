@@ -373,7 +373,7 @@ async function inter_subtask_splash_screen(size){
     var splash2_canvas = create_canvas('splash2_canvas', size, size);
 
     var ctx = splash1_canvas.getContext("2d");
-    var font = '30px Times New Roman';
+    var font = '1.5em Times New Roman';
     var color = 'white';
     var text_align = 'center';
     var string1 = 'End of current task. A new task will start in 5 seconds.';
