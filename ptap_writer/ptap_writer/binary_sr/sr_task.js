@@ -33,7 +33,6 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             const cur_sequence_name = cur_subtask['sequence_name'];
             const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
 
-
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
 
@@ -103,6 +102,7 @@ class PerformanceBuffer{
         let criterion_met = false;
         // Add new observation
         this.perf_buffer.push(perf);
+        console.log('perf_buffer', this.perf_buffer);
 
         // Not enough observations to test for criterion:
         if (this.perf_buffer.length < this.mintrials_criterion) {
@@ -202,7 +202,6 @@ async function run_binary_sr_trials(
     var meta = {'performed_trials':false};
 
     // Instantiate online performance metrics
-    console.log(early_exit_criteria)
     const mintrials_criterion = early_exit_criteria['min_trials'];
     const minperf_criterion = early_exit_criteria['min_perf'];
     const rolling = early_exit_criteria['rolling'];
@@ -351,9 +350,12 @@ async function run_binary_sr_trials(
         // Check if conditions satisfied for an early exit
         let criterion_is_met = performance_tracker.check_satisfied(perf);
         if(criterion_is_met === true){
+            // Fill up the progressbar
+            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - i_trial + 1); i_rest++){
+                progressbar_callback()
+            }
             break;
         }
-
     }
 
     // Delete canvases

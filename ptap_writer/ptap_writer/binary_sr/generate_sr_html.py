@@ -113,7 +113,7 @@ class Sequence(object):
 
             assert isinstance(min_trials_criterion, int)
             assert min_trials_criterion > 0
-            assert isinstance(min_perf_criterion, float)
+            assert isinstance(min_perf_criterion, (float, int))
             assert min_perf_criterion >= 0 and min_perf_criterion <=1
             assert isinstance(rolling_criterion, bool)
         else:
@@ -245,8 +245,8 @@ if __name__ == '__main__':
 
     warmup_sequences = []
     main_sequences = [
-        Sequence(block_seq = [RandomBlock(urls_0_pool=[blue], urls_1_pool=[orange], ntrials = 10, replace = True, balanced_categories=False)],
-                               name = 'test_seq', shuffle_label_mapping=True)]
+        Sequence(block_seq = [RandomBlock(urls_0_pool=[blue], urls_1_pool=[orange], ntrials = 50, replace = True, balanced_categories=False, )],
+                               name = 'test_seq', shuffle_label_mapping=True, min_trials_criterion=5, min_perf_criterion=1, rolling_criterion=True)]
 
     sess = Session(warmup_sequences=warmup_sequences, main_sequences=main_sequences, randomize_slot_order=True)
     html_string = sess.write_html(check_urls=True)

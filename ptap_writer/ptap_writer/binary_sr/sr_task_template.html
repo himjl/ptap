@@ -309,6 +309,8 @@
 
                 // Delete checkpoint data if in developer mode
                 if (developer_mode === true){
+                    console.log('Developer mode: purging instructions key');
+                    LocalStorageUtils.remove_item(assignment_instructions_completed_key);
                     console.log('Developer mode: purging checkpoints');
                     for (let i_subtask = 0; i_subtask < sequences.length; i_subtask++) {
                         const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
