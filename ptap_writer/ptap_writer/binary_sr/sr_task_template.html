@@ -114,8 +114,8 @@
                 else{
                     // Sample per the base distribution
                     const n_class0 = pool_0_url_suffixes.length;
-                    const n_class1 = pool_0_url_suffixes.length;
-                    const prob_class1 = n_class1 / (n_class0 + nclass1);
+                    const n_class1 = pool_1_url_suffixes.length;
+                    const prob_class1 = n_class1 / (n_class0 + n_class1);
 
                     label_sequence = [];
                     for (let i_trial=0; i_trial < ntrials; i_trial++){
@@ -220,7 +220,7 @@
                 return MathUtils.random_choice(trial_sequence_pool)
             }
 
-            generate_session(
+            static generate_session(
                 warmup_sequences,
                 main_sequences,
                 randomize_slot_order,

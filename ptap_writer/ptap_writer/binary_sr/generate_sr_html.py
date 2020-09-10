@@ -18,7 +18,7 @@ bool2jsbool = lambda b: 'true' if b else 'false'
 
 class Block(object):
     def __init__(self, all_urls):
-        self.all_urls
+        self.all_urls = all_urls
         return
 
     def js_call(self, common_url_prefix):
@@ -128,7 +128,7 @@ class Sequence(object):
             block_sequence_string+=js_string
             block_sequence_string+=','
         block_sequence_string+=']'
-        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence({block_sequence_string}, {common_url_prefix}, {self.shuffle_label_mapping}, {self.name})'
+        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence({block_sequence_string}, "{common_url_prefix}", {bool2jsbool(self.shuffle_label_mapping)}, "{self.name}")'
 
         return trial_sequence_string
 
@@ -176,7 +176,7 @@ class Session(object):
             main_sequences_string += ','
         main_sequences_string += ']'
 
-        session_sequence_string = f'SessionRandomization.generate_session({warmup_sequences_string}, {main_sequences_string}, {self.randomize_slot_order})'
+        session_sequence_string = f'SessionRandomization.generate_session({warmup_sequences_string}, {main_sequences_string}, {bool2jsbool(self.randomize_slot_order)})'
         return session_sequence_string
 
     def write_html(self, check_urls=True, url_checker = None):
@@ -204,7 +204,9 @@ class Session(object):
         html_string = html_string.replace('__INJECT_JAVASCRIPT_HERE__', javascript_injection)
         return html_string
 
+
 class URLChecker(object):
+
     def __init__(self):
         self.urls_checked_cache = {}
         return
@@ -216,3 +218,16 @@ class URLChecker(object):
 
             self.urls_checked_cache[url] = utils.check_url_has_image(url)
 
+
+if __name__ == '__main__':
+    blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
+    orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
+
+    warmup_sequences = []
+    main_sequences = [
+        Sequence(block_seq = [RandomBlock(urls_0_pool=[blue], urls_1_pool=[orange], ntrials = 10, replace = True, balanced_categories=False)],
+                               name = 'test_seq', shuffle_label_mapping=True)]
+
+    sess = Session(warmup_sequences=warmup_sequences, main_sequences=main_sequences, randomize_slot_order=True)
+    html_string = sess.write_html(check_urls=True)
+    utils.save_text(string=html_string, fpath = './orange_blue_example.html')
