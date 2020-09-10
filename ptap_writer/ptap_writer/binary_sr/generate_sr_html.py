@@ -16,6 +16,7 @@ assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATI
 
 bool2jsbool = lambda b: 'true' if b else 'false'
 
+
 class BlockTemplate(object):
     def __init__(self, all_urls):
         self.all_urls = all_urls
@@ -101,9 +102,28 @@ class Sequence(object):
             block_seq:[BlockTemplate],
             name:str,
             shuffle_label_mapping:bool,
+            min_trials_criterion=None,
+            min_perf_criterion=None,
+            rolling_criterion=None,
                  ):
         assert isinstance(name, str)
         assert isinstance(shuffle_label_mapping, bool)
+
+        if (min_trials_criterion is not None) or (min_perf_criterion is not None) or (rolling_criterion is not None):
+
+            assert isinstance(min_trials_criterion, int)
+            assert min_trials_criterion > 0
+            assert isinstance(min_perf_criterion, float)
+            assert min_perf_criterion >= 0 and min_perf_criterion <=1
+            assert isinstance(rolling_criterion, bool)
+        else:
+            min_trials_criterion = 'undefined'
+            min_perf_criterion = 'undefined'
+            rolling_criterion = False
+
+        self.min_trials_criterion = min_trials_criterion
+        self.min_perf_criterion = min_perf_criterion
+        self.rolling_criterion = rolling_criterion
 
         self.block_seq = block_seq
         self.shuffle_label_mapping = shuffle_label_mapping
@@ -128,7 +148,7 @@ class Sequence(object):
             block_sequence_string+=js_string
             block_sequence_string+=','
         block_sequence_string+=']'
-        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence({block_sequence_string}, "{common_url_prefix}", {bool2jsbool(self.shuffle_label_mapping)}, "{self.name}")'
+        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence({block_sequence_string}, "{common_url_prefix}", {bool2jsbool(self.shuffle_label_mapping)}, "{self.name}", {self.min_trials_criterion}, {self.min_perf_criterion}, {bool2jsbool(self.rolling_criterion)})'
 
         return trial_sequence_string
 

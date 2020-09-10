@@ -29,5 +29,11 @@ class LocalStorageUtils {
         return window.localStorage.setItem(key, stringified_object)
     }
 
+    static remove_item(key){
+        window.localStorage.removeItem(key);
+        console.log('Removed', key, 'from LocalStorage')
+
+    }
+
 }
 

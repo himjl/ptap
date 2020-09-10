@@ -31,11 +31,8 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
             const usd_per_reward = cur_subtask['usd_per_reward'];
             const cur_sequence_name = cur_subtask['sequence_name'];
+            const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
 
-            let cur_early_exit_criteria = {};
-            if (cur_subtask['early_exit_criterion'] !== undefined){
-                cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
-            }
 
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
@@ -77,6 +74,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
 
     return return_values
 }
+
 
 class PerformanceBuffer{
     constructor(
@@ -134,6 +132,7 @@ class PerformanceBuffer{
 
 }
 
+
 async function run_binary_sr_trials(
     image_url_prefix,
     image_url_suffix_sequence,
@@ -147,7 +146,7 @@ async function run_binary_sr_trials(
     usd_per_reward,
     size,
     sequence_name,
-    cur_early_exit_criteria,
+    early_exit_criteria,
     checkpoint_key,
 ){
 
@@ -165,7 +164,7 @@ async function run_binary_sr_trials(
     usd_per_reward: ()
     size: () in pixels
     sequence_name: String
-    cur_early_exit_criteria: {'min_trials':Integer, 'min_perf':Float between 0 or 1, 'rolling':Boolean} or {}
+    early_exit_criteria: {'min_trials':Integer, 'min_perf':Float between 0 or 1, 'rolling':Boolean} or {}
     checkpoint_key: String which is used as a key for LocalStorage
      */
 
@@ -203,21 +202,12 @@ async function run_binary_sr_trials(
     var meta = {'performed_trials':false};
 
     // Instantiate online performance metrics
-    let mintrials_criterion = image_url_suffix_sequence.length;
-    let minperf_criterion = 1.1;
-    let rolling = false;
+    console.log(early_exit_criteria)
+    const mintrials_criterion = early_exit_criteria['min_trials'];
+    const minperf_criterion = early_exit_criteria['min_perf'];
+    const rolling = early_exit_criteria['rolling'];
 
-    if (cur_early_exit_criteria['min_trials'] !== undefined){
-        mintrials_criterion = cur_early_exit_criteria['min_trials'];
-    }
-    if (cur_early_exit_criteria['min_perf'] !== undefined){
-        minperf_criterion = cur_early_exit_criteria['min_perf'];
-    }
-    if(cur_early_exit_criteria['rolling'] !== undefined){
-        rolling = cur_early_exit_criteria['rolling'];
-    }
-
-    let performance_tracker = PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
+    let performance_tracker = new PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
 
 
     // Resume task if there is checkpoint data

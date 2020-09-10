@@ -165,14 +165,22 @@
                 image_url_prefix,
                 shuffle_label_mapping,
                 name,
+                min_trials,
+                min_perf,
+                rolling,
             ) {
                 /*
-                Function for dynamically populating the trials for a given series of blocks, and setting the mapping from label to action.
+                Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
+
                 block_sequence: an Array of Objects of shape {'block_url_suffix_seq':[], 'block_label_seq':[]}
                 image_url_prefix: the prefix for all urls involved in this sequence
                 shuffle_label_mapping: bool
                 name: String
-                Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
+
+                Parameters for early exit:
+                    min_trials: Integer
+                    min_perf: float between 0 and 1
+                    rolling: Boolean: whether to check for early exit on a rolling basis, or on independent blocks of trials of length min_trials only
                  */
 
                 // Iterate over blocks and concatenate their requested url_suffix/label sequences
@@ -208,6 +216,7 @@
                     'choice_duration_msec': choice_duration_msec,
                     'post_stimulus_delay_duration_msec': post_stimulus_delay_duration_msec,
                     'usd_per_reward': usd_per_reward,
+                    'early_exit_criteria':{'min_perf':min_perf, 'min_trials':min_trials, 'rolling':rolling},
                 }
             }
 
@@ -245,12 +254,13 @@
         var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
         var in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
         var in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
+        const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
 
 
         // Randomly set conditions for this assignment, and store in local storage
         const session_parameters_key = assignmentId.concat('_session_parameters');
         let sequences = LocalStorageUtils.retrieve_json_object(session_parameters_key);
-        if (sequences==null){
+        if (sequences==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
             sequences = __INSERT_SESSION_SEQUENCES_HERE__;
             LocalStorageUtils.store_object_as_json(session_parameters_key, sequences);
@@ -297,7 +307,14 @@
                 const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
                 var session_data = await run_subtasks(sequences, checkpoint_key_prefix);
 
-                // Delete checkpoint data
+                // Delete checkpoint data if in developer mode
+                if (developer_mode === true){
+                    console.log('Developer mode: purging checkpoints');
+                    for (let i_subtask = 0; i_subtask < sequences.length; i_subtask++) {
+                        const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
+                        LocalStorageUtils.remove_item(cur_checkpoint_key);
+                    }
+                }
 
                 // Submit
                 await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
