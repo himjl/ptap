@@ -16,7 +16,7 @@ assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATI
 
 bool2jsbool = lambda b: 'true' if b else 'false'
 
-class Block(object):
+class BlockTemplate(object):
     def __init__(self, all_urls):
         self.all_urls = all_urls
         return
@@ -34,7 +34,7 @@ class Block(object):
         raise NotImplementedError
 
 
-class DeterministicBlock(Block):
+class DeterministicBlock(BlockTemplate):
     def __init__(self,
                  url_seq: [str],
                  label_seq: [int]
@@ -56,7 +56,7 @@ class DeterministicBlock(Block):
         return block_string
 
 
-class RandomBlock(Block):
+class RandomBlock(BlockTemplate):
     def __init__(self,
                  urls_0_pool: list,
                  urls_1_pool: list,
@@ -98,7 +98,7 @@ class RandomBlock(Block):
 class Sequence(object):
     def __init__(
             self,
-            block_seq:[Block],
+            block_seq:[BlockTemplate],
             name:str,
             shuffle_label_mapping:bool,
                  ):

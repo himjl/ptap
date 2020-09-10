@@ -17,20 +17,25 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
 
 
     try {
-        for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
-            var playspace_size_pixels = infer_canvas_size();
-            var cur_subtask = subtask_sequence[i_subtask];
-            var cur_image_url_prefix = cur_subtask['image_url_prefix'];
-            var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
-            var cur_label_sequence = cur_subtask['label_seq'];
-            var cur_label_to_action = cur_subtask['label_to_action'];
-            var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
-            var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
-            var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
-            var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
-            var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
-            var usd_per_reward = cur_subtask['usd_per_reward'];
-            var cur_sequence_name = cur_subtask['sequence_name'];
+        for (let i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
+            const playspace_size_pixels = infer_canvas_size();
+            const cur_subtask = subtask_sequence[i_subtask];
+            const cur_image_url_prefix = cur_subtask['image_url_prefix'];
+            const cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
+            const cur_label_sequence = cur_subtask['label_seq'];
+            const cur_label_to_action = cur_subtask['label_to_action'];
+            const cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
+            const cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
+            const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
+            const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
+            const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            const usd_per_reward = cur_subtask['usd_per_reward'];
+            const cur_sequence_name = cur_subtask['sequence_name'];
+
+            let cur_early_exit_criteria = {};
+            if (cur_subtask['early_exit_criterion'] !== undefined){
+                cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
+            }
 
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
@@ -48,6 +53,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
                 usd_per_reward,
                 playspace_size_pixels,
                 cur_sequence_name,
+                cur_early_exit_criteria,
                 cur_checkpoint_key,
                 );
 
@@ -72,6 +78,61 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
     return return_values
 }
 
+class PerformanceBuffer{
+    constructor(
+        mintrials_criterion,
+        minperf_criterion,
+        rolling,
+        ) {
+
+        /*
+        Class for tracking the performance of a subject
+        mintrials_criterion: Integer
+        minperf_criterion: Float between 0 and 1 (inclusive)
+        rolling: Boolean. If true, always looks at the past mintrials_criterion entries in the buffer. Otherwise, considers independent blocks of trials.
+         */
+        this.mintrials_criterion = mintrials_criterion;
+        this.minperf_criterion = minperf_criterion;
+        this.rolling = rolling;
+        this.perf_buffer = []
+    }
+
+    check_satisfied(perf) {
+        /*
+        perf: 0 or 1
+         */
+
+        let criterion_met = false;
+        // Add new observation
+        this.perf_buffer.push(perf);
+
+        // Not enough observations to test for criterion:
+        if (this.perf_buffer.length < this.mintrials_criterion) {
+            return false
+        } else if (this.perf_buffer.length > this.mintrials_criterion) {
+            // Buffer is overflowing
+            const nobs = this.perf_buffer.length;
+            if (this.rolling === true) {
+                // Shave off only the excess
+                this.perf_buffer = this.perf_buffer.slice(nobs - this.mintrials_criterion, nobs);
+            } else {
+                // Shave off a window of size this.mintrials_criterion to ensure an independent estimate
+                this.perf_buffer = this.perf_buffer.slice(this.mintrials_criterion, nobs)
+            }
+        }
+
+        let current_performance = 0;
+        if (this.perf_buffer.length === this.mintrials_criterion) {
+            current_performance = MathUtils.mean(this.perf_buffer);
+        }
+
+        if (current_performance >= this.minperf_criterion){
+            return true
+        }
+        return false
+    }
+
+}
 
 async function run_binary_sr_trials(
     image_url_prefix,
@@ -86,6 +147,7 @@ async function run_binary_sr_trials(
     usd_per_reward,
     size,
     sequence_name,
+    cur_early_exit_criteria,
     checkpoint_key,
 ){
 
@@ -103,6 +165,7 @@ async function run_binary_sr_trials(
     usd_per_reward: ()
     size: () in pixels
     sequence_name: String
+    cur_early_exit_criteria: {'min_trials':Integer, 'min_perf':Float between 0 or 1, 'rolling':Boolean} or {}
     checkpoint_key: String which is used as a key for LocalStorage
      */
 
@@ -139,6 +202,24 @@ async function run_binary_sr_trials(
 
     var meta = {'performed_trials':false};
 
+    // Instantiate online performance metrics
+    let mintrials_criterion = image_url_suffix_sequence.length;
+    let minperf_criterion = 1.1;
+    let rolling = false;
+
+    if (cur_early_exit_criteria['min_trials'] !== undefined){
+        mintrials_criterion = cur_early_exit_criteria['min_trials'];
+    }
+    if (cur_early_exit_criteria['min_perf'] !== undefined){
+        minperf_criterion = cur_early_exit_criteria['min_perf'];
+    }
+    if(cur_early_exit_criteria['rolling'] !== undefined){
+        rolling = cur_early_exit_criteria['rolling'];
+    }
+
+    let performance_tracker = PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
+
+
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
     let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
@@ -148,16 +229,29 @@ async function run_binary_sr_trials(
 
     // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
     let start_trial = 0;
+    let early_exit_satisfied = false;
     if (cur_subtask_datavars['perf'] != null) {
         start_trial = cur_subtask_datavars['perf'].length;
         for (let i_trial = 0; i_trial < start_trial; i_trial++){
+            let cur_perf = cur_subtask_datavars['perf'][i_trial];
+
+            // Increment online performance metrics
+            let criterion_is_met = performance_tracker.check_satisfied(cur_perf);
+            if (criterion_is_met === true){
+                early_exit_satisfied = true;
+            }
+
             // Increment progressbar
             progressbar_callback();
 
             // Update HUD
-            update_hud(cur_subtask_datavars['perf'][i_trial], usd_per_reward)
+            update_hud(cur_perf, usd_per_reward)
         }
         data_vars = cur_subtask_datavars
+    }
+
+    if (early_exit_satisfied === true){
+        start_trial = image_url_suffix_sequence.length;
     }
 
     // Pre-buffer images
@@ -263,6 +357,13 @@ async function run_binary_sr_trials(
         // Callback
         await update_hud(perf, usd_per_reward);
         progressbar_callback();
+
+        // Check if conditions satisfied for an early exit
+        let criterion_is_met = performance_tracker.check_satisfied(perf);
+        if(criterion_is_met === true){
+            break;
+        }
+
     }
 
     // Delete canvases
