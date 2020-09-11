@@ -159,14 +159,14 @@ class RandomlyAssignedSequence(object):
                  ):
 
         self.possible_sequences = possible_sequences
-        self.all_urls = [url for seq in possible_sequences for block in seq for url in block.all_urls]
+        self.all_urls = [url for seq in possible_sequences for block in seq.block_seq for url in block.all_urls]
 
     def generate_javascript_string(self):
-        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence('
+        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence(['
         for sequence in self.possible_sequences:
             chosen_trial_sequence_string+=sequence.generate_javascript_string()
             chosen_trial_sequence_string+=','
-        chosen_trial_sequence_string+=')'
+        chosen_trial_sequence_string+='])'
 
         return chosen_trial_sequence_string
 

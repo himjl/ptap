@@ -245,11 +245,16 @@ async function run_binary_sr_trials(
 
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
+    let all_urls = [];
+
     for (let i_image = start_trial; i_image < image_url_suffix_sequence.length; i_image++){
         let current_suffix = image_url_suffix_sequence[i_image];
         let current_url = image_url_prefix.concat(current_suffix);
-        await trial_images.get_by_url(current_url);
+        all_urls.push(current_url)
     }
+    all_urls = [... new Set(all_urls)];
+    await trial_images.buffer_urls(all_urls);
+
 
     // Begin tracking actions
     var action_recorder = new ActionListenerClass(false, true);
@@ -339,9 +344,7 @@ async function run_binary_sr_trials(
         meta['performed_trials'] = true;
 
         // Checkpoint data vars to local storage
-        console.log('Checkpointing', i_trial);
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
-        console.log('Done checkpointing', i_trial);
 
         // Callback
         await update_hud(perf, usd_per_reward);
@@ -351,7 +354,7 @@ async function run_binary_sr_trials(
         let criterion_is_met = performance_tracker.check_satisfied(perf);
         if(criterion_is_met === true){
             // Fill up the progressbar
-            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - i_trial + 1); i_rest++){
+            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - i_trial); i_rest++){
                 progressbar_callback()
             }
             break;

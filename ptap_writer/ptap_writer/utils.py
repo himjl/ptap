@@ -32,7 +32,10 @@ def check_url_has_image(url: str):
     img = np.array(PIL.Image.open(BytesIO(response.content)))
     height = img.shape[0]
     width = img.shape[1]
-    nchannels = img.shape[2]
+    if len(img.shape) > 2:
+        nchannels = img.shape[2]
+    else:
+        nchannels = 0
     return_vals['height'] = height
     return_vals['width'] = width
     return_vals['nchannels'] = nchannels
