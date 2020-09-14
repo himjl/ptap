@@ -41,8 +41,8 @@ class DeterministicBlock(BlockTemplate):
                  label_seq: [int]
                  ):
         super().__init__(all_urls = url_seq)
-        self.url_seq = url_seq
-        self.label_seq = label_seq
+        self.url_seq = list(url_seq)
+        self.label_seq = list(label_seq)
 
         labelset = set(label_seq)
         assert len({0, 1}.intersection(labelset)) == len(labelset), labelset
@@ -65,8 +65,8 @@ class RandomBlock(BlockTemplate):
                  replace: bool,
                  balanced_categories: bool):
 
-        self.urls_0_pool = urls_0_pool
-        self.urls_1_pool = urls_1_pool
+        self.urls_0_pool = list(urls_0_pool)
+        self.urls_1_pool = list(urls_1_pool)
         self.ntrials = ntrials
         self.replace = replace
         self.balanced_categories = balanced_categories
@@ -101,29 +101,44 @@ class Sequence(object):
             self,
             block_seq:[BlockTemplate],
             name:str,
+            usd_per_reward:float,
             shuffle_label_mapping:bool,
             min_trials_criterion=None,
             min_perf_criterion=None,
             rolling_criterion=None,
+            max_trials_for_continue=None,
                  ):
+        """
+        max_trials_for_continue: If the subject exceeds this number, end the session
+        """
         assert isinstance(name, str)
         assert isinstance(shuffle_label_mapping, bool)
+        assert isinstance(usd_per_reward, (int, float))
+        assert 0 <= usd_per_reward < 0.1, f'Specified bonus of ${usd_per_reward} per reward; are you sure?'
 
         if (min_trials_criterion is not None) or (min_perf_criterion is not None) or (rolling_criterion is not None):
 
             assert isinstance(min_trials_criterion, int)
             assert min_trials_criterion > 0
             assert isinstance(min_perf_criterion, (float, int))
-            assert min_perf_criterion >= 0 and min_perf_criterion <=1
+            assert 0 <= min_perf_criterion <= 1
             assert isinstance(rolling_criterion, bool)
         else:
             min_trials_criterion = 'undefined'
             min_perf_criterion = 'undefined'
             rolling_criterion = False
-
+        self.usd_per_reward = usd_per_reward
         self.min_trials_criterion = min_trials_criterion
         self.min_perf_criterion = min_perf_criterion
         self.rolling_criterion = rolling_criterion
+
+        if (max_trials_for_continue is not None):
+            assert isinstance(max_trials_for_continue, int)
+            assert max_trials_for_continue > 1
+        else:
+            max_trials_for_continue = 'undefined'
+
+        self.max_trials_for_continue = max_trials_for_continue
 
         self.block_seq = block_seq
         self.shuffle_label_mapping = shuffle_label_mapping
@@ -148,8 +163,21 @@ class Sequence(object):
             block_sequence_string+=js_string
             block_sequence_string+=','
         block_sequence_string+=']'
-        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence({block_sequence_string}, "{common_url_prefix}", {bool2jsbool(self.shuffle_label_mapping)}, "{self.name}", {self.min_trials_criterion}, {self.min_perf_criterion}, {bool2jsbool(self.rolling_criterion)})'
-
+        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence('
+        trial_sequence_string+=f'{block_sequence_string},'
+        """
+        max_trials_for_continue,
+                min_perf_for_continue,
+                """
+        trial_sequence_string+=f'"{common_url_prefix}", ' \
+                               f'{bool2jsbool(self.shuffle_label_mapping)}, ' \
+                               f'"{self.name}", ' \
+                               f'{self.usd_per_reward},' \
+                               f'{self.min_trials_criterion},' \
+                               f'{self.min_perf_criterion},' \
+                               f'{bool2jsbool(self.rolling_criterion)},' \
+                               f'{self.max_trials_for_continue}'
+        trial_sequence_string+=')'
         return trial_sequence_string
 
 
@@ -162,10 +190,10 @@ class RandomlyAssignedSequence(object):
         self.all_urls = [url for seq in possible_sequences for block in seq.block_seq for url in block.all_urls]
 
     def generate_javascript_string(self):
-        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence(['
+        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence([\n'
         for sequence in self.possible_sequences:
             chosen_trial_sequence_string+=sequence.generate_javascript_string()
-            chosen_trial_sequence_string+=','
+            chosen_trial_sequence_string+=',\n'
         chosen_trial_sequence_string+='])'
 
         return chosen_trial_sequence_string

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        const cur_url = window.location.href;
+        const possible_urls = __INSERT_URLS_ARRAY_HERE__
+
+        // Extract assignment Id
+        function _extract_url_string(url, key, defaultValue){
+            var name = key;
+            key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+            var regexS = "[\\?&]" + key + "=([^&#]*)";
+            var regex = new RegExp(regexS);
+            var results = regex.exec(url) || ["", defaultValue];
+
+            return results[1]
+        }
+
+        function _retrieve_json_object(key){
+            // Key: a string or integer.
+            // Returns: a JSON.parsed DOMString, or null if the key has no corresponding value.
+
+            if (typeof(key) === "number"){
+                key = key.toString();
+            }
+
+            // Loads a DOMString or null
+            let val  = window.localStorage.getItem(key);
+
+            if (val == null){
+                console.log('Returned null value for key', key);
+                return val
+            }
+            else{
+                // Parse the string
+                return JSON.parse(val)
+            }
+        }
+
+        const assignmentId = _extract_url_string(cur_url, 'assignmentId', 'assignmentId_not_found');
+
+        // Create LocalStorage key
+        const local_storage_key = 'redirect_page_'.concat(assignmentId)
+
+        // Check if next url was already chosen
+        let next_url = _retrieve_json_object(local_storage_key)
+
+        if (next_url == null){
+            console.log('Randomly sampling URL')
+            // Randomly choose next URL on first load.
+            function random_choice(choices){
+                var i_index = Math.floor(Math.random() * choices.length);
+                return choices[i_index];
+            }
+
+            next_url = random_choice(possible_urls);
+            const stringified_object = JSON.stringify(next_url);
+            // Store URL to LocalStorage
+            window.localStorage.setItem(local_storage_key, stringified_object)
+        }
+        else{
+            console.log('Found already-chosen URL in LocalStorage')
+        }
+
+        // Extract any URL parameters and attach to redirect URL
+
+        let url_parameters = cur_url.split('?')
+        console.log(url_parameters)
+        if (url_parameters.length === 2){
+            url_parameters = url_parameters[1];
+        }
+        else{
+            url_parameters = '';
+        }
+
+        next_url = next_url.concat('?', url_parameters)
+        console.log(next_url)
+
+        // Execute redirect
+        window.location.href = next_url
+
+    </script>
+</head>
+
+<body>
+</body>
+</html>

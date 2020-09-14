@@ -46,6 +46,7 @@
             <text style="color:black; font-style:italic">black</text>
             square instead, and have to wait a bit before you can try again.
         <li>To actually start a trial, press the spacebar. The image will immediately appear, so be ready!
+        <li>The session will begin with a short "warmup" task to help you learn the controls.</li>
         <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive
             compensation for your time.
     </ul>
@@ -71,7 +72,6 @@
         var reward_duration_msec = 100;
         var punish_duration_msec = 500;
         var choice_duration_msec = 5000;
-        var usd_per_reward = 0.0025;
         var post_stimulus_delay_duration_msec = 0;
 
 
@@ -165,9 +165,11 @@
                 image_url_prefix,
                 shuffle_label_mapping,
                 name,
-                min_trials,
-                min_perf,
-                rolling,
+                usd_per_reward,
+                min_trials_for_early_exit,
+                min_perf_for_early_exit,
+                rolling_early_exit_metric,
+                max_trials_for_continue,
             ) {
                 /*
                 Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
@@ -216,7 +218,8 @@
                     'choice_duration_msec': choice_duration_msec,
                     'post_stimulus_delay_duration_msec': post_stimulus_delay_duration_msec,
                     'usd_per_reward': usd_per_reward,
-                    'early_exit_criteria':{'min_perf':min_perf, 'min_trials':min_trials, 'rolling':rolling},
+                    'early_exit_criteria':{'min_perf':min_perf_for_early_exit, 'min_trials':min_trials_for_early_exit, 'rolling':rolling_early_exit_metric},
+                    'session_end_criteria':{'max_trials_for_continue':max_trials_for_continue}
                 }
             }
 
@@ -255,7 +258,8 @@
         var in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
         var in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
         const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
-
+        const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
+        const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
 
         // Randomly set conditions for this assignment, and store in local storage
         const session_parameters_key = assignmentId.concat('_session_parameters');
@@ -264,7 +268,17 @@
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
             sequences = __INSERT_SESSION_SEQUENCES_HERE__;
             LocalStorageUtils.store_object_as_json(session_parameters_key, sequences);
-            console.log('Retrieving previously stored session parameters for assignment', assignmentId)
+            console.log('Stored session parameters for assignment', assignmentId);
+
+            console.log('Developer mode: purging instructions key');
+            LocalStorageUtils.remove_item(assignment_instructions_completed_key);
+
+            // Purge existing checkpoints
+            console.log('Developer mode: purging checkpoints');
+            for (let i_subtask = 0; i_subtask < sequences.length; i_subtask++) {
+                const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
+                LocalStorageUtils.remove_item(cur_checkpoint_key);
+            }
         }
 
 
@@ -288,7 +302,6 @@
 
         (async function () {
             // Run instructions if they have not been clicked through
-            const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
             const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
             if (completed_instructions == null){
                 await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
@@ -304,19 +317,7 @@
                 document.getElementById('user_hud').style.visibility = 'visible';
 
                 // Run trials
-                const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
                 var session_data = await run_subtasks(sequences, checkpoint_key_prefix);
-
-                // Delete checkpoint data if in developer mode
-                if (developer_mode === true){
-                    console.log('Developer mode: purging instructions key');
-                    LocalStorageUtils.remove_item(assignment_instructions_completed_key);
-                    console.log('Developer mode: purging checkpoints');
-                    for (let i_subtask = 0; i_subtask < sequences.length; i_subtask++) {
-                        const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
-                        LocalStorageUtils.remove_item(cur_checkpoint_key);
-                    }
-                }
 
                 // Submit
                 await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);

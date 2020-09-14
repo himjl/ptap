@@ -32,6 +32,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             const usd_per_reward = cur_subtask['usd_per_reward'];
             const cur_sequence_name = cur_subtask['sequence_name'];
             const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
+            const cur_session_end_criteria = cur_subtask['session_end_criteria'];
 
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
@@ -55,6 +56,15 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
 
             // Push data to return values
             return_values['data'].push(cur_session_data);
+
+            // Check if the session end criteria was met
+            const cur_subtask_ntrials = cur_session_data['data_vars']['perf'].length;
+            const cur_maxtrials_threshold = cur_session_end_criteria['max_trials_for_continue']
+            if ((cur_subtask_ntrials > cur_maxtrials_threshold)){
+                // Exit the session
+                break
+            }
+
 
             // Run the "end of subtask" splash screen if there are tasks that remain after this one, and the subject has performed trials
             const performed_trials = cur_session_data['meta']['performed_trials'];
@@ -236,11 +246,15 @@ async function run_binary_sr_trials(
             // Update HUD
             update_hud(cur_perf, usd_per_reward)
         }
-        data_vars = cur_subtask_datavars
-    }
+        data_vars = cur_subtask_datavars;
 
-    if (early_exit_satisfied === true){
-        start_trial = image_url_suffix_sequence.length;
+        if (early_exit_satisfied === true){
+            // Fill up the progressbar
+            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - start_trial); i_rest++){
+                progressbar_callback()
+            }
+            start_trial = image_url_suffix_sequence.length;
+        }
     }
 
     // Pre-buffer images

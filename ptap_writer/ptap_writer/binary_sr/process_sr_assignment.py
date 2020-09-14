@@ -8,6 +8,8 @@ DEFAULT_BONUS_USD_PER_REWARD = 0.0025
 QUALIFICATION_IDS = {
     'IS_PREVIOUS_WORKER_TOKEN_QUALIFICATION_TYPEID':'3P3HAQ0W8GNHNPOIEDB8HR4LTP3I0P',
     'sandboxIS_PREVIOUS_WORKER_TOKEN_QUALIFICATION_TYPEID':'3X9YVAW8NUMPS8W7XHFYIZSXBXH4K5',
+    'LOW_WARMUP_TASK':'3Y9OUGTYA7OC9QNI42VNEHLP09VJEP',
+    'sandboxLOW_WARMUP_TASK': '3S62YK7QBY6O37DV3X0OHPYCNM2DQV',
 }
 
 def _get_bonus_amount_for_sequence(sequence_data:dict):
@@ -23,8 +25,10 @@ def _get_bonus_amount_for_sequence(sequence_data:dict):
             usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
         else:
             usd_per_reward = sequence_data['coords']['usd_per_reward']
+            if isinstance(usd_per_reward, int):
+                usd_per_reward = float(usd_per_reward)
 
-            if not isinstance(usd_per_reward, float):
+            if not isinstance(usd_per_reward, (int, float)):
                 errors.append('Could not identify a float usd_per_reward; got %s of dtype %s'%(str(usd_per_reward), type(usd_per_reward)))
                 usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
 
@@ -51,7 +55,8 @@ def get_total_bonus(answer:dict):
 
     errors = []
     if 'data' not in answer:
-        return 0, errors.append('Could not find key "data" in answer; found only keys %s'%(str(answer.keys())))
+        errors.append('Could not find key "data" in answer; found only keys %s' % (str(answer.keys())))
+        return 0, errors
 
     behavioral_data = answer['data']
     # Validate answer data
@@ -70,6 +75,47 @@ def get_total_bonus(answer:dict):
 
     return total_usd_reward, errors
 
+def evaluate_warmup_behavior(answer:dict):
+    """
+    Ascertains whether the subject "goofed off" on the warmup task, defined as taking 60 trials to complete instead of exiting early from 9/10 rolling performance
+    """
+
+    errors = []
+    if 'data' not in answer:
+        errors.append('Could not find key "data" in answer; found only keys %s' % (str(answer.keys())))
+        return False, errors
+
+    behavioral_data = answer['data']
+    # Validate answer data
+    if not isinstance(behavioral_data, list):
+        errors.append('Expected behavioral data to be a list, but is a %s'%(type(behavioral_data)))
+        return False, errors
+
+    if len(behavioral_data) == 0:
+        errors.append('Did not find any behavioral data')
+        behavioral_data = [{'data_vars':{'perf':[]}}]
+
+    warmup_data = behavioral_data[0]
+    if not isinstance(warmup_data, dict):
+        errors.append('Warmup sequence data was expected to be a dict, but got%s'%(str(type(warmup_data))))
+        perf = []
+
+    if 'perf' not in warmup_data['data_vars']:
+        errors.append('Could not find key "perf" in warmup_data["data_vars"]; found only %s. Defaulting to []' % (str(warmup_data['data_vars'].keys())))
+        perf = []
+    else:
+        perf = warmup_data['data_vars']['perf']
+
+        if not isinstance(perf, list):
+            errors.append('Could not identify a list of performance outcomes; got %s of dtype %s' % (str(perf), type(perf)))
+            perf = []
+    ntrials_to_complete = len(perf)
+
+    if (ntrials_to_complete) >= 60:
+        print('Detected `goof off\' subject' )
+        return True, errors
+
+    return False, errors
 
 def extract_answer(asn):
     parse_errors = []
@@ -102,8 +148,11 @@ def assignment_post_process_function(
 
     # Approve the assignment, if not already approved
     if(asn['AssignmentStatus'] != 'Approved'):
-        turkr.mturk.manage_hit.approve_assignment(assignment_id=assignment_id, client=client)
-        print('(workerId:%s, assignmentId:%s): approved' % (worker_id, assignment_id))
+        try:
+            turkr.mturk.manage_hit.approve_assignment(assignment_id=assignment_id, client=client)
+            print('(workerId:%s, assignmentId:%s): approved' % (worker_id, assignment_id))
+        except:
+            pass
 
     # Grant a dicarlo lab "previous worker" qualification
     sandbox = 'sandbox' in client.meta.endpoint_url.lower()
@@ -120,15 +169,30 @@ def assignment_post_process_function(
     answer, parse_errors = extract_answer(asn)
     errors.extend(parse_errors)
 
+    # Grant a failure qualification to those who goofed off on the diamond task
+    if sandbox:
+        warmup_failure_id = QUALIFICATION_IDS['sandboxLOW_WARMUP_TASK']
+    else:
+        warmup_failure_id = QUALIFICATION_IDS['LOW_WARMUP_TASK']
+    goofed_off, warmup_parser_errors = evaluate_warmup_behavior(answer = answer)
+    errors.extend(warmup_parser_errors)
+
+    if goofed_off:
+        turkr.mturk.manage_hit.grant_qualification(qualification_type_id=warmup_failure_id, worker_id=worker_id, client=client)
+        print('(workerId:%s, assignmentId:%s): Granted "goofed off" qualification' % (worker_id, assignment_id))
+
     # Attempt to extract bonus amount.
     bonus_usd, bonus_parse_errors = get_total_bonus(answer)
     errors.extend(bonus_parse_errors)
 
     # Pay worker if a bonus was earned
     if bonus_usd > 0:
-        turkr.mturk.manage_hit.grant_bonus(worker_id=worker_id, assignment_id=assignment_id, bonus_usd = bonus_usd, client=client)
-        print('(workerId:%s, assignmentId:%s): Bonus $%0.2f granted' % (worker_id, assignment_id, bonus_usd))
+        try:
+            turkr.mturk.manage_hit.grant_bonus(worker_id=worker_id, assignment_id=assignment_id, bonus_usd = bonus_usd, client=client)
 
+        except Exception as e:
+            print('Failed to grant bonus: ')
+            print(e)
     # Print and return any errors
     if len(errors) == 0:
         return None
@@ -184,6 +248,10 @@ def to_dataset(assignment_json:dict):
         ds = xr.Dataset(data_vars = cur['data_vars'], coords = cur['coords'], )
 
         dlist.append(ds)
-    ds_all = xr.concat(dlist, 'subtask_position', coords = 'all')
-    ds_all['subtask_position'] = np.arange(len(answer))
+
+    if len(dlist) == 0:
+        return None
+    ds_all = xr.concat(dlist, 'slot', coords = 'all')
+    ds_all['slot'] = np.arange(len(answer))
+    ds_all = ds_all.assign_coords(agentId = assignment_json['WorkerId'])
     return ds_all
