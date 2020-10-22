@@ -11,7 +11,7 @@ from typing import Union
 TEMPLATE_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task_template.html')
 assert os.path.exists(TEMPLATE_LOCATION), 'Could not find template at %s' % (TEMPLATE_LOCATION)
 
-TASK_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task.js')
+TASK_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'mts_task.js')
 assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATION)
 
 bool2jsbool = lambda b: 'true' if b else 'false'

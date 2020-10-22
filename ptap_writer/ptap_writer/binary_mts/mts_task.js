@@ -1,50 +1,51 @@
-async function run_mts_session(mts_sequence){
+async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     /*
-    mts_sequence: Array of Objects, which detail the MTS tasks which will be run in series.
+    subtask_sequence: Array of Objects, which detail the subtasks which will be run
+    checkpoint_key: a String which is used for checkpointing behavioral data
 
-    This function returns a list of returns from "run_mts_trials".
+    This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
+    subtasks be run back-to-back.
+
+    Between each subtask, a "splash" screen appears in which the subject is informed the last subtask has concluded.
 
     If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
     that have been completed so far. It also attaches the error message which was associated with the error.
      */
 
-    var nsettings = mts_sequence.length;
+    var nphases = phase_sequence.length;
     var return_values = {'data':[]};
 
     try {
-        for (var i_subtask = 0; i_subtask < nsettings; i_subtask++) {
-            var playspace_size_pixels = infer_canvas_size();
-            var cur_subtask = subtask_sequence[i_subtask];
-            var cur_image_url_prefix = cur_subtask['image_url_prefix'];
-            var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
-            var cur_label_sequence = cur_subtask['label_seq'];
-            var cur_label_to_key = cur_subtask['label_to_key'];
-            var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
-            var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
-            var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
-            var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
-            var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
-            var usd_per_reward = cur_subtask['usd_per_reward'];
-            var cur_sequence_name = cur_subtask['sequence_name'];
+        for (let i_phase = 0; i_phase < nphases; i_phase++) {
+            const playspace_size_pixels = infer_canvas_size();
+            const cur_phase = phase_sequence[i_subtask];
 
-            var cur_session_data = await run_mts_trials(
-                cur_image_url_prefix,
-                cur_image_url_suffix_sequence,
-                cur_label_sequence,
-                cur_label_to_key,
-                cur_stimulus_duration_msec,
-                cur_reward_duration_msec,
-                cur_punish_duration_msec,
-                cur_choice_duration_msec,
-                cur_post_stimulus_delay_duration_msec,
-                usd_per_reward,
+            // Load savedata for this subtask
+            const cur_checkpoint_key = checkpoint_key_prefix.concat('_phase', i_phase.toString());
+
+            var cur_session_data = await run_binary_mts_trials(
+                cur_phase['image_url_prefix'],
+                cur_phase['stimulus_image_url_suffix_sequence'],
+                cur_phase['choice0_url_suffix_sequence'],
+                cur_phase['choice1_url_suffix_sequence'],
+                cur_phase['rewarded_choice_sequence'],
+                cur_phase['stimulus_duration_msec'],
+                cur_phase['reward_duration_msec'],
+                cur_phase['punish_duration_msec'],
+                cur_phase['choice_duration_msec'],
+                cur_phase['minimal_choice_duration_msec'],
+                cur_phase['post_stimulus_delay_duration_msec'],
+                cur_phase['usd_per_reward'],
                 playspace_size_pixels,
-                cur_sequence_name,
-                );
+                cur_phase['block_name'],
+                cur_checkpoint_key,
+            );
+
+            // Push data to return values
             return_values['data'].push(cur_session_data);
         }
-
-        await provide_session_end(return_values['data'])
+        let playspace_size_pixels = infer_canvas_size();
+        await congratulations_screen(playspace_size_pixels)
     }
 
     catch(error){
@@ -55,144 +56,149 @@ async function run_mts_session(mts_sequence){
     return return_values
 }
 
-async function run_mts_trials(
-    ntrials,
-    image_url_manifest,
-    block_manifest,
-    block_probabilities,
+
+
+async function run_binary_mts_trials(
+    image_url_prefix,
+    stimulus_image_url_suffix_sequence,
+    choice0_url_suffix_sequence,
+    choice1_url_suffix_sequence,
+    rewarded_choice_sequence,
     stimulus_duration_msec,
     reward_duration_msec,
     punish_duration_msec,
     choice_duration_msec,
+    minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
-    size,
     usd_per_reward,
-    ){
+    size,
+    block_name,
+    checkpoint_key,
+){
 
     /*
-    Core function for getting behavioral data on a binary-SR task from a human subject.
+    Core function for getting behavioral data on a series of 2AFC trials from a human subject.
 
-    image_url_manifest: {category: [urls]}
-    block_manifest: {block_name: {category:{'matches':[], 'distractors':[]}}}
-    block_probabilities: {block_name: float}
-    stimulus_duration_msec: ()
-    reward_duration_msec: ()
-    punish_duration_msec: ()
-    choice_duration_msec: ()
-    post_stimulus_delay_duration_msec: ()
-    size: () in pixels
-    usd_per_reward: ()
+    image_url_prefix, String
+    image_url_suffix_sequence, [t]
+    choice0_url_suffix_sequence,  [t]
+    choice1_url_suffix_sequence,  [t]
+    rewarded_choice_sequence, [t]. If an entry is -1, no choice is given a reward.
+    stimulus_duration_msec, [t]
+    reward_duration_msec, [t]. If an entry is zero, no reward feedback is given.
+    punish_duration_msec, [t]. If an entry is zero, no punish feedback is given.
+    choice_duration_msec, [t]. Max choice time
+    minimal_choice_duration_msec, [t]. Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
+    post_stimulus_delay_duration_msec, [t]. The amount of time before the choices pop up.
+    usd_per_reward, Float
+    size, () in pixels
+    block_name, String
+    checkpoint_key: String which is used as a key for LocalStorage
+
+    Returns {'coords':coords, 'data_vars':data_vars, 'meta':meta}
      */
 
-    // Make a lookup table of {index : category qual_name} and {category qual_name : index}
-    const ncategories = Object.keys(image_url_manifest).length;
-    var category_index2category = {};
-    var category2index = {};
-
-    var _i = 0;
-    for (let prop in image_url_manifest) {
-        if (Object.prototype.hasOwnProperty.call(image_url_manifest, prop)) {
-            // do stuff
-            category_index2category[_i] = prop;
-            category2index[prop] = _i;
-            _i++;
-        }
-    }
-
-    // Make a lookup table of {index : block qual_name}
-    const nblocks = Object.keys(block_manifest).length;
-    var block_probs_flat = [];
-    var block_names_flat = [];
-    for (let prop in block_manifest) {
-        if (Object.prototype.hasOwnProperty.call(block_manifest, prop)) {
-            // do stuff
-            block_probs_flat.push(block_probabilities[prop]);
-            block_names_flat.push(prop);
-        }
-    }
-
     var diameter_pixels = size * 0.25;
-    var session_data = {};
-    session_data['perf'] = [];
-    session_data['action'] = [];
-    session_data['index2category'] = category_index2category;
-    session_data['block_names'] = block_names_flat;
-    session_data['i_block'] = [];
-    session_data['i_stimulus_category'] = [];
-    session_data['i_distractor_category'] = [];
-    session_data['i_match_category'] = [];
+    var coords = {};
+    coords['url_prefix'] = image_url_prefix;
+    coords['stimulus_duration_msec'] = stimulus_duration_msec;
+    coords['reward_duration_msec'] = reward_duration_msec;
+    coords['punish_duration_msec'] = punish_duration_msec;
+    coords['choice_duration_msec'] = choice_duration_msec;
+    coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
+    coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['usd_per_reward'] = usd_per_reward;
+    coords['playspace_size_px'] = size;
+    coords['block_name'] = block_name;
+    coords['timestamp_session_start'] = performance.timing.navigationStart;
 
-    session_data['i_rel_stimulus_image'] = []; // This index is "relative" to the list image_url_manifest[_current_stimulus_]
-    session_data['i_rel_match_image'] = [];
-    session_data['i_rel_distractor_image'] = [];
+    const [hcur, wcur] = get_screen_dims();
+    coords['screen_height_px'] = hcur;
+    coords['screen_width_px'] = wcur;
+    coords['device_pixel_ratio'] = window.devicePixelRatio || 1;
 
-    session_data['reaction_time_msec'] = [];
-    session_data['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
-    session_data['rel_timestamp_stimulus_on'] = [];
-    session_data['rel_timestamp_stimulus_off'] = [];
-    session_data['rel_timestamp_choices_on'] = [];
-    session_data['trial_number'] = [];
+    var data_vars = {};
+    data_vars['action'] = [];
+    data_vars['stimulus_url_suffix'] = [];
+    data_vars['choice0_url_suffix'] = [];
+    data_vars['choice1_url_suffix'] = [];
+    data_vars['reaction_time_msec'] = [];
+    data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
+    data_vars['rel_timestamp_stimulus_on'] = [];
+    data_vars['rel_timestamp_stimulus_off'] = [];
+    data_vars['rel_timestamp_choices_on'] = [];
+    data_vars['trial_number'] = [];
 
-    var canvases = await initialize_mts_task_canvases(size);
-    var image_buffer = new ImageBufferClass;
+    var meta = {'performed_trials':false};
+
+    // Resume task if there is checkpoint data
+    let cur_subtask_datavars = {};
+    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
+    if (_loaded_data != null){
+        cur_subtask_datavars = _loaded_data;
+    }
+
+    // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
+    let start_trial = 0;
+    if (cur_subtask_datavars['perf'] != null) {
+        start_trial = cur_subtask_datavars['perf'].length;
+        data_vars = cur_subtask_datavars;
+    }
+
+    // Pre-buffer images
+    var trial_images = new ImageBufferClass;
+    let all_urls = [];
+
+    for (let i_image = start_trial; i_image < stimulus_image_url_suffix_sequence.length; i_image++){
+        let current_stimulus_suffix = stimulus_image_url_suffix_sequence[i_image];
+        let current_choice0_suffix = choice0_url_suffix_sequence[i_image];
+        let current_choice1_suffix = choice1_url_suffix_sequence[i_image];
+
+        let stim_url = image_url_prefix.concat(current_stimulus_suffix);
+        all_urls.push(stim_url)
+
+        let c0_url = image_url_prefix.concat(current_choice0_suffix);
+        all_urls.push(c0_url)
+
+        let c1_url = image_url_prefix.concat(current_choice1_suffix);
+        all_urls.push(c1_url)
+    }
+    all_urls = [... new Set(all_urls)];
+    await trial_images.buffer_urls(all_urls);
+
+    // Begin tracking actions
     var action_recorder = new ActionListenerClass(false, true);
 
-    for (let i_trial = 0; i_trial<ntrials; i_trial++){
-        let i_block_cur = MathUtils.multinomial(block_probs_flat);
-        let block_cur = block_names_flat[i_block_cur];
+    // Iterate over trials
+    var canvases = await initialize_mts_task_canvases(size);
 
-        // Sample stimulus category
-        let current_block_info = block_manifest[block_cur];
-        let stimulus_pool = Object.keys(current_block_info);
-        let stimulus_category = MathUtils.random_choice(stimulus_pool);
+    for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
 
-        // Sample distractor category
-        let distractor_pool = current_block_info[stimulus_category]['distractors'];
-        let distractor_category = MathUtils.random_choice(distractor_pool);
-
-        // Sample match category
-        let match_pool = current_block_info[stimulus_category]['matches'];
-        let match_category = MathUtils.random_choice(match_pool);
-
-        // Sample images
-        let i_stimulus_rel_cur = Math.floor(Math.random() * image_url_manifest[stimulus_category].length);
-        let i_distractor_rel_cur = Math.floor(Math.random() * image_url_manifest[distractor_category].length);
-        let i_match_rel_cur = Math.floor(Math.random() * image_url_manifest[match_category].length);
-
-        let stimulus_url_cur = image_url_manifest[stimulus_category][i_stimulus_rel_cur];
-        let distractor_url_cur = image_url_manifest[distractor_category][i_distractor_rel_cur];
-        let match_url_cur = image_url_manifest[match_category][i_match_rel_cur];
-
-        // Download images
-        var current_stimulus_image = await image_buffer.get_by_url(stimulus_url_cur);
-        var current_distractor_image = await image_buffer.get_by_url(distractor_url_cur);
-        var current_match_image = await image_buffer.get_by_url(match_url_cur);
-
-        // Sample position of the choice images
-        var image_left = undefined;
-        var image_right = undefined;
-        let correct_choice = undefined;
-        if (Math.random() < 0.5){
-            image_left = current_distractor_image;
-            image_right = current_match_image;
-            correct_choice = 1;
-        }
-        else{
-            image_left = current_match_image;
-            image_right = current_distractor_image;
-            correct_choice = 0;
-        }
-
-        // Buffer canvases
+        // Buffer stimulus
+        let current_stimulus_suffix = stimulus_image_url_suffix_sequence[i_trial];
+        let current_stimulus_url = image_url_prefix.concat(current_stimulus_suffix);
+        var current_stimulus_image = await trial_images.get_by_url(current_stimulus_url);
         await draw_image(canvases['stimulus_canvas'], current_stimulus_image, size/2, size/2, diameter_pixels);
-        await draw_image(canvases['choice_canvas'], image_left, size*0.25, size*0.5, diameter_pixels);
-        await draw_image(canvases['choice_canvas'], image_right, size*0.75, size*0.5, diameter_pixels);
 
-        // Obtain the initiation action from the subject
+
+        // Buffer choice image
+        let current_c0_suffix = choice0_url_suffix_sequence[i_trial];
+        let current_c1_suffix = choice1_url_suffix_sequence[i_trial];
+
+        let c0_url = image_url_prefix.concat(current_c0_suffix);
+        let c1_url = image_url_prefix.concat(current_c1_suffix);
+
+        var current_c0_image = await trial_images.get_by_url(c0_url);
+        var current_c1_image = await trial_images.get_by_url(c1_url);
+
+        await draw_image(canvases['choice_canvas'], current_c0_image, size/4, size*3/4, diameter_pixels);
+        await draw_image(canvases['choice_canvas'], current_c1_image, size/4, size*3/4, diameter_pixels);
+
+        // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
         var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
-        // Display the stimuli
+        // Run stimulus
         var _stimulus_seq = undefined;
         var _t_seq = undefined;
         if (post_stimulus_delay_duration_msec > 0){
@@ -205,56 +211,54 @@ async function run_mts_trials(
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
             _t_seq = [0, stimulus_duration_msec, 0]
         }
-        var timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
+        let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
-        // Get subject response
-        var choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
-        var reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
+        // Show choices and wait for response
+        let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
+        let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
 
-        // Evaluate choice
-        var perf = undefined;
-        var action = choice_outcome['actionIndex'];
+        // Evaluate subject action
+        let action = choice_outcome['actionIndex'];
+        let reinforced_action = rewarded_choice_sequence[i_trial]
+        let reinforcement = -1
+
         if (action === -1){
-            // Timed out
-            perf = 0
+            // Timed out, always punish
+            reinforcement = 0
         }
-        else if (action === correct_choice){
-            perf = 1
-        }
-        else{
-            perf = 0
+        if (reinforced_action !== -1) {
+            if (action === reinforced_action) {
+                reinforcement = 1
+            }
         }
 
         // Provide visual feedback, and apply a timeout
-        var timestamp_feedback = undefined;
-        if (perf === 0){
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
+        if (reinforcement === 0){
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
         }
-        else if (perf === 1){
-            timestamp_feedback = await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+        else if (reinforcement === 1){
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+        }
+        // Trigger await for the rest of the trial, if minimal_choice_duration_msec has not elapsed
+        if (reaction_time_msec < minimal_choice_duration_msec){
+            await timeout(minimal_choice_duration_msec - reaction_time_msec);
+            console.log('Todo: add GUI element for minimal choice time')
         }
 
-        // Record outcomes
-        session_data['perf'].push(perf);
-        session_data['action'].push(action);
-        session_data['i_block'].push(i_block_cur);
-        session_data['i_stimulus_category'].push(category2index[stimulus_category]);
-        session_data['i_distractor_category'].push(category2index[distractor_category]);
-        session_data['i_match_category'].push(category2index[match_category]);
+        data_vars['action'].push(action);
+        data_vars['stimulus_url_suffix'].push(current_stimulus_suffix);
+        data_vars['choice0_url_suffix'].push(current_c0_suffix);
+        data_vars['choice1_url_suffix'].push(current_c1_suffix);
+        data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
+        data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
+        data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
+        data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
+        data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
+        data_vars['trial_number'].push(i_trial);
+        meta['performed_trials'] = true;
 
-        session_data['i_rel_stimulus_image'].push(i_stimulus_rel_cur); // This index is "relative" to the list image_url_manifest[_current_stimulus_]
-        session_data['i_rel_match_image'].push(i_match_rel_cur);
-        session_data['i_rel_distractor_image'].push(i_distractor_rel_cur);
-
-        session_data['reaction_time_msec'].push(Math.round(reaction_time_msec));
-        session_data['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
-        session_data['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
-        session_data['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
-        session_data['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
-        session_data['trial_number'].push(i_trial);
-
-        // Update HUD
-        update_hud(perf, usd_per_reward)
+        // Checkpoint data vars to local storage
+        LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
     }
 
     // Delete canvases
@@ -267,53 +271,35 @@ async function run_mts_trials(
 
     // Remove event listeners from window
     action_recorder.close_listeners();
-    delete image_buffer.cache_dict;
-
-    return session_data;
+    delete trial_images.cache_dict;
+    return {'coords':coords, 'data_vars':data_vars, 'meta':meta}
 }
 
 
-async function update_hud(perf, usd_per_reward){
+async function congratulations_screen(size){
     /*
-    A function which is called at the end of every trial.
-    It displays the subject's performance, remaining trials, and amount earned.
+    Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
+    size: () of canvas, in units of pixels
+    mean_perf: (), from [0, 1]
      */
-    var hud_current_trial_count = document.getElementById('hud_total_trials');
-    const current_trial_count = parseInt(hud_current_trial_count.innerText);
-    hud_current_trial_count.innerHTML = (current_trial_count+1).toString();
 
-    var hud_current_rewards = document.getElementById('hud_total_rewards');
-    const current_rewards = parseInt(hud_current_rewards.innerText);
-    hud_current_rewards.innerHTML = (current_rewards + perf).toString();
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+    var font_size = (size * 0.05).toString();
+    var font = font_size+'px Times New Roman';
 
-    let current_performance = 0;
-    if (current_trial_count > 0){
-        current_performance = current_rewards / current_trial_count;
-    }
+    await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
+    await draw_text(splash1_canvas, 'Press space to submit.', font, '#66ff33', size/2, size * 0.65, 'center');
 
-    let next_performance = (current_performance * current_trial_count + perf) / (current_trial_count + 1);
+    await display_canvas_sequence([splash1_canvas], [0]);
+    var action_recorder = new ActionListenerClass(false, true);
 
-    let hud_current_performance = document.getElementById('hud_current_performance');
-    next_performance = Math.round(next_performance * 100).toString();
-    if (next_performance.length === 1){
-        next_performance = '&nbsp&nbsp'.concat(next_performance);
-    }
-    else if(next_performance.length === 2){
-        next_performance = '&nbsp'.concat(next_performance);
-    }
-    hud_current_performance.innerHTML = next_performance;
-
-    var hud_current_bonus = document.getElementById('hud_current_bonus');
-    let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
-    next_bonus = (next_bonus).toPrecision(1).toString();
-    if(next_bonus.length === 1){
-        next_bonus = next_bonus.concat('.0');
-    }
-    hud_current_bonus.innerHTML = next_bonus;
+    await timeout(500);
+    await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
+    splash1_canvas.remove()
 }
+
 
 async function initialize_mts_task_canvases(size){
-
     var width = size;
     var height = size;
     var canvases = {};
@@ -322,28 +308,8 @@ async function initialize_mts_task_canvases(size){
     canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
     await draw_dot_with_text(canvases['fixation_canvas'], 'Press space', width*0.5, height*0.75, size * 0.15, "white", 1);
     await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
-
     // Create stimulus canvas
     canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);
-
-    // Create choice canvas
-    canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
-    let letter_cue_size_px = 0.05 * width;
-    letter_cue_size_px =  Math.max(5, Math.round(letter_cue_size_px));
-
-    let letter1_x = 0.25 * width;
-    let letter1_y = 0.65 * height;
-    let letter2_x = 0.75 * width;
-    let letter2_y = 0.65 * height;
-
-    //await draw_rectangle(canvases['choice_canvas'], letter1_x, letter1_y, letter_cue_size_px, letter_cue_size_px, 'black', 0.8);
-    //await draw_rectangle(canvases['choice_canvas'], letter2_x, letter2_y, letter_cue_size_px, letter_cue_size_px, 'black', 0.8);
-    let font = (letter_cue_size_px * 0.7).toString() + "px Arial";
-    await draw_text(canvases['choice_canvas'], 'F', font, '#D1D0CE', letter1_x, letter1_y, 'center');
-    await draw_text(canvases['choice_canvas'], 'J', font, '#D1D0CE', letter2_x, letter2_y, 'center');
-
-    // Create blank canvas
-    canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
 
     // Create reward canvas (green square)
     canvases['reward_canvas'] = create_canvas('reward_canvas', width, height);
@@ -367,6 +333,9 @@ async function initialize_mts_task_canvases(size){
         "black",
         0.8);
 
+    // Create choice canvas
+    canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
+    canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
 
     return canvases
 }

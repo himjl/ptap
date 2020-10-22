@@ -1,0 +1,330 @@
+<!doctype html>
+
+<body style="background-color:#7F7F7F">
+
+<div hidden>
+    <p style="color:#7F7F7F">Trials completed:
+        <text id="hud_total_trials">0</text>
+    </p>
+    <p style="color:#7F7F7F">Rewards:
+        <text id="hud_total_rewards">0</text>
+    </p>
+</div>
+
+<div id="progressbar" style="width: 35%; background-color: rgba(178,178,178,0.58); opacity:0.4; position:fixed; height:2.5%; top:2.5%; transform: translate(-50%, 0); left:50%; z-index:200">
+    <div id="progressbar_state" style="width:1%; height:100%; line-height:100%; background-color:rgba(0,0,0,0.58); vertical-align: center; margin:0"></div>
+</div>
+
+<div id='user_hud'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Performance:
+        <text id="hud_current_performance">&nbsp&nbsp0</text>
+        %
+    </p>
+    <p style="margin-right: 5px;margin-left: 5px;">Bonus:&nbsp
+        <text id="hud_current_bonus">0.0</text>
+        &cent
+    </p>
+</div>
+</body>
+
+
+<div id="instructions_html" style="visibility:hidden">
+    <text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at
+        MIT!
+    </text>
+
+    <ul>
+        <li>Please use a laptop or desktop with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT as intended.
+        <li>You will be completing several trials. On each trial, you'll view a rapidly flashed image of an object.
+        <li><b>Your task</b> is to figure out which button to press (either "F" or "J" on your keyboard) after viewing a
+            particular image.
+        <li>If you made a correct choice, you will see a
+            <text style="color:green; font-style:italic">green</text>
+            square pop up. <b>You will also increase your bonus</b>, so give it your best shot!
+        <li>If you made an incorrect choice, you will see a
+            <text style="color:black; font-style:italic">black</text>
+            square instead, and have to wait a bit before you can try again.
+        <li>To actually start a trial, press the spacebar. The image will immediately appear, so be ready!
+        <li>The session will begin with a short "warmup" task to help you learn the controls.</li>
+        <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive
+            compensation for your time.
+    </ul>
+    <p>
+        <text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if
+            doing so could cause discomfort or injury, do not accept this HIT. If you are uncomfortable during the HIT,
+            please feel free return it.
+            You will not be penalized in any way.
+        </text>
+    </p>
+</div>
+
+<head>
+    <title>DiCarlo Lab - Mechanical Turk</title>
+
+    <script>
+        __INJECT_JAVASCRIPT_HERE__
+    </script>
+
+    <script>
+        // Hardcoded experimental parameters
+        var stimulus_duration_msec = 200;
+        var reward_duration_msec = 100;
+        var punish_duration_msec = 500;
+        var choice_duration_msec = 5000;
+        var post_stimulus_delay_duration_msec = 0;
+
+
+        /* JavaScript-side randomization functions */
+        class SessionRandomization{
+            constructor() {
+            }
+            static instantiate_deterministic_block(
+                url_suffix_seq,
+                label_seq,
+            ){
+                return {'block_url_suffix_seq':url_suffix_seq, 'block_label_seq':label_seq}
+            }
+
+            static instantiate_random_block(
+                pool_0_url_suffixes,
+                pool_1_url_suffixes,
+                ntrials,
+                replace,
+                balanced_categories,
+            ){
+                /*
+                Function which returns a random sequence of suffixes of length ntrials, optionally sampling with replacement and balancing categories.
+
+                pool_0_url_suffixes: an Array of Strings.
+                pool_1_url_suffixes: an Array of Strings.
+                ntrials: an Integer. number of trials to sample. Assumed to be an even Integer.
+                replace: whether to sample with or without replacement. If replace = false, pool_0_url_suffixes and pool_1_url_suffixes is assumed to be of length ntrials if balanced_categories = false; or ntrials/2 if balanced_categories is true.
+                balanced_categories: whether to ensure pool_0 is represented in equal number to pool_1
+                */
+
+                // Sample the order of labels
+                let label_sequence = [];
+                if (balanced_categories === true){
+                    // Equal number of images from each category
+                    label_sequence = new Array(ntrials / 2).fill(0);
+                    label_sequence.push(... new Array(ntrials/2).fill(1));
+                    label_sequence = MathUtils.permute(label_sequence);
+                }
+                else{
+                    // Sample per the base distribution
+                    const n_class0 = pool_0_url_suffixes.length;
+                    const n_class1 = pool_1_url_suffixes.length;
+                    const prob_class1 = n_class1 / (n_class0 + n_class1);
+
+                    label_sequence = [];
+                    for (let i_trial=0; i_trial < ntrials; i_trial++){
+                        let cur_label = Number(Math.random() < prob_class1);
+                        label_sequence.push(cur_label)
+                    }
+                }
+
+                // Populate the suffix sequence
+                let image_url_suffix_sequence = [];
+
+                if (replace === false){
+                    // Images are presented at most once.
+                    let pool_0_url_suffixes_shuffled = MathUtils.permute(pool_0_url_suffixes);
+                    let pool_1_url_suffixes_shuffled = MathUtils.permute(pool_1_url_suffixes);
+
+                    for (let i_block_trial = 0; i_block_trial < ntrials; i_block_trial++) {
+                        let _cur_label = label_sequence[i_block_trial];
+                        if (_cur_label === 0) {
+                            // Attach a sample from class 0
+                            image_url_suffix_sequence.push(pool_0_url_suffixes_shuffled.shift());
+                        } else {
+                            // Attach a sample from class 1
+                            image_url_suffix_sequence.push(pool_1_url_suffixes_shuffled.shift());
+                        }
+                    }
+                }
+                else{
+                    // Sample with replacement
+                    for (let i_block_trial = 0; i_block_trial < ntrials; i_block_trial++) {
+                        let _cur_label = label_sequence[i_block_trial];
+                        if (_cur_label === 0) {
+                            // Attach a sample from class 0
+                            image_url_suffix_sequence.push(MathUtils.random_choice(pool_0_url_suffixes));
+                        } else {
+                            // Attach a sample from class 1
+                            image_url_suffix_sequence.push(MathUtils.random_choice(pool_1_url_suffixes));
+                        }
+                    }
+                }
+
+                return {'block_url_suffix_seq':image_url_suffix_sequence, 'block_label_seq':label_sequence}
+            }
+
+            static assemble_trial_sequence(
+                block_sequence,
+                image_url_prefix,
+                shuffle_label_mapping,
+                name,
+                usd_per_reward,
+                min_trials_for_early_exit,
+                min_perf_for_early_exit,
+                rolling_early_exit_metric,
+                max_trials_for_continue,
+            ) {
+                /*
+                Returns an Object which is an appropriate element of the Array that can be fed to run_subtasks(*)
+
+                block_sequence: an Array of Objects of shape {'block_url_suffix_seq':[], 'block_label_seq':[]}
+                image_url_prefix: the prefix for all urls involved in this sequence
+                shuffle_label_mapping: bool
+                name: String
+
+                Parameters for early exit:
+                    min_trials: Integer
+                    min_perf: float between 0 and 1
+                    rolling: Boolean: whether to check for early exit on a rolling basis, or on independent blocks of trials of length min_trials only
+                 */
+
+                // Iterate over blocks and concatenate their requested url_suffix/label sequences
+                let image_url_suffix_sequence = [];
+                let label_sequence = [];
+                for (let i_block = 0; i_block < block_sequence.length; i_block++){
+                    let cur_block = block_sequence[i_block];
+                    image_url_suffix_sequence.push(... cur_block['block_url_suffix_seq']);
+                    label_sequence.push(... cur_block['block_label_seq']);
+                }
+
+                // Set the mapping from label to optimal action
+                let label_to_action = '01';
+
+                // If requested, randomly flip the label-to-action assignments
+                if (shuffle_label_mapping === true){
+                    if (Math.random() < 0.5) {
+                        label_to_action = '01';
+                    } else {
+                        label_to_action = '10';
+                    }
+                }
+
+                return {
+                    'image_url_prefix': image_url_prefix,
+                    'image_url_suffix_seq': image_url_suffix_sequence,
+                    'label_seq': label_sequence,
+                    'label_to_action': label_to_action,
+                    'sequence_name': name,
+                    'stimulus_duration_msec': stimulus_duration_msec,
+                    'reward_duration_msec': reward_duration_msec,
+                    'punish_duration_msec': punish_duration_msec,
+                    'choice_duration_msec': choice_duration_msec,
+                    'post_stimulus_delay_duration_msec': post_stimulus_delay_duration_msec,
+                    'usd_per_reward': usd_per_reward,
+                    'early_exit_criteria':{'min_perf':min_perf_for_early_exit, 'min_trials':min_trials_for_early_exit, 'rolling':rolling_early_exit_metric},
+                    'session_end_criteria':{'max_trials_for_continue':max_trials_for_continue}
+                }
+            }
+
+            static choose_trial_sequence(
+                trial_sequence_pool,
+            ){
+                /*
+                trial_sequence_pool: an Array of trial_sequences. This function returns one of them randomly, sampling from a uniform multinomial distribution.
+                */
+                return MathUtils.random_choice(trial_sequence_pool)
+            }
+
+            static generate_session(
+                warmup_sequences,
+                main_sequences,
+                randomize_slot_order,
+            ){
+                /*
+                Returns an Array of trial_sequences which will be used as inputs to run_subtasks().
+                trial_sequences: an Array of Objects. The elements of some inner Array is an Object in the format given by the return from generate_trial_sequence().
+                */
+
+                if (randomize_slot_order===true){
+                    main_sequences = MathUtils.permute(main_sequences)
+                }
+
+                let session_sequences = warmup_sequences.concat(main_sequences);
+                return session_sequences
+            }
+        }
+
+
+        // Extract session info
+        const url = window.location.href;
+        var assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
+        var in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
+        var in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
+        const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
+        const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
+        const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
+
+        // Randomly set conditions for this assignment, and store in local storage
+        const session_parameters_key = assignmentId.concat('_session_parameters');
+        let sequences = LocalStorageUtils.retrieve_json_object(session_parameters_key);
+        if (sequences==null || developer_mode === true){
+            // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
+            sequences = __INSERT_SESSION_SEQUENCES_HERE__;
+            LocalStorageUtils.store_object_as_json(session_parameters_key, sequences);
+            console.log('Stored session parameters for assignment', assignmentId);
+
+            console.log('Developer mode: purging instructions key');
+            LocalStorageUtils.remove_item(assignment_instructions_completed_key);
+
+            // Purge existing checkpoints
+            console.log('Developer mode: purging checkpoints');
+            for (let i_subtask = 0; i_subtask < sequences.length; i_subtask++) {
+                const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
+                LocalStorageUtils.remove_item(cur_checkpoint_key);
+            }
+        }
+
+
+        // Setup progressbar callback function, which is to be called at the end of each trial
+        var ntotal_trials = 0;
+        for (let i_sequence =0; i_sequence<sequences.length; i_sequence++){
+            let cur_len = sequences[i_sequence]['image_url_suffix_seq'].length;
+            ntotal_trials = ntotal_trials + cur_len
+        }
+
+        function set_progressbar(width_percent){
+            document.getElementById('progressbar_state').style.width = width_percent.toString().concat('%');
+        }
+        function progressbar_callback(){
+            // Adjust the width of the progressbar
+            const cur_width = parseFloat(document.getElementById('progressbar_state').style.width);
+            const increment_width = 100/ntotal_trials;
+            const new_width = cur_width + increment_width;
+            set_progressbar(new_width);
+        }
+
+        (async function () {
+            // Run instructions if they have not been clicked through
+            const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
+            if (completed_instructions == null){
+                await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+                LocalStorageUtils.store_object_as_json(assignment_instructions_completed_key, 1);
+            }
+            else{
+                console.log('Detected subject already completed instructions; not showing')
+            }
+
+            if (in_preview_mode === false){
+                // Turn on HUD
+                document.getElementById('progressbar').style.visibility = 'visible';
+                document.getElementById('user_hud').style.visibility = 'visible';
+
+                // Run trials
+                var session_data = await run_subtasks(sequences, checkpoint_key_prefix);
+
+                // Submit
+                await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
+            }
+        }());
+
+    </script>
+</head>
+
+

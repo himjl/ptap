@@ -2,6 +2,7 @@ import json
 import numpy as np
 import xarray as xr
 import turkr.mturk.manage_hit
+import turkr.qualifications.qual_utils as qual_utils
 
 DEFAULT_BONUS_USD_PER_REWARD = 0.0025
 
@@ -162,8 +163,12 @@ def assignment_post_process_function(
     else:
         qual_id = QUALIFICATION_IDS['IS_PREVIOUS_WORKER_TOKEN_QUALIFICATION_TYPEID']
 
-    turkr.mturk.manage_hit.grant_qualification(qualification_type_id=qual_id, worker_id=worker_id, client=client)
-    print('(workerId:%s, assignmentId:%s): Granted "previous worker" qualification' % (worker_id, assignment_id))
+    ncompleted = qual_utils.get_current_qual_value(client=client, worker_id=worker_id, qualification_type_id=qual_id)
+    if ncompleted is None:
+        ncompleted = 0
+
+    qual_utils.grant_qualification(client = client, worker_id = worker_id, qualification_type_id=qual_id, value = ncompleted + 1)
+    print('(workerId:%s, assignmentId:%s): Marked as having performed %d tasks' % (worker_id, assignment_id, ncompleted+1))
 
     # Extract answer string and convert to JSON
     answer, parse_errors = extract_answer(asn)
@@ -253,5 +258,7 @@ def to_dataset(assignment_json:dict):
         return None
     ds_all = xr.concat(dlist, 'slot', coords = 'all')
     ds_all['slot'] = np.arange(len(answer))
-    ds_all = ds_all.assign_coords(agentId = assignment_json['WorkerId'])
+    ds_all = ds_all.assign_coords(worker_id = assignment_json['WorkerId'])
+    ds_all = ds_all.assign_coords(assignment_id=assignment_json['AssignmentId'])
+    ds_all = ds_all.assign_coords(timestamp_session_submit=assignment_json['SubmitTime'])
     return ds_all

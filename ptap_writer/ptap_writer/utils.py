@@ -16,8 +16,9 @@ def load_text(fpath):
 
 
 def save_text(string:str, fpath):
-    if not os.path.exists(os.path.dirname(fpath)):
-        os.makedirs(os.path.dirname(fpath), exist_ok=False)
+    dirname = os.path.dirname(fpath)
+    if not os.path.exists(dirname) and len(dirname) > 0:
+        os.makedirs(dirname, exist_ok=False)
 
     with open(fpath, 'w') as f:
         f.write(string)
