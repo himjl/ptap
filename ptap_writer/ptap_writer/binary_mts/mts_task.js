@@ -12,32 +12,32 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     that have been completed so far. It also attaches the error message which was associated with the error.
      */
 
-    var nphases = phase_sequence.length;
+    var nblocks = block_sequence.length;
     var return_values = {'data':[]};
 
     try {
-        for (let i_phase = 0; i_phase < nphases; i_phase++) {
+        for (let i_block = 0; i_block < nblocks; i_block++) {
             const playspace_size_pixels = infer_canvas_size();
-            const cur_phase = phase_sequence[i_subtask];
-
+            const cur_block = block_sequence[i_block];
+            console.log(cur_block)
             // Load savedata for this subtask
-            const cur_checkpoint_key = checkpoint_key_prefix.concat('_phase', i_phase.toString());
+            const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_block.toString());
 
             var cur_session_data = await run_binary_mts_trials(
-                cur_phase['image_url_prefix'],
-                cur_phase['stimulus_image_url_suffix_sequence'],
-                cur_phase['choice0_url_suffix_sequence'],
-                cur_phase['choice1_url_suffix_sequence'],
-                cur_phase['rewarded_choice_sequence'],
-                cur_phase['stimulus_duration_msec'],
-                cur_phase['reward_duration_msec'],
-                cur_phase['punish_duration_msec'],
-                cur_phase['choice_duration_msec'],
-                cur_phase['minimal_choice_duration_msec'],
-                cur_phase['post_stimulus_delay_duration_msec'],
-                cur_phase['usd_per_reward'],
+                cur_block['image_url_prefix'],
+                cur_block['stimulus_image_url_suffix_sequence'],
+                cur_block['choice0_url_suffix_sequence'],
+                cur_block['choice1_url_suffix_sequence'],
+                cur_block['rewarded_choice_sequence'],
+                cur_block['stimulus_duration_msec'],
+                cur_block['reward_duration_msec'],
+                cur_block['punish_duration_msec'],
+                cur_block['choice_duration_msec'],
+                cur_block['minimal_choice_duration_msec'],
+                cur_block['post_stimulus_delay_duration_msec'],
+                cur_block['usd_per_reward'],
                 playspace_size_pixels,
-                cur_phase['block_name'],
+                cur_block['block_name'],
                 cur_checkpoint_key,
             );
 
@@ -172,7 +172,7 @@ async function run_binary_mts_trials(
     // Iterate over trials
     var canvases = await initialize_mts_task_canvases(size);
 
-    for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
+    for (let i_trial = start_trial; i_trial < stimulus_image_url_suffix_sequence.length; i_trial++){
 
         // Buffer stimulus
         let current_stimulus_suffix = stimulus_image_url_suffix_sequence[i_trial];
@@ -192,8 +192,7 @@ async function run_binary_mts_trials(
         var current_c1_image = await trial_images.get_by_url(c1_url);
 
         await draw_image(canvases['choice_canvas'], current_c0_image, size/4, size*3/4, diameter_pixels);
-        await draw_image(canvases['choice_canvas'], current_c1_image, size/4, size*3/4, diameter_pixels);
-
+        await draw_image(canvases['choice_canvas'], current_c1_image, size*3/4, size*3/4, diameter_pixels);
         // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
         var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
@@ -211,12 +210,16 @@ async function run_binary_mts_trials(
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
             _t_seq = [0, stimulus_duration_msec, 0]
         }
+        console.log('here')
+        console.log(_t_seq)
+        console.log(_stimulus_seq)
+
         let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
         // Show choices and wait for response
         let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
-
+        console.log(choice_outcome)
         // Evaluate subject action
         let action = choice_outcome['actionIndex'];
         let reinforced_action = rewarded_choice_sequence[i_trial]
@@ -239,6 +242,10 @@ async function run_binary_mts_trials(
         else if (reinforcement === 1){
             await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
+        else {
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['blank_canvas']], [0, 0]);
+        }
+
         // Trigger await for the rest of the trial, if minimal_choice_duration_msec has not elapsed
         if (reaction_time_msec < minimal_choice_duration_msec){
             await timeout(minimal_choice_duration_msec - reaction_time_msec);
