@@ -81,11 +81,13 @@
                 'choice_duration_msec':5000,
                 'minimal_choice_duration_msec':500,
                 'post_stimulus_delay_duration_msec':0,
+                'intertrial_delay_duration_msec':0,
                 'usd_upon_block_completion':0.3,
                 'block_name':'test_mil',
                 'continue_perf_criterion':1,
             },
         ]
+
         let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
@@ -95,9 +97,9 @@
             block_sequence = []
 
             for (let i_block = 0; i_block < pool_sequence.length; i_block++){
-                let cur_pool = pool_sequence[i_block];
-                let cur_ntrials = cur_pool['ntrials'];
-                let cur_trial_pool = cur_pool['trial_pool'](); // Iterator, elements are Objects
+                let cur_block = pool_sequence[i_block];
+                let cur_ntrials = cur_block['ntrials'];
+                let cur_trial_pool = cur_block['trial_pool'](); // Iterator, elements are Objects
 
                 // Sample trials from Iterator
                 let cur_image_url_suffix_sequence = [];
@@ -113,23 +115,10 @@
                     choice1_url_suffix_sequence.push(cur_trial_info['choice1_url_suffix']);
                     rewarded_choice_sequence.push(cur_trial_info['rewarded_choice']);
                 }
-
-                let cur_block = {
-                    'image_url_prefix':cur_pool['image_url_prefix'],
-                    'stimulus_image_url_suffix_sequence':cur_image_url_suffix_sequence,
-                    'choice0_url_suffix_sequence':choice0_url_suffix_sequence,
-                    'choice1_url_suffix_sequence':choice1_url_suffix_sequence,
-                    'rewarded_choice_sequence':rewarded_choice_sequence,
-                    'stimulus_duration_msec':cur_pool['stimulus_duration_msec'],
-                    'reward_duration_msec':cur_pool['reward_duration_msec'],
-                    'punish_duration_msec':cur_pool['punish_duration_msec'],
-                    'choice_duration_msec':cur_pool['choice_duration_msec'],
-                    'minimal_choice_duration_msec':cur_pool['minimal_choice_duration_msec'],
-                    'post_stimulus_delay_duration_msec':cur_pool['post_stimulus_delay_duration_msec'],
-                    'usd_upon_block_completion':cur_pool['usd_upon_block_completion'],
-                    'block_name':cur_pool['block_name'],
-                    'continue_perf_criterion':cur_pool['continue_perf_criterion'],
-                }
+                cur_block['stimulus_image_url_suffix_sequence'] = cur_image_url_suffix_sequence;
+                cur_block['choice0_url_suffix_sequence'] = choice0_url_suffix_sequence;
+                cur_block['choice1_url_suffix_sequence'] = choice1_url_suffix_sequence;
+                cur_block['rewarded_choice_sequence'] = rewarded_choice_sequence;
                 block_sequence.push(cur_block)
                 ntotal_trials = ntotal_trials + cur_ntrials;
             }

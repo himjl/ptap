@@ -1035,6 +1035,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['choice_duration_msec'],
                 cur_block['minimal_choice_duration_msec'],
                 cur_block['post_stimulus_delay_duration_msec'],
+                cur_block['intertrial_delay_duration_msec'],
                 cur_block['usd_upon_block_completion'],
                 playspace_size_pixels,
                 cur_block['block_name'],
@@ -1134,6 +1135,7 @@ async function run_binary_mts_trials(
     choice_duration_msec,
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
+    intertrial_delay_duration_msec,
     usd_upon_block_completion,
     size,
     block_name,
@@ -1171,6 +1173,7 @@ async function run_binary_mts_trials(
     coords['choice_duration_msec'] = choice_duration_msec;
     coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['intertrial_delay_duration_msec'] = intertrial_delay_duration_msec;
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
     coords['usd_upon_block_completion'] = usd_upon_block_completion;
@@ -1323,7 +1326,6 @@ async function run_binary_mts_trials(
             }
         ];
 
-
         let choice_outcome = await action_recorder.Promise_get_subject_mouseclick_response(regions_info, choice_duration_msec, left_bound_px, top_bound_px);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
         // Evaluate subject action
@@ -1368,6 +1370,9 @@ async function run_binary_mts_trials(
             await timeout(minimal_choice_duration_msec - reaction_time_msec);
             console.log('Todo: add GUI element for minimal choice time')
         }
+
+        // Apply constant intertrial wait
+        await timeout(intertrial_delay_duration_msec);
 
         data_vars['choice'].push(choice); // 0 = chose choice0; 1 = chose choice 1
         data_vars['action'].push(action); // 0 = left, 1 = right
@@ -1485,49 +1490,49 @@ async function initialize_mts_task_canvases(size){
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
         pool_sequence = [
+            {"image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
+"usd_upon_block_completion":0,
+"ntrials":5,
+"stimulus_duration_msec":200,
+"reward_duration_msec":0,
+"punish_duration_msec":500,
+"choice_duration_msec":5000,
+"minimal_choice_duration_msec":1000,
+"intertrial_delay_duration_msec":100,
+"post_stimulus_delay_duration_msec":20,
+"block_name":"test2",
+"continue_perf_criterion":0,
+"trial_pool":(function* trial_generator(){
+const stim_suffixes=["bluediamond.png", "orangediamond.png"];
+let token_suffixes=["bluediamond.png", "orangediamond.png"];
+while(true){
+const cur_stim_suffix=stim_suffixes[Math.floor(Math.random() * stim_suffixes.length)];
+const choices=MathUtils.permute(token_suffixes);
+const cur_c0_suffix = choices[0];
+const cur_c1_suffix = choices[1];
+yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1}}}),
+},
             {
-                "ntrials": 5,
-                "image_url_prefix": "https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
-                "stimulus_duration_msec": 200,
-                "reward_duration_msec": 50,
-                "punish_duration_msec": 500,
-                "choice_duration_msec": 5000,
-                "minimal_choice_duration_msec": 500,
-                "post_stimulus_delay_duration_msec": 0,
-                "usd_upon_block_completion": 0.5,
-                "block_name": "test_mil",
-                "continue_perf_criterion": 1,
-                "trial_pool": (function* trial_generator() {
-                    const stim_suffixes = ["bluediamond.png", "orangediamond.png"];
-                    let token_suffixes = ["bluediamond.png", "orangediamond.png"];
-                    while (true) {
-                        const cur_stim_suffix = stim_suffixes[Math.floor(Math.random() * stim_suffixes.length)];
-                        const choices = MathUtils.permute(token_suffixes);
-                        const cur_c0_suffix = choices[0];
-                        const cur_c1_suffix = choices[1];
-                        yield {'stimulus_url_suffix': cur_stim_suffix, 'choice0_url_suffix': cur_c0_suffix, 'choice1_url_suffix': cur_c1_suffix, 'rewarded_choice': -1}
+                'ntrials':5,
+                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                'trial_pool':(function* trial_tuple_iterator() {
+                    while(true){
+                        yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
                     }
                 }),
-            },
-            {
-                'ntrials': 5,
-                'image_url_prefix': 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
-                'trial_pool': (function* trial_tuple_iterator() {
-                    while (true) {
-                        yield  {'stimulus_url_suffix': 'orangediamond.png', 'choice0_url_suffix': 'orangediamond.png', 'choice1_url_suffix': 'bluediamond.png', 'rewarded_choice': 0}
-                    }
-                }),
-                'stimulus_duration_msec': 200,
-                'reward_duration_msec': 50,
-                'punish_duration_msec': 500,
-                'choice_duration_msec': 5000,
-                'minimal_choice_duration_msec': 500,
-                'post_stimulus_delay_duration_msec': 0,
-                'usd_upon_block_completion': 0.3,
-                'block_name': 'test_mil',
-                'continue_perf_criterion': 1,
+                'stimulus_duration_msec':200,
+                'reward_duration_msec':50,
+                'punish_duration_msec':500,
+                'choice_duration_msec':5000,
+                'minimal_choice_duration_msec':500,
+                'post_stimulus_delay_duration_msec':0,
+                'intertrial_delay_duration_msec':0,
+                'usd_upon_block_completion':0.3,
+                'block_name':'test_mil',
+                'continue_perf_criterion':1,
             },
         ]
+
         let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
@@ -1537,9 +1542,9 @@ async function initialize_mts_task_canvases(size){
             block_sequence = []
 
             for (let i_block = 0; i_block < pool_sequence.length; i_block++){
-                let cur_pool = pool_sequence[i_block];
-                let cur_ntrials = cur_pool['ntrials'];
-                let cur_trial_pool = cur_pool['trial_pool'](); // Iterator, elements are Objects
+                let cur_block = pool_sequence[i_block];
+                let cur_ntrials = cur_block['ntrials'];
+                let cur_trial_pool = cur_block['trial_pool'](); // Iterator, elements are Objects
 
                 // Sample trials from Iterator
                 let cur_image_url_suffix_sequence = [];
@@ -1555,23 +1560,10 @@ async function initialize_mts_task_canvases(size){
                     choice1_url_suffix_sequence.push(cur_trial_info['choice1_url_suffix']);
                     rewarded_choice_sequence.push(cur_trial_info['rewarded_choice']);
                 }
-
-                let cur_block = {
-                    'image_url_prefix':cur_pool['image_url_prefix'],
-                    'stimulus_image_url_suffix_sequence':cur_image_url_suffix_sequence,
-                    'choice0_url_suffix_sequence':choice0_url_suffix_sequence,
-                    'choice1_url_suffix_sequence':choice1_url_suffix_sequence,
-                    'rewarded_choice_sequence':rewarded_choice_sequence,
-                    'stimulus_duration_msec':cur_pool['stimulus_duration_msec'],
-                    'reward_duration_msec':cur_pool['reward_duration_msec'],
-                    'punish_duration_msec':cur_pool['punish_duration_msec'],
-                    'choice_duration_msec':cur_pool['choice_duration_msec'],
-                    'minimal_choice_duration_msec':cur_pool['minimal_choice_duration_msec'],
-                    'post_stimulus_delay_duration_msec':cur_pool['post_stimulus_delay_duration_msec'],
-                    'usd_upon_block_completion':cur_pool['usd_upon_block_completion'],
-                    'block_name':cur_pool['block_name'],
-                    'continue_perf_criterion':cur_pool['continue_perf_criterion'],
-                }
+                cur_block['stimulus_image_url_suffix_sequence'] = cur_image_url_suffix_sequence;
+                cur_block['choice0_url_suffix_sequence'] = choice0_url_suffix_sequence;
+                cur_block['choice1_url_suffix_sequence'] = choice1_url_suffix_sequence;
+                cur_block['rewarded_choice_sequence'] = rewarded_choice_sequence;
                 block_sequence.push(cur_block)
                 ntotal_trials = ntotal_trials + cur_ntrials;
             }

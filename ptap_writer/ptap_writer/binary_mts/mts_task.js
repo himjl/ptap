@@ -1,16 +1,4 @@
 async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
-    /*
-    subtask_sequence: Array of Objects, which detail the subtasks which will be run
-    checkpoint_key: a String which is used for checkpointing behavioral data
-
-    This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
-    subtasks be run back-to-back.
-
-    Between each subtask, a "splash" screen appears in which the subject is informed the last subtask has concluded.
-
-    If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
-    that have been completed so far. It also attaches the error message which was associated with the error.
-     */
 
     let nblocks = block_sequence.length;
     let return_values = {'data':[]};
@@ -35,13 +23,12 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['choice_duration_msec'],
                 cur_block['minimal_choice_duration_msec'],
                 cur_block['post_stimulus_delay_duration_msec'],
+                cur_block['intertrial_delay_duration_msec'],
                 cur_block['usd_upon_block_completion'],
                 playspace_size_pixels,
                 cur_block['block_name'],
                 cur_checkpoint_key,
             );
-
-
 
             // Push data to return values
             return_values['data'].push(cur_session_data);
@@ -134,6 +121,7 @@ async function run_binary_mts_trials(
     choice_duration_msec,
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
+    intertrial_delay_duration_msec,
     usd_upon_block_completion,
     size,
     block_name,
@@ -171,10 +159,12 @@ async function run_binary_mts_trials(
     coords['choice_duration_msec'] = choice_duration_msec;
     coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['intertrial_delay_duration_msec'] = intertrial_delay_duration_msec;
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
     coords['usd_upon_block_completion'] = usd_upon_block_completion;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
+    coords['image_diameter_pixels'] = diameter_pixels;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;
@@ -323,7 +313,6 @@ async function run_binary_mts_trials(
             }
         ];
 
-
         let choice_outcome = await action_recorder.Promise_get_subject_mouseclick_response(regions_info, choice_duration_msec, left_bound_px, top_bound_px);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
         // Evaluate subject action
@@ -368,6 +357,9 @@ async function run_binary_mts_trials(
             await timeout(minimal_choice_duration_msec - reaction_time_msec);
             console.log('Todo: add GUI element for minimal choice time')
         }
+
+        // Apply constant intertrial wait
+        await timeout(intertrial_delay_duration_msec);
 
         data_vars['choice'].push(choice); // 0 = chose choice0; 1 = chose choice 1
         data_vars['action'].push(action); // 0 = left, 1 = right
