@@ -169,7 +169,7 @@ async function run_binary_mts_trials(
     await trial_images.buffer_urls(all_urls);
 
     // Begin tracking actions
-    var action_recorder = new ActionListenerClass(false, true);
+    var action_recorder = new ActionListenerClass(true, true);
 
     // Iterate over trials
     var canvases = await initialize_mts_task_canvases(size);
@@ -193,22 +193,43 @@ async function run_binary_mts_trials(
         var current_c0_image = await trial_images.get_by_url(c0_url);
         var current_c1_image = await trial_images.get_by_url(c1_url);
 
+
+        let choice_y_px = size * 3/4;
+        let choice_left_px = size * 1/4;
+        let choice_right_px = size * 3/4;
+        let choice_diameter_px = diameter_pixels;
         // Randomly assign the position of the two choices
-        let choice0_location = 0
+        let choice0_location = 0; // Choice0 goes on left side
         if (Math.random() <= 0.5){
-            choice0_location = 1
+            choice0_location = 1 // Choice0 goes on right side
         }
 
         // Buffer images
-        await draw_image(canvases['choice_canvas'], current_c0_image, size/4 + (choice0_location*size/2), size*3/4, diameter_pixels);
-        await draw_image(canvases['choice_canvas'], current_c1_image, size/4 + ((1 - choice0_location)*size/2), size*3/4, diameter_pixels);
+        await draw_image(canvases['choice_canvas'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
+        await draw_image(canvases['choice_canvas'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
+
+        // Get screen parameters
+        const cur_rect = canvases['choice_canvas'].getBoundingClientRect()
+        const left_bound_px = cur_rect.left;
+        const top_bound_px = cur_rect.top;
+
         // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
-        var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
+        //var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
+        const fixation_region_info = [
+            {
+                'xcenter_px': 0.5 * size,
+                'ycenter_px': choice_y_px,
+                'radius_px': size * 0.15,
+                'action_index':0,
+            },
+        ];
+
+        let fixation_outcome = await action_recorder.Promise_get_subject_mouseclick_response(fixation_region_info, choice_duration_msec, left_bound_px, top_bound_px);
 
         // Run stimulus
-        var _stimulus_seq = undefined;
-        var _t_seq = undefined;
+        let _stimulus_seq = undefined;
+        let _t_seq = undefined;
         if (post_stimulus_delay_duration_msec > 0){
             // Insert delay before showing choices
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
@@ -222,8 +243,23 @@ async function run_binary_mts_trials(
 
         let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
-        // Show choices and wait for response
-        let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
+        const regions_info = [
+            {
+                'xcenter_px': choice_left_px,
+                'ycenter_px': choice_y_px,
+                'radius_px': choice_diameter_px/2,
+                'action_index':0,
+            },
+            {
+                'xcenter_px': choice_right_px,
+                'ycenter_px': choice_y_px,
+                'radius_px': choice_diameter_px/2,
+                'action_index':1,
+            }
+        ];
+
+
+        let choice_outcome = await action_recorder.Promise_get_subject_mouseclick_response(regions_info, choice_duration_msec, left_bound_px, top_bound_px);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
         // Evaluate subject action
         let action = choice_outcome['actionIndex'];
@@ -331,7 +367,7 @@ async function initialize_mts_task_canvases(size){
 
     // Create fixation canvas
     canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
-    await draw_dot_with_text(canvases['fixation_canvas'], 'Press space', width*0.5, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['fixation_canvas'], 'Click to start', width*0.5, height*0.75, size * 0.15, "white", 1);
     await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
     // Create stimulus canvas
     canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);
