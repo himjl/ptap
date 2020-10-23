@@ -168,6 +168,26 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
     context.globalAlpha = 1
 }
 
+
+async function clear_canvas(canvasobj){
+    var context = canvasobj.getContext('2d');
+    context.fillStyle = "#7F7F7F";
+    context.fillRect(0, 0, canvasobj.width, canvasobj.height);
+}
+
+async function draw_border(canvas, xcentroid, ycentroid, width_pixels, height_pixels, border_width_px, color){
+    var context = canvas.getContext('2d');
+    context.globalAlpha = 1
+
+    // Red rectangle
+    context.beginPath();
+    context.lineWidth = border_width_px.toString();
+    context.strokeStyle = color;
+    context.rect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
+    context.stroke();
+}
+
+
 async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height_pixels, color, alpha) {
     var context = canvas.getContext('2d');
     context.fillStyle = color;
@@ -999,18 +1019,6 @@ function check_if_inside_circle(x, y, xc, yc, r) {
 
 
 async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
-    /*
-    subtask_sequence: Array of Objects, which detail the subtasks which will be run
-    checkpoint_key: a String which is used for checkpointing behavioral data
-
-    This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
-    subtasks be run back-to-back.
-
-    Between each subtask, a "splash" screen appears in which the subject is informed the last subtask has concluded.
-
-    If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
-    that have been completed so far. It also attaches the error message which was associated with the error.
-     */
 
     let nblocks = block_sequence.length;
     let return_values = {'data':[]};
@@ -1041,8 +1049,6 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['block_name'],
                 cur_checkpoint_key,
             );
-
-
 
             // Push data to return values
             return_values['data'].push(cur_session_data);
@@ -1178,6 +1184,7 @@ async function run_binary_mts_trials(
     coords['block_name'] = block_name;
     coords['usd_upon_block_completion'] = usd_upon_block_completion;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
+    coords['image_diameter_pixels'] = diameter_pixels;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;
@@ -1327,11 +1334,23 @@ async function run_binary_mts_trials(
         ];
 
         let choice_outcome = await action_recorder.Promise_get_subject_mouseclick_response(regions_info, choice_duration_msec, left_bound_px, top_bound_px);
+
+        // Get reaction time
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
         // Evaluate subject action
         let action = choice_outcome['actionIndex'];
+        if (action !== -1){
+            // Draw rectangle around choice
+            await draw_border(canvases['choice_canvas'], choice_left_px * (1 - action) + choice_right_px * (action), choice_y_px, width_pixels = diameter_pixels, diameter_pixels, 10, 'darkgray')
+            await timeout(50)
+        }
+
 
         let choice =  -1;
+
+
+
+
         if (action !== -1){
             choice = Number(( action || choice0_location ) && !( action && choice0_location ))
         }
@@ -1352,6 +1371,9 @@ async function run_binary_mts_trials(
                 reinforcement = 0;
             }
         }
+
+
+
         console.log(action, choice0_location, choice, reinforced_choice);
         console.log(reinforcement);
         // Provide visual feedback, and apply a timeout
@@ -1391,6 +1413,9 @@ async function run_binary_mts_trials(
 
         // Checkpoint data vars to local storage
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
+
+        // Clear canvas
+        await clear_canvas(canvases['choice_canvas'])
     }
 
     // Delete canvases
@@ -1490,17 +1515,17 @@ async function initialize_mts_task_canvases(size){
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
         pool_sequence = [
-            {"image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
-"usd_upon_block_completion":0,
-"ntrials":5,
+            {"usd_upon_block_completion":0.02,
+"ntrials":10,
 "stimulus_duration_msec":200,
-"reward_duration_msec":0,
+"reward_duration_msec":50,
 "punish_duration_msec":500,
 "choice_duration_msec":5000,
-"minimal_choice_duration_msec":1000,
+"minimal_choice_duration_msec":0,
 "intertrial_delay_duration_msec":100,
-"post_stimulus_delay_duration_msec":20,
-"block_name":"test2",
+"post_stimulus_delay_duration_msec":0,
+"block_name":"test_orange",
+"image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
 "continue_perf_criterion":0,
 "trial_pool":(function* trial_generator(){
 const stim_suffixes=["bluediamond.png", "orangediamond.png"];

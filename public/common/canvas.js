@@ -117,6 +117,26 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
     context.globalAlpha = 1
 }
 
+
+async function clear_canvas(canvasobj){
+    var context = canvasobj.getContext('2d');
+    context.fillStyle = "#7F7F7F";
+    context.fillRect(0, 0, canvasobj.width, canvasobj.height);
+}
+
+async function draw_border(canvas, xcentroid, ycentroid, width_pixels, height_pixels, border_width_px, color){
+    var context = canvas.getContext('2d');
+    context.globalAlpha = 1
+
+    // Red rectangle
+    context.beginPath();
+    context.lineWidth = border_width_px.toString();
+    context.strokeStyle = color;
+    context.rect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
+    context.stroke();
+}
+
+
 async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height_pixels, color, alpha) {
     var context = canvas.getContext('2d');
     context.fillStyle = color;

@@ -314,11 +314,21 @@ async function run_binary_mts_trials(
         ];
 
         let choice_outcome = await action_recorder.Promise_get_subject_mouseclick_response(regions_info, choice_duration_msec, left_bound_px, top_bound_px);
+
+        // Get reaction time
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
         // Evaluate subject action
         let action = choice_outcome['actionIndex'];
+        if (action !== -1){
+            // Draw rectangle around choice
+            await draw_border(canvases['choice_canvas'], choice_left_px * (1 - action) + choice_right_px * (action), choice_y_px, width_pixels = diameter_pixels, diameter_pixels, 10, 'darkgray')
+            await timeout(50)
+        }
+
 
         let choice =  -1;
+
+
         if (action !== -1){
             choice = Number(( action || choice0_location ) && !( action && choice0_location ))
         }
@@ -339,6 +349,9 @@ async function run_binary_mts_trials(
                 reinforcement = 0;
             }
         }
+
+
+
         console.log(action, choice0_location, choice, reinforced_choice);
         console.log(reinforcement);
         // Provide visual feedback, and apply a timeout
@@ -378,6 +391,9 @@ async function run_binary_mts_trials(
 
         // Checkpoint data vars to local storage
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
+
+        // Clear canvas
+        await clear_canvas(canvases['choice_canvas'])
     }
 
     // Delete canvases

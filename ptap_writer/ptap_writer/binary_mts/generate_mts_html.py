@@ -18,8 +18,16 @@ assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATI
 bool2jsbool = lambda b: 'true' if b else 'false'
 
 
-class AllWayPool(object):
+class TrialPool(object):
+    def __init__(self, image_url_prefix, function_string:str):
+        self.image_url_prefix = image_url_prefix
+        self.function_string = function_string
+        return
+
+
+class AllWayPool(TrialPool):
     """
+    Non-reinforced trials.
 
     A pool of trials defined by a set of stimuli, and a set of tokens.
     Any given trial is given by a random stimulus choice, and 2 random tokens (selected without replacement).
@@ -27,37 +35,12 @@ class AllWayPool(object):
     """
     def __init__(
             self,
-            ntrials:int,
             stimulus_urls: List[str],
             token_urls: List[str],
-            name:str,
-            usd_upon_block_completion:float,
-            stimulus_duration_msec:int,
-            reward_duration_msec:int,
-            punish_duration_msec:int,
-            choice_duration_msec:int,
-            minimal_choice_duration_msec:int,
-            intertrial_delay_duration_msec:int,
-            post_stimulus_delay_duration_msec:int,
     ):
-
-        stimulus_suffixes = [os.path.split(url)[-1] for url in stimulus_urls]
-        token_suffixes = [os.path.split(url)[-1] for url in token_urls]
-
-        self.info = dict(
-            image_url_prefix=os.path.commonprefix(stimulus_urls + token_urls),
-            usd_upon_block_completion = usd_upon_block_completion,
-            ntrials= ntrials,
-            stimulus_duration_msec= stimulus_duration_msec,
-            reward_duration_msec= reward_duration_msec,
-            punish_duration_msec= punish_duration_msec,
-            choice_duration_msec= choice_duration_msec,
-            minimal_choice_duration_msec = minimal_choice_duration_msec,
-            intertrial_delay_duration_msec = intertrial_delay_duration_msec,
-            post_stimulus_delay_duration_msec= post_stimulus_delay_duration_msec,
-            block_name=name,
-            continue_perf_criterion=0,
-        )
+        image_url_prefix = os.path.commonprefix(stimulus_urls + token_urls)
+        stimulus_suffixes = [url.split(image_url_prefix)[-1] for url in stimulus_urls]
+        token_suffixes = [url.split(image_url_prefix)[-1] for url in token_urls]
 
         # Assemble trial_pool using a JavaScript call
         # Build iterator function
@@ -73,10 +56,53 @@ class AllWayPool(object):
         function_string += 'const cur_c1_suffix = choices[1];\n'
         function_string +="yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1}"
         function_string +='}})'
-        self.function_string = function_string
+        super().__init__(image_url_prefix, function_string)
         return
 
-    def get_string(self):
+
+class SessionBlock(object):
+    def __init__(self,
+                 ntrials: int,
+                 name: str,
+                 usd_upon_block_completion: float,
+                 stimulus_duration_msec: int,
+                 reward_duration_msec: int,
+                 punish_duration_msec: int,
+                 choice_duration_msec: int,
+                 minimal_choice_duration_msec: int,
+                 intertrial_delay_duration_msec: int,
+                 post_stimulus_delay_duration_msec: int,
+                 ):
+        max_safety = 0.4
+        assert ntrials > 0
+        assert isinstance(name, str)
+        assert 0 <= usd_upon_block_completion < max_safety
+        assert 50 <= stimulus_duration_msec
+        assert 0 <= reward_duration_msec <= 1000
+        assert 0 <= punish_duration_msec <= 5000
+        assert 500 <= choice_duration_msec <= 20000
+        assert 0 <= minimal_choice_duration_msec <= choice_duration_msec
+        assert 0 <= intertrial_delay_duration_msec <= 10000
+        assert 0 <= post_stimulus_delay_duration_msec <= 10000
+
+        self.info = dict(
+            usd_upon_block_completion = usd_upon_block_completion,
+            ntrials= ntrials,
+            stimulus_duration_msec= stimulus_duration_msec,
+            reward_duration_msec= reward_duration_msec,
+            punish_duration_msec= punish_duration_msec,
+            choice_duration_msec= choice_duration_msec,
+            minimal_choice_duration_msec = minimal_choice_duration_msec,
+            intertrial_delay_duration_msec = intertrial_delay_duration_msec,
+            post_stimulus_delay_duration_msec= post_stimulus_delay_duration_msec,
+            block_name=name,
+        )
+
+    def get_string(self, trial_pool:TrialPool, continue_perf_criterion):
+        assert 0<= continue_perf_criterion <=1
+
+        self.info['image_url_prefix'] = trial_pool.image_url_prefix
+        self.info['continue_perf_criterion'] = continue_perf_criterion
 
         javascript_expression = '{'
         for k in self.info:
@@ -87,16 +113,47 @@ class AllWayPool(object):
             else:
                 val = self.info[k]
             javascript_expression+=f'"{k}":{val},\n'
-        javascript_expression +=f'"trial_pool":{self.function_string},\n'
+        javascript_expression +=f'"trial_pool":{trial_pool.function_string},\n'
         javascript_expression +='}'
 
         return javascript_expression
 
+class StandardSessionBlock(SessionBlock):
+    """
+    My standard choices for experimental parameters
+    """
+    def __init__(self,
+                 ntrials,
+                 name,
+                 ):
+        usd_per_trial = 0.002
+        usd_upon_block_completion = ntrials * usd_per_trial
+
+        super().__init__(
+                ntrials=ntrials,
+                name=name,
+                usd_upon_block_completion=usd_upon_block_completion,
+                stimulus_duration_msec = 200,
+                reward_duration_msec = 50,
+                punish_duration_msec = 500,
+                choice_duration_msec = 5000,
+                minimal_choice_duration_msec=0,
+                intertrial_delay_duration_msec=100,
+                post_stimulus_delay_duration_msec=0,
+            )
+        return
+
+
 if __name__ == '__main__':
+
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
-    pool = AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange], name = 'test2', usd_upon_block_completion=0,)
-    x = pool.get_string()
+    block = StandardSessionBlock(
+        ntrials = 10,
+        name = 'test_orange',
+    )
+    pool = AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange])
+    x = block.get_string(trial_pool = pool, continue_perf_criterion=0)
 
     # Load template
     html_string = utils.load_text(TEMPLATE_LOCATION)
