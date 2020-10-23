@@ -118,10 +118,12 @@ async function run_binary_mts_trials(
     coords['device_pixel_ratio'] = window.devicePixelRatio || 1;
 
     var data_vars = {};
-    data_vars['action'] = [];
+    data_vars['choice'] = []; // -1 = timed out, 0 = chose choice0; 1 = chose choice 1
+    data_vars['action'] = []; // -1 = timed out, 0 = left, 1 = right
     data_vars['stimulus_url_suffix'] = [];
     data_vars['choice0_url_suffix'] = [];
     data_vars['choice1_url_suffix'] = [];
+    data_vars['choice0_location'] = []; // 0 = left, 1 = right
     data_vars['reaction_time_msec'] = [];
     data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
     data_vars['rel_timestamp_stimulus_on'] = [];
@@ -191,8 +193,15 @@ async function run_binary_mts_trials(
         var current_c0_image = await trial_images.get_by_url(c0_url);
         var current_c1_image = await trial_images.get_by_url(c1_url);
 
-        await draw_image(canvases['choice_canvas'], current_c0_image, size/4, size*3/4, diameter_pixels);
-        await draw_image(canvases['choice_canvas'], current_c1_image, size*3/4, size*3/4, diameter_pixels);
+        // Randomly assign the position of the two choices
+        let choice0_location = 0
+        if (Math.random() <= 0.5){
+            choice0_location = 1
+        }
+
+        // Buffer images
+        await draw_image(canvases['choice_canvas'], current_c0_image, size/4 + (choice0_location*size/2), size*3/4, diameter_pixels);
+        await draw_image(canvases['choice_canvas'], current_c1_image, size/4 + ((1 - choice0_location)*size/2), size*3/4, diameter_pixels);
         // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
         var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
@@ -210,31 +219,38 @@ async function run_binary_mts_trials(
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
             _t_seq = [0, stimulus_duration_msec, 0]
         }
-        console.log('here')
-        console.log(_t_seq)
-        console.log(_stimulus_seq)
 
         let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
         // Show choices and wait for response
         let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
-        console.log(choice_outcome)
         // Evaluate subject action
         let action = choice_outcome['actionIndex'];
-        let reinforced_action = rewarded_choice_sequence[i_trial]
+
+        let choice =  -1;
+        if (action !== -1){
+            choice = Number(( action || choice0_location ) && !( action && choice0_location ))
+        }
+        let reinforced_choice = rewarded_choice_sequence[i_trial]
         let reinforcement = -1
 
+        // Timed out, always punish
         if (action === -1){
-            // Timed out, always punish
             reinforcement = 0
         }
-        if (reinforced_action !== -1) {
-            if (action === reinforced_action) {
-                reinforcement = 1
+
+        // Label provided for this trial
+        if (reinforced_choice !== -1) {
+            if (choice === reinforced_choice) {
+                reinforcement = 1;
+            }
+            else{
+                reinforcement = 0;
             }
         }
-
+        console.log(action, choice0_location, choice, reinforced_choice);
+        console.log(reinforcement);
         // Provide visual feedback, and apply a timeout
         if (reinforcement === 0){
             await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
@@ -252,10 +268,12 @@ async function run_binary_mts_trials(
             console.log('Todo: add GUI element for minimal choice time')
         }
 
-        data_vars['action'].push(action);
+        data_vars['choice'].push(choice); // 0 = chose choice0; 1 = chose choice 1
+        data_vars['action'].push(action); // 0 = left, 1 = right
         data_vars['stimulus_url_suffix'].push(current_stimulus_suffix);
         data_vars['choice0_url_suffix'].push(current_c0_suffix);
         data_vars['choice1_url_suffix'].push(current_c1_suffix);
+        data_vars['choice0_location'].push(choice0_location); // 0 = left, 1 = right
         data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
         data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
         data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));

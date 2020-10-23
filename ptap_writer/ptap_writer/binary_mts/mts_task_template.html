@@ -80,9 +80,84 @@
         const session_parameters_key = assignmentId.concat('_session_parameters');
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
+
+        pool_sequence = [
+            {
+                'ntrials':10,
+                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                'image_url_suffixes':['bluediamond.png','orangediamond.png'],
+                'trial_pool':[
+                    {'i_stm':0, 'i_c0':0, 'i_c1':1, 'l':0},
+                    {'i_stm':1, 'i_c0':0, 'i_c1':1, 'l':1},
+                ],
+                'stimulus_duration_msec':200,
+                'reward_duration_msec':50,
+                'punish_duration_msec':500,
+                'choice_duration_msec':5000,
+                'minimal_choice_duration_msec':500,
+                'post_stimulus_delay_duration_msec':0,
+                'usd_per_reward':0,
+                'block_name':'test_mil',
+            },
+        ]
+
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
-            //block_sequence = __INSERT_SESSION_SEQUENCES_HERE__;
+            //pool_sequence = __INSERT_POOL_SEQUENCE_HERE__;
+
+            // Randomly sample the identity and order of the trials that will be shown in this session, on-load, without replacement if npool > ntrials, else with replacement.
+            block_sequence = []
+            for (let i_block = 0; i_block < pool_sequence.length; i_block++){
+                let cur_pool = pool_sequence[i_block];
+                let cur_ntrials = cur_pool['ntrials'];
+                let cur_trial_pool = cur_pool['trial_pool']; // Array of len trials, elements are Objects
+                let cur_suffix_table = cur_pool['image_url_suffixes']
+
+                let cur_trial_sequence = [];
+                if (cur_trial_pool.length > cur_ntrials){
+                    // Sample without replacement
+                    cur_trial_sequence = MathUtils.permute(cur_trial_pool);
+                    cur_trial_sequence = cur_trial_sequence.slice(0, cur_ntrials);
+                }
+                else{
+                    // Sample with replacement
+                    cur_trial_sequence = []
+                    for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
+                        cur_trial_sequence.push(MathUtils.random_choice(cur_trial_pool))
+                    }
+                }
+
+                let cur_image_url_suffix_sequence = [];
+                let choice0_url_suffix_sequence = [];
+                let choice1_url_suffix_sequence = [];
+                let rewarded_choice_sequence = [];
+
+                for (let i_trial = 0; i_trial < cur_trial_sequence.length; i_trial++){
+                    const cur_trial = cur_trial_sequence[i_trial];
+                    cur_image_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_stm']])
+                    choice0_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c0']])
+                    choice1_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c1']])
+                    rewarded_choice_sequence.push(cur_trial['l'])
+                }
+
+                let cur_block = {
+                    'image_url_prefix':cur_pool['image_url_prefix'],
+                    'stimulus_image_url_suffix_sequence':cur_image_url_suffix_sequence,
+                    'choice0_url_suffix_sequence':choice0_url_suffix_sequence,
+                    'choice1_url_suffix_sequence':choice1_url_suffix_sequence,
+                    'rewarded_choice_sequence':rewarded_choice_sequence,
+                    'stimulus_duration_msec':cur_pool['stimulus_duration_msec'],
+                    'reward_duration_msec':cur_pool['reward_duration_msec'],
+                    'punish_duration_msec':cur_pool['punish_duration_msec'],
+                    'choice_duration_msec':cur_pool['choice_duration_msec'],
+                    'minimal_choice_duration_msec':cur_pool['minimal_choice_duration_msec'],
+                    'post_stimulus_delay_duration_msec':cur_pool['post_stimulus_delay_duration_msec'],
+                    'usd_per_reward':cur_pool['usd_per_reward'],
+                    'block_name':cur_pool['block_name'],
+                }
+                block_sequence.push(cur_block)
+            }
+
             LocalStorageUtils.store_object_as_json(session_parameters_key, block_sequence);
             console.log('Stored session parameters for assignment', assignmentId);
 
@@ -97,25 +172,7 @@
             }
         }
 
-        block_sequence = [
-            {
-                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
-                'stimulus_image_url_suffix_sequence':['bluediamond.png', 'orangediamond.png', 'bluediamond.png', 'orangediamond.png'],
-                'choice0_url_suffix_sequence':['bluediamond.png', 'bluediamond.png', 'orangediamond.png', 'orangediamond.png'],
-                'choice1_url_suffix_sequence':['orangediamond.png', 'bluediamond.png', 'bluediamond.png', 'bluediamond.png'],
-                'rewarded_choice_sequence':[-1, -1, 1, 0],
-                'stimulus_duration_msec':500,
-                'reward_duration_msec':100,
-                'punish_duration_msec':500,
-                'choice_duration_msec':5000,
-                'minimal_choice_duration_msec':3000,
-                'post_stimulus_delay_duration_msec':0,
-                'usd_per_reward':0,
-                'block_name':'test_mil',
-            },
-        ]
 
-        console.log(block_sequence);
 
         (async function () {
             // Run instructions if they have not been clicked through

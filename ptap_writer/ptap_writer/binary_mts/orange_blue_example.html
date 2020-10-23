@@ -1,0 +1,1521 @@
+<!doctype html>
+
+<body style="background-color:#7F7F7F">
+
+<div hidden>
+    <p style="color:#7F7F7F">Trials completed:
+        <text id="hud_total_trials">0</text>
+    </p>
+    <p style="color:#7F7F7F">Rewards:
+        <text id="hud_total_rewards">0</text>
+    </p>
+</div>
+
+<div id="progressbar" style="width: 35%; background-color: rgba(178,178,178,0.58); opacity:0.4; position:fixed; height:2.5%; top:2.5%; transform: translate(-50%, 0); left:50%; z-index:200">
+    <div id="progressbar_state" style="width:1%; height:100%; line-height:100%; background-color:rgba(0,0,0,0.58); vertical-align: center; margin:0"></div>
+</div>
+
+<div id='user_hud'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Performance:
+        <text id="hud_current_performance">&nbsp&nbsp0</text>
+        %
+    </p>
+    <p style="margin-right: 5px;margin-left: 5px;">Bonus:&nbsp
+        <text id="hud_current_bonus">0.0</text>
+        &cent
+    </p>
+</div>
+</body>
+
+
+<div id="instructions_html" style="visibility:hidden">
+    <text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at
+        MIT!
+    </text>
+
+    <ul>
+        <li>Please use a laptop or desktop with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT as intended.
+        <li>You will be completing several trials. On each trial, you'll view a rapidly flashed image of an object.
+        <li><b>Your task</b> is to figure out which button to press (either "F" or "J" on your keyboard) after viewing a
+            particular image.
+        <li>If you made a correct choice, you will see a
+            <text style="color:green; font-style:italic">green</text>
+            square pop up. <b>You will also increase your bonus</b>, so give it your best shot!
+        <li>If you made an incorrect choice, you will see a
+            <text style="color:black; font-style:italic">black</text>
+            square instead, and have to wait a bit before you can try again.
+        <li>To actually start a trial, press the spacebar. The image will immediately appear, so be ready!
+        <li>The session will begin with a short "warmup" task to help you learn the controls.</li>
+        <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive
+            compensation for your time.
+    </ul>
+    <p>
+        <text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if
+            doing so could cause discomfort or injury, do not accept this HIT. If you are uncomfortable during the HIT,
+            please feel free return it.
+            You will not be penalized in any way.
+        </text>
+    </p>
+</div>
+
+<head>
+    <title>DiCarlo Lab - Mechanical Turk</title>
+
+    <script>
+        ////////// IMPORT from /common/canvas.js//////////
+function get_screen_dims(){
+    var h = window.screen.height;
+    var w = window.screen.width;
+    return [h, w]
+}
+
+function get_window_dims() {
+    // Reference: https://www.w3schools.com/js/js_window.asp
+    var w = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+
+    var h = window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
+
+    return [h, w]
+}
+
+
+function infer_canvas_size() {
+    // Present the canvases at 85% of the smallest screen dimension
+    var [screen_height, screen_width] = get_screen_dims();
+    var screen_margin = 0.3;
+    return Math.round(Math.min(screen_height, screen_width)) * (1 - screen_margin);
+}
+
+
+function create_canvas(canvas_id, width, height){
+    /*
+    Creates and returns a canvas with id canvas_id
+     */
+
+    var use_image_smoothing = true;
+
+    // Create canvas and assign name
+    var canvasobj = document.createElement('canvas');
+    canvasobj.id = canvas_id;
+
+    // Detect the pixel ratio of the subject's device
+    var context = canvasobj.getContext('2d');
+
+    var devicePixelRatio = window.devicePixelRatio || 1;
+    var backingStoreRatio = context.webkitBackingStorePixelRatio ||
+        context.mozBackingStorePixelRatio ||
+        context.msBackingStorePixelRatioproportion2pixels ||
+        context.oBackingStorePixelRatio ||
+        context.backingStorePixelRatio || 1; // /1 by default for chrome?
+
+    var _ratio = devicePixelRatio / backingStoreRatio;
+
+    // Set the dimensions of the canvas
+    canvasobj.width = width * _ratio;
+    canvasobj.height = height * _ratio;
+
+    // Center canvas: https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
+    canvasobj.style.padding = 0;
+    canvasobj.style.margin = 'auto';
+    canvasobj.style.display = "block";
+    canvasobj.style.position = 'absolute';
+    canvasobj.style.top = 0;
+    canvasobj.style.bottom = 0;
+    canvasobj.style.left = 0;
+    canvasobj.style.right = 0;
+    canvasobj.style.width = width + 'px';
+    canvasobj.style.height = height + 'px';
+
+    // Set background
+    context.fillStyle = "#7F7F7F";
+    context.fillRect(0, 0, canvasobj.width, canvasobj.height);
+
+    // Set image smoothing
+    context.imageSmoothingEnabled = use_image_smoothing;
+
+    if (_ratio !== 1) {
+        context.scale(_ratio, _ratio)
+    }
+
+    // Append to document body
+    document.body.appendChild(canvasobj);
+    return canvasobj
+}
+
+function set_canvas_level(canvas, z){
+    /*
+    canvas: Canvas object reference
+    z: integer
+     */
+    canvas.style.zIndex = z.toString();
+}
+
+async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel, diameter_pixel, dot_color, alpha, ) {
+    var context = canvas.getContext('2d');
+
+    // Apply alpha to the dot
+    if (alpha !== undefined) {
+        // https://stackoverflow.com/questions/10487882/html5-change-opacity-of-a-draw-rectangle/17459193
+        context.globalAlpha = alpha
+    }
+
+    context.beginPath();
+    context.arc(xcentroid_pixel, ycentroid_pixel, diameter_pixel / 2, 0 * Math.PI, 2 * Math.PI);
+    context.fillStyle = dot_color;
+    context.fill();
+
+    var nLetters = text.length;
+    if (nLetters > 0){
+        var letterSize = Math.min((diameter_pixel*2) / (nLetters + 0.6), 40);
+        context.font = letterSize.toString() + "px Arial";
+        context.fillStyle = "gray";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, xcentroid_pixel, ycentroid_pixel);
+    }
+
+    // So further calls to this canvas context are not necessarily alpha'd out.
+    context.globalAlpha = 1
+}
+
+async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height_pixels, color, alpha) {
+    var context = canvas.getContext('2d');
+    context.fillStyle = color;
+    context.globalAlpha = alpha;
+    var width = parseFloat(canvas.style.width);
+    var height = parseFloat(canvas.style.height);
+    context.fillRect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
+    context.fill();
+    context.globalAlpha = 1
+}
+
+async function draw_text(canvas, string, font, color, x, y, align){
+    var ctx = canvas.getContext("2d");
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = align;
+    ctx.textBaseline = 'middle';
+    ctx.fillText(string, x, y);
+    ctx.globalAlpha = 1
+}
+
+async function draw_image(canvas, image, xcentroid_pixel, ycentroid_pixel, diameter_pixels) {
+    /*
+    Draws an image on the canvas.
+
+    canvas: a reference to a Canvas object.
+    image: an image blob.
+    xcentroid_pixel: () with respect to canvas coordinates (x = 0 at left; positive direction is rightward)
+    ycentroid_pixel: () with respect to canvas coordinates (y = 0 at top; positive direction is downward)
+    diameter_pixels: () the size of the drawn image's longest dimension (either width or height).
+     */
+    var nativeWidth = image.naturalWidth;
+    var nativeHeight = image.naturalHeight;
+    let drawHeight, drawWidth;
+
+    if (nativeHeight > nativeWidth) {
+        drawHeight = diameter_pixels;
+        drawWidth = diameter_pixels * nativeWidth / nativeHeight
+    } else {
+        drawWidth = diameter_pixels;
+        drawHeight = diameter_pixels * nativeHeight / nativeWidth
+    }
+
+    // Place left corner of image
+    var original_left_start = xcentroid_pixel - diameter_pixels / 2;
+    var original_top_start = ycentroid_pixel - diameter_pixels / 2;
+
+    var context = canvas.getContext('2d');
+    await context.drawImage(image, original_left_start, original_top_start, drawWidth, drawHeight);
+}
+
+function display_canvas_sequence(canvas_sequence, t_durations) {
+    /*
+    Input arguments:
+        canvas_sequence: Array of references to DOM canvases
+        t_durations: Array of floats / integers; in units of milliseconds.
+                     The amount of time that must elapse before the next frame is shown.
+                     In the case of the last frame, this is the amount of time that is "blocked" before the promise resolves.
+
+     This function immediately displays the canvases given in canvas_sequence.
+
+     The last canvas in the sequence is kept "on" once this function is concluded.
+
+     The function returns a promise that resolves when the sequence has concluded. The resolved promise returns
+     an Array with performance.now() timestamps corresponding to the draw time of each canvas.
+    */
+
+    // Instantiate Promise which will resolve when the sequence is done
+    var resolveFunc;
+    var errFunc;
+    var promise_done_with_sequence = new Promise(function (resolve, reject) {
+        resolveFunc = resolve;
+        errFunc = reject;
+    }).then();
+
+    const nframes = canvas_sequence.length;
+    var frame_timestamps = [];
+    var i_canvas_next = 0;
+    var on_first_call = true;
+    var timestamp_draw = undefined;
+    var epsilon = (1/60 * 1000) * 0.4; // If a frame has been reported to be shown for at least (trequested - epsilon), go to the next frame. The alternative is that the frame is shown for longer than requested (trequested + frame_period).
+
+    function check_frame(timestamp) {
+        /*
+        timestamp: a DOMHighResTimeStamp instance, similar to the number given by performance.now(). It is in milliseconds.
+         */
+
+        if (on_first_call === true){
+            on_first_call = false;
+            set_canvas_level(canvas_sequence[i_canvas_next], 100);
+            i_canvas_next++;
+            timestamp_draw = timestamp;
+            frame_timestamps.push(performance.now());
+        }
+        else{
+            var time_elapsed = timestamp - timestamp_draw;
+            var canvas_duration_fulfilled = time_elapsed >= (t_durations[i_canvas_next - 1] - epsilon);
+
+            if ((canvas_duration_fulfilled) && (i_canvas_next < nframes)){
+                set_canvas_level(canvas_sequence[i_canvas_next], 100);
+                set_canvas_level(canvas_sequence[i_canvas_next-1], 0);
+                i_canvas_next++;
+                timestamp_draw = timestamp;
+                frame_timestamps.push(performance.now())
+            }
+        }
+
+        // On last canvas
+        var on_last_canvas = i_canvas_next === nframes;
+        if (on_last_canvas === true){
+            // Time remaining on this canvas has elapsed
+            if ((timestamp - timestamp_draw) >= t_durations[i_canvas_next-1]){
+                resolveFunc(frame_timestamps)
+            }
+            else{
+                window.requestAnimationFrame(check_frame);
+            }
+        }
+        // More canvases to draw
+        else{
+            window.requestAnimationFrame(check_frame)
+        }
+    }
+
+    window.requestAnimationFrame(check_frame);
+    return promise_done_with_sequence
+}
+
+
+
+////////// IMPORT from /common/image_loading.js//////////
+const __check_image_download_successful = path =>
+    new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve({img, path, status: 'ok'});
+        img.onerror = () => resolve({path, status: 'error'});
+        img.src = path;
+    });
+
+
+class ImageBufferClass {
+    constructor() {
+        this.cache_dict = {}; // url:image data
+        this.cache_members = []; // earliest image_path -> latest image_path
+    }
+
+    async buffer_urls(urls){
+        // urls: an Array of url strings
+        let promise_array = [];
+        for (let i_url = 0; i_url < urls.length; i_url++){
+            promise_array.push(this.get_by_url(urls[i_url]));
+        }
+        return Promise.all(promise_array);
+    }
+
+    async get_by_url(url) {
+        // url: string
+        // Requested image not in buffer. Add it, then return.
+        if (url in this.cache_dict) {
+            return this.cache_dict[url]
+        } else if (!(url in this.cache_dict)) {
+            await this.download_image(url);
+            return this.cache_dict[url]
+        }
+        console.log('Downloaded image at', url)
+    }
+
+    async remove_image_from_cache(url) {
+        // Currently unused
+        try {
+            window.URL.revokeObjectURL(this.cache_dict[url].src);
+            delete this.cache_dict[url];
+        } catch (error) {
+            console.log('removal of', filename, 'failed with:', error)
+        }
+    }
+
+    async download_image(url) {
+        // url: string
+        try {
+            if (!(url in this.cache_dict)) {
+                this.cache_dict[url] = await this._load_image_core(url);
+                this.cache_members.push(url);
+                console.log('Cached', url)
+            }
+        } catch (error) {
+            console.error("cache_these_images failed with error:", error)
+        }
+    }
+
+    async _load_image_core(url) {
+        var img = await __check_image_download_successful(url);
+        if (img.status === 'ok'){
+            return img.img
+        }
+        else{
+            console.warn('error loading image at', url);
+            return 'image_failure'
+        }
+    }
+}
+
+
+////////// IMPORT from /common/instructions_splash.js//////////
+function run_instructions(instructions_html, disable_button){
+    /*
+    instructions_html: String
+    disable_button: boolean
+
+    Creates and displays a div (at z-level 103) with a constituent span which displays the instructions_html.
+    A button is created that will close the div.
+    If disable_button === true, the button is disabled.
+    */
+
+    var div = document.createElement("div");
+    div.setAttribute("id", 'instructions_div');
+    div.style.position = "fixed";
+    div.style.top = "50%";
+    div.style.left = "50%";
+    div.style.height = "50%";
+    div.style.width = "auto";
+    div.style.transform = "translate(-50%, -50%)";
+    div.style.display = 'flex';
+    div.style['align-items'] = 'center';
+    div.style['flex-direction'] = 'column';
+    div.style['font-size'] = '14px';
+    div.style['z-index'] = '103';
+    div.style['font-family'] = '\'Helvetica Neue\', serif';
+    div.style['text-align'] = 'left';
+    div.style.color = '#4B4B4B';
+    div.style['background-color'] = '#E4E4E4';
+    div.style.visibility = 'visible';
+    div.style['border-radius'] = '8px';
+    div.style['border-color'] = '#E6E6E6';
+    div.style['border-style'] = 'solid';
+    div.style['padding-right'] = '1%';
+    div.style['padding-left'] = '1%';
+
+    var span = document.createElement('span');
+    span.innerHTML = instructions_html;
+    div.appendChild(span);
+
+    var button = document.createElement('button');
+
+
+    var resolve_func;
+    function _user_clicked(){
+        div.style.display = 'none';
+        resolve_func()
+    }
+    button.style.position = "fixed";
+    button.style.top = '95%';
+    button.onclick = _user_clicked;
+    button.disabled = disable_button;
+    if (disable_button === true){
+        button.innerHTML = 'Preview Mode. Accept the HIT if you would like to participate!'
+    }
+    else{
+        button.innerHTML = 'I understand the instructions and would like to begin the task.'
+    }
+
+    div.appendChild(button);
+
+    document.body.appendChild(div);
+    //document.getElementById("main").appendChild(div);
+
+    return new Promise(function(resolve, reject){
+        resolve_func = resolve;
+    })
+
+}
+
+////////// IMPORT from /common/local_storage_utils.js//////////
+class LocalStorageUtils {
+    constructor() {
+    }
+
+    static retrieve_json_object(key){
+        // Key: a string or integer.
+        // Returns: a JSON.parsed DOMString, or null if the key has no corresponding value.
+
+        if (typeof(key) === "number"){
+            key = key.toString();
+        }
+
+        // Loads a DOMString or null
+        let val  = window.localStorage.getItem(key);
+
+        if (val == null){
+            console.log('Returned null value for key', key);
+            return val
+        }
+        else{
+            // Parse the string
+            return JSON.parse(val)
+        }
+    }
+
+    static store_object_as_json(key, object){
+        // Stores a JavaScript object as a JSON string
+        const stringified_object = JSON.stringify(object);
+        return window.localStorage.setItem(key, stringified_object)
+    }
+
+    static remove_item(key){
+        window.localStorage.removeItem(key);
+        console.log('Removed', key, 'from LocalStorage')
+
+    }
+
+}
+
+
+
+////////// IMPORT from /common/math_utils.js//////////
+class MathUtils{
+    constructor() {}
+
+    static random_choice(choices){
+        var i_index = Math.floor(Math.random() * choices.length);
+        return choices[i_index];
+    }
+
+    static permute(array) {
+        // https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array/46161940
+        var currentIndex = array.length, temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle...
+        while (0 !== currentIndex) {
+
+            // Pick a remaining element...
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex -= 1;
+
+            // And swap it with the current element.
+            temporaryValue = array[currentIndex];
+            array[currentIndex] = array[randomIndex];
+            array[randomIndex] = temporaryValue;
+        }
+
+        return array;
+    }
+
+
+    static sum(array) {
+        let i = 0, sum = 0, len = array.length;
+
+        while (i < len) {
+            sum = sum + array[i++];
+        }
+
+        return sum;
+    }
+
+    static mean(array) {
+        let i = 0, sum = 0, len = array.length;
+
+        while (i < len) {
+            sum = sum + array[i++];
+        }
+
+        return sum / len;
+    }
+
+    static multinomial(probs){
+        /*
+        probs: [nchoices] Array containing possibly unnormalized probabilities for each position. Assumes these values are all nonnegative.
+        returns: () an index
+         */
+        const nchoices = probs.length;
+
+        // Early exit, only one choice
+        if(nchoices===1){
+            return 0
+        }
+
+        // Normalize probabilities
+        var total_mass = 0;
+        for (let i = 0; i < nchoices; i++){
+            total_mass = total_mass + probs[i]
+        }
+        var probs_normalized = [...probs];
+        for (let i = 0; i < nchoices; i++){
+            probs_normalized[i] = probs_normalized[i] / total_mass;
+        }
+
+        // Calculate the "right" edge of each bin in the range [0, 1]
+        var cum_probs = [];
+        var cur = 0;
+        for (let i = 0; i < nchoices; i++){
+            cum_probs.push(cur + probs_normalized[i]);
+            cur = cur+probs_normalized[i]
+        }
+        const sample = Math.random();
+        for (let i = 0; i < nchoices; i++){
+            if (sample < cum_probs[i]){
+                return i
+            }
+        }
+
+        return (nchoices - 1)
+    }
+}
+
+// The following snippet randomly initializes the seed for all subsequent Math.random() calls:
+// https://github.com/davidbau/seedrandom
+!function (a, b, c, d, e, f, g, h, i) {
+    function j(a) {
+        var b, c = a.length, e = this, f = 0, g = e.i = e.j = 0, h = e.S = [];
+        for (c || (a = [c++]); d > f;) h[f] = f++;
+        for (f = 0; d > f; f++) h[f] = h[g = s & g + a[f % c] + (b = h[f])], h[g] = b;
+        (e.g = function (a) {
+            for (var b, c = 0, f = e.i, g = e.j, h = e.S; a--;) b = h[f = s & f + 1], c = c * d + h[s & (h[f] = h[g = s & g + b]) + (h[g] = b)];
+            return e.i = f, e.j = g, c
+        })(d)
+    }
+
+    function k(a, b) {
+        var c, d = [], e = typeof a;
+        if (b && "object" == e) for (c in a) try {
+            d.push(k(a[c], b - 1))
+        } catch (f) {
+        }
+        return d.length ? d : "string" == e ? a : a + "\0"
+    }
+
+    function l(a, b) {
+        for (var c, d = a + "", e = 0; e < d.length;) b[s & e] = s & (c ^= 19 * b[s & e]) + d.charCodeAt(e++);
+        return n(b)
+    }
+
+    function m(c) {
+        try {
+            return o ? n(o.randomBytes(d)) : (a.crypto.getRandomValues(c = new Uint8Array(d)), n(c))
+        } catch (e) {
+            return [+new Date, a, (c = a.navigator) && c.plugins, a.screen, n(b)]
+        }
+    }
+
+    function n(a) {
+        return String.fromCharCode.apply(0, a)
+    }
+
+    var o, p = c.pow(d, e), q = c.pow(2, f), r = 2 * q, s = d - 1, t = c["seed" + i] = function (a, f, g) {
+        var h = [];
+        f = 1 == f ? {entropy: !0} : f || {};
+        var o = l(k(f.entropy ? [a, n(b)] : null == a ? m() : a, 3), h), s = new j(h);
+        return l(n(s.S), b), (f.pass || g || function (a, b, d) {
+            return d ? (c[i] = a, b) : a
+        })(function () {
+            for (var a = s.g(e), b = p, c = 0; q > a;) a = (a + c) * d, b *= d, c = s.g(1);
+            for (; a >= r;) a /= 2, b /= 2, c >>>= 1;
+            return (a + c) / b
+        }, o, "global" in f ? f.global : this == c)
+    };
+    if (l(c[i](), b), g && g.exports) {
+        g.exports = t;
+        try {
+            o = require("crypto")
+        } catch (u) {
+        }
+    } else h && h.amd && h(function () {
+        return t
+    })
+}(this, [], Math, 256, 6, 52, "object" == typeof module && module, "function" == typeof define && define, "random");
+Math.seedrandom();
+
+
+////////// IMPORT from /common/mturk_submission.js//////////
+class mechanical_turk_util_functions{
+    static async submit_data(assignmentId, sandbox_mode, data_obj){
+        /*
+        assignmentId: str
+        sandbox_mode: bool
+        data_obj: JSON-like object
+
+        Submits data to Mechanical Turk servers, and concludes the assignment for the subject.
+        Per AWS documentation, we are required to include the assignmentId. Other fields are optional.
+         */
+
+        // Check to see if we should submit to the Mechanical Turk Sandbox server
+        let external_question_submission_url = 'https://www.mturk.com/mturk/externalSubmit';
+        if (sandbox_mode === true){
+            external_question_submission_url = "https://workersandbox.mturk.com/mturk/externalSubmit";
+        }
+
+        // Create the submission form
+        let submission_form = document.createElement("form");
+        document.body.appendChild(submission_form);
+        submission_form.setAttribute("method", "post");
+        submission_form.setAttribute("action", external_question_submission_url);
+        submission_form.style = "display: none;";
+
+        // Attach inputs to the submission form
+        let submission_data_input = document.createElement("input");
+        submission_data_input.setAttribute("name", 'submission_data');
+        submission_form.appendChild(submission_data_input);
+
+        let assignmentId_input = document.createElement("input");
+        assignmentId_input.setAttribute("name", 'assignmentId');
+        submission_form.appendChild(assignmentId_input);
+
+        // Fill out form
+        let session_data_string = JSON.stringify(data_obj);
+
+        assignmentId_input.value = assignmentId;
+        submission_data_input.value = session_data_string;
+
+        let currently_debugging = window.location.href.includes('localhost:');
+
+        if (currently_debugging === false){
+            submission_form.submit();
+        }
+        else{
+            console.log('Currently on localhost; not submitting to turk');
+            console.log('Data object:', data_obj);
+        }
+
+    }
+
+    static get_workerId_from_url(url){
+        var workerId = this._extract_url_string(url, 'workerId', 'workerId_not_found');
+        console.log('workerId:', workerId);
+        return workerId
+    }
+
+    static get_assignmentId_from_url(url){
+        var assignmentId = this._extract_url_string(url, 'assignmentId', 'assignmentId_not_found');
+        console.log('assignmentId', assignmentId);
+
+        return assignmentId
+    }
+
+    static get_hitId_from_url(url){
+        var hitId = this._extract_url_string(url, 'hitId', 'hitId_not_found');
+        console.log('hitId', hitId);
+        return hitId
+    }
+
+    static _extract_url_string(url, key, defaultValue){
+        var name = key;
+        key = key.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regexS = "[\\?&]" + key + "=([^&#]*)";
+        var regex = new RegExp(regexS);
+        var results = regex.exec(url) || ["", defaultValue];
+
+        return results[1]
+    }
+
+    static detect_developer_mode(url){
+        if (window.location.href.indexOf('localhost') !== -1) {
+            // It's a developer running this on his/her machine; disable preview mode
+            console.log('Running in developer mode:');
+            return true;
+        }
+        return false;
+    }
+    static detect_previewer(url){
+        /*
+        Detect if the current url reflects the one given to a previewer.
+        return: bool
+         */
+
+        let in_preview_mode;
+
+        if (window.location.href.indexOf('localhost') !== -1) {
+            // It's a developer running this on his/her machine; disable preview mode
+            in_preview_mode = false;
+        }
+        else {
+            // It's a live human viewing the page in preview mode on the Mechanical Turk Website
+            in_preview_mode = assignmentId === 'assignmentId_not_found' || assignmentId === 'ASSIGNMENT_ID_NOT_AVAILABLE';
+        }
+
+        return in_preview_mode
+    }
+
+    static detect_sandbox(url){
+        /*
+        Detect if the current url reflects the one given to a subject using Mechanical Turk in sandbox mode.
+        return: bool
+         */
+        let sandbox = false;
+        const submit_to_string = this._extract_url_string(url, 'turkSubmitTo', 'turkSubmitToNotFound');
+        if (submit_to_string.includes('sandbox') === true){
+            sandbox = true;
+        }
+        return sandbox
+    }
+}
+
+
+////////// IMPORT from /common/session_randomization.js//////////
+class RoundRobinSampler{
+    /*
+       Class which implements random "round robin" sampling, in which nentries indices are randomly sampled, nsamples at a time, until all entries have been covered.
+
+       Once all entries have been sampled, the process repeats itself in another random order.
+
+       nentries; Integer
+       nsamples: Integer
+       experiment_name: String
+       worker_id: String
+    */
+
+    constructor(worker_id, sampler_id, nentries) {
+        this.worker_id = worker_id;
+        this.sampler_id = sampler_id;
+        this.nentries = nentries;
+
+        this.local_storage_key = worker_id.concat('_round_robin_sampler_', sampler_id, '_n', nentries.toString())
+    }
+
+    accept_samples(samples){
+        // Encode chosen samples into LocalStorage
+
+        // Get unique samples
+        const distinct_samples = [... new Set(samples)];
+        LocalStorageUtils.store_object_as_json(this.local_storage_key, distinct_samples);
+    }
+
+    propose_samples(nsamples){
+
+        let worker_history = LocalStorageUtils.retrieve_json_object(this.local_storage_key);
+        if (worker_history == null){
+            worker_history = [];
+        }
+
+        if(Array.isArray(worker_history) === false){
+            worker_history = [];
+        }
+
+        // Assemble sample space
+        let full_sample_space = [];
+        let fresh_sample_space = [];
+
+        for (let i = 0; i < nentries; i++){
+            full_sample_space.push(i);
+
+            if(worker_history.includes(i) === false){
+                fresh_sample_space.push(i);
+            }
+        }
+
+        // Finish up any round-robin iterations "in progress":
+        let samples = MathUtils.permute(fresh_sample_space);
+        samples = samples.slice(0, nsamples);
+
+        // Fill the remainder of any requested samples with more round-robin iterations
+        const nremaining = nsamples - samples.length;
+
+        let new_samps = [];
+        let cur_generator = MathUtils.permute([... full_sample_space]);
+        while(new_samps.length < nremaining){
+            if(cur_generator.length === 1){
+                cur_generator = MathUtils.permute([... full_sample_space]);
+            }
+            new_samps.push(cur_generator.shift());
+        }
+
+        samples = samples.concat(new_samps);
+
+        return samples
+
+    }
+}
+
+
+
+////////// IMPORT from /common/subject_action.js//////////
+class ActionListenerClass {
+    constructor(track_mouseclick, track_keypress, ) {
+        /*
+        track_mouseclick: bool
+        track_keys: bool
+        */
+
+        this._resolveFunc;
+        this._errFunc;
+
+        var _this = this;
+
+        this.listening_for_keypress = false;
+        this.listening_for_mouse = false;
+
+        this.actionCentroids = [];
+        this.actionRadii = [];
+
+        this.handleKeyPressEvent = function (event) {
+
+            event.preventDefault();
+
+            if (_this.listening_for_keypress !== true) {
+                return
+            }
+
+            const actionIndex = _this.key2actionIndex[event.key];
+            if (actionIndex === undefined) {
+                // Invalid keypress
+                return
+            }
+
+            _this.listening_for_keypress = false;
+            _this._resolveFunc({
+                'actionIndex': actionIndex,
+                't': performance.now(),
+            })
+        };
+
+        this.handleMouseEvent = function (event) {
+            if (_this.listening_for_mouse === false){
+                return
+            }
+
+            // Get coordinates of the mouse event with origins provided by this.leftBound and this.topBound
+            const x = event.pageX - _this.leftBound;
+            const y = event.pageY - _this.topBound;
+
+            // Check if click in any of the active regions
+            let inside = false;
+
+            for (let i = 0; i < _this.actionCentroids.length; i++) {
+                inside = check_if_inside_circle(
+                    x,
+                    y,
+                    _this.actionCentroids[i]['xcenter_px'],
+                    _this.actionCentroids[i]['ycenter_px'],
+                    _this.actionCentroids[i]['radius_px']);
+                if (inside === true) {
+                    _this.listening_for_mouse = false;
+                    _this._resolveFunc({
+                        'actionIndex': _this.actionCentroids[i]['action_index'],
+                        't': performance.now(),
+                    })
+                }
+            }
+        };
+
+        if (track_keypress === true){
+            window.addEventListener('keypress', this.handleKeyPressEvent)
+        }
+        if (track_mouseclick === true){
+            window.addEventListener('mouseup', this.handleMouseEvent)
+        }
+    }
+
+    Promise_get_subject_mouseclick_response(regions_info, timeout_msec, left_bound_px, top_bound_px) {
+        /*
+        regions_info: list of Objects with keys: [{'xcenter_px': Integer, 'ycenter_px': Integer, 'radius_px': Integer, 'action_index':Integer}]
+
+        left_bound_px: in pageX coordinates, the origin of the region
+        top_bound_px: in pageY coordinates, the origin of the region
+         */
+        this.leftBound = left_bound_px;
+        this.topBound = top_bound_px;
+
+        this.actionCentroids = regions_info;
+
+        this.listening_for_mouse = true;
+        var _this = this;
+        let choice_promise = new Promise(function (resolve, reject) {
+            _this._resolveFunc = resolve;
+            _this._errFunc = reject
+        });
+
+        if (timeout_msec > 0){
+            choice_promise = Promise.race([choice_promise, timeout(timeout_msec)])
+        }
+
+        return choice_promise
+    }
+
+    Promise_get_subject_keypress_response(key2actionIndex, timeout_msec) {
+
+        this.key2actionIndex = key2actionIndex;
+        var _this = this;
+        this.listening_for_keypress = true;
+        var choice_promise = new Promise(function (resolve, reject) {
+            _this._resolveFunc = resolve;
+            _this._errFunc = reject
+        });
+
+        if (timeout_msec > 0){
+            choice_promise = Promise.race([choice_promise, timeout(timeout_msec)])
+        }
+
+        return choice_promise
+    }
+
+
+    close_listeners() {
+        if (this.track_mouseclick === true){
+            window.removeEventListener('mouseup', this.handleMouseEvent)
+        }
+
+        if (this.track_keypress === true){
+            window.removeEventListener('keypress', this.handleKeyPressEvent)
+        }
+    }
+}
+
+
+function timeout(timeoutMsec) {
+    return new Promise(
+        function (resolve, reject) {
+            var timer_return = function () {
+                resolve({
+                    "actionIndex": -1,
+                    'timestamp': performance.now(),
+                })
+            };
+            setTimeout(timer_return, timeoutMsec)
+        })
+}
+
+
+function check_if_inside_circle(x, y, xc, yc, r) {
+    var dxs = Math.pow(x - xc, 2);
+    var dys = Math.pow(y - yc, 2);
+
+    if ((dxs + dys) <= Math.pow(r, 2)) {
+        return true
+    } else {
+        return false
+    }
+}
+
+
+
+
+async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
+    /*
+    subtask_sequence: Array of Objects, which detail the subtasks which will be run
+    checkpoint_key: a String which is used for checkpointing behavioral data
+
+    This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
+    subtasks be run back-to-back.
+
+    Between each subtask, a "splash" screen appears in which the subject is informed the last subtask has concluded.
+
+    If a subtask is to fail, for some reason, this function concludes early, and returns the behavioral data for trials
+    that have been completed so far. It also attaches the error message which was associated with the error.
+     */
+
+    var nblocks = block_sequence.length;
+    var return_values = {'data':[]};
+
+    try {
+        for (let i_block = 0; i_block < nblocks; i_block++) {
+            const playspace_size_pixels = infer_canvas_size();
+            const cur_block = block_sequence[i_block];
+            console.log(cur_block)
+            // Load savedata for this subtask
+            const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_block.toString());
+
+            var cur_session_data = await run_binary_mts_trials(
+                cur_block['image_url_prefix'],
+                cur_block['stimulus_image_url_suffix_sequence'],
+                cur_block['choice0_url_suffix_sequence'],
+                cur_block['choice1_url_suffix_sequence'],
+                cur_block['rewarded_choice_sequence'],
+                cur_block['stimulus_duration_msec'],
+                cur_block['reward_duration_msec'],
+                cur_block['punish_duration_msec'],
+                cur_block['choice_duration_msec'],
+                cur_block['minimal_choice_duration_msec'],
+                cur_block['post_stimulus_delay_duration_msec'],
+                cur_block['usd_per_reward'],
+                playspace_size_pixels,
+                cur_block['block_name'],
+                cur_checkpoint_key,
+            );
+
+            // Push data to return values
+            return_values['data'].push(cur_session_data);
+        }
+        let playspace_size_pixels = infer_canvas_size();
+        await congratulations_screen(playspace_size_pixels)
+    }
+
+    catch(error){
+        console.log(error);
+        return_values['error'] = error;
+    }
+
+    return return_values
+}
+
+
+
+async function run_binary_mts_trials(
+    image_url_prefix,
+    stimulus_image_url_suffix_sequence,
+    choice0_url_suffix_sequence,
+    choice1_url_suffix_sequence,
+    rewarded_choice_sequence,
+    stimulus_duration_msec,
+    reward_duration_msec,
+    punish_duration_msec,
+    choice_duration_msec,
+    minimal_choice_duration_msec,
+    post_stimulus_delay_duration_msec,
+    usd_per_reward,
+    size,
+    block_name,
+    checkpoint_key,
+){
+
+    /*
+    Core function for getting behavioral data on a series of 2AFC trials from a human subject.
+
+    image_url_prefix, String
+    image_url_suffix_sequence, [t]
+    choice0_url_suffix_sequence,  [t]
+    choice1_url_suffix_sequence,  [t]
+    rewarded_choice_sequence, [t]. If an entry is -1, no choice is given a reward.
+    stimulus_duration_msec, [t]
+    reward_duration_msec, [t]. If an entry is zero, no reward feedback is given.
+    punish_duration_msec, [t]. If an entry is zero, no punish feedback is given.
+    choice_duration_msec, [t]. Max choice time
+    minimal_choice_duration_msec, [t]. Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
+    post_stimulus_delay_duration_msec, [t]. The amount of time before the choices pop up.
+    usd_per_reward, Float
+    size, () in pixels
+    block_name, String
+    checkpoint_key: String which is used as a key for LocalStorage
+
+    Returns {'coords':coords, 'data_vars':data_vars, 'meta':meta}
+     */
+
+    var diameter_pixels = size * 0.25;
+    var coords = {};
+    coords['url_prefix'] = image_url_prefix;
+    coords['stimulus_duration_msec'] = stimulus_duration_msec;
+    coords['reward_duration_msec'] = reward_duration_msec;
+    coords['punish_duration_msec'] = punish_duration_msec;
+    coords['choice_duration_msec'] = choice_duration_msec;
+    coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
+    coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['usd_per_reward'] = usd_per_reward;
+    coords['playspace_size_px'] = size;
+    coords['block_name'] = block_name;
+    coords['timestamp_session_start'] = performance.timing.navigationStart;
+
+    const [hcur, wcur] = get_screen_dims();
+    coords['screen_height_px'] = hcur;
+    coords['screen_width_px'] = wcur;
+    coords['device_pixel_ratio'] = window.devicePixelRatio || 1;
+
+    var data_vars = {};
+    data_vars['choice'] = []; // -1 = timed out, 0 = chose choice0; 1 = chose choice 1
+    data_vars['action'] = []; // -1 = timed out, 0 = left, 1 = right
+    data_vars['stimulus_url_suffix'] = [];
+    data_vars['choice0_url_suffix'] = [];
+    data_vars['choice1_url_suffix'] = [];
+    data_vars['choice0_location'] = []; // 0 = left, 1 = right
+    data_vars['reaction_time_msec'] = [];
+    data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
+    data_vars['rel_timestamp_stimulus_on'] = [];
+    data_vars['rel_timestamp_stimulus_off'] = [];
+    data_vars['rel_timestamp_choices_on'] = [];
+    data_vars['trial_number'] = [];
+
+    var meta = {'performed_trials':false};
+
+    // Resume task if there is checkpoint data
+    let cur_subtask_datavars = {};
+    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
+    if (_loaded_data != null){
+        cur_subtask_datavars = _loaded_data;
+    }
+
+    // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
+    let start_trial = 0;
+    if (cur_subtask_datavars['perf'] != null) {
+        start_trial = cur_subtask_datavars['perf'].length;
+        data_vars = cur_subtask_datavars;
+    }
+
+    // Pre-buffer images
+    var trial_images = new ImageBufferClass;
+    let all_urls = [];
+
+    for (let i_image = start_trial; i_image < stimulus_image_url_suffix_sequence.length; i_image++){
+        let current_stimulus_suffix = stimulus_image_url_suffix_sequence[i_image];
+        let current_choice0_suffix = choice0_url_suffix_sequence[i_image];
+        let current_choice1_suffix = choice1_url_suffix_sequence[i_image];
+
+        let stim_url = image_url_prefix.concat(current_stimulus_suffix);
+        all_urls.push(stim_url)
+
+        let c0_url = image_url_prefix.concat(current_choice0_suffix);
+        all_urls.push(c0_url)
+
+        let c1_url = image_url_prefix.concat(current_choice1_suffix);
+        all_urls.push(c1_url)
+    }
+    all_urls = [... new Set(all_urls)];
+    await trial_images.buffer_urls(all_urls);
+
+    // Begin tracking actions
+    var action_recorder = new ActionListenerClass(false, true);
+
+    // Iterate over trials
+    var canvases = await initialize_mts_task_canvases(size);
+
+    for (let i_trial = start_trial; i_trial < stimulus_image_url_suffix_sequence.length; i_trial++){
+
+        // Buffer stimulus
+        let current_stimulus_suffix = stimulus_image_url_suffix_sequence[i_trial];
+        let current_stimulus_url = image_url_prefix.concat(current_stimulus_suffix);
+        var current_stimulus_image = await trial_images.get_by_url(current_stimulus_url);
+        await draw_image(canvases['stimulus_canvas'], current_stimulus_image, size/2, size/2, diameter_pixels);
+
+
+        // Buffer choice image
+        let current_c0_suffix = choice0_url_suffix_sequence[i_trial];
+        let current_c1_suffix = choice1_url_suffix_sequence[i_trial];
+
+        let c0_url = image_url_prefix.concat(current_c0_suffix);
+        let c1_url = image_url_prefix.concat(current_c1_suffix);
+
+        var current_c0_image = await trial_images.get_by_url(c0_url);
+        var current_c1_image = await trial_images.get_by_url(c1_url);
+
+        // Randomly assign the position of the two choices
+        let choice0_location = 0
+        if (Math.random() <= 0.5){
+            choice0_location = 1
+        }
+
+        // Buffer images
+        await draw_image(canvases['choice_canvas'], current_c0_image, size/4 + (choice0_location*size/2), size*3/4, diameter_pixels);
+        await draw_image(canvases['choice_canvas'], current_c1_image, size/4 + ((1 - choice0_location)*size/2), size*3/4, diameter_pixels);
+        // Run trial initiation
+        await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
+        var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
+
+        // Run stimulus
+        var _stimulus_seq = undefined;
+        var _t_seq = undefined;
+        if (post_stimulus_delay_duration_msec > 0){
+            // Insert delay before showing choices
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
+            _t_seq = [0, stimulus_duration_msec, post_stimulus_delay_duration_msec, 0]
+        }
+        else{
+            // No delay before showing choices
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
+            _t_seq = [0, stimulus_duration_msec, 0]
+        }
+
+        let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
+
+        // Show choices and wait for response
+        let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
+        let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
+        // Evaluate subject action
+        let action = choice_outcome['actionIndex'];
+
+        let choice =  -1;
+        if (action !== -1){
+            choice = Number(( action || choice0_location ) && !( action && choice0_location ))
+        }
+        let reinforced_choice = rewarded_choice_sequence[i_trial]
+        let reinforcement = -1
+
+        // Timed out, always punish
+        if (action === -1){
+            reinforcement = 0
+        }
+
+        // Label provided for this trial
+        if (reinforced_choice !== -1) {
+            if (choice === reinforced_choice) {
+                reinforcement = 1;
+            }
+            else{
+                reinforcement = 0;
+            }
+        }
+        console.log(action, choice0_location, choice, reinforced_choice);
+        console.log(reinforcement);
+        // Provide visual feedback, and apply a timeout
+        if (reinforcement === 0){
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
+        }
+        else if (reinforcement === 1){
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+        }
+        else {
+            await display_canvas_sequence([canvases['choice_canvas'], canvases['blank_canvas']], [0, 0]);
+        }
+
+        // Trigger await for the rest of the trial, if minimal_choice_duration_msec has not elapsed
+        if (reaction_time_msec < minimal_choice_duration_msec){
+            await timeout(minimal_choice_duration_msec - reaction_time_msec);
+            console.log('Todo: add GUI element for minimal choice time')
+        }
+
+        data_vars['choice'].push(choice); // 0 = chose choice0; 1 = chose choice 1
+        data_vars['action'].push(action); // 0 = left, 1 = right
+        data_vars['stimulus_url_suffix'].push(current_stimulus_suffix);
+        data_vars['choice0_url_suffix'].push(current_c0_suffix);
+        data_vars['choice1_url_suffix'].push(current_c1_suffix);
+        data_vars['choice0_location'].push(choice0_location); // 0 = left, 1 = right
+        data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
+        data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
+        data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
+        data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
+        data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
+        data_vars['trial_number'].push(i_trial);
+        meta['performed_trials'] = true;
+
+        // Checkpoint data vars to local storage
+        LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
+    }
+
+    // Delete canvases
+    canvases['fixation_canvas'].remove();
+    canvases['stimulus_canvas'].remove();
+    canvases['reward_canvas'].remove();
+    canvases['punish_canvas'].remove();
+    canvases['choice_canvas'].remove();
+    canvases['blank_canvas'].remove();
+
+    // Remove event listeners from window
+    action_recorder.close_listeners();
+    delete trial_images.cache_dict;
+    return {'coords':coords, 'data_vars':data_vars, 'meta':meta}
+}
+
+
+async function congratulations_screen(size){
+    /*
+    Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
+    size: () of canvas, in units of pixels
+    mean_perf: (), from [0, 1]
+     */
+
+    var splash1_canvas = create_canvas('splash1_canvas', size, size);
+    var font_size = (size * 0.05).toString();
+    var font = font_size+'px Times New Roman';
+
+    await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
+    await draw_text(splash1_canvas, 'Press space to submit.', font, '#66ff33', size/2, size * 0.65, 'center');
+
+    await display_canvas_sequence([splash1_canvas], [0]);
+    var action_recorder = new ActionListenerClass(false, true);
+
+    await timeout(500);
+    await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
+    splash1_canvas.remove()
+}
+
+
+async function initialize_mts_task_canvases(size){
+    var width = size;
+    var height = size;
+    var canvases = {};
+
+    // Create fixation canvas
+    canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
+    await draw_dot_with_text(canvases['fixation_canvas'], 'Press space', width*0.5, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
+    // Create stimulus canvas
+    canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);
+
+    // Create reward canvas (green square)
+    canvases['reward_canvas'] = create_canvas('reward_canvas', width, height);
+    await draw_rectangle(
+        canvases['reward_canvas'],
+        width * 0.5,
+        height*0.5,
+        width * 1/3,
+        height * 1/3,
+        "#00cc00",
+        0.5);
+
+    // Create punish canvas (black square)
+    canvases['punish_canvas'] = create_canvas('punish_canvas', width, height);
+    await draw_rectangle(
+        canvases['punish_canvas'],
+        width * 0.5,
+        height*0.5,
+    width * 1/3,
+        height * 1/3,
+        "black",
+        0.8);
+
+    // Create choice canvas
+    canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
+    canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
+
+    return canvases
+}
+
+
+    </script>
+
+    <script>
+        // Extract session info
+        const url = window.location.href;
+        let assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
+        let in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
+        let in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
+        const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
+        const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
+        const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
+
+        // Randomly set conditions for this assignment, and store in local storage
+        const session_parameters_key = assignmentId.concat('_session_parameters');
+        let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
+
+
+        pool_sequence = [
+            {
+                'ntrials':10,
+                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                'image_url_suffixes':['bluediamond.png','orangediamond.png'],
+                'trial_pool':[
+                    {'i_stm':0, 'i_c0':0, 'i_c1':1, 'l':0},
+                    {'i_stm':1, 'i_c0':0, 'i_c1':1, 'l':1},
+                ],
+                'stimulus_duration_msec':200,
+                'reward_duration_msec':50,
+                'punish_duration_msec':500,
+                'choice_duration_msec':5000,
+                'minimal_choice_duration_msec':500,
+                'post_stimulus_delay_duration_msec':0,
+                'usd_per_reward':0,
+                'block_name':'test_mil',
+            },
+        ]
+
+        if (block_sequence==null || developer_mode === true){
+            // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
+            //pool_sequence = __INSERT_POOL_SEQUENCE_HERE__;
+
+            // Randomly sample the identity and order of the trials that will be shown in this session, on-load, without replacement if npool > ntrials, else with replacement.
+            block_sequence = []
+            for (let i_block = 0; i_block < pool_sequence.length; i_block++){
+                let cur_pool = pool_sequence[i_block];
+                let cur_ntrials = cur_pool['ntrials'];
+                let cur_trial_pool = cur_pool['trial_pool']; // Array of len trials, elements are Objects
+                let cur_suffix_table = cur_pool['image_url_suffixes']
+
+                let cur_trial_sequence = [];
+                if (cur_trial_pool.length > cur_ntrials){
+                    // Sample without replacement
+                    cur_trial_sequence = MathUtils.permute(cur_trial_pool);
+                    cur_trial_sequence = cur_trial_sequence.slice(0, cur_ntrials);
+                }
+                else{
+                    // Sample with replacement
+                    cur_trial_sequence = []
+                    for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
+                        cur_trial_sequence.push(MathUtils.random_choice(cur_trial_pool))
+                    }
+                }
+
+                let cur_image_url_suffix_sequence = [];
+                let choice0_url_suffix_sequence = [];
+                let choice1_url_suffix_sequence = [];
+                let rewarded_choice_sequence = [];
+
+                for (let i_trial = 0; i_trial < cur_trial_sequence.length; i_trial++){
+                    const cur_trial = cur_trial_sequence[i_trial];
+                    cur_image_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_stm']])
+                    choice0_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c0']])
+                    choice1_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c1']])
+                    rewarded_choice_sequence.push(cur_trial['l'])
+                }
+
+                let cur_block = {
+                    'image_url_prefix':cur_pool['image_url_prefix'],
+                    'stimulus_image_url_suffix_sequence':cur_image_url_suffix_sequence,
+                    'choice0_url_suffix_sequence':choice0_url_suffix_sequence,
+                    'choice1_url_suffix_sequence':choice1_url_suffix_sequence,
+                    'rewarded_choice_sequence':rewarded_choice_sequence,
+                    'stimulus_duration_msec':cur_pool['stimulus_duration_msec'],
+                    'reward_duration_msec':cur_pool['reward_duration_msec'],
+                    'punish_duration_msec':cur_pool['punish_duration_msec'],
+                    'choice_duration_msec':cur_pool['choice_duration_msec'],
+                    'minimal_choice_duration_msec':cur_pool['minimal_choice_duration_msec'],
+                    'post_stimulus_delay_duration_msec':cur_pool['post_stimulus_delay_duration_msec'],
+                    'usd_per_reward':cur_pool['usd_per_reward'],
+                    'block_name':cur_pool['block_name'],
+                }
+                block_sequence.push(cur_block)
+            }
+
+            LocalStorageUtils.store_object_as_json(session_parameters_key, block_sequence);
+            console.log('Stored session parameters for assignment', assignmentId);
+
+            console.log('Developer mode: purging instructions key');
+            LocalStorageUtils.remove_item(assignment_instructions_completed_key);
+
+            // Purge existing checkpoints
+            console.log('Developer mode: purging checkpoints');
+            for (let i_subtask = 0; i_subtask < block_sequence.length; i_subtask++) {
+                const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_subtask.toString());
+                LocalStorageUtils.remove_item(cur_checkpoint_key);
+            }
+        }
+
+
+
+        (async function () {
+            // Run instructions if they have not been clicked through
+            const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
+            if (completed_instructions == null){
+                await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+                LocalStorageUtils.store_object_as_json(assignment_instructions_completed_key, 1);
+            }
+            else{
+                console.log('Detected subject already completed instructions; not showing')
+            }
+
+            if (in_preview_mode === false){
+                // Turn on HUD
+                document.getElementById('progressbar').style.visibility = 'visible';
+                document.getElementById('user_hud').style.visibility = 'visible';
+
+                // Run trials
+                var session_data = await run_mts_blocks(block_sequence, checkpoint_key_prefix);
+
+                // Submit
+                await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
+            }
+        }());
+
+    </script>
+</head>
+
+
