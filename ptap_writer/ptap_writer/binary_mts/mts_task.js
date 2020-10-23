@@ -12,9 +12,9 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     that have been completed so far. It also attaches the error message which was associated with the error.
      */
 
-    var nblocks = block_sequence.length;
-    var return_values = {'data':[]};
-
+    let nblocks = block_sequence.length;
+    let return_values = {'data':[]};
+    let triggered_early_exit = false;
     try {
         for (let i_block = 0; i_block < nblocks; i_block++) {
             const playspace_size_pixels = infer_canvas_size();
@@ -23,7 +23,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_block.toString());
 
-            var cur_session_data = await run_binary_mts_trials(
+            let cur_session_data = await run_binary_mts_trials(
                 cur_block['image_url_prefix'],
                 cur_block['stimulus_image_url_suffix_sequence'],
                 cur_block['choice0_url_suffix_sequence'],
@@ -35,17 +35,60 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['choice_duration_msec'],
                 cur_block['minimal_choice_duration_msec'],
                 cur_block['post_stimulus_delay_duration_msec'],
-                cur_block['usd_per_reward'],
+                cur_block['usd_upon_block_completion'],
                 playspace_size_pixels,
                 cur_block['block_name'],
                 cur_checkpoint_key,
             );
 
+
+
             // Push data to return values
             return_values['data'].push(cur_session_data);
+
+            // Check to see if early session end should be triggered (ignore non-reinforced trials, -1)
+            let cur_reinforcement_pattern = cur_session_data['data_vars']['reinforcement']
+            let total_punish = 0;
+            let total_reward = 0;
+
+            for (var i_trial = 0; i_trial < cur_reinforcement_pattern.length; i_trial++){
+                let cur = cur_reinforcement_pattern[i_trial];
+                if (cur===0){
+                    total_punish = total_punish + 1
+                }
+                else if (cur === 1){
+                    total_reward = total_reward + 1
+                }
+            }
+
+            let successful_block = true;
+            if (total_punish + total_reward > 0){
+                let cur_perf = total_reward / (total_punish + total_reward);
+
+                let cur_perf_criterion = cur_block['continue_perf_criterion'];
+                console.log(cur_perf, cur_perf_criterion)
+                if (cur_perf < cur_perf_criterion){
+                    // End session early
+                    console.log('Ending session early')
+                    triggered_early_exit = true;
+                    successful_block = false;
+                }
+            }
+
+            if (successful_block){
+                await update_hud(cur_block['usd_upon_block_completion'])
+            }
+            else{
+                break;
+            }
+
         }
+
         let playspace_size_pixels = infer_canvas_size();
-        await congratulations_screen(playspace_size_pixels)
+        // Congratulate worker on successful completion
+        if (triggered_early_exit === false){
+            await congratulations_screen(playspace_size_pixels)
+        }
     }
 
     catch(error){
@@ -54,6 +97,27 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     }
 
     return return_values
+}
+
+async function update_hud(usd_added){
+    /*
+    A function which is called at the end of every trial.
+    It displays the subject's performance, remaining trials, and amount earned.
+     */
+
+    let hud_current_bonus = document.getElementById('hud_promised_bonus');
+    let current_bonus = parseFloat(hud_current_bonus.innerText)/100;
+    let next_bonus = (current_bonus + usd_added) * 100;
+
+    next_bonus = (next_bonus).toPrecision(2).toString();
+    if(next_bonus.length === 1){
+        next_bonus = next_bonus.concat('.0');
+    }
+
+    console.log(current_bonus);
+    console.log(next_bonus);
+
+    hud_current_bonus.innerHTML = next_bonus;
 }
 
 
@@ -70,7 +134,7 @@ async function run_binary_mts_trials(
     choice_duration_msec,
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
-    usd_per_reward,
+    usd_upon_block_completion,
     size,
     block_name,
     checkpoint_key,
@@ -90,7 +154,7 @@ async function run_binary_mts_trials(
     choice_duration_msec, [t]. Max choice time
     minimal_choice_duration_msec, [t]. Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
     post_stimulus_delay_duration_msec, [t]. The amount of time before the choices pop up.
-    usd_per_reward, Float
+    usd_upon_block_completion, Float
     size, () in pixels
     block_name, String
     checkpoint_key: String which is used as a key for LocalStorage
@@ -107,9 +171,9 @@ async function run_binary_mts_trials(
     coords['choice_duration_msec'] = choice_duration_msec;
     coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
-    coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
+    coords['usd_upon_block_completion'] = usd_upon_block_completion;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
 
     const [hcur, wcur] = get_screen_dims();
@@ -121,6 +185,7 @@ async function run_binary_mts_trials(
     data_vars['choice'] = []; // -1 = timed out, 0 = chose choice0; 1 = chose choice 1
     data_vars['action'] = []; // -1 = timed out, 0 = left, 1 = right
     data_vars['stimulus_url_suffix'] = [];
+    data_vars['reinforcement'] = []
     data_vars['choice0_url_suffix'] = [];
     data_vars['choice1_url_suffix'] = [];
     data_vars['choice0_location'] = []; // 0 = left, 1 = right
@@ -316,6 +381,7 @@ async function run_binary_mts_trials(
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
+        data_vars['reinforcement'].push(reinforcement);
         meta['performed_trials'] = true;
 
         // Checkpoint data vars to local storage

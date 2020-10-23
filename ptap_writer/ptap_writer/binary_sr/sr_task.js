@@ -218,7 +218,6 @@ async function run_binary_sr_trials(
 
     let performance_tracker = new PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
 
-
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
     let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);

@@ -2,30 +2,18 @@
 
 <body style="background-color:#7F7F7F">
 
-<div hidden>
-    <p style="color:#7F7F7F">Trials completed:
-        <text id="hud_total_trials">0</text>
-    </p>
-    <p style="color:#7F7F7F">Rewards:
-        <text id="hud_total_rewards">0</text>
-    </p>
-</div>
-
-<div id="progressbar" style="width: 35%; background-color: rgba(178,178,178,0.58); opacity:0.4; position:fixed; height:2.5%; top:2.5%; transform: translate(-50%, 0); left:50%; z-index:200">
-    <div id="progressbar_state" style="width:1%; height:100%; line-height:100%; background-color:rgba(0,0,0,0.58); vertical-align: center; margin:0"></div>
-</div>
 
 <div id='user_hud'
-     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.4; visibility:hidden">
-    <p style="margin-right: 5px;margin-left: 5px;">Performance:
-        <text id="hud_current_performance">&nbsp&nbsp0</text>
-        %
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Total trials:
+        <text id="hud_total_trials">&nbsp&nbsp0</text>
     </p>
-    <p style="margin-right: 5px;margin-left: 5px;">Bonus:&nbsp
-        <text id="hud_current_bonus">0.0</text>
+    <p style="margin-right: 5px;margin-left: 5px;">Bonus if completed:
+        <text id="hud_promised_bonus">0.0</text>
         &cent
     </p>
 </div>
+
 </body>
 
 
@@ -36,17 +24,14 @@
 
     <ul>
         <li>Please use a laptop or desktop with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT as intended.
-        <li>You will be completing several trials. On each trial, you'll view a rapidly flashed image of an object.
-        <li><b>Your task</b> is to figure out which button to press (either "F" or "J" on your keyboard) after viewing a
-            particular image.
-        <li>If you made a correct choice, you will see a
-            <text style="color:green; font-style:italic">green</text>
-            square pop up. <b>You will also increase your bonus</b>, so give it your best shot!
-        <li>If you made an incorrect choice, you will see a
-            <text style="color:black; font-style:italic">black</text>
-            square instead, and have to wait a bit before you can try again.
-        <li>To actually start a trial, press the spacebar. The image will immediately appear, so be ready!
-        <li>The session will begin with a short "warmup" task to help you learn the controls.</li>
+        <li>You will be completing several trials. On each trial, you'll be viewing three pictures.
+        <li>To actually start a trial, press the white button in the center of your screen.
+        <li>The first picture will be shown to you very briefly. Then, two other images will pop up.</li>
+        <li><b>Your task</b> is to say which image is <b>more similar</b> to the first image.
+        <li>Each trial will not advance until some time has passed, even if you already made a choice early. So take your time, and make a considered choice! </li>
+        <li>We can't use data from turkers who make random choices. In that case, the HIT will be submitted early.</li>
+        <li>We also apply a "soft block" (using quals) for workers who choose not to follow these instructions. While this will not be reflected in your account's block rate, you won't be able to regain access to future HITs from our lab.</li>
+        <li><text style="color:green; font-style:oblique">On the other hand, you will earn a bonus if you successfully finish.</text> </li>
         <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive
             compensation for your time.
     </ul>
@@ -1027,9 +1012,9 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     that have been completed so far. It also attaches the error message which was associated with the error.
      */
 
-    var nblocks = block_sequence.length;
-    var return_values = {'data':[]};
-
+    let nblocks = block_sequence.length;
+    let return_values = {'data':[]};
+    let triggered_early_exit = false;
     try {
         for (let i_block = 0; i_block < nblocks; i_block++) {
             const playspace_size_pixels = infer_canvas_size();
@@ -1038,7 +1023,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             // Load savedata for this subtask
             const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_block.toString());
 
-            var cur_session_data = await run_binary_mts_trials(
+            let cur_session_data = await run_binary_mts_trials(
                 cur_block['image_url_prefix'],
                 cur_block['stimulus_image_url_suffix_sequence'],
                 cur_block['choice0_url_suffix_sequence'],
@@ -1050,17 +1035,60 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['choice_duration_msec'],
                 cur_block['minimal_choice_duration_msec'],
                 cur_block['post_stimulus_delay_duration_msec'],
-                cur_block['usd_per_reward'],
+                cur_block['usd_upon_block_completion'],
                 playspace_size_pixels,
                 cur_block['block_name'],
                 cur_checkpoint_key,
             );
 
+
+
             // Push data to return values
             return_values['data'].push(cur_session_data);
+
+            // Check to see if early session end should be triggered (ignore non-reinforced trials, -1)
+            let cur_reinforcement_pattern = cur_session_data['data_vars']['reinforcement']
+            let total_punish = 0;
+            let total_reward = 0;
+
+            for (var i_trial = 0; i_trial < cur_reinforcement_pattern.length; i_trial++){
+                let cur = cur_reinforcement_pattern[i_trial];
+                if (cur===0){
+                    total_punish = total_punish + 1
+                }
+                else if (cur === 1){
+                    total_reward = total_reward + 1
+                }
+            }
+
+            let successful_block = true;
+            if (total_punish + total_reward > 0){
+                let cur_perf = total_reward / (total_punish + total_reward);
+
+                let cur_perf_criterion = cur_block['continue_perf_criterion'];
+                console.log(cur_perf, cur_perf_criterion)
+                if (cur_perf < cur_perf_criterion){
+                    // End session early
+                    console.log('Ending session early')
+                    triggered_early_exit = true;
+                    successful_block = false;
+                }
+            }
+
+            if (successful_block){
+                await update_hud(cur_block['usd_upon_block_completion'])
+            }
+            else{
+                break;
+            }
+
         }
+
         let playspace_size_pixels = infer_canvas_size();
-        await congratulations_screen(playspace_size_pixels)
+        // Congratulate worker on successful completion
+        if (triggered_early_exit === false){
+            await congratulations_screen(playspace_size_pixels)
+        }
     }
 
     catch(error){
@@ -1069,6 +1097,27 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
     }
 
     return return_values
+}
+
+async function update_hud(usd_added){
+    /*
+    A function which is called at the end of every trial.
+    It displays the subject's performance, remaining trials, and amount earned.
+     */
+
+    let hud_current_bonus = document.getElementById('hud_promised_bonus');
+    let current_bonus = parseFloat(hud_current_bonus.innerText)/100;
+    let next_bonus = (current_bonus + usd_added) * 100;
+
+    next_bonus = (next_bonus).toPrecision(2).toString();
+    if(next_bonus.length === 1){
+        next_bonus = next_bonus.concat('.0');
+    }
+
+    console.log(current_bonus);
+    console.log(next_bonus);
+
+    hud_current_bonus.innerHTML = next_bonus;
 }
 
 
@@ -1085,7 +1134,7 @@ async function run_binary_mts_trials(
     choice_duration_msec,
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
-    usd_per_reward,
+    usd_upon_block_completion,
     size,
     block_name,
     checkpoint_key,
@@ -1105,7 +1154,7 @@ async function run_binary_mts_trials(
     choice_duration_msec, [t]. Max choice time
     minimal_choice_duration_msec, [t]. Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
     post_stimulus_delay_duration_msec, [t]. The amount of time before the choices pop up.
-    usd_per_reward, Float
+    usd_upon_block_completion, Float
     size, () in pixels
     block_name, String
     checkpoint_key: String which is used as a key for LocalStorage
@@ -1122,9 +1171,9 @@ async function run_binary_mts_trials(
     coords['choice_duration_msec'] = choice_duration_msec;
     coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
-    coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
+    coords['usd_upon_block_completion'] = usd_upon_block_completion;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
 
     const [hcur, wcur] = get_screen_dims();
@@ -1136,6 +1185,7 @@ async function run_binary_mts_trials(
     data_vars['choice'] = []; // -1 = timed out, 0 = chose choice0; 1 = chose choice 1
     data_vars['action'] = []; // -1 = timed out, 0 = left, 1 = right
     data_vars['stimulus_url_suffix'] = [];
+    data_vars['reinforcement'] = []
     data_vars['choice0_url_suffix'] = [];
     data_vars['choice1_url_suffix'] = [];
     data_vars['choice0_location'] = []; // 0 = left, 1 = right
@@ -1331,6 +1381,7 @@ async function run_binary_mts_trials(
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
+        data_vars['reinforcement'].push(reinforcement);
         meta['performed_trials'] = true;
 
         // Checkpoint data vars to local storage
@@ -1433,64 +1484,76 @@ async function initialize_mts_task_canvases(size){
         const session_parameters_key = assignmentId.concat('_session_parameters');
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
-
         pool_sequence = [
             {
-                'ntrials':10,
-                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
-                'image_url_suffixes':['bluediamond.png','orangediamond.png'],
-                'trial_pool':[
-                    {'i_stm':0, 'i_c0':0, 'i_c1':1, 'l':0},
-                    {'i_stm':1, 'i_c0':0, 'i_c1':1, 'l':1},
-                ],
-                'stimulus_duration_msec':200,
-                'reward_duration_msec':50,
-                'punish_duration_msec':500,
-                'choice_duration_msec':5000,
-                'minimal_choice_duration_msec':500,
-                'post_stimulus_delay_duration_msec':0,
-                'usd_per_reward':0,
-                'block_name':'test_mil',
+                "ntrials": 5,
+                "image_url_prefix": "https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
+                "stimulus_duration_msec": 200,
+                "reward_duration_msec": 50,
+                "punish_duration_msec": 500,
+                "choice_duration_msec": 5000,
+                "minimal_choice_duration_msec": 500,
+                "post_stimulus_delay_duration_msec": 0,
+                "usd_upon_block_completion": 0.5,
+                "block_name": "test_mil",
+                "continue_perf_criterion": 1,
+                "trial_pool": (function* trial_generator() {
+                    const stim_suffixes = ["bluediamond.png", "orangediamond.png"];
+                    let token_suffixes = ["bluediamond.png", "orangediamond.png"];
+                    while (true) {
+                        const cur_stim_suffix = stim_suffixes[Math.floor(Math.random() * stim_suffixes.length)];
+                        const choices = MathUtils.permute(token_suffixes);
+                        const cur_c0_suffix = choices[0];
+                        const cur_c1_suffix = choices[1];
+                        yield {'stimulus_url_suffix': cur_stim_suffix, 'choice0_url_suffix': cur_c0_suffix, 'choice1_url_suffix': cur_c1_suffix, 'rewarded_choice': -1}
+                    }
+                }),
+            },
+            {
+                'ntrials': 5,
+                'image_url_prefix': 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                'trial_pool': (function* trial_tuple_iterator() {
+                    while (true) {
+                        yield  {'stimulus_url_suffix': 'orangediamond.png', 'choice0_url_suffix': 'orangediamond.png', 'choice1_url_suffix': 'bluediamond.png', 'rewarded_choice': 0}
+                    }
+                }),
+                'stimulus_duration_msec': 200,
+                'reward_duration_msec': 50,
+                'punish_duration_msec': 500,
+                'choice_duration_msec': 5000,
+                'minimal_choice_duration_msec': 500,
+                'post_stimulus_delay_duration_msec': 0,
+                'usd_upon_block_completion': 0.3,
+                'block_name': 'test_mil',
+                'continue_perf_criterion': 1,
             },
         ]
-
+        let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
             //pool_sequence = __INSERT_POOL_SEQUENCE_HERE__;
 
-            // Randomly sample the identity and order of the trials that will be shown in this session, on-load, without replacement if npool > ntrials, else with replacement.
+            // Randomly sample the identity and order of the trials that will be shown in this session, on-load, with replacement.
             block_sequence = []
+
             for (let i_block = 0; i_block < pool_sequence.length; i_block++){
                 let cur_pool = pool_sequence[i_block];
                 let cur_ntrials = cur_pool['ntrials'];
-                let cur_trial_pool = cur_pool['trial_pool']; // Array of len trials, elements are Objects
-                let cur_suffix_table = cur_pool['image_url_suffixes']
+                let cur_trial_pool = cur_pool['trial_pool'](); // Iterator, elements are Objects
 
-                let cur_trial_sequence = [];
-                if (cur_trial_pool.length > cur_ntrials){
-                    // Sample without replacement
-                    cur_trial_sequence = MathUtils.permute(cur_trial_pool);
-                    cur_trial_sequence = cur_trial_sequence.slice(0, cur_ntrials);
-                }
-                else{
-                    // Sample with replacement
-                    cur_trial_sequence = []
-                    for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
-                        cur_trial_sequence.push(MathUtils.random_choice(cur_trial_pool))
-                    }
-                }
-
+                // Sample trials from Iterator
                 let cur_image_url_suffix_sequence = [];
                 let choice0_url_suffix_sequence = [];
                 let choice1_url_suffix_sequence = [];
                 let rewarded_choice_sequence = [];
 
-                for (let i_trial = 0; i_trial < cur_trial_sequence.length; i_trial++){
-                    const cur_trial = cur_trial_sequence[i_trial];
-                    cur_image_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_stm']])
-                    choice0_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c0']])
-                    choice1_url_suffix_sequence.push(cur_suffix_table[cur_trial['i_c1']])
-                    rewarded_choice_sequence.push(cur_trial['l'])
+                for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
+                    const result = cur_trial_pool.next();
+                    const cur_trial_info = result.value
+                    cur_image_url_suffix_sequence.push(cur_trial_info['stimulus_url_suffix']);
+                    choice0_url_suffix_sequence.push(cur_trial_info['choice0_url_suffix']);
+                    choice1_url_suffix_sequence.push(cur_trial_info['choice1_url_suffix']);
+                    rewarded_choice_sequence.push(cur_trial_info['rewarded_choice']);
                 }
 
                 let cur_block = {
@@ -1505,10 +1568,12 @@ async function initialize_mts_task_canvases(size){
                     'choice_duration_msec':cur_pool['choice_duration_msec'],
                     'minimal_choice_duration_msec':cur_pool['minimal_choice_duration_msec'],
                     'post_stimulus_delay_duration_msec':cur_pool['post_stimulus_delay_duration_msec'],
-                    'usd_per_reward':cur_pool['usd_per_reward'],
+                    'usd_upon_block_completion':cur_pool['usd_upon_block_completion'],
                     'block_name':cur_pool['block_name'],
+                    'continue_perf_criterion':cur_pool['continue_perf_criterion'],
                 }
                 block_sequence.push(cur_block)
+                ntotal_trials = ntotal_trials + cur_ntrials;
             }
 
             LocalStorageUtils.store_object_as_json(session_parameters_key, block_sequence);
@@ -1526,7 +1591,6 @@ async function initialize_mts_task_canvases(size){
         }
 
 
-
         (async function () {
             // Run instructions if they have not been clicked through
             const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
@@ -1540,8 +1604,9 @@ async function initialize_mts_task_canvases(size){
 
             if (in_preview_mode === false){
                 // Turn on HUD
-                document.getElementById('progressbar').style.visibility = 'visible';
                 document.getElementById('user_hud').style.visibility = 'visible';
+                let hud_total_trials = document.getElementById('hud_total_trials');
+                hud_total_trials.innerHTML = ntotal_trials.toString();
 
                 // Run trials
                 var session_data = await run_mts_blocks(block_sequence, checkpoint_key_prefix);
