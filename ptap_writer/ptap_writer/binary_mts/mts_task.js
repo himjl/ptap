@@ -24,6 +24,8 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['minimal_choice_duration_msec'],
                 cur_block['post_stimulus_delay_duration_msec'],
                 cur_block['intertrial_delay_duration_msec'],
+                cur_block['inter_choice_presentation_delay_msec'],
+                cur_block['pre_choice_lockout_delay_duration_msec'],
                 cur_block['usd_upon_block_completion'],
                 cur_block['block_name'],
                 cur_block['early_exit_ntrials_criterion'],
@@ -125,6 +127,11 @@ async function run_binary_mts_trials(
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
     intertrial_delay_duration_msec,
+
+    inter_choice_presentation_delay_msec,
+    pre_choice_lockout_delay_duration_msec,
+
+
     usd_upon_block_completion,
     block_name,
     early_exit_ntrials_criterion,
@@ -255,9 +262,13 @@ async function run_binary_mts_trials(
     // Begin tracking actions
     var action_recorder = new ActionListenerClass(true, true);
 
-    // Iterate over trials
+
+    // Initialize canvases
     var canvases = await initialize_mts_task_canvases(size);
 
+
+
+    // Iterate over trials
     for (let i_trial = start_trial; i_trial < stimulus_image_url_suffix_sequence.length; i_trial++){
 
         // Buffer stimulus
@@ -279,8 +290,8 @@ async function run_binary_mts_trials(
 
 
         let choice_y_px = size * 1/2;
-        let choice_left_px = size * 1/5;
-        let choice_right_px = size * 4/5;
+        let choice_left_px = size * 1/4;
+        let choice_right_px = size * 3/4;
         let choice_diameter_px = diameter_pixels;
         // Randomly assign the position of the two choices
         let choice0_location = 0; // Choice0 goes on left side
@@ -288,17 +299,41 @@ async function run_binary_mts_trials(
             choice0_location = 1 // Choice0 goes on right side
         }
 
-        // Buffer images
-        await draw_image(canvases['choice_canvas'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
-        await draw_image(canvases['choice_canvas'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
+        // Buffer first choice frame with either the left choice or right choice
+        if (Math.random() <= 0.5){
+            // Draw left side first
+            let left_image = current_c0_image
+            if (choice0_location === 1){
+                left_image = current_c1_image
+            }
+            await draw_image(canvases['choice_canvas_frame0'], left_image, choice_left_px, choice_y_px, choice_diameter_px);
+        }
+        else {
+            // Draw right side first
+            let right_image = current_c0_image
+            if (choice0_location === 0){
+                right_image = current_c1_image
+            }
+            await draw_image(canvases['choice_canvas_frame0'], right_image, choice_right_px, choice_y_px, choice_diameter_px);
+        }
+
+        // Buffer second choice frame
+        await draw_image(canvases['choice_canvas_frame1'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
+        await draw_image(canvases['choice_canvas_frame1'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
+
+
+        // Buffer final choice frame
+        await draw_image(canvases['choice_canvas_frame2'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
+        await draw_image(canvases['choice_canvas_frame2'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
+        // Write query string
         if (query_string != null) {
             if (query_string.length > 0) {
-                await write_text(canvases['choice_canvas'], query_string, size * 0.5, size * 0.5, size * 0.7, 'white')
+                await write_text(canvases['choice_canvas_frame2'], query_string, size * 0.5, size * 0.5, size * 0.7, 'white')
             }
         }
 
         // Get screen parameters
-        const cur_rect = canvases['choice_canvas'].getBoundingClientRect()
+        const cur_rect = canvases['choice_canvas_frame0'].getBoundingClientRect()
         const left_bound_px = cur_rect.left;
         const top_bound_px = cur_rect.top;
 
@@ -321,13 +356,13 @@ async function run_binary_mts_trials(
         let _t_seq = undefined;
         if (post_stimulus_delay_duration_msec > 0){
             // Insert delay before showing choices
-            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
-            _t_seq = [0, stimulus_duration_msec, post_stimulus_delay_duration_msec, 0]
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas_frame0'], canvases['choice_canvas_frame1'], canvases['choice_canvas_frame2']];
+            _t_seq = [0, stimulus_duration_msec, post_stimulus_delay_duration_msec, inter_choice_presentation_delay_msec, inter_choice_presentation_delay_msec + pre_choice_lockout_delay_duration_msec, 0]
         }
         else{
             // No delay before showing choices
-            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
-            _t_seq = [0, stimulus_duration_msec, 0]
+            _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas_frame0'], canvases['choice_canvas_frame1'], canvases['choice_canvas_frame2']];
+            _t_seq = [0, stimulus_duration_msec, inter_choice_presentation_delay_msec, inter_choice_presentation_delay_msec  + pre_choice_lockout_delay_duration_msec, 0]
         }
 
         let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
@@ -355,7 +390,7 @@ async function run_binary_mts_trials(
         let action = choice_outcome['actionIndex'];
         if (action !== -1){
             // Draw rectangle around choice
-            await draw_border(canvases['choice_canvas'], choice_left_px * (1 - action) + choice_right_px * (action), choice_y_px, width_pixels = diameter_pixels, diameter_pixels, 10, 'darkgray')
+            await draw_border(canvases['choice_canvas_frame2'], choice_left_px * (1 - action) + choice_right_px * (action), choice_y_px, width_pixels = diameter_pixels, diameter_pixels, 10, 'darkgray')
             await timeout(50)
         }
 
@@ -387,13 +422,13 @@ async function run_binary_mts_trials(
 
         // Provide visual feedback, and apply a timeout
         if (reinforcement === 0){
-            await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
+            await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
         }
         else if (reinforcement === 1){
-            await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+            await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
         else {
-            await display_canvas_sequence([canvases['choice_canvas'], canvases['blank_canvas']], [0, 0]);
+            await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['blank_canvas']], [0, 0]);
         }
 
         // Trigger await for the rest of the trial, if minimal_choice_duration_msec has not elapsed
@@ -423,7 +458,9 @@ async function run_binary_mts_trials(
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
 
         // Clear canvas
-        await clear_canvas(canvases['choice_canvas'])
+        await clear_canvas(canvases['choice_canvas_frame0'])
+        await clear_canvas(canvases['choice_canvas_frame1'])
+        await clear_canvas(canvases['choice_canvas_frame2'])
 
         // Check if conditions satisfied for an early exit
         if(criterion_is_met === true){
@@ -436,7 +473,10 @@ async function run_binary_mts_trials(
     canvases['stimulus_canvas'].remove();
     canvases['reward_canvas'].remove();
     canvases['punish_canvas'].remove();
-    canvases['choice_canvas'].remove();
+    canvases['choice_canvas_frame0'].remove();
+    canvases['choice_canvas_frame1'].remove();
+    canvases['choice_canvas_frame2'].remove();
+
     canvases['blank_canvas'].remove();
 
     // Remove event listeners from window
@@ -504,7 +544,10 @@ async function initialize_mts_task_canvases(size){
         0.8);
 
     // Create choice canvas
-    canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
+    canvases['choice_canvas_frame0'] = create_canvas('choice_canvas_frame0', width, height);
+    canvases['choice_canvas_frame1'] = create_canvas('choice_canvas_frame1', width, height);
+    canvases['choice_canvas_frame2'] = create_canvas('choice_canvas_frame2', width, height);
+
     canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
 
     return canvases

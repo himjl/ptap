@@ -53,7 +53,7 @@ class DirectTuplesPool(TrialPool):
 
             for k in url_keys:
                 assert k in trial, trial.keys()
-                all_urls.add(trial[k] for k in )
+                all_urls.add(trial[k] for k in url_keys)
 
         all_urls = sorted(list(all_urls))
         image_url_prefix = os.path.commonprefix(all_urls)
@@ -125,6 +125,7 @@ class MatchRulePool(TrialPool):
             self,
             category_to_stimulus_urls:dict,
             category_to_token_urls:Union[dict, type(None)],
+            reinforce_match:bool,
     ):
         """
         :param category_to_stimulus_urls: {category_name: [stimulus_urls]}
@@ -151,6 +152,12 @@ class MatchRulePool(TrialPool):
         category_to_stimulus_suffixes = {category:[url.split(image_url_prefix)[-1] for url in category_to_stimulus_urls[category]] for category in categories}
         category_to_token_suffixes = {category:[url.split(image_url_prefix)[-1] for url in category_to_token_urls[category]] for category in categories}
 
+        if reinforce_match:
+            # Reinforce the match choice
+            rewarded_choice = 0
+        else:
+            # No reinforcement applied
+            rewarded_choice = -1
         # Assemble trial_pool using a JavaScript call
         # Build iterator function
         cat2stim_suffixes_string = json.dumps(category_to_stimulus_suffixes)
@@ -166,7 +173,7 @@ class MatchRulePool(TrialPool):
         function_string += 5*INDENT_CHARACTER + 'const stim_suffix=MathUtils.random_choice(cat2stim[match_category]);\n'
         function_string += 5*INDENT_CHARACTER + 'const match_suffix=MathUtils.random_choice(cat2token[match_category]);\n'
         function_string += 5*INDENT_CHARACTER + 'const distractor_suffix=MathUtils.random_choice(cat2token[distractor_category]);\n'
-        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':0}"
+        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':%d}"%(rewarded_choice)
         function_string +='}})'
         super().__init__(image_url_prefix, function_string)
         return
@@ -186,6 +193,8 @@ class Block(object):
                  minimal_choice_duration_msec: int,
                  intertrial_delay_duration_msec: int,
                  post_stimulus_delay_duration_msec: int,
+                 inter_choice_presentation_delay_msec:int,
+                 pre_choice_lockout_delay_duration_msec:int,
                  early_exit_ntrials_criterion:Union[int, type(None)],
                  early_exit_perf_criterion:Union[float, type(None)],
                  query_string:Union[str, type(None)],
@@ -203,6 +212,8 @@ class Block(object):
         assert 0 <= minimal_choice_duration_msec <= choice_duration_msec
         assert 0 <= intertrial_delay_duration_msec <= 10000
         assert 0 <= post_stimulus_delay_duration_msec <= 10000
+        assert 0 <= inter_choice_presentation_delay_msec <= 5000
+        assert 0 <= pre_choice_lockout_delay_duration_msec <= 5000
 
         if early_exit_ntrials_criterion is not None:
             assert 0 < early_exit_ntrials_criterion <= ntrials
@@ -227,6 +238,8 @@ class Block(object):
             minimal_choice_duration_msec = minimal_choice_duration_msec,
             intertrial_delay_duration_msec = intertrial_delay_duration_msec,
             post_stimulus_delay_duration_msec= post_stimulus_delay_duration_msec,
+            inter_choice_presentation_delay_msec = inter_choice_presentation_delay_msec,
+            pre_choice_lockout_delay_duration_msec = pre_choice_lockout_delay_duration_msec,
             block_name=name,
             early_exit_ntrials_criterion = early_exit_ntrials_criterion,
             early_exit_perf_criterion = early_exit_perf_criterion,
@@ -280,13 +293,15 @@ class MyStandardExperimentalBlock(Block):
                 stimulus_duration_msec=200,
                 reward_duration_msec=200,
                 punish_duration_msec=800,
-                choice_duration_msec=5000,
+                choice_duration_msec=10000,
                 minimal_choice_duration_msec=0,
-                intertrial_delay_duration_msec=100,
-                post_stimulus_delay_duration_msec=100,
+                intertrial_delay_duration_msec=1000,
+                pre_choice_lockout_delay_duration_msec=200,
+                inter_choice_presentation_delay_msec=600,
+                post_stimulus_delay_duration_msec=400,
                 early_exit_ntrials_criterion = early_exit_ntrials_criterion,
                 early_exit_perf_criterion = early_exit_perf_criterion,
-                query_string = '',
+                query_string='Which is more similar to the first image?',
             )
 
         return
@@ -328,35 +343,41 @@ class AttentionCheckTrial(MyStandardExperimentalBlock):
 
         return
 
-class WarmupBlock(Block):
+class BlueOrangeWarmupBlock(Block):
     """
     A set of warmup MTS trials involving two simple color stimuli.
     If the subject gets 5/5 correct, this block ends early.
     The subject has up to 30 trials to do this; otherwise, the session submits early.
     No bonus is given for completing this block.
     """
-    def __init__(self):
+    def __init__(self,
+                 early_exit_perf_criterion=1,
+                 early_exit_ntrials_criterion=5,
+                 max_trials=30,
+                 ):
 
         blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
         orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue': [blue], 'orange': [orange]}, category_to_token_urls=None)
+        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue': [blue], 'orange': [orange]}, category_to_token_urls=None, reinforce_match=True)
 
         super().__init__(
             trial_pool = trial_pool,
             continue_perf_criterion = 0,
-            early_exit_perf_criterion = 1,
-            early_exit_ntrials_criterion = 5,
-            ntrials=30,
+            early_exit_perf_criterion = early_exit_perf_criterion,
+            early_exit_ntrials_criterion = early_exit_ntrials_criterion,
+            ntrials=max_trials,
             name='blue_orange_warmup_mts',
             usd_upon_block_completion = 0,
             stimulus_duration_msec = 200,
             reward_duration_msec = 200,
             punish_duration_msec = 1000,
             choice_duration_msec = 5000,
+            pre_choice_lockout_delay_duration_msec=200,
+            inter_choice_presentation_delay_msec=600,
             minimal_choice_duration_msec = 0,
             intertrial_delay_duration_msec = 200,
-            post_stimulus_delay_duration_msec = 100,
+            post_stimulus_delay_duration_msec = 200,
             query_string = 'Which is more similar to the first image?',
         )
 
@@ -400,7 +421,7 @@ if __name__ == '__main__':
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-    warmup_block = WarmupBlock()
+    warmup_block = BlueOrangeWarmupBlock()
 
     block_allway = MyStandardExperimentalBlock(
         trial_pool=AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange]),
