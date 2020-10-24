@@ -26,6 +26,64 @@ class TrialPool(object):
         return
 
 
+class DirectTuplesPool(TrialPool):
+    """
+    Class which expresses a set of deterministic trials
+    (stimulus_url, choice0_url, choice1_url, reinforced_choice)
+    """
+    def __init__(
+            self,
+            trials:List[Dict], # list of dictionaries {'stimulus_url':str, 'choice0_url':str, 'choice1_url':str, 'rewarded_choice'}
+    ):
+        """
+        :param category_to_stimulus_urls: {category_name: [stimulus_urls]}
+        :param category_to_token_urls: {category_name: [token_urls]} or None. If None, the stimulus urls serve as their own tokens.
+        """
+
+        all_urls = set()
+        url_keys = [
+            'stimulus_url',
+            'choice0_url',
+            'choice1_url',
+        ]
+        for trial in trials:
+            assert isinstance(trial, dict)
+            assert 'rewarded_choice' in trial
+            assert trial['rewarded_choice'] in [-1, 0, 1]
+
+            for k in url_keys:
+                assert k in trial, trial.keys()
+                all_urls.add(trial[k] for k in )
+
+        all_urls = sorted(list(all_urls))
+        image_url_prefix = os.path.commonprefix(all_urls)
+
+        trials_suffix = []
+        for trial in trials:
+            cur = {}
+            for k in url_keys:
+                cur[k + '_suffix'] = trial[k].split(image_url_prefix)[-1]
+            cur['rewarded_choice'] = trial['rewarded_choice']
+            trials_suffix.append(cur)
+        # Assemble trial_pool using a JavaScript call
+
+        # Build iterator function
+
+        function_string = '(function* trial_generator(){\n'
+        function_string += 5*INDENT_CHARACTER + 'let possible_trials=%s\n' % (json.dumps(trials_suffix))
+        function_string += 5*INDENT_CHARACTER + 'while(true){\n'
+        function_string += 5*INDENT_CHARACTER + 'const cur_trial=MathUtils.random_choice(possible_trials);\n'
+        function_string += 5*INDENT_CHARACTER + 'const stim_suffix=cur_trial["stimulus_url_suffix"];\n'
+        function_string += 5*INDENT_CHARACTER + 'const choice0_suffix=cur_trial["choice0_url_suffix"];\n'
+        function_string += 5*INDENT_CHARACTER + 'const choice1_suffix=cur_trial["choice1_url_suffix"];\n'
+        function_string += 5*INDENT_CHARACTER + 'const choice1_suffix=cur_trial["choice1_url_suffix"];\n'
+        function_string += 5*INDENT_CHARACTER + 'const rewarded_choice=cur_trial["rewarded_choice"];\n'
+        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':choice0_suffix, 'choice1_url_suffix':choice1_suffix, 'rewarded_choice':rewarded_choice}"
+        function_string +='}})'
+        super().__init__(image_url_prefix, function_string)
+        return
+
+
 class AllWayPool(TrialPool):
     """
     A pool of trials defined by a set of stimuli, and a set of tokens.
@@ -197,7 +255,7 @@ class Block(object):
         return javascript_expression
 
 
-class MyStandardBlock(Block):
+class MyStandardExperimentalBlock(Block):
 
     """
     My standard choices for experimental parameters
@@ -230,6 +288,43 @@ class MyStandardBlock(Block):
                 early_exit_perf_criterion = early_exit_perf_criterion,
                 query_string = '',
             )
+
+        return
+
+
+class AttentionCheckTrial(MyStandardExperimentalBlock):
+
+    """
+    A trial which asks the subject to match the stimulus to itself.
+    If they are paying attention, this should be quite easy.
+    """
+
+    def __init__(self,
+                 stimulus_image_url,
+                 distractor_image_url,
+                 ntrials,
+                 name,
+                 ):
+
+        trial_pool = DirectTuplesPool(trials =
+                                      [
+                                          {
+                                              'stimulus_url':stimulus_image_url,
+                                              'choice0_url':stimulus_image_url,
+                                              'choice1_url':distractor_image_url,
+                                              'rewarded_choice':-1,
+                                          }
+                                      ]
+        )
+
+        super().__init__(
+                    trial_pool = trial_pool,
+                    continue_perf_criterion = 0,
+                    early_exit_perf_criterion = None,
+                    early_exit_ntrials_criterion = None,
+                    ntrials = ntrials,
+                    name = name,
+        )
 
         return
 
@@ -307,7 +402,7 @@ if __name__ == '__main__':
 
     warmup_block = WarmupBlock()
 
-    block_allway = MyStandardBlock(
+    block_allway = MyStandardExperimentalBlock(
         trial_pool=AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange]),
         continue_perf_criterion=0,
         ntrials=10,
