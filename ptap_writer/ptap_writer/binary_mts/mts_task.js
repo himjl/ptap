@@ -2,7 +2,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
 
     let nblocks = block_sequence.length;
     let return_values = {'data':[]};
-    let triggered_early_exit = false;
+    let triggered_early_session_end = false;
     try {
         for (let i_block = 0; i_block < nblocks; i_block++) {
             const playspace_size_pixels = infer_canvas_size();
@@ -25,8 +25,10 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['post_stimulus_delay_duration_msec'],
                 cur_block['intertrial_delay_duration_msec'],
                 cur_block['usd_upon_block_completion'],
-                playspace_size_pixels,
                 cur_block['block_name'],
+                cur_block['early_exit_ntrials_criterion'],
+                cur_block['early_exit_perf_criterion'],
+                playspace_size_pixels,
                 cur_checkpoint_key,
             );
 
@@ -57,7 +59,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 if (cur_perf < cur_perf_criterion){
                     // End session early
                     console.log('Ending session early')
-                    triggered_early_exit = true;
+                    triggered_early_session_end = true;
                     successful_block = false;
                 }
             }
@@ -73,7 +75,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
 
         let playspace_size_pixels = infer_canvas_size();
         // Congratulate worker on successful completion
-        if (triggered_early_exit === false){
+        if (triggered_early_session_end === false){
             await congratulations_screen(playspace_size_pixels)
         }
     }
@@ -123,8 +125,10 @@ async function run_binary_mts_trials(
     post_stimulus_delay_duration_msec,
     intertrial_delay_duration_msec,
     usd_upon_block_completion,
-    size,
     block_name,
+    early_exit_ntrials_criterion,
+    early_exit_perf_criterion,
+    size,
     checkpoint_key,
 ){
 
@@ -165,6 +169,8 @@ async function run_binary_mts_trials(
     coords['usd_upon_block_completion'] = usd_upon_block_completion;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
     coords['image_diameter_pixels'] = diameter_pixels;
+    coords['early_exit_ntrials_criterion'] = early_exit_ntrials_criterion;
+    coords['early_exit_perf_criterion'] = early_exit_perf_criterion;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;
@@ -188,6 +194,15 @@ async function run_binary_mts_trials(
 
     var meta = {'performed_trials':false};
 
+
+    // Instantiate online performance metrics
+    const mintrials_criterion = early_exit_ntrials_criterion;
+    const minperf_criterion = early_exit_perf_criterion;
+    const rolling = true;
+
+    let performance_tracker = new PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
+
+
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
     let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
@@ -195,12 +210,24 @@ async function run_binary_mts_trials(
         cur_subtask_datavars = _loaded_data;
     }
 
-    // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
+    // If there is savedata, load it, and set the data_vars
     let start_trial = 0;
-    if (cur_subtask_datavars['perf'] != null) {
-        start_trial = cur_subtask_datavars['perf'].length;
+    let early_exit_satisfied = false;
+    if (cur_subtask_datavars['reinforcement'] != null) {
+        start_trial = cur_subtask_datavars['reinforcement'].length;
         data_vars = cur_subtask_datavars;
+
+        for (let i_trial = 0; i_trial < start_trial; i_trial++) {
+            let cur_perf = cur_subtask_datavars['reinforcement'][i_trial];
+
+            // Increment online performance metrics
+            let criterion_is_met = performance_tracker.check_satisfied(cur_perf);
+            if (criterion_is_met === true) {
+                early_exit_satisfied = true;
+            }
+        }
     }
+
 
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
@@ -327,7 +354,7 @@ async function run_binary_mts_trials(
 
 
         let choice =  -1;
-
+        let criterion_is_met = false;
 
         if (action !== -1){
             choice = Number(( action || choice0_location ) && !( action && choice0_location ))
@@ -348,12 +375,9 @@ async function run_binary_mts_trials(
             else{
                 reinforcement = 0;
             }
+            criterion_is_met = performance_tracker.check_satisfied(reinforcement);
         }
 
-
-
-        console.log(action, choice0_location, choice, reinforced_choice);
-        console.log(reinforcement);
         // Provide visual feedback, and apply a timeout
         if (reinforcement === 0){
             await display_canvas_sequence([canvases['choice_canvas'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
@@ -394,6 +418,11 @@ async function run_binary_mts_trials(
 
         // Clear canvas
         await clear_canvas(canvases['choice_canvas'])
+
+        // Check if conditions satisfied for an early exit
+        if(criterion_is_met === true){
+            break;
+        }
     }
 
     // Delete canvases

@@ -128,6 +128,8 @@ class SessionBlock(object):
                  minimal_choice_duration_msec: int,
                  intertrial_delay_duration_msec: int,
                  post_stimulus_delay_duration_msec: int,
+                 early_exit_ntrials_criterion:Union[int, type(None)],
+                 early_exit_perf_criterion:Union[float, type(None)]
                  ):
         assert 0 <= continue_perf_criterion <= 1
         max_safety_usd = 0.4
@@ -141,6 +143,14 @@ class SessionBlock(object):
         assert 0 <= minimal_choice_duration_msec <= choice_duration_msec
         assert 0 <= intertrial_delay_duration_msec <= 10000
         assert 0 <= post_stimulus_delay_duration_msec <= 10000
+
+        if early_exit_ntrials_criterion is not None:
+            assert 0 < early_exit_ntrials_criterion <= ntrials
+            assert 0 <= early_exit_perf_criterion <= 1
+        else:
+            assert early_exit_perf_criterion is None
+            early_exit_ntrials_criterion = ('raw', 'undefined')
+            early_exit_perf_criterion = ('raw', 'undefined')
 
         self.trial_pool = trial_pool
         self.info = dict(
@@ -156,6 +166,8 @@ class SessionBlock(object):
             intertrial_delay_duration_msec = intertrial_delay_duration_msec,
             post_stimulus_delay_duration_msec= post_stimulus_delay_duration_msec,
             block_name=name,
+            early_exit_ntrials_criterion = early_exit_ntrials_criterion,
+            early_exit_perf_criterion = early_exit_perf_criterion,
         )
 
     def get_string(self):
@@ -166,6 +178,11 @@ class SessionBlock(object):
                 val = f'"{self.info[k]}"'
             elif isinstance(self.info[k], bool):
                 val = bool2jsbool(self.info[k])
+            elif isinstance(self.info[k], tuple):
+                tup = self.info[k]
+                assert len(tup) == 2
+                assert tup[0] == 'raw'
+                val = self.info[k][1]
             else:
                 val = self.info[k]
             javascript_expression+=(4 * INDENT_CHARACTER + f'"{k}":{val},\n')
@@ -183,6 +200,8 @@ class StandardSessionBlock(SessionBlock):
     def __init__(self,
                  trial_pool: TrialPool,
                  continue_perf_criterion: float,
+                 early_exit_perf_criterion:Union[float, type(None)],
+                 early_exit_ntrials_criterion: Union[int, type(None)],
                  ntrials,
                  name,
                  ):
@@ -202,6 +221,8 @@ class StandardSessionBlock(SessionBlock):
                 minimal_choice_duration_msec=0,
                 intertrial_delay_duration_msec=100,
                 post_stimulus_delay_duration_msec=0,
+                early_exit_ntrials_criterion = early_exit_ntrials_criterion,
+                early_exit_perf_criterion = early_exit_perf_criterion,
             )
 
         return
@@ -249,7 +270,9 @@ if __name__ == '__main__':
     block_match = StandardSessionBlock(
         trial_pool=MatchRulePool(category_to_token_urls={'blue':[blue], 'orange':[orange]}, category_to_stimulus_urls={'blue':[blue], 'orange':[orange]}),
         continue_perf_criterion=0,
-        ntrials=10,
+        ntrials=20,
+        early_exit_ntrials_criterion=5,
+        early_exit_perf_criterion=1,
         name='test_orange',
     )
 
@@ -258,6 +281,8 @@ if __name__ == '__main__':
         continue_perf_criterion=0,
         ntrials=10,
         name='test_orange',
+        early_exit_ntrials_criterion=None,
+        early_exit_perf_criterion=None,
     )
     session = MTSSession(block_sequence=[block_match, block_allway])
     html_string = session.generate_html_string()

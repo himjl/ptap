@@ -71,7 +71,7 @@
             Example pool_sequence:
             pool_sequence = [
                 {
-                    'ntrials':5,
+                    'ntrials':20,
                     'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
                     'trial_pool':(function* trial_tuple_iterator() {
                         while(true){
@@ -88,6 +88,8 @@
                     'usd_upon_block_completion':0.3,
                     'block_name':'test_mil',
                     'continue_perf_criterion':1,
+                    'early_exit_ntrials_criterion': 5,
+                    'early_exit_perf_criterion':1,
                 },
             ]
          */
