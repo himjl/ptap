@@ -65,29 +65,32 @@
         const session_parameters_key = assignmentId.concat('_session_parameters');
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
-        pool_sequence = [
-            __TEST_INSERT__,
-            {
-                'ntrials':5,
-                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
-                'trial_pool':(function* trial_tuple_iterator() {
-                    while(true){
-                        yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
-                    }
-                }),
-                'stimulus_duration_msec':200,
-                'reward_duration_msec':50,
-                'punish_duration_msec':500,
-                'choice_duration_msec':5000,
-                'minimal_choice_duration_msec':500,
-                'post_stimulus_delay_duration_msec':0,
-                'intertrial_delay_duration_msec':0,
-                'usd_upon_block_completion':0.3,
-                'block_name':'test_mil',
-                'continue_perf_criterion':1,
-            },
-        ]
+        pool_sequence = __INSERT_POOL_SEQUENCE__
 
+        /*
+            Example pool_sequence:
+            pool_sequence = [
+                {
+                    'ntrials':5,
+                    'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                    'trial_pool':(function* trial_tuple_iterator() {
+                        while(true){
+                            yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
+                        }
+                    }),
+                    'stimulus_duration_msec':200,
+                    'reward_duration_msec':50,
+                    'punish_duration_msec':500,
+                    'choice_duration_msec':5000,
+                    'minimal_choice_duration_msec':500,
+                    'post_stimulus_delay_duration_msec':0,
+                    'intertrial_delay_duration_msec':0,
+                    'usd_upon_block_completion':0.3,
+                    'block_name':'test_mil',
+                    'continue_perf_criterion':1,
+                },
+            ]
+         */
         let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.

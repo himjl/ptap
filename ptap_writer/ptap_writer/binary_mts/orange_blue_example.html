@@ -1349,8 +1349,6 @@ async function run_binary_mts_trials(
         let choice =  -1;
 
 
-
-
         if (action !== -1){
             choice = Number(( action || choice0_location ) && !( action && choice0_location ))
         }
@@ -1473,9 +1471,9 @@ async function initialize_mts_task_canvases(size){
     await draw_rectangle(
         canvases['reward_canvas'],
         width * 0.5,
-        height*0.5,
-        width * 1/3,
-        height * 1/3,
+        height *0.5,
+        width *  1/4,
+        height * 1/4,
         "#00cc00",
         0.5);
 
@@ -1485,8 +1483,8 @@ async function initialize_mts_task_canvases(size){
         canvases['punish_canvas'],
         width * 0.5,
         height*0.5,
-    width * 1/3,
-        height * 1/3,
+    width * 1/4,
+        height * 1/4,
         "black",
         0.8);
 
@@ -1515,49 +1513,81 @@ async function initialize_mts_task_canvases(size){
         let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
 
         pool_sequence = [
-            {"usd_upon_block_completion":0.02,
-"ntrials":10,
-"stimulus_duration_msec":200,
-"reward_duration_msec":50,
-"punish_duration_msec":500,
-"choice_duration_msec":5000,
-"minimal_choice_duration_msec":0,
-"intertrial_delay_duration_msec":100,
-"post_stimulus_delay_duration_msec":0,
-"block_name":"test_orange",
-"image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
-"continue_perf_criterion":0,
-"trial_pool":(function* trial_generator(){
-const stim_suffixes=["bluediamond.png", "orangediamond.png"];
-let token_suffixes=["bluediamond.png", "orangediamond.png"];
-while(true){
-const cur_stim_suffix=stim_suffixes[Math.floor(Math.random() * stim_suffixes.length)];
-const choices=MathUtils.permute(token_suffixes);
-const cur_c0_suffix = choices[0];
-const cur_c1_suffix = choices[1];
-yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1}}}),
-},
             {
-                'ntrials':5,
-                'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
-                'trial_pool':(function* trial_tuple_iterator() {
+                "image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
+                "continue_perf_criterion":0,
+                "usd_upon_block_completion":0.02,
+                "ntrials":10,
+                "stimulus_duration_msec":200,
+                "reward_duration_msec":200,
+                "punish_duration_msec":800,
+                "choice_duration_msec":5000,
+                "minimal_choice_duration_msec":0,
+                "intertrial_delay_duration_msec":100,
+                "post_stimulus_delay_duration_msec":0,
+                "block_name":"test_orange",
+                "trial_pool":(function* trial_generator(){
+                    let categories=['blue', 'orange']
+                    const cat2stim={"blue": ["bluediamond.png"], "orange": ["orangediamond.png"]};
+                    const cat2token={"blue": ["bluediamond.png"], "orange": ["orangediamond.png"]};
                     while(true){
-                        yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
-                    }
-                }),
-                'stimulus_duration_msec':200,
-                'reward_duration_msec':50,
-                'punish_duration_msec':500,
-                'choice_duration_msec':5000,
-                'minimal_choice_duration_msec':500,
-                'post_stimulus_delay_duration_msec':0,
-                'intertrial_delay_duration_msec':0,
-                'usd_upon_block_completion':0.3,
-                'block_name':'test_mil',
-                'continue_perf_criterion':1,
+                    const cur_categories=MathUtils.permute(categories);
+                    const match_category=cur_categories[0];
+                    const distractor_category=cur_categories[1];
+                    const stim_suffix=MathUtils.random_choice(cat2stim[match_category]);
+                    const match_suffix=MathUtils.random_choice(cat2token[match_category]);
+                    const distractor_suffix=MathUtils.random_choice(cat2token[distractor_category]);
+                    yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':0}}}),
+            },
+            {
+                "image_url_prefix":"https://milresources.s3.amazonaws.com/Images/AbstractShapes/",
+                "continue_perf_criterion":0,
+                "usd_upon_block_completion":0.02,
+                "ntrials":10,
+                "stimulus_duration_msec":200,
+                "reward_duration_msec":200,
+                "punish_duration_msec":800,
+                "choice_duration_msec":5000,
+                "minimal_choice_duration_msec":0,
+                "intertrial_delay_duration_msec":100,
+                "post_stimulus_delay_duration_msec":0,
+                "block_name":"test_orange",
+                "trial_pool":(function* trial_generator(){
+                    const stim_suffixes=["bluediamond.png", "orangediamond.png"];
+                    let token_suffixes=["bluediamond.png", "orangediamond.png"];
+                    while(true){
+                    const cur_stim_suffix=stim_suffixes[Math.floor(Math.random() * stim_suffixes.length)];
+                    const choices=MathUtils.permute(token_suffixes);
+                    const cur_c0_suffix = choices[0];
+                    const cur_c1_suffix = choices[1];
+                    yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1}}}),
             },
         ]
 
+        /*
+            Example pool_sequence:
+            pool_sequence = [
+                {
+                    'ntrials':5,
+                    'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                    'trial_pool':(function* trial_tuple_iterator() {
+                        while(true){
+                            yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
+                        }
+                    }),
+                    'stimulus_duration_msec':200,
+                    'reward_duration_msec':50,
+                    'punish_duration_msec':500,
+                    'choice_duration_msec':5000,
+                    'minimal_choice_duration_msec':500,
+                    'post_stimulus_delay_duration_msec':0,
+                    'intertrial_delay_duration_msec':0,
+                    'usd_upon_block_completion':0.3,
+                    'block_name':'test_mil',
+                    'continue_perf_criterion':1,
+                },
+            ]
+         */
         let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.

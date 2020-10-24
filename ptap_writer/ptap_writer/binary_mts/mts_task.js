@@ -451,9 +451,9 @@ async function initialize_mts_task_canvases(size){
     await draw_rectangle(
         canvases['reward_canvas'],
         width * 0.5,
-        height*0.5,
-        width * 1/3,
-        height * 1/3,
+        height *0.5,
+        width *  1/4,
+        height * 1/4,
         "#00cc00",
         0.5);
 
@@ -463,8 +463,8 @@ async function initialize_mts_task_canvases(size){
         canvases['punish_canvas'],
         width * 0.5,
         height*0.5,
-    width * 1/3,
-        height * 1/3,
+    width * 1/4,
+        height * 1/4,
         "black",
         0.8);
 
