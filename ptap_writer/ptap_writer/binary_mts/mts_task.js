@@ -28,6 +28,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['block_name'],
                 cur_block['early_exit_ntrials_criterion'],
                 cur_block['early_exit_perf_criterion'],
+                cur_block['query_string'],
                 playspace_size_pixels,
                 cur_checkpoint_key,
             );
@@ -128,6 +129,7 @@ async function run_binary_mts_trials(
     block_name,
     early_exit_ntrials_criterion,
     early_exit_perf_criterion,
+    query_string,
     size,
     checkpoint_key,
 ){
@@ -276,9 +278,9 @@ async function run_binary_mts_trials(
         var current_c1_image = await trial_images.get_by_url(c1_url);
 
 
-        let choice_y_px = size * 3/4;
-        let choice_left_px = size * 1/4;
-        let choice_right_px = size * 3/4;
+        let choice_y_px = size * 1/2;
+        let choice_left_px = size * 1/5;
+        let choice_right_px = size * 4/5;
         let choice_diameter_px = diameter_pixels;
         // Randomly assign the position of the two choices
         let choice0_location = 0; // Choice0 goes on left side
@@ -289,6 +291,11 @@ async function run_binary_mts_trials(
         // Buffer images
         await draw_image(canvases['choice_canvas'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
         await draw_image(canvases['choice_canvas'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
+        if (query_string != null) {
+            if (query_string.length > 0) {
+                await write_text(canvases['choice_canvas'], query_string, size * 0.5, size * 0.5, size * 0.7, 'white')
+            }
+        }
 
         // Get screen parameters
         const cur_rect = canvases['choice_canvas'].getBoundingClientRect()
@@ -301,13 +308,13 @@ async function run_binary_mts_trials(
         const fixation_region_info = [
             {
                 'xcenter_px': 0.5 * size,
-                'ycenter_px': choice_y_px,
-                'radius_px': size * 0.15,
+                'ycenter_px': size * 3/4,
+                'radius_px': size * 0.1,
                 'action_index':0,
             },
         ];
 
-        let fixation_outcome = await action_recorder.Promise_get_subject_mouseclick_response(fixation_region_info, choice_duration_msec, left_bound_px, top_bound_px);
+        let fixation_outcome = await action_recorder.Promise_get_subject_mouseclick_response(fixation_region_info, -1, left_bound_px, top_bound_px);
 
         // Run stimulus
         let _stimulus_seq = undefined;
@@ -392,7 +399,6 @@ async function run_binary_mts_trials(
         // Trigger await for the rest of the trial, if minimal_choice_duration_msec has not elapsed
         if (reaction_time_msec < minimal_choice_duration_msec){
             await timeout(minimal_choice_duration_msec - reaction_time_msec);
-            console.log('Todo: add GUI element for minimal choice time')
         }
 
         // Apply constant intertrial wait
@@ -470,7 +476,7 @@ async function initialize_mts_task_canvases(size){
 
     // Create fixation canvas
     canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
-    await draw_dot_with_text(canvases['fixation_canvas'], 'Click to start', width*0.5, height*0.75, size * 0.15, "white", 1);
+    await draw_dot_with_text(canvases['fixation_canvas'], 'Click to start', width*0.5, height*0.75, size * 0.1, "white", 1);
     await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
     // Create stimulus canvas
     canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);

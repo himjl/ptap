@@ -117,6 +117,22 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
     context.globalAlpha = 1
 }
 
+async function write_text(canvas, text, xcentroid_pixel, ycentroid_pixel, total_width_px, text_color){
+
+    // Writes a single line of text, of width total_width_px, horizontally centered on xcentroid_pixel, and vertically centered on ycentroid_pixel
+
+    let nLetters = text.length;
+    let context = canvas.getContext('2d');
+    if (nLetters > 0){
+        var letterSize = total_width_px / nLetters;
+        context.font = letterSize.toString() + "px Arial";
+        context.fillStyle = text_color;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, xcentroid_pixel, ycentroid_pixel);
+    }
+
+}
 
 async function clear_canvas(canvasobj){
     var context = canvasobj.getContext('2d');

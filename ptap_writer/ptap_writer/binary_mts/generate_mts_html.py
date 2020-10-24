@@ -114,7 +114,7 @@ class MatchRulePool(TrialPool):
         return
 
 
-class SessionBlock(object):
+class Block(object):
     def __init__(self,
                  trial_pool: TrialPool,
                  continue_perf_criterion:float,
@@ -129,8 +129,10 @@ class SessionBlock(object):
                  intertrial_delay_duration_msec: int,
                  post_stimulus_delay_duration_msec: int,
                  early_exit_ntrials_criterion:Union[int, type(None)],
-                 early_exit_perf_criterion:Union[float, type(None)]
+                 early_exit_perf_criterion:Union[float, type(None)],
+                 query_string:Union[str, type(None)],
                  ):
+
         assert 0 <= continue_perf_criterion <= 1
         max_safety_usd = 0.4
         assert ntrials > 0
@@ -151,6 +153,8 @@ class SessionBlock(object):
             assert early_exit_perf_criterion is None
             early_exit_ntrials_criterion = ('raw', 'undefined')
             early_exit_perf_criterion = ('raw', 'undefined')
+        if query_string is not None:
+            assert isinstance(query_string, str)
 
         self.trial_pool = trial_pool
         self.info = dict(
@@ -168,6 +172,7 @@ class SessionBlock(object):
             block_name=name,
             early_exit_ntrials_criterion = early_exit_ntrials_criterion,
             early_exit_perf_criterion = early_exit_perf_criterion,
+            query_string = query_string,
         )
 
     def get_string(self):
@@ -192,7 +197,7 @@ class SessionBlock(object):
         return javascript_expression
 
 
-class StandardSessionBlock(SessionBlock):
+class MyStandardBlock(Block):
 
     """
     My standard choices for experimental parameters
@@ -220,17 +225,50 @@ class StandardSessionBlock(SessionBlock):
                 choice_duration_msec=5000,
                 minimal_choice_duration_msec=0,
                 intertrial_delay_duration_msec=100,
-                post_stimulus_delay_duration_msec=0,
+                post_stimulus_delay_duration_msec=100,
                 early_exit_ntrials_criterion = early_exit_ntrials_criterion,
                 early_exit_perf_criterion = early_exit_perf_criterion,
+                query_string = '',
             )
 
         return
 
+class WarmupBlock(Block):
+    """
+    A set of warmup MTS trials involving two simple color stimuli.
+    If the subject gets 5/5 correct, this block ends early.
+    The subject has up to 30 trials to do this; otherwise, the session submits early.
+    No bonus is given for completing this block.
+    """
+    def __init__(self):
 
-class MTSSession(object):
+        blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
+        orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
+
+        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue': [blue], 'orange': [orange]}, category_to_token_urls=None)
+
+        super().__init__(
+            trial_pool = trial_pool,
+            continue_perf_criterion = 0,
+            early_exit_perf_criterion = 1,
+            early_exit_ntrials_criterion = 5,
+            ntrials=30,
+            name='blue_orange_warmup_mts',
+            usd_upon_block_completion = 0,
+            stimulus_duration_msec = 200,
+            reward_duration_msec = 200,
+            punish_duration_msec = 1000,
+            choice_duration_msec = 5000,
+            minimal_choice_duration_msec = 0,
+            intertrial_delay_duration_msec = 200,
+            post_stimulus_delay_duration_msec = 100,
+            query_string = 'Which is more similar to the first image?',
+        )
+
+
+class Session(object):
     def __init__(self,
-                block_sequence: List[SessionBlock],
+                 block_sequence: List[Block],
                  ):
         assert len(block_sequence) > 0
 
@@ -267,16 +305,9 @@ if __name__ == '__main__':
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-    block_match = StandardSessionBlock(
-        trial_pool=MatchRulePool(category_to_token_urls={'blue':[blue], 'orange':[orange]}, category_to_stimulus_urls={'blue':[blue], 'orange':[orange]}),
-        continue_perf_criterion=0,
-        ntrials=20,
-        early_exit_ntrials_criterion=5,
-        early_exit_perf_criterion=1,
-        name='test_orange',
-    )
+    warmup_block = WarmupBlock()
 
-    block_allway = StandardSessionBlock(
+    block_allway = MyStandardBlock(
         trial_pool=AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange]),
         continue_perf_criterion=0,
         ntrials=10,
@@ -284,7 +315,7 @@ if __name__ == '__main__':
         early_exit_ntrials_criterion=None,
         early_exit_perf_criterion=None,
     )
-    session = MTSSession(block_sequence=[block_match, block_allway])
+    session = Session(block_sequence=[warmup_block, block_allway])
     html_string = session.generate_html_string()
 
     utils.save_text(string=html_string, fpath = './orange_blue_example.html')
