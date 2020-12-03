@@ -210,7 +210,7 @@ class Block(object):
                  ntrials: int,
                  name: str,
                  minimal_gt_performance_for_bonus:float,
-                 usd_per_gt_correct:float,
+                 usd_per_excess_gt_correct:float,
                  stimulus_duration_msec: int,
                  reward_duration_msec: int,
                  punish_duration_msec: int,
@@ -230,7 +230,7 @@ class Block(object):
         assert ntrials > 0
         assert isinstance(name, str)
         assert 0 <= minimal_gt_performance_for_bonus <= 1
-        assert 0 <= usd_per_gt_correct <= (max_safety_usd * ntrials)
+        assert 0 <= usd_per_excess_gt_correct <= (max_safety_usd * ntrials)
         assert 50 <= stimulus_duration_msec
         assert 0 <= reward_duration_msec <= 1000
         assert 0 <= punish_duration_msec <= 5000
@@ -256,7 +256,7 @@ class Block(object):
             image_url_prefix = trial_pool.image_url_prefix,
             continue_perf_criterion = continue_perf_criterion,
             minimal_gt_performance_for_bonus = minimal_gt_performance_for_bonus,
-            usd_per_gt_correct = usd_per_gt_correct,
+            usd_per_excess_gt_correct = usd_per_excess_gt_correct,
             ntrials= ntrials,
             stimulus_duration_msec= stimulus_duration_msec,
             reward_duration_msec= reward_duration_msec,
@@ -306,11 +306,12 @@ class MyStandardExperimentalBlock(Block):
                  early_exit_perf_criterion:Union[float, type(None)],
                  early_exit_ntrials_criterion: Union[int, type(None)],
                  minimal_gt_performance_for_bonus:float,
-                 ntrials,
-                 name,
+                 ntrials:int,
+                 name:str,
                  ):
 
-        usd_per_gt_correct = 0.002
+        pseudo_usd_per_gt_correct = 0.0025 # A perfectly performing subject would receive ntrials * pseudo_usd_per_gt_correct
+        usd_per_excess_gt_correct = (ntrials * pseudo_usd_per_gt_correct) / (ntrials - ntrials * minimal_gt_performance_for_bonus + 1)
 
         super().__init__(
                 trial_pool = trial_pool,
@@ -318,7 +319,7 @@ class MyStandardExperimentalBlock(Block):
                 ntrials=ntrials,
                 name=name,
                 minimal_gt_performance_for_bonus=minimal_gt_performance_for_bonus,
-                usd_per_gt_correct=usd_per_gt_correct,
+                usd_per_excess_gt_correct=usd_per_excess_gt_correct,
                 stimulus_duration_msec=200,
                 reward_duration_msec=200,
                 punish_duration_msec=800,

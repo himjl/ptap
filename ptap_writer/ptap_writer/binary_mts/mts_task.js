@@ -27,7 +27,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['inter_choice_presentation_delay_msec'],
                 cur_block['pre_choice_lockout_delay_duration_msec'],
                 cur_block['minimal_gt_performance_for_bonus'],
-                cur_block['usd_per_gt_correct'],
+                cur_block['usd_per_excess_gt_correct'],
                 cur_block['block_name'],
                 cur_block['early_exit_ntrials_criterion'],
                 cur_block['early_exit_perf_criterion'],
@@ -71,7 +71,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             console.log(cur_session_data)
             let block_ground_truth_perf_seq = cur_session_data['data_vars']['ground_truth_perf'];
             let block_minimal_gt_performance_for_bonus = cur_session_data['coords']['minimal_gt_performance_for_bonus'];
-            let block_usd_per_gt_correct = cur_session_data['coords']['usd_per_gt_correct']
+            let block_usd_per_gt_excess_correct = cur_session_data['coords']['usd_per_excess_gt_correct']
             let perf_on_trials_with_gt = [];
             for (let _i = 0; _i < block_ground_truth_perf_seq.length; _i++){
                 const cur = block_ground_truth_perf_seq[_i]
@@ -81,10 +81,12 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             }
             let gt_ncorrect = MathUtils.sum(perf_on_trials_with_gt);
             let gt_nobs = perf_on_trials_with_gt.length;
-            let min_corrects_before_reward = Math.round(block_minimal_gt_performance_for_bonus * gt_nobs);
-            let bonus_allotted_trials = Math.max(0, gt_ncorrect - min_corrects_before_reward);
-            let block_bonus_amount_usd =block_usd_per_gt_correct * bonus_allotted_trials;
-            console.log('bonus amount', block_bonus_amount_usd)
+            let gt_perf = gt_ncorrect / gt_nobs;
+            let block_bonus_amount_usd = 0;
+            if (gt_perf >= block_minimal_gt_performance_for_bonus){
+                block_bonus_amount_usd = block_usd_per_gt_excess_correct * (gt_ncorrect - gt_nobs * block_minimal_gt_performance_for_bonus + 1)
+                block_bonus_amount_usd = Math.max(block_bonus_amount_usd, 0);
+            }
             session_bonus_tracker.add_bonus(block_bonus_amount_usd);
             session_bonus_tracker.add_block_gt_performance(gt_ncorrect, gt_nobs);
 
@@ -121,15 +123,10 @@ async function run_binary_mts_trials(
     minimal_choice_duration_msec,
     post_stimulus_delay_duration_msec,
     intertrial_delay_duration_msec,
-
     inter_choice_presentation_delay_msec,
     pre_choice_lockout_delay_duration_msec,
-
-
     minimal_gt_performance_for_bonus,
-    usd_per_gt_correct,
-
-
+    usd_per_excess_gt_correct,
     block_name,
     early_exit_ntrials_criterion,
     early_exit_perf_criterion,
@@ -175,7 +172,7 @@ async function run_binary_mts_trials(
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
     coords['minimal_gt_performance_for_bonus'] = minimal_gt_performance_for_bonus;
-    coords['usd_per_gt_correct'] = usd_per_gt_correct;
+    coords['usd_per_excess_gt_correct'] = usd_per_excess_gt_correct;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
     coords['image_diameter_pixels'] = diameter_pixels;
     coords['early_exit_ntrials_criterion'] = early_exit_ntrials_criterion;
@@ -521,7 +518,6 @@ async function congratulations_screen(size){
     var font = font_size+'px Times New Roman';
 
     let bonus_usd_earned = Math.round(session_bonus_tracker.bonus_usd_earned*1000) / 1000;
-    let gt_ncorrect_total = session_bonus_tracker.ncorrect_total;
     let gt_nobs_total = session_bonus_tracker.ntrials_total;
     await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
 
