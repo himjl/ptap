@@ -29,6 +29,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
             const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
             const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
             const usd_per_reward = cur_subtask['usd_per_reward'];
             const cur_sequence_name = cur_subtask['sequence_name'];
             const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
@@ -47,6 +48,7 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
                 cur_punish_duration_msec,
                 cur_choice_duration_msec,
                 cur_post_stimulus_delay_duration_msec,
+                cur_intertrial_delay_period_msec,
                 usd_per_reward,
                 playspace_size_pixels,
                 cur_sequence_name,
@@ -97,6 +99,7 @@ async function run_binary_sr_trials(
     punish_duration_msec,
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
+    intertrial_delay_period_msec,
     usd_per_reward,
     size,
     sequence_name,
@@ -130,6 +133,7 @@ async function run_binary_sr_trials(
     coords['reward_duration_msec'] = reward_duration_msec;
     coords['punish_duration_msec'] = punish_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['intertrial_delay_period_msec'] = intertrial_delay_period_msec;
     coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
     coords['label_to_action'] = label_to_action;
@@ -287,6 +291,10 @@ async function run_binary_sr_trials(
             await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
 
+        // Intertrial await
+        await timeout(intertrial_delay_period_msec)
+
+
         // Record outcomes
         data_vars['perf'].push(perf);
         data_vars['action'].push(action);
@@ -303,8 +311,11 @@ async function run_binary_sr_trials(
         // Checkpoint data vars to local storage
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
 
+
         // Callback
-        await update_hud(perf, usd_per_reward);
+        if (usd_per_reward > 0){
+            await update_hud(perf, usd_per_reward);
+        }
         progressbar_callback();
 
         // Check if conditions satisfied for an early exit

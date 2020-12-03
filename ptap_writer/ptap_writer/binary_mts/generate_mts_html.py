@@ -33,7 +33,7 @@ class DirectTuplesPool(TrialPool):
     """
     def __init__(
             self,
-            trials:List[Dict], # list of dictionaries {'stimulus_url':str, 'choice0_url':str, 'choice1_url':str, 'rewarded_choice'}
+            trials:List[Dict], # list of dictionaries {'stimulus_url':str, 'choice0_url':str, 'choice1_url':str, 'rewarded_choice':0 or 1, 'ground_truth_choice':0 or 1 or -1 (no gt) or -2 (either)}
     ):
         """
         :param category_to_stimulus_urls: {category_name: [stimulus_urls]}
@@ -50,6 +50,8 @@ class DirectTuplesPool(TrialPool):
             assert isinstance(trial, dict)
             assert 'rewarded_choice' in trial
             assert trial['rewarded_choice'] in [-1, 0, 1]
+            assert 'ground_truth_choice' in trial
+            assert trial['ground_truth_choice'] in [-2, -1, 0, 1]
 
             for k in url_keys:
                 assert k in trial, trial.keys()
@@ -64,6 +66,7 @@ class DirectTuplesPool(TrialPool):
             for k in url_keys:
                 cur[k + '_suffix'] = trial[k].split(image_url_prefix)[-1]
             cur['rewarded_choice'] = trial['rewarded_choice']
+            cur['ground_truth_choice'] = trial['ground_truth_choice']
             trials_suffix.append(cur)
         # Assemble trial_pool using a JavaScript call
 
@@ -78,7 +81,8 @@ class DirectTuplesPool(TrialPool):
         function_string += 5*INDENT_CHARACTER + 'const choice1_suffix=cur_trial["choice1_url_suffix"];\n'
         function_string += 5*INDENT_CHARACTER + 'const choice1_suffix=cur_trial["choice1_url_suffix"];\n'
         function_string += 5*INDENT_CHARACTER + 'const rewarded_choice=cur_trial["rewarded_choice"];\n'
-        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':choice0_suffix, 'choice1_url_suffix':choice1_suffix, 'rewarded_choice':rewarded_choice}"
+        function_string += 5*INDENT_CHARACTER + 'const gt_choice=cur_trial["ground_truth_choice"];\n'
+        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':choice0_suffix, 'choice1_url_suffix':choice1_suffix, 'rewarded_choice':rewarded_choice, 'ground_truth_choice':gt_choice}"
         function_string +='}})'
         super().__init__(image_url_prefix, function_string)
         return
@@ -112,7 +116,7 @@ class AllWayPool(TrialPool):
         function_string += 5 * INDENT_CHARACTER + 'const choices=MathUtils.permute(token_suffixes);\n'
         function_string += 5 * INDENT_CHARACTER + 'const cur_c0_suffix = choices[0];\n'
         function_string += 5 * INDENT_CHARACTER + 'const cur_c1_suffix = choices[1];\n'
-        function_string += 5 * INDENT_CHARACTER + "yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1}"
+        function_string += 5 * INDENT_CHARACTER + "yield {'stimulus_url_suffix':cur_stim_suffix, 'choice0_url_suffix':cur_c0_suffix, 'choice1_url_suffix':cur_c1_suffix, 'rewarded_choice':-1, 'ground_truth_choice':-1}"
         function_string += '}})'
         super().__init__(image_url_prefix, function_string)
         return
@@ -124,12 +128,14 @@ class MatchRulePool(TrialPool):
     def __init__(
             self,
             category_to_stimulus_urls:dict,
-            category_to_token_urls:Union[dict, type(None)],
+            category_to_token_urls: Union[dict, type(None)],
             reinforce_match:bool,
+            stimulus_category_to_allowable_distractor_categories: Union[dict, type(None)],
     ):
         """
         :param category_to_stimulus_urls: {category_name: [stimulus_urls]}
         :param category_to_token_urls: {category_name: [token_urls]} or None. If None, the stimulus urls serve as their own tokens.
+        :param stimulus_category_to_allowable_distractor_categories: {category_name: [names of possible distractors]} or None. If None, all stimulus categories are possible, and any (non-identity) category can serve as the distractor
         """
 
         if category_to_token_urls is None:
@@ -147,11 +153,24 @@ class MatchRulePool(TrialPool):
             for url in category_to_stimulus_urls[category] + category_to_token_urls[category]:
                 all_urls.add(url)
 
+        if stimulus_category_to_allowable_distractor_categories is not None:
+            for stim_cat in stimulus_category_to_allowable_distractor_categories:
+                assert stim_cat in categories
+                assert isinstance(stimulus_category_to_allowable_distractor_categories[stim_cat], list)
+                dis_pool = stimulus_category_to_allowable_distractor_categories[stim_cat]
+                assert np.all([dis in categories for dis in dis_pool])
+            stimulus_categories = sorted(list(stimulus_category_to_allowable_distractor_categories.keys()))
+            cat2distractor_string = json.dumps(stimulus_category_to_allowable_distractor_categories)
+        else:
+            stimulus_categories = categories
+            cat2distractor_string = 'undefined'
+
         all_urls = sorted(list(all_urls))
         image_url_prefix = os.path.commonprefix(all_urls)
         category_to_stimulus_suffixes = {category:[url.split(image_url_prefix)[-1] for url in category_to_stimulus_urls[category]] for category in categories}
         category_to_token_suffixes = {category:[url.split(image_url_prefix)[-1] for url in category_to_token_urls[category]] for category in categories}
 
+        gt_choice = 0
         if reinforce_match:
             # Reinforce the match choice
             rewarded_choice = 0
@@ -162,19 +181,24 @@ class MatchRulePool(TrialPool):
         # Build iterator function
         cat2stim_suffixes_string = json.dumps(category_to_stimulus_suffixes)
         cat2token_suffixes_string = json.dumps(category_to_token_suffixes)
+
         function_string = '(function* trial_generator(){\n'
-        function_string += 5*INDENT_CHARACTER + 'let categories=%s\n' % categories
-        function_string += 5*INDENT_CHARACTER + 'const cat2stim=%s;\n' % (cat2stim_suffixes_string)
-        function_string += 5*INDENT_CHARACTER + 'const cat2token=%s;\n' % (cat2token_suffixes_string)
-        function_string += 5*INDENT_CHARACTER + 'while(true){\n'
-        function_string += 5*INDENT_CHARACTER + 'const cur_categories=MathUtils.permute(categories);\n'
-        function_string += 5*INDENT_CHARACTER + 'const match_category=cur_categories[0];\n'
-        function_string += 5*INDENT_CHARACTER + 'const distractor_category=cur_categories[1];\n'
-        function_string += 5*INDENT_CHARACTER + 'const stim_suffix=MathUtils.random_choice(cat2stim[match_category]);\n'
-        function_string += 5*INDENT_CHARACTER + 'const match_suffix=MathUtils.random_choice(cat2token[match_category]);\n'
-        function_string += 5*INDENT_CHARACTER + 'const distractor_suffix=MathUtils.random_choice(cat2token[distractor_category]);\n'
-        function_string += 5*INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':%d}"%(rewarded_choice)
-        function_string +='}})'
+        function_string += 5 * INDENT_CHARACTER + 'let categories=%s\n' % stimulus_categories
+        function_string += 5 * INDENT_CHARACTER + 'const cat2stim=%s;\n' % (cat2stim_suffixes_string)
+        function_string += 5 * INDENT_CHARACTER + 'const cat2token=%s;\n' % (cat2token_suffixes_string)
+        function_string += 5 * INDENT_CHARACTER + 'const cat2distractor_categories=%s;\n' % (cat2distractor_string)
+        function_string += 5 * INDENT_CHARACTER + 'while(true){\n'
+        function_string += 5 * INDENT_CHARACTER + 'const cur_categories=MathUtils.permute(categories);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const stimulus_category=cur_categories[0];\n'
+        function_string += 5 * INDENT_CHARACTER + 'let distractor_category;\n'
+        function_string += 5 * INDENT_CHARACTER + 'if (cat2distractor_categories == null){distractor_category=cur_categories[1];}\n'
+        function_string += 5 * INDENT_CHARACTER + 'else{distractor_category=MathUtils.random_choice(cat2distractor_categories[stimulus_category]);}\n'
+        function_string += 5 * INDENT_CHARACTER + 'const stim_suffix=MathUtils.random_choice(cat2stim[stimulus_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const match_suffix=MathUtils.random_choice(cat2token[stimulus_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const distractor_suffix=MathUtils.random_choice(cat2token[distractor_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':%d, 'ground_truth_choice':%d}" % (
+            rewarded_choice, gt_choice)
+        function_string += '}})'
         super().__init__(image_url_prefix, function_string)
         return
 
@@ -185,7 +209,8 @@ class Block(object):
                  continue_perf_criterion:float,
                  ntrials: int,
                  name: str,
-                 usd_upon_block_completion: float,
+                 minimal_gt_performance_for_bonus:float,
+                 usd_per_gt_correct:float,
                  stimulus_duration_msec: int,
                  reward_duration_msec: int,
                  punish_duration_msec: int,
@@ -204,7 +229,8 @@ class Block(object):
         max_safety_usd = 0.4
         assert ntrials > 0
         assert isinstance(name, str)
-        assert 0 <= usd_upon_block_completion < max_safety_usd
+        assert 0 <= minimal_gt_performance_for_bonus <= 1
+        assert 0 <= usd_per_gt_correct <= (max_safety_usd * ntrials)
         assert 50 <= stimulus_duration_msec
         assert 0 <= reward_duration_msec <= 1000
         assert 0 <= punish_duration_msec <= 5000
@@ -229,7 +255,8 @@ class Block(object):
         self.info = dict(
             image_url_prefix = trial_pool.image_url_prefix,
             continue_perf_criterion = continue_perf_criterion,
-            usd_upon_block_completion = usd_upon_block_completion,
+            minimal_gt_performance_for_bonus = minimal_gt_performance_for_bonus,
+            usd_per_gt_correct = usd_per_gt_correct,
             ntrials= ntrials,
             stimulus_duration_msec= stimulus_duration_msec,
             reward_duration_msec= reward_duration_msec,
@@ -278,18 +305,20 @@ class MyStandardExperimentalBlock(Block):
                  continue_perf_criterion: float,
                  early_exit_perf_criterion:Union[float, type(None)],
                  early_exit_ntrials_criterion: Union[int, type(None)],
+                 minimal_gt_performance_for_bonus:float,
                  ntrials,
                  name,
                  ):
-        usd_per_trial = 0.002
-        usd_upon_block_completion = ntrials * usd_per_trial
+
+        usd_per_gt_correct = 0.002
 
         super().__init__(
                 trial_pool = trial_pool,
                 continue_perf_criterion=continue_perf_criterion,
                 ntrials=ntrials,
                 name=name,
-                usd_upon_block_completion=usd_upon_block_completion,
+                minimal_gt_performance_for_bonus=minimal_gt_performance_for_bonus,
+                usd_per_gt_correct=usd_per_gt_correct,
                 stimulus_duration_msec=200,
                 reward_duration_msec=200,
                 punish_duration_msec=800,
@@ -297,7 +326,7 @@ class MyStandardExperimentalBlock(Block):
                 minimal_choice_duration_msec=0,
                 intertrial_delay_duration_msec=1000,
                 pre_choice_lockout_delay_duration_msec=200,
-                inter_choice_presentation_delay_msec=600,
+                inter_choice_presentation_delay_msec=0,
                 post_stimulus_delay_duration_msec=400,
                 early_exit_ntrials_criterion = early_exit_ntrials_criterion,
                 early_exit_perf_criterion = early_exit_perf_criterion,
@@ -307,43 +336,7 @@ class MyStandardExperimentalBlock(Block):
         return
 
 
-class AttentionCheckTrial(MyStandardExperimentalBlock):
-
-    """
-    A trial which asks the subject to match the stimulus to itself.
-    If they are paying attention, this should be quite easy.
-    """
-
-    def __init__(self,
-                 stimulus_image_url,
-                 distractor_image_url,
-                 ntrials,
-                 name,
-                 ):
-
-        trial_pool = DirectTuplesPool(trials =
-                                      [
-                                          {
-                                              'stimulus_url':stimulus_image_url,
-                                              'choice0_url':stimulus_image_url,
-                                              'choice1_url':distractor_image_url,
-                                              'rewarded_choice':-1,
-                                          }
-                                      ]
-        )
-
-        super().__init__(
-                    trial_pool = trial_pool,
-                    continue_perf_criterion = 0,
-                    early_exit_perf_criterion = None,
-                    early_exit_ntrials_criterion = None,
-                    ntrials = ntrials,
-                    name = name,
-        )
-
-        return
-
-class BlueOrangeWarmupBlock(Block):
+class BlueOrangeWarmupBlock(MyStandardExperimentalBlock):
     """
     A set of warmup MTS trials involving two simple color stimuli.
     If the subject gets 5/5 correct, this block ends early.
@@ -359,7 +352,7 @@ class BlueOrangeWarmupBlock(Block):
         blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
         orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue': [blue], 'orange': [orange]}, category_to_token_urls=None, reinforce_match=True)
+        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue': [blue], 'orange': [orange]}, category_to_token_urls=None, reinforce_match=True, stimulus_category_to_allowable_distractor_categories=None)
 
         super().__init__(
             trial_pool = trial_pool,
@@ -368,18 +361,11 @@ class BlueOrangeWarmupBlock(Block):
             early_exit_ntrials_criterion = early_exit_ntrials_criterion,
             ntrials=max_trials,
             name='blue_orange_warmup_mts',
-            usd_upon_block_completion = 0,
-            stimulus_duration_msec = 200,
-            reward_duration_msec = 200,
-            punish_duration_msec = 1000,
-            choice_duration_msec = 5000,
-            pre_choice_lockout_delay_duration_msec=200,
-            inter_choice_presentation_delay_msec=600,
-            minimal_choice_duration_msec = 0,
-            intertrial_delay_duration_msec = 200,
-            post_stimulus_delay_duration_msec = 200,
-            query_string = 'Which is more similar to the first image?',
+            minimal_gt_performance_for_bonus=1,
         )
+
+        self.info['query_string'] = 'Which is more similar to the first image?'
+        self.info['usd_per_gt_correct'] = 0
 
 
 class Session(object):
@@ -421,17 +407,23 @@ if __name__ == '__main__':
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-    warmup_block = BlueOrangeWarmupBlock()
-
     block_allway = MyStandardExperimentalBlock(
-        trial_pool=AllWayPool(stimulus_urls=[blue, orange], token_urls=[blue, orange]),
+        trial_pool=MatchRulePool(category_to_stimulus_urls={'blue':[blue], 'orange':[orange]},
+                                 category_to_token_urls=None,
+                                 reinforce_match=False, stimulus_category_to_allowable_distractor_categories=None),
         continue_perf_criterion=0,
-        ntrials=10,
+        ntrials=2,
         name='test_orange',
         early_exit_ntrials_criterion=None,
         early_exit_perf_criterion=None,
+        minimal_gt_performance_for_bonus=0.,
     )
-    session = Session(block_sequence=[warmup_block, block_allway])
+    session = Session(block_sequence=[block_allway])
+    block_allway.info['minimal_choice_duration_msec'] =0
+    block_allway.info['post_stimulus_delay_duration_msec'] = 0
+    block_allway.info['intertrial_delay_duration_msec'] = 0
+    block_allway.info['inter_choice_presentation_delay_msec'] = 0
+    block_allway.info['pre_choice_lockout_delay_duration_msec'] = 0
     html_string = session.generate_html_string()
 
     utils.save_text(string=html_string, fpath = './orange_blue_example.html')

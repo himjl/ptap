@@ -4,13 +4,9 @@
 
 
 <div id='user_hud'
-     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
-    <p style="margin-right: 5px;margin-left: 5px;">Total trials:
-        <text id="hud_total_trials">&nbsp&nbsp0</text>
-    </p>
-    <p style="margin-right: 5px;margin-left: 5px;">Bonus if completed:
-        <text id="hud_promised_bonus">0.0</text>
-        &cent
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:visible">
+    <p style="margin-right: 5px;margin-left: 5px;">Trials performed:
+        <text id="hud_trials_performed">&nbsp&nbsp0</text>
     </p>
 </div>
 
@@ -67,6 +63,7 @@
 
         pool_sequence = __INSERT_POOL_SEQUENCE__
 
+
         /*
             Example pool_sequence:
             pool_sequence = [
@@ -75,7 +72,13 @@
                     'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
                     'trial_pool':(function* trial_tuple_iterator() {
                         while(true){
-                            yield  {'stimulus_url_suffix':'orangediamond.png', 'choice0_url_suffix':'orangediamond.png', 'choice1_url_suffix':'bluediamond.png', 'rewarded_choice':0}
+                            yield  {
+                            'stimulus_url_suffix':'orangediamond.png',
+                            'choice0_url_suffix':'orangediamond.png',
+                            'choice1_url_suffix':'bluediamond.png',
+                            'rewarded_choice':0, //  If an entry is -1, no choice is given a reward.
+                            'ground_truth_choice':0 //  The choice which counts as the "correct" choice for the purposes of the bonus performance tracker. If -1, no change is made to the tracker. If -2, either choice works.
+                            }
                         }
                     }),
                     'stimulus_duration_msec':200,
@@ -87,15 +90,17 @@
                     'intertrial_delay_duration_msec':0,
                     'inter_choice_presentation_delay_msec':0,
                     'pre_choice_lockout_delay_duration_msec':100,
-                    'usd_upon_block_completion':0.3,
+                    'minimal_gt_performance_for_bonus':0.55, // between 0 and 1; based on ground truth choice
+                    'usd_per_gt_correct':0.0025, // Is applied only if performance is above minimal_performance_for_bonus
                     'block_name':'test_mil',
                     'continue_perf_criterion':1,
                     'early_exit_ntrials_criterion': 5,
                     'early_exit_perf_criterion':1,
-                    'query_string': "Which is more similar?"
+                    'query_string': "Which is more similar?",
                 },
             ]
          */
+
         let ntotal_trials = 0;
         if (block_sequence==null || developer_mode === true){
             // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
@@ -114,7 +119,7 @@
                 let choice0_url_suffix_sequence = [];
                 let choice1_url_suffix_sequence = [];
                 let rewarded_choice_sequence = [];
-
+                let ground_truth_choice_sequence = [];
                 for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
                     const result = cur_trial_pool.next();
                     const cur_trial_info = result.value
@@ -122,11 +127,13 @@
                     choice0_url_suffix_sequence.push(cur_trial_info['choice0_url_suffix']);
                     choice1_url_suffix_sequence.push(cur_trial_info['choice1_url_suffix']);
                     rewarded_choice_sequence.push(cur_trial_info['rewarded_choice']);
+                    ground_truth_choice_sequence.push(cur_trial_info['ground_truth_choice']);
                 }
                 cur_block['stimulus_image_url_suffix_sequence'] = cur_image_url_suffix_sequence;
                 cur_block['choice0_url_suffix_sequence'] = choice0_url_suffix_sequence;
                 cur_block['choice1_url_suffix_sequence'] = choice1_url_suffix_sequence;
                 cur_block['rewarded_choice_sequence'] = rewarded_choice_sequence;
+                cur_block['ground_truth_choice_sequence'] = ground_truth_choice_sequence;
                 block_sequence.push(cur_block)
                 ntotal_trials = ntotal_trials + cur_ntrials;
             }
@@ -145,6 +152,39 @@
             }
         }
 
+        // Session bonus tracker
+        class MTS_Session_Bonus_Tracker {
+            constructor() {
+                this.bonus_usd_earned = 0;
+                this.ncorrect_total = 0;
+                this.ntrials_total = 0;
+            }
+
+            add_bonus(bonus_amount_usd, ){
+                this.bonus_usd_earned = this.bonus_usd_earned + Math.max(0, bonus_amount_usd)
+            }
+
+            add_block_gt_performance(ncorrect, ntrials){
+                this.ncorrect_total = this.ncorrect_total + Math.max(0, ncorrect);
+                this.ntrials_total = this.ntrials_total + Math.max(0, ntrials);
+            }
+
+        }
+
+        var session_bonus_tracker = new MTS_Session_Bonus_Tracker();
+
+        class MTS_Session_HUD {
+            constructor(){
+            }
+
+            static increment_ntrials(){
+                let hud_trials_performed_element = document.getElementById('hud_trials_performed');
+                const current_trials = parseInt(hud_trials_performed_element.innerText);
+                const incremented_trials = current_trials + 1;
+                hud_trials_performed_element.innerHTML = incremented_trials.toString();
+            }
+        }
+
 
         (async function () {
             // Run instructions if they have not been clicked through
@@ -160,8 +200,6 @@
             if (in_preview_mode === false){
                 // Turn on HUD
                 document.getElementById('user_hud').style.visibility = 'visible';
-                let hud_total_trials = document.getElementById('hud_total_trials');
-                hud_total_trials.innerHTML = ntotal_trials.toString();
 
                 // Run trials
                 var session_data = await run_mts_blocks(block_sequence, checkpoint_key_prefix);

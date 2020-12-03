@@ -26,7 +26,6 @@ class PerformanceBuffer{
         let criterion_met = false;
         // Add new observation
         this.perf_buffer.push(perf);
-        console.log('perf_buffer', this.perf_buffer);
 
         // Not enough observations to test for criterion:
         if (this.perf_buffer.length < this.mintrials_criterion) {

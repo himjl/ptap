@@ -68,11 +68,12 @@
 
     <script>
         // Hardcoded experimental parameters
-        var stimulus_duration_msec = 200;
-        var reward_duration_msec = 100;
-        var punish_duration_msec = 500;
-        var choice_duration_msec = 5000;
-        var post_stimulus_delay_duration_msec = 0;
+        const stimulus_duration_msec = 200;
+        const reward_duration_msec = 200;
+        const punish_duration_msec = 800;
+        const choice_duration_msec = 5000;
+        const post_stimulus_delay_duration_msec = 200;
+        const intertrial_delay_period_msec = 50;
 
 
         /* JavaScript-side randomization functions */
@@ -217,6 +218,7 @@
                     'punish_duration_msec': punish_duration_msec,
                     'choice_duration_msec': choice_duration_msec,
                     'post_stimulus_delay_duration_msec': post_stimulus_delay_duration_msec,
+                    'intertrial_delay_period_msec': intertrial_delay_period_msec,
                     'usd_per_reward': usd_per_reward,
                     'early_exit_criteria':{'min_perf':min_perf_for_early_exit, 'min_trials':min_trials_for_early_exit, 'rolling':rolling_early_exit_metric},
                     'session_end_criteria':{'max_trials_for_continue':max_trials_for_continue}
@@ -250,7 +252,6 @@
                 return session_sequences
             }
         }
-
 
         // Extract session info
         const url = window.location.href;

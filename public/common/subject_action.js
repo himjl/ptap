@@ -96,7 +96,6 @@ class ActionListenerClass {
         if (timeout_msec > 0){
             choice_promise = Promise.race([choice_promise, timeout(timeout_msec)])
         }
-        console.log(timeout_msec)
         return choice_promise
     }
 

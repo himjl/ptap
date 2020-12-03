@@ -167,9 +167,6 @@ def assignment_post_process_function(
     if ncompleted is None:
         ncompleted = 0
 
-    qual_utils.grant_qualification(client = client, worker_id = worker_id, qualification_type_id=qual_id, value = ncompleted + 1)
-    print('(workerId:%s, assignmentId:%s): Marked as having performed %d tasks' % (worker_id, assignment_id, ncompleted+1))
-
     # Extract answer string and convert to JSON
     answer, parse_errors = extract_answer(asn)
     errors.extend(parse_errors)
@@ -193,8 +190,9 @@ def assignment_post_process_function(
     # Pay worker if a bonus was earned
     if bonus_usd > 0:
         try:
-            turkr.mturk.manage_hit.grant_bonus(worker_id=worker_id, assignment_id=assignment_id, bonus_usd = bonus_usd, client=client)
-
+            if turkr.mturk.manage_hit.grant_bonus(worker_id=worker_id, assignment_id=assignment_id, bonus_usd=bonus_usd, client=client):
+                qual_utils.grant_qualification(client=client, worker_id=worker_id, qualification_type_id=qual_id, value=ncompleted + 1)
+                print('(workerId:%s, assignmentId:%s): Marked as having performed %d tasks' % (worker_id, assignment_id, ncompleted + 1))
         except Exception as e:
             print('Failed to grant bonus: ')
             print(e)
