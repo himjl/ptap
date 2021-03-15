@@ -56,14 +56,13 @@ function create_canvas(canvas_id, width, height){
     // Center canvas: https://stackoverflow.com/questions/5127937/how-to-center-canvas-in-html5
     canvasobj.style.padding = 0;
     canvasobj.style.margin = 'auto';
-    canvasobj.style.display = "block"; //visible
+    canvasobj.style.display = "block";
     canvasobj.style.position = 'absolute';
     canvasobj.style.top = 0;
     canvasobj.style.bottom = 0;
     canvasobj.style.left = 0;
     canvasobj.style.right = 0;
-    //canvasobj.style.border = '1px dotted #E6E6E6';
-    canvasobj.style.width = width + 'px'; // Set browser canvas display style to be workspace_width
+    canvasobj.style.width = width + 'px';
     canvasobj.style.height = height + 'px';
 
     // Set background
@@ -117,6 +116,42 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
     // So further calls to this canvas context are not necessarily alpha'd out.
     context.globalAlpha = 1
 }
+
+async function write_text(canvas, text, xcentroid_pixel, ycentroid_pixel, total_width_px, text_color){
+
+    // Writes a single line of text, of width total_width_px, horizontally centered on xcentroid_pixel, and vertically centered on ycentroid_pixel
+
+    let nLetters = text.length;
+    let context = canvas.getContext('2d');
+    if (nLetters > 0){
+        var letterSize = total_width_px / nLetters;
+        context.font = letterSize.toString() + "px Arial";
+        context.fillStyle = text_color;
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, xcentroid_pixel, ycentroid_pixel);
+    }
+
+}
+
+async function clear_canvas(canvasobj){
+    var context = canvasobj.getContext('2d');
+    context.fillStyle = "#7F7F7F";
+    context.fillRect(0, 0, canvasobj.width, canvasobj.height);
+}
+
+async function draw_border(canvas, xcentroid, ycentroid, width_pixels, height_pixels, border_width_px, color){
+    var context = canvas.getContext('2d');
+    context.globalAlpha = 1
+
+    // Red rectangle
+    context.beginPath();
+    context.lineWidth = border_width_px.toString();
+    context.strokeStyle = color;
+    context.rect(xcentroid - width_pixels / 2, ycentroid - height_pixels / 2, width_pixels, height_pixels);
+    context.stroke();
+}
+
 
 async function draw_rectangle(canvas, xcentroid, ycentroid, width_pixels, height_pixels, color, alpha) {
     var context = canvas.getContext('2d');

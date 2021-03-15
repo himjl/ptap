@@ -1,0 +1,212 @@
+<!doctype html>
+
+<body style="background-color:#7F7F7F">
+
+
+<div id='user_hud'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:visible">
+    <p style="margin-right: 5px;margin-left: 5px;">Trials performed:
+        <text id="hud_trials_performed">&nbsp&nbsp0</text>
+    </p>
+</div>
+
+</body>
+
+
+<div id="instructions_html" style="visibility:hidden">
+    <text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at
+        MIT!
+    </text>
+
+    <ul>
+        <li>Please use a computer with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT.
+        <li>You will be completing several trials. On each trial, you'll be viewing three pictures.
+        <li>To start a trial, press the white button.
+        <li>The first picture will be shown to you very briefly. Then, two other images will pop up.</li>
+        <li><b>Your task</b> is to say which image is <b>more similar</b> to the first image.
+        <li>Consistently making accurate choices will <text style="color:green; font-style:oblique">increase your bonus payout</text>, but random guessing will lead to <text style="color:red; font-style:oblique">no bonus</text>.</li>
+        <li>We may apply a "soft block" (using quals) for workers who choose not to follow these instructions. While this will not be reflected in your account's block rate, you may not be able to gain access to future HITs from our lab.</li>
+        <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive compensation for your time.
+    </ul>
+    <p>
+        <text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if
+            doing so could cause discomfort or injury, do not accept this HIT. If you are uncomfortable during the HIT,
+            please feel free return it.
+            You will not be penalized in any way.
+        </text>
+    </p>
+</div>
+
+<head>
+    <title>DiCarlo Lab - Mechanical Turk</title>
+
+    <script>
+        __INJECT_JAVASCRIPT_HERE__
+    </script>
+
+    <script>
+        // Extract session info
+        const url = window.location.href;
+        let assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
+        let in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
+        let in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
+        const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
+        const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
+        const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
+
+        // Randomly set conditions for this assignment, and store in local storage
+        const session_parameters_key = assignmentId.concat('_session_parameters');
+        let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
+
+        pool_sequence = __INSERT_POOL_SEQUENCE__
+
+
+        /*
+            Example pool_sequence:
+            pool_sequence = [
+                {
+                    'ntrials':20,
+                    'image_url_prefix':'https://milresources.s3.amazonaws.com/Images/AbstractShapes/',
+                    'trial_pool':(function* trial_tuple_iterator() {
+                        while(true){
+                            yield  {
+                            'stimulus_url_suffix':'orangediamond.png',
+                            'choice0_url_suffix':'orangediamond.png',
+                            'choice1_url_suffix':'bluediamond.png',
+                            'rewarded_choice':0, //  If an entry is -1, no choice is given a reward.
+                            'ground_truth_choice':0 //  The choice which counts as the "correct" choice for the purposes of the bonus performance tracker. If -1, no change is made to the tracker. If -2, either choice works.
+                            }
+                        }
+                    }),
+                    'stimulus_duration_msec':200,
+                    'reward_duration_msec':50,
+                    'punish_duration_msec':500,
+                    'choice_duration_msec':5000,
+                    'minimal_choice_duration_msec':500,
+                    'post_stimulus_delay_duration_msec':0,
+                    'intertrial_delay_duration_msec':0,
+                    'inter_choice_presentation_delay_msec':0,
+                    'pre_choice_lockout_delay_duration_msec':100,
+                    'minimal_gt_performance_for_bonus':0.55, // between 0 and 1; based on ground truth choice
+                    'usd_per_excess_gt_correct':0.0025, // Is incurred only when empirical performance is above minimal_performance_for_bonus
+                    'block_name':'test_mil',
+                    'continue_perf_criterion':1,
+                    'early_exit_ntrials_criterion': 5,
+                    'early_exit_perf_criterion':1,
+                    'query_string': "Which is more similar?",
+                },
+            ]
+         */
+
+        let ntotal_trials = 0;
+        if (block_sequence==null || developer_mode === true){
+            // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
+            //pool_sequence = __INSERT_POOL_SEQUENCE_HERE__;
+
+            // Randomly sample the identity and order of the trials that will be shown in this session, on-load, with replacement.
+            block_sequence = []
+
+            for (let i_block = 0; i_block < pool_sequence.length; i_block++){
+                let cur_block = pool_sequence[i_block];
+                let cur_ntrials = cur_block['ntrials'];
+                let cur_trial_pool = cur_block['trial_pool'](); // Iterator, elements are Objects
+
+                // Sample trials from Iterator
+                let cur_image_url_suffix_sequence = [];
+                let choice0_url_suffix_sequence = [];
+                let choice1_url_suffix_sequence = [];
+                let rewarded_choice_sequence = [];
+                let ground_truth_choice_sequence = [];
+                for (let i_trial = 0; i_trial < cur_ntrials; i_trial++){
+                    const result = cur_trial_pool.next();
+                    const cur_trial_info = result.value
+                    cur_image_url_suffix_sequence.push(cur_trial_info['stimulus_url_suffix']);
+                    choice0_url_suffix_sequence.push(cur_trial_info['choice0_url_suffix']);
+                    choice1_url_suffix_sequence.push(cur_trial_info['choice1_url_suffix']);
+                    rewarded_choice_sequence.push(cur_trial_info['rewarded_choice']);
+                    ground_truth_choice_sequence.push(cur_trial_info['ground_truth_choice']);
+                }
+                cur_block['stimulus_image_url_suffix_sequence'] = cur_image_url_suffix_sequence;
+                cur_block['choice0_url_suffix_sequence'] = choice0_url_suffix_sequence;
+                cur_block['choice1_url_suffix_sequence'] = choice1_url_suffix_sequence;
+                cur_block['rewarded_choice_sequence'] = rewarded_choice_sequence;
+                cur_block['ground_truth_choice_sequence'] = ground_truth_choice_sequence;
+                block_sequence.push(cur_block)
+                ntotal_trials = ntotal_trials + cur_ntrials;
+            }
+
+            LocalStorageUtils.store_object_as_json(session_parameters_key, block_sequence);
+            console.log('Stored session parameters for assignment', assignmentId);
+
+            console.log('Developer mode: purging instructions key');
+            LocalStorageUtils.remove_item(assignment_instructions_completed_key);
+
+            // Purge existing checkpoints
+            console.log('Developer mode: purging checkpoints');
+            for (let i_subtask = 0; i_subtask < block_sequence.length; i_subtask++) {
+                const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_subtask.toString());
+                LocalStorageUtils.remove_item(cur_checkpoint_key);
+            }
+        }
+
+        // Session bonus tracker
+        class MTS_Session_Bonus_Tracker {
+            constructor() {
+                this.bonus_usd_earned = 0;
+                this.ncorrect_total = 0;
+                this.ntrials_total = 0;
+            }
+
+            add_bonus(bonus_amount_usd, ){
+                this.bonus_usd_earned = this.bonus_usd_earned + Math.max(0, bonus_amount_usd)
+            }
+
+            add_block_gt_performance(ncorrect, ntrials){
+                this.ncorrect_total = this.ncorrect_total + Math.max(0, ncorrect);
+                this.ntrials_total = this.ntrials_total + Math.max(0, ntrials);
+            }
+
+        }
+
+        var session_bonus_tracker = new MTS_Session_Bonus_Tracker();
+
+        class MTS_Session_HUD {
+            constructor(){
+            }
+
+            static increment_ntrials(){
+                let hud_trials_performed_element = document.getElementById('hud_trials_performed');
+                const current_trials = parseInt(hud_trials_performed_element.innerText);
+                const incremented_trials = current_trials + 1;
+                hud_trials_performed_element.innerHTML = incremented_trials.toString();
+            }
+        }
+
+
+        (async function () {
+            // Run instructions if they have not been clicked through
+            const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
+            if (completed_instructions == null){
+                await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+                LocalStorageUtils.store_object_as_json(assignment_instructions_completed_key, 1);
+            }
+            else{
+                console.log('Detected subject already completed instructions; not showing')
+            }
+
+            if (in_preview_mode === false){
+                // Turn on HUD
+                document.getElementById('user_hud').style.visibility = 'visible';
+
+                // Run trials
+                var session_data = await run_mts_blocks(block_sequence, checkpoint_key_prefix);
+
+                // Submit
+                await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
+            }
+        }());
+
+    </script>
+</head>
+
+

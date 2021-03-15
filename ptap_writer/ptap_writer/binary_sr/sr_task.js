@@ -1,6 +1,7 @@
-async function run_subtasks(subtask_sequence){
+async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
     /*
     subtask_sequence: Array of Objects, which detail the subtasks which will be run
+    checkpoint_key: a String which is used for checkpointing behavioral data
 
     This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
     subtasks be run back-to-back.
@@ -13,40 +14,63 @@ async function run_subtasks(subtask_sequence){
 
     var nsubtasks = subtask_sequence.length;
     var return_values = {'data':[]};
-    var playspace_size_pixels = infer_canvas_size();
+
+
     try {
-        for (var i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
-            var cur_subtask = subtask_sequence[i_subtask];
-            var cur_image_url_prefix = cur_subtask['image_url_prefix'];
-            var cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
-            var cur_label_sequence = cur_subtask['label_seq'];
-            var cur_label_to_key = cur_subtask['label_to_key'];
-            var cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
-            var cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
-            var cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
-            var cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
-            var cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
-            var usd_per_reward = cur_subtask['usd_per_reward'];
-            var cur_sequence_name = cur_subtask['sequence_name'];
+        for (let i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
+            const playspace_size_pixels = infer_canvas_size();
+            const cur_subtask = subtask_sequence[i_subtask];
+            const cur_image_url_prefix = cur_subtask['image_url_prefix'];
+            const cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
+            const cur_label_sequence = cur_subtask['label_seq'];
+            const cur_label_to_action = cur_subtask['label_to_action'];
+            const cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
+            const cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
+            const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
+            const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
+            const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
+            const usd_per_reward = cur_subtask['usd_per_reward'];
+            const cur_sequence_name = cur_subtask['sequence_name'];
+            const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
+            const cur_session_end_criteria = cur_subtask['session_end_criteria'];
+
+            // Load savedata for this subtask
+            const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
 
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_prefix,
                 cur_image_url_suffix_sequence,
                 cur_label_sequence,
-                cur_label_to_key,
+                cur_label_to_action,
                 cur_stimulus_duration_msec,
                 cur_reward_duration_msec,
                 cur_punish_duration_msec,
                 cur_choice_duration_msec,
                 cur_post_stimulus_delay_duration_msec,
+                cur_intertrial_delay_period_msec,
                 usd_per_reward,
                 playspace_size_pixels,
                 cur_sequence_name,
+                cur_early_exit_criteria,
+                cur_checkpoint_key,
                 );
+
+            // Push data to return values
             return_values['data'].push(cur_session_data);
 
-            // Run the "end of subtask" splash screen if there are tasks that remain after this one
-            if ((i_subtask + 1) < (nsubtasks)){
+            // Check if the session end criteria was met
+            const cur_subtask_ntrials = cur_session_data['data_vars']['perf'].length;
+            const cur_maxtrials_threshold = cur_session_end_criteria['max_trials_for_continue']
+            if ((cur_subtask_ntrials > cur_maxtrials_threshold)){
+                // Exit the session
+                break
+            }
+
+
+            // Run the "end of subtask" splash screen if there are tasks that remain after this one, and the subject has performed trials
+            const performed_trials = cur_session_data['meta']['performed_trials'];
+            if (((i_subtask + 1) < (nsubtasks)) && performed_trials){
                 await inter_subtask_splash_screen(playspace_size_pixels)
             }
         }
@@ -63,19 +87,24 @@ async function run_subtasks(subtask_sequence){
 }
 
 
+
+
 async function run_binary_sr_trials(
     image_url_prefix,
     image_url_suffix_sequence,
     label_sequence,
-    label_to_key,
+    label_to_action,
     stimulus_duration_msec,
     reward_duration_msec,
     punish_duration_msec,
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
+    intertrial_delay_period_msec,
     usd_per_reward,
     size,
     sequence_name,
+    early_exit_criteria,
+    checkpoint_key,
 ){
 
     /*
@@ -83,7 +112,7 @@ async function run_binary_sr_trials(
 
     image_url_sequence: [t]
     label_sequence: [t]. 0 or 1.
-    label_to_key: 'fj' (for 0 to f, 1 to j) or 'jf' (for 0 to j, 1 to f)
+    label_to_action: '01' (for label=0 to action 0, label=1 to action 1) or '10'
     stimulus_duration_msec: ()
     reward_duration_msec: ()
     punish_duration_msec: ()
@@ -92,6 +121,8 @@ async function run_binary_sr_trials(
     usd_per_reward: ()
     size: () in pixels
     sequence_name: String
+    early_exit_criteria: {'min_trials':Integer, 'min_perf':Float between 0 or 1, 'rolling':Boolean} or {}
+    checkpoint_key: String which is used as a key for LocalStorage
      */
 
     var diameter_pixels = size * 0.25;
@@ -102,10 +133,12 @@ async function run_binary_sr_trials(
     coords['reward_duration_msec'] = reward_duration_msec;
     coords['punish_duration_msec'] = punish_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
+    coords['intertrial_delay_period_msec'] = intertrial_delay_period_msec;
     coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
-    coords['label_to_key'] = label_to_key;
+    coords['label_to_action'] = label_to_action;
     coords['sequence_name'] = sequence_name;
+    coords['timestamp_session_start'] = performance.timing.navigationStart;
 
     const [hcur, wcur] = get_screen_dims();
     coords['screen_height_px'] = hcur;
@@ -115,8 +148,8 @@ async function run_binary_sr_trials(
     var data_vars = {};
     data_vars['perf'] = [];
     data_vars['action'] = [];
-    data_vars['stimulus_url_suffix'] = image_url_suffix_sequence;
-    data_vars['label'] = label_sequence;
+    data_vars['stimulus_url_suffix'] = [];
+    data_vars['label'] = [];
     data_vars['reaction_time_msec'] = [];
     data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
     data_vars['rel_timestamp_stimulus_on'] = [];
@@ -124,13 +157,65 @@ async function run_binary_sr_trials(
     data_vars['rel_timestamp_choices_on'] = [];
     data_vars['trial_number'] = [];
 
+    var meta = {'performed_trials':false};
+
+    // Instantiate online performance metrics
+    const mintrials_criterion = early_exit_criteria['min_trials'];
+    const minperf_criterion = early_exit_criteria['min_perf'];
+    const rolling = early_exit_criteria['rolling'];
+
+    let performance_tracker = new PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
+
+    // Resume task if there is checkpoint data
+    let cur_subtask_datavars = {};
+    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
+    if (_loaded_data != null){
+        cur_subtask_datavars = _loaded_data;
+    }
+
+    // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
+    let start_trial = 0;
+    let early_exit_satisfied = false;
+    if (cur_subtask_datavars['perf'] != null) {
+        start_trial = cur_subtask_datavars['perf'].length;
+        for (let i_trial = 0; i_trial < start_trial; i_trial++){
+            let cur_perf = cur_subtask_datavars['perf'][i_trial];
+
+            // Increment online performance metrics
+            let criterion_is_met = performance_tracker.check_satisfied(cur_perf);
+            if (criterion_is_met === true){
+                early_exit_satisfied = true;
+            }
+
+            // Increment progressbar
+            progressbar_callback();
+
+            // Update HUD
+            update_hud(cur_perf, usd_per_reward)
+        }
+        data_vars = cur_subtask_datavars;
+
+        if (early_exit_satisfied === true){
+            // Fill up the progressbar
+            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - start_trial); i_rest++){
+                progressbar_callback()
+            }
+            start_trial = image_url_suffix_sequence.length;
+        }
+    }
+
     // Pre-buffer images
     var trial_images = new ImageBufferClass;
-    for (let i_image = 0; i_image < image_url_suffix_sequence.length; i_image++){
+    let all_urls = [];
+
+    for (let i_image = start_trial; i_image < image_url_suffix_sequence.length; i_image++){
         let current_suffix = image_url_suffix_sequence[i_image];
         let current_url = image_url_prefix.concat(current_suffix);
-        await trial_images.get_by_url(current_url);
+        all_urls.push(current_url)
     }
+    all_urls = [... new Set(all_urls)];
+    await trial_images.buffer_urls(all_urls);
+
 
     // Begin tracking actions
     var action_recorder = new ActionListenerClass(false, true);
@@ -138,7 +223,7 @@ async function run_binary_sr_trials(
     // Iterate over trials
     var canvases = await initialize_sr_task_canvases(size);
 
-    for (let i_trial = 0; i_trial < image_url_suffix_sequence.length; i_trial++){
+    for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
         // Buffer stimulus
         let current_suffix = image_url_suffix_sequence[i_trial];
         let current_url = image_url_prefix.concat(current_suffix);
@@ -175,10 +260,10 @@ async function run_binary_sr_trials(
         var cur_label = label_sequence[i_trial];
 
         let correct_action;
-        if (label_to_key === 'fj'){
+        if (label_to_action === '01'){
             correct_action = cur_label;
         }
-        else if (label_to_key === 'jf'){
+        else if (label_to_action === '10'){
             correct_action = 1 - cur_label;
         }
         else{
@@ -206,18 +291,42 @@ async function run_binary_sr_trials(
             await display_canvas_sequence([canvases['choice_canvas'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
         }
 
+        // Intertrial await
+        await timeout(intertrial_delay_period_msec)
+
+
         // Record outcomes
         data_vars['perf'].push(perf);
         data_vars['action'].push(action);
+        data_vars['stimulus_url_suffix'].push(current_suffix);
+        data_vars['label'].push(cur_label);
         data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
         data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
         data_vars['rel_timestamp_stimulus_on'].push(Math.round(timestamp_stimulus[1]));
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
+        meta['performed_trials'] = true;
+
+        // Checkpoint data vars to local storage
+        LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
+
 
         // Callback
-        await update_hud(perf, usd_per_reward);
+        if (usd_per_reward > 0){
+            await update_hud(perf, usd_per_reward);
+        }
+        progressbar_callback();
+
+        // Check if conditions satisfied for an early exit
+        let criterion_is_met = performance_tracker.check_satisfied(perf);
+        if(criterion_is_met === true){
+            // Fill up the progressbar
+            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - i_trial); i_rest++){
+                progressbar_callback()
+            }
+            break;
+        }
     }
 
     // Delete canvases
@@ -231,8 +340,9 @@ async function run_binary_sr_trials(
     // Remove event listeners from window
     action_recorder.close_listeners();
     delete trial_images.cache_dict;
-    return {'coords':coords, 'data_vars':data_vars}
+    return {'coords':coords, 'data_vars':data_vars, 'meta':meta}
 }
+
 
 async function update_hud(perf, usd_per_reward){
     /*
@@ -266,7 +376,7 @@ async function update_hud(perf, usd_per_reward){
 
     var hud_current_bonus = document.getElementById('hud_current_bonus');
     let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
-    next_bonus = (next_bonus).toPrecision(1).toString();
+    next_bonus = (next_bonus).toPrecision(2).toString();
     if(next_bonus.length === 1){
         next_bonus = next_bonus.concat('.0');
     }
@@ -327,7 +437,7 @@ async function inter_subtask_splash_screen(size){
     var splash2_canvas = create_canvas('splash2_canvas', size, size);
 
     var ctx = splash1_canvas.getContext("2d");
-    var font = '30px Times New Roman';
+    var font = '1.5em Times New Roman';
     var color = 'white';
     var text_align = 'center';
     var string1 = 'End of current task. A new task will start in 5 seconds.';

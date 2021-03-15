@@ -78,6 +78,14 @@ class mechanical_turk_util_functions{
         return results[1]
     }
 
+    static detect_developer_mode(url){
+        if (window.location.href.indexOf('localhost') !== -1) {
+            // It's a developer running this on his/her machine; disable preview mode
+            console.log('Running in developer mode:');
+            return true;
+        }
+        return false;
+    }
     static detect_previewer(url){
         /*
         Detect if the current url reflects the one given to a previewer.

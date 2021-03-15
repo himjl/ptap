@@ -16,9 +16,24 @@ def load_text(fpath):
 
 
 def save_text(string:str, fpath):
+    dirname = os.path.dirname(fpath)
+    if not os.path.exists(dirname) and len(dirname) > 0:
+        os.makedirs(dirname, exist_ok=False)
+
     with open(fpath, 'w') as f:
         f.write(string)
 
+def check_url_exists(url:str, raise_exception:bool):
+
+    valid = False
+    try:
+        request = requests.get(url)
+        if request.status_code == 200:
+            valid = True
+    except Exception as e:
+        if raise_exception:
+            raise e
+    return valid
 
 def check_url_has_image(url: str):
     """
@@ -32,7 +47,10 @@ def check_url_has_image(url: str):
     img = np.array(PIL.Image.open(BytesIO(response.content)))
     height = img.shape[0]
     width = img.shape[1]
-    nchannels = img.shape[2]
+    if len(img.shape) > 2:
+        nchannels = img.shape[2]
+    else:
+        nchannels = 0
     return_vals['height'] = height
     return_vals['width'] = width
     return_vals['nchannels'] = nchannels
@@ -67,3 +85,7 @@ def make_javascript_common_injection_string():
 
     common_string = '\n\n'.join(texts)
     return common_string
+
+if __name__ == '__main__':
+    exists = check_url_exists('https://milresources.s3.amazonaws.com/Images/Dreams/upward_downward_angle/images/class0/ResNet_v2_50_class0_batch0_im1.png', raise_exception=True)
+    exists = check_url_exists('https://www.google.com', raise_exception=True)

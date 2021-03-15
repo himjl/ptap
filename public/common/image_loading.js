@@ -13,6 +13,15 @@ class ImageBufferClass {
         this.cache_members = []; // earliest image_path -> latest image_path
     }
 
+    async buffer_urls(urls){
+        // urls: an Array of url strings
+        let promise_array = [];
+        for (let i_url = 0; i_url < urls.length; i_url++){
+            promise_array.push(this.get_by_url(urls[i_url]));
+        }
+        return Promise.all(promise_array);
+    }
+
     async get_by_url(url) {
         // url: string
         // Requested image not in buffer. Add it, then return.
@@ -41,6 +50,7 @@ class ImageBufferClass {
             if (!(url in this.cache_dict)) {
                 this.cache_dict[url] = await this._load_image_core(url);
                 this.cache_members.push(url);
+                console.log('Cached', url)
             }
         } catch (error) {
             console.error("cache_these_images failed with error:", error)

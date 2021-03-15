@@ -6,6 +6,7 @@ from tqdm import tqdm
 import ptap_writer.utils as utils
 from typing import List
 import os
+from typing import Union
 
 TEMPLATE_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task_template.html')
 assert os.path.exists(TEMPLATE_LOCATION), 'Could not find template at %s' % (TEMPLATE_LOCATION)
@@ -13,203 +14,268 @@ assert os.path.exists(TEMPLATE_LOCATION), 'Could not find template at %s' % (TEM
 TASK_LOCATION = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sr_task.js')
 assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATION)
 
+bool2jsbool = lambda b: 'true' if b else 'false'
+
+
+class BlockTemplate(object):
+    def __init__(self, all_urls):
+        self.all_urls = all_urls
+        return
+
+    def js_call(self, common_url_prefix):
+        """
+        Returns a string which, when evaluated in JavaScript, returns a
+        """
+
+        call_string = self._js_call_core(common_url_prefix)
+        assert isinstance(call_string, str)
+        return call_string
+
+    def _js_call_core(self, common_url_prefix):
+        raise NotImplementedError
+
+
+class DeterministicBlock(BlockTemplate):
+    def __init__(self,
+                 url_seq: [str],
+                 label_seq: [int]
+                 ):
+        super().__init__(all_urls = url_seq)
+        self.url_seq = list(url_seq)
+        self.label_seq = list(label_seq)
+
+        labelset = set(label_seq)
+        assert len({0, 1}.intersection(labelset)) == len(labelset), labelset
+        assert len(self.url_seq) == len(self.label_seq), (len(self.url_seq), len(self.label_seq))
+
+        return
+
+    def _js_call_core(self, common_url_prefix):
+        url_suffix_seq = [s.split(common_url_prefix)[-1] for s in self.url_seq]
+
+        block_string = f'SessionRandomization.instantiate_deterministic_block({url_suffix_seq}, {self.label_seq},)'
+        return block_string
+
+
+class RandomBlock(BlockTemplate):
+    def __init__(self,
+                 urls_0_pool: list,
+                 urls_1_pool: list,
+                 ntrials: int,
+                 replace: bool,
+                 balanced_categories: bool):
+
+        self.urls_0_pool = list(urls_0_pool)
+        self.urls_1_pool = list(urls_1_pool)
+        self.ntrials = ntrials
+        self.replace = replace
+        self.balanced_categories = balanced_categories
+
+        assert isinstance(replace, bool)
+        assert isinstance(balanced_categories, bool)
+        assert isinstance(ntrials, int)
+        assert np.mod(ntrials, 2) == 0, ntrials
+
+        if not replace:
+            if not balanced_categories:
+                # One class might potentially be sampled ntrials times, and if we are not replacing, there must be a sufficient # of urls
+                assert len(self.urls_0_pool) >= self.ntrials
+                assert len(self.urls_1_pool) >= self.ntrials
+            else:
+                assert len(self.urls_0_pool) >= (self.ntrials//2)
+                assert len(self.urls_1_pool) >= (self.ntrials//2)
+
+        super().__init__(all_urls = self.urls_0_pool + self.urls_1_pool)
+        return
+
+    def _js_call_core(self, common_url_prefix):
+        pool_0_url_suffixes = [s.split(common_url_prefix)[-1] for s in self.urls_0_pool]
+        pool_1_url_suffixes = [s.split(common_url_prefix)[-1] for s in self.urls_1_pool]
+
+        block_string = f'SessionRandomization.instantiate_random_block({pool_0_url_suffixes}, {pool_1_url_suffixes}, {self.ntrials}, {bool2jsbool(self.replace)}, {bool2jsbool(self.balanced_categories)})'
+        return block_string
+
 
 class Sequence(object):
-    def __init__(self,
-                 train_url_seq: list,
-                 train_label_seq: list,
-                 test_url_pool_0: list,
-                 test_url_pool_1: list,
-                 ntest_trials: int,
-                 name,
+    def __init__(
+            self,
+            block_seq:[BlockTemplate],
+            name:str,
+            usd_per_reward:float,
+            shuffle_label_mapping:bool,
+            min_trials_criterion=None,
+            min_perf_criterion=None,
+            rolling_criterion=None,
+            max_trials_for_continue=None,
                  ):
         """
-        Class which checks the validity of the specified subtask arguments, and stores the arguments.
-
-        :param train_url_seq:
-        :type train_url_seq:
-        :param train_label_seq:
-        :type train_label_seq:
-        :param test_url_pool_0:
-        :type test_url_pool_0:
-        :param test_url_pool_1:
-        :type test_url_pool_1:
-        :param ntest_trials:
-        :type ntest_trials:
+        max_trials_for_continue: If the subject exceeds this number, end the session
         """
+        assert isinstance(name, str)
+        assert isinstance(shuffle_label_mapping, bool)
+        assert isinstance(usd_per_reward, (int, float))
+        assert 0 <= usd_per_reward < 0.1, f'Specified bonus of ${usd_per_reward} per reward; are you sure?'
 
-        self._check_sequence_arg_validity(
-            train_url_sequence=train_url_seq,
-            train_label_sequence=train_label_seq,
-            ntest_trials=ntest_trials,
-            test_urls_0=test_url_pool_0,
-            test_urls_1=test_url_pool_1,
-            name=name,
-        )
+        if (min_trials_criterion is not None) or (min_perf_criterion is not None) or (rolling_criterion is not None):
 
-        self.train_url_seq = train_url_seq
-        self.train_label_seq = train_label_seq
-        self.ntest_trials = ntest_trials
-        self.test_url_pool_0 = test_url_pool_0
-        self.test_url_pool_1 = test_url_pool_1
+            assert isinstance(min_trials_criterion, int)
+            assert min_trials_criterion > 0
+            assert isinstance(min_perf_criterion, (float, int))
+            assert 0 <= min_perf_criterion <= 1
+            assert isinstance(rolling_criterion, bool)
+        else:
+            min_trials_criterion = 'undefined'
+            min_perf_criterion = 'undefined'
+            rolling_criterion = False
+        self.usd_per_reward = usd_per_reward
+        self.min_trials_criterion = min_trials_criterion
+        self.min_perf_criterion = min_perf_criterion
+        self.rolling_criterion = rolling_criterion
+
+        if (max_trials_for_continue is not None):
+            assert isinstance(max_trials_for_continue, int)
+            assert max_trials_for_continue > 1
+        else:
+            max_trials_for_continue = 'undefined'
+
+        self.max_trials_for_continue = max_trials_for_continue
+
+        self.block_seq = block_seq
+        self.shuffle_label_mapping = shuffle_label_mapping
         self.name = name
-
+        self.all_urls = [url for block in block_seq for url in block.all_urls]
         return
 
-    @staticmethod
-    def _check_sequence_arg_validity(
-            train_url_sequence: list,
-            train_label_sequence: list,
-            ntest_trials: int,
-            test_urls_0: list,
-            test_urls_1: list,
-            name:str,
+    def generate_javascript_string(self):
+
+        # Get common prefix
+        all_urls = []
+        for block in self.block_seq:
+            all_urls.extend(block.all_urls)
+        all_urls = list(set(all_urls))
+
+        common_url_prefix = os.path.commonprefix(all_urls)
+
+        # Assemble a string which evaluates to a JavaScript Array
+        block_sequence_string = '['
+        for block in self.block_seq:
+            js_string = block.js_call(common_url_prefix)
+            block_sequence_string+=js_string
+            block_sequence_string+=','
+        block_sequence_string+=']'
+        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence('
+        trial_sequence_string+=f'{block_sequence_string},'
+        """
+        max_trials_for_continue,
+                min_perf_for_continue,
+                """
+        trial_sequence_string+=f'"{common_url_prefix}", ' \
+                               f'{bool2jsbool(self.shuffle_label_mapping)}, ' \
+                               f'"{self.name}", ' \
+                               f'{self.usd_per_reward},' \
+                               f'{self.min_trials_criterion},' \
+                               f'{self.min_perf_criterion},' \
+                               f'{bool2jsbool(self.rolling_criterion)},' \
+                               f'{self.max_trials_for_continue}'
+        trial_sequence_string+=')'
+        return trial_sequence_string
+
+
+class RandomlyAssignedSequence(object):
+    def __init__(self,
+                 possible_sequences:[Sequence],
+                 ):
+
+        self.possible_sequences = possible_sequences
+        self.all_urls = [url for seq in possible_sequences for block in seq.block_seq for url in block.all_urls]
+
+    def generate_javascript_string(self):
+        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence([\n'
+        for sequence in self.possible_sequences:
+            chosen_trial_sequence_string+=sequence.generate_javascript_string()
+            chosen_trial_sequence_string+=',\n'
+        chosen_trial_sequence_string+='])'
+
+        return chosen_trial_sequence_string
+
+
+class Session(object):
+    def __init__(
+            self,
+            warmup_sequences:Union[List[Sequence], List[RandomlyAssignedSequence]],
+            main_sequences:Union[List[Sequence], List[RandomlyAssignedSequence]],
+            randomize_slot_order:bool,
     ):
-        """
-        Checks input arguments for validity
-        """
-
-        assert isinstance(train_url_sequence, list)
-        assert isinstance(train_label_sequence, list)
-        assert isinstance(ntest_trials, int)
-        assert isinstance(test_urls_0, list)
-        assert isinstance(test_urls_1, list)
-        assert np.mod(ntest_trials,
-                      2) == 0, f'Gave odd number of test trials (n = {ntest_trials}); requires even number'
-        assert len(train_url_sequence) == len(
-            train_label_sequence), f'Mismatch between urls (n = {len(train_url_sequence)}) and labels (n = {len(train_label_sequence)})'
-
-        assert len(
-            test_urls_0) >= ntest_trials / 2, f'Insufficient number of test urls 0 provided (need {ntest_trials / 2}; gave {len(test_urls_0)}'
-        assert len(
-            test_urls_1) >= ntest_trials / 2, f'Insufficient number of test urls 1 provided (need {ntest_trials / 2}; gave {len(test_urls_1)}'
-
-        assert set(train_label_sequence) == {0, 1}, 'Invalid labels found: %s' % (str(set(train_label_sequence)))
-        assert len(train_url_sequence) + len(test_urls_0) + len(test_urls_1) > 0, 'No trials provided?'
-        assert isinstance(name, str), 'Name should be of type str; gave %s'%(type(name))
-
+        self.warmup_sequences = warmup_sequences
+        self.main_sequences = main_sequences
+        self.randomize_slot_order = randomize_slot_order
         return
 
+    def generate_javascript_string(self):
+        warmup_sequences_string = '['
+        for warmup_seq in self.warmup_sequences:
+            warmup_sequences_string+=warmup_seq.generate_javascript_string()
+            warmup_sequences_string+=','
+        warmup_sequences_string+=']'
 
-def write_html(
-        requested_sequence_pools: List[List[Sequence]],
-):
-    """
-    Generate an HTML string which, when loaded in a web browser, runs a series of 2-way, AFC image-to-button trial "sequences".
+        main_sequences_string = '['
+        for main_seq in self.main_sequences:
+            main_sequences_string += main_seq.generate_javascript_string()
+            main_sequences_string += ','
+        main_sequences_string += ']'
 
-    Each sequence begins with 'train trials' (n>=0) which are given in predetermined order, followed by 'test trials' (n>=0)
-    which are presented in random order.
+        session_sequence_string = f'SessionRandomization.generate_session({warmup_sequences_string}, {main_sequences_string}, {bool2jsbool(self.randomize_slot_order)})'
+        return session_sequence_string
 
-    This function takes a list as an input. Each entry is itself a list containing some number of possible Sequences.
-    For each entry in the input argument, the subject will be given one Sequence, sampled randomly among them.
+    def write_html(self, check_urls=True, url_checker = None):
+        # Performs checks on validity
+        if check_urls:
+            if url_checker is None:
+                url_checker = URLChecker()
+            all_urls = [url for seq in (self.warmup_sequences + self.main_sequences) for url in seq.all_urls]
+            url_checker.check(all_urls)
 
-    Example:
+        # Load template
+        html_string = utils.load_text(TEMPLATE_LOCATION)
 
-        subtask_pool = [[SequenceA, SequenceB], [Sequence1, Sequence2, Sequence3]]
+        # Inject subtask pool
+        html_string = html_string.replace('__INSERT_SESSION_SEQUENCES_HERE__', self.generate_javascript_string())
 
-    A subject will perform one of SequenceA or SequenceB, and one of Sequences[1-3].
+        # Load ptap/public/common/*.js files into a string
+        javascript_common = utils.make_javascript_common_injection_string()
 
-    When a subject loads the HTML, four randomizations occur via client-side JavaScript:
-        1) For each provided entry in sequence_pool, a sequence is sampled randomly, with equal probability amongst all sequences.
-        2) For each sequence, the "test" trials are selected without replacement and presented in a random order.
-           An equal number of trials from both categories is sampled.
-        3) The order in which sequences are given to the subject are permuted.
-        4) For each sequence, the mapping of the two possible labels (0 and 1) to buttons ("f" and "j" on the keyboard) is randomized.
-        
-    :param requested_sequence_pools: list of list of Sequences
-    :return: HTML string
-    """
+        # Load the task definition into a string
+        javascript_task = utils.load_text(TASK_LOCATION)
 
-    assert len(requested_sequence_pools) > 0
-
-    # Perform type checks, and collect image urls
-    url_pool = set()
-    for entry in requested_sequence_pools:
-        assert len(entry) > 0
-
-        for seq in entry:
-            assert isinstance(seq, Sequence)
-            [url_pool.add(url) for url in seq.train_url_seq]
-            [url_pool.add(url) for url in seq.test_url_pool_0]
-            [url_pool.add(url) for url in seq.test_url_pool_1]
-
-    # Check all URLs exist
-    _check_urls_have_image(list(url_pool))
-
-    # Assemble HTML
-    js_strings = []
-    for sequence_pool in requested_sequence_pools:
-        sequence_pool_strings = []
-        for sequence in sequence_pool:
-            js_string = _generate_subtask_call_string(
-                train_url_sequence=sequence.train_url_seq,
-                train_label_sequence=sequence.train_label_seq,
-                ntest_trials=sequence.ntest_trials,
-                test_urls_0=sequence.test_url_pool_0,
-                test_urls_1=sequence.test_url_pool_1,
-                name=sequence.name,
-            )
-            sequence_pool_strings.append(js_string)
-
-        # Randomize the order of the sequence pool expression here, in addition to the JavaScript permute function
-        sequence_pool_strings = list(np.random.permutation(sequence_pool_strings))
-        sequence_pool_strings = 'pick_sequence([\n     ' + ',\n     '.join(sequence_pool_strings) + '\n])'
-        js_strings.append(sequence_pool_strings)
-
-    # Randomize again
-    sequence_strings = list(np.random.permutation(js_strings))
-
-    total_string = ',\n'.join(sequence_strings)
-
-    # Load template
-    html_string = utils.load_text(TEMPLATE_LOCATION)
-
-    # Inject subtask pool
-    html_string = html_string.replace('__INSERT_SEQUENCE_POOL_HERE__', total_string)
-
-    # Load ptap/public/common/*.js files into a string
-    javascript_common = utils.make_javascript_common_injection_string()
-
-    # Load the task definition into a string
-    javascript_task = utils.load_text(TASK_LOCATION)
-
-    # Join the strings
-    javascript_injection = '\n\n\n\n'.join([javascript_common, javascript_task])
-
-    html_string = html_string.replace('__INJECT_JAVASCRIPT_HERE__', javascript_injection)
-
-    return html_string
+        # Join the strings
+        javascript_injection = '\n\n\n\n'.join([javascript_common, javascript_task])
+        html_string = html_string.replace('__INJECT_JAVASCRIPT_HERE__', javascript_injection)
+        return html_string
 
 
-def _generate_subtask_call_string(
-        train_url_sequence: list,
-        train_label_sequence: list,
-        ntest_trials: int,
-        test_urls_0: list,
-        test_urls_1: list,
-        name:str,
-):
+class URLChecker(object):
 
-    # Get common prefix of the URLs
-    common_prefix = os.path.commonprefix(train_url_sequence + test_urls_0 + test_urls_1)
-    train_url_suffix_sequence = [s.split(common_prefix)[-1] for s in train_url_sequence]
-    test_url_suffixes_0 = [s.split(common_prefix)[-1] for s in test_urls_0]
-    test_url_suffixes_1 = [s.split(common_prefix)[-1] for s in test_urls_1]
+    def __init__(self):
+        self.urls_checked_cache = {}
+        return
 
-    # Build string
-    template_string = f'generate_sequence("{common_prefix}", {train_url_suffix_sequence}, {train_label_sequence}, {test_url_suffixes_0}, {test_url_suffixes_1}, {ntest_trials}, "{name}")'
+    def check(self, urls:[str]):
+        for url in tqdm(urls, desc='checking images'):
+            if url in self.urls_checked_cache:
+                continue
 
-    return template_string
+            self.urls_checked_cache[url] = utils.check_url_has_image(url)
 
 
-def _check_urls_have_image(url_list):
-    url_checked_cache = {}
+if __name__ == '__main__':
+    blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
+    orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-    for url in tqdm(url_list, desc='checking images'):
-        if url in url_checked_cache:
-            continue
+    warmup_sequences = []
+    main_sequences = [
+        Sequence(block_seq = [RandomBlock(urls_0_pool=[blue], urls_1_pool=[orange], ntrials = 50, replace = True, balanced_categories=False, )],
+                               name = 'test_seq', shuffle_label_mapping=True, min_trials_criterion=5, min_perf_criterion=1, rolling_criterion=True)]
 
-        url_checked_cache[url] = utils.check_url_has_image(url)
-
-    return
-
+    sess = Session(warmup_sequences=warmup_sequences, main_sequences=main_sequences, randomize_slot_order=True)
+    html_string = sess.write_html(check_urls=True)
+    utils.save_text(string=html_string, fpath = './orange_blue_example.html')
