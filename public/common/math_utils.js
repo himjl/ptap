@@ -60,18 +60,18 @@ class MathUtils{
         }
 
         // Normalize probabilities
-        var total_mass = 0;
+        let total_mass = 0;
         for (let i = 0; i < nchoices; i++){
             total_mass = total_mass + probs[i]
         }
-        var probs_normalized = [...probs];
+        let probs_normalized = [...probs];
         for (let i = 0; i < nchoices; i++){
             probs_normalized[i] = probs_normalized[i] / total_mass;
         }
 
         // Calculate the "right" edge of each bin in the range [0, 1]
-        var cum_probs = [];
-        var cur = 0;
+        let cum_probs = [];
+        let cur = 0;
         for (let i = 0; i < nchoices; i++){
             cum_probs.push(cur + probs_normalized[i]);
             cur = cur+probs_normalized[i]

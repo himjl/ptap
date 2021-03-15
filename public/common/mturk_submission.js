@@ -79,7 +79,7 @@ class mechanical_turk_util_functions{
     }
 
     static detect_developer_mode(url){
-        if (window.location.href.indexOf('localhost') !== -1) {
+        if ((window.location.href.indexOf('localhost') !== -1) || (window.location.href.indexOf(':8000') !== -1)) {
             // It's a developer running this on his/her machine; disable preview mode
             console.log('Running in developer mode:');
             return true;
@@ -94,7 +94,7 @@ class mechanical_turk_util_functions{
 
         let in_preview_mode;
 
-        if (window.location.href.indexOf('localhost') !== -1) {
+        if ((window.location.href.indexOf('localhost') !== -1) || (window.location.href.indexOf(':8000') !== -1)) {
             // It's a developer running this on his/her machine; disable preview mode
             in_preview_mode = false;
         }

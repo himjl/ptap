@@ -19,6 +19,7 @@ bool2jsbool = lambda b: 'true' if b else 'false'
 
 INDENT_CHARACTER = '    '
 
+
 class TrialPool(object):
     def __init__(self, image_url_prefix, function_string:str):
         self.image_url_prefix = image_url_prefix
@@ -131,6 +132,7 @@ class MatchRulePool(TrialPool):
             category_to_token_urls: Union[dict, type(None)],
             reinforce_match:bool,
             stimulus_category_to_allowable_distractor_categories: Union[dict, type(None)],
+            category_probabilities:Union[dict, type(None)] = None, # category_name: probability.
     ):
         """
         :param category_to_stimulus_urls: {category_name: [stimulus_urls]}
@@ -188,14 +190,116 @@ class MatchRulePool(TrialPool):
         function_string += 5 * INDENT_CHARACTER + 'const cat2token=%s;\n' % (cat2token_suffixes_string)
         function_string += 5 * INDENT_CHARACTER + 'const cat2distractor_categories=%s;\n' % (cat2distractor_string)
         function_string += 5 * INDENT_CHARACTER + 'while(true){\n'
-        function_string += 5 * INDENT_CHARACTER + 'const cur_categories=MathUtils.permute(categories);\n'
-        function_string += 5 * INDENT_CHARACTER + 'const stimulus_category=cur_categories[0];\n'
+        if category_probabilities is None:
+            # Uniform sampling
+            function_string += 5 * INDENT_CHARACTER + 'const cur_categories=MathUtils.permute(categories);\n'
+            function_string += 5 * INDENT_CHARACTER + 'const stimulus_category=cur_categories[0];\n'
+        else:
+            # Non-uniform sampling of stimulus categories
+            assert set(category_probabilities.keys()) == set(stimulus_categories)
+            assert np.isclose(np.sum([category_probabilities[k] for k in stimulus_categories]),1)
+            category_probs_string = 'const category_probs=%s;\n'%([category_probabilities[k] for k in stimulus_categories])
+            function_string += 5 * INDENT_CHARACTER + category_probs_string
+            function_string += 5 * INDENT_CHARACTER + 'const i_category_cur=MathUtils.multinomial(category_probs);\n'
+            function_string += 5 * INDENT_CHARACTER + 'const stimulus_category=categories[i_category_cur];\n'
+            function_string += 5 * INDENT_CHARACTER + 'let cur_categories=categories.slice();\n' # copy
+            function_string += 5 * INDENT_CHARACTER + 'cur_categories=cur_categories.splice(i_category_cur, 1);\n'
+
         function_string += 5 * INDENT_CHARACTER + 'let distractor_category;\n'
         function_string += 5 * INDENT_CHARACTER + 'if (cat2distractor_categories == null){distractor_category=cur_categories[1];}\n'
         function_string += 5 * INDENT_CHARACTER + 'else{distractor_category=MathUtils.random_choice(cat2distractor_categories[stimulus_category]);}\n'
         function_string += 5 * INDENT_CHARACTER + 'const stim_suffix=MathUtils.random_choice(cat2stim[stimulus_category]);\n'
         function_string += 5 * INDENT_CHARACTER + 'const match_suffix=MathUtils.random_choice(cat2token[stimulus_category]);\n'
         function_string += 5 * INDENT_CHARACTER + 'const distractor_suffix=MathUtils.random_choice(cat2token[distractor_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':%d, 'ground_truth_choice':%d}" % (
+            rewarded_choice, gt_choice)
+        function_string += '}})'
+        super().__init__(image_url_prefix, function_string)
+        return
+
+
+class TrialManifestPool(TrialPool):
+    """
+
+    trial_manifest = [
+        {
+            'stimulus_category':str,
+            'match_category':str,
+            'distractor_categories': [],
+            'sampling_probability':float,
+        },
+    ]
+
+    """
+    def __init__(
+            self,
+            category_to_image_urls:dict,
+            trial_manifest: [dict],
+    ):
+
+        # Check inputs
+        assert isinstance(trial_manifest, list)
+        assert len(trial_manifest) > 0
+        required_keys = {
+            'stimulus_category':str,
+            'match_category':str,
+            'distractor_categories': list,
+            'sampling_probability':float,
+        }
+        pmasses = []
+        for v in trial_manifest:
+            for k in v:
+                assert k in required_keys
+
+            assert v['stimulus_category'] in category_to_image_urls
+            assert v['match_category'] in category_to_image_urls
+            for dis_cat in v['distractor_categories']:
+                assert dis_cat in category_to_image_urls
+
+            pcur = v['sampling_probability']
+            assert 0 < pcur <= 1
+            pmasses.append(float(pcur))
+
+        assert np.isclose(np.sum(pmasses), 1)
+
+        all_urls = [url for cat in category_to_image_urls for url in category_to_image_urls[cat]]
+        all_urls = sorted(list(all_urls))
+        categories = sorted(category_to_image_urls.keys())
+        image_url_prefix = os.path.commonprefix(all_urls)
+        category_to_stimulus_suffixes = {category:[url.split(image_url_prefix)[-1] for url in category_to_image_urls[category]] for category in categories}
+
+        gt_choice = 0
+        reinforce_match = True
+        if reinforce_match:
+            # Reinforce the match choice
+            rewarded_choice = 0
+        else:
+            raise Exception
+
+        # Assemble trial_pool using a JavaScript call
+        # Build iterator function
+        cat2stim_suffixes_string = json.dumps(category_to_stimulus_suffixes)
+        trial_manifest_string = json.dumps(trial_manifest)
+        pmasses_string = json.dumps(pmasses)
+
+        function_string = '(function* trial_generator(){\n'
+        function_string += 5 * INDENT_CHARACTER + 'let categories=%s\n' % categories
+        function_string += 5 * INDENT_CHARACTER + 'const cat2urlsuffixes=%s;\n' % (cat2stim_suffixes_string)
+        function_string += 5 * INDENT_CHARACTER + 'const trial_manifest=%s;\n' % (trial_manifest_string)
+        function_string += 5 * INDENT_CHARACTER + 'const pmasses=%s;\n' % (pmasses_string)
+        function_string += 5 * INDENT_CHARACTER + 'while(true){\n'
+
+        # Non-uniform sampling of stimulus categories
+        function_string += 5 * INDENT_CHARACTER + 'const i_trial_cur=MathUtils.multinomial(pmasses);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const trial_cur =trial_manifest[i_trial_cur];\n'
+        function_string += 5 * INDENT_CHARACTER + 'let stimulus_category=trial_cur["stimulus_category"];\n'
+        function_string += 5 * INDENT_CHARACTER + 'let match_category=trial_cur["match_category"];\n'
+        function_string += 5 * INDENT_CHARACTER + 'let cur_distractor_pool=trial_cur["distractor_categories"];\n'
+        function_string += 5 * INDENT_CHARACTER + 'let distractor_category=MathUtils.random_choice(cur_distractor_pool);\n'
+
+        function_string += 5 * INDENT_CHARACTER + 'const stim_suffix=MathUtils.random_choice(cat2urlsuffixes[stimulus_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const match_suffix=MathUtils.random_choice(cat2urlsuffixes[match_category]);\n'
+        function_string += 5 * INDENT_CHARACTER + 'const distractor_suffix=MathUtils.random_choice(cat2urlsuffixes[distractor_category]);\n'
         function_string += 5 * INDENT_CHARACTER + "yield {'stimulus_url_suffix':stim_suffix, 'choice0_url_suffix':match_suffix, 'choice1_url_suffix':distractor_suffix, 'rewarded_choice':%d, 'ground_truth_choice':%d}" % (
             rewarded_choice, gt_choice)
         function_string += '}})'
@@ -294,6 +398,46 @@ class Block(object):
 
         return javascript_expression
 
+
+class OrthoboxExperimentalBlock(Block):
+
+    """
+    Settings used for human experiments (orthobox project) 3/15/2021
+    """
+    def __init__(self,
+                 trial_pool: TrialPool,
+                 continue_perf_criterion: float,
+                 early_exit_perf_criterion:Union[float, type(None)],
+                 early_exit_ntrials_criterion: Union[int, type(None)],
+                 minimal_gt_performance_for_bonus:float, # Should be tuned based on the difficulty of the task
+                 ntrials:int,
+                 name:str,
+                 ):
+
+        pseudo_usd_per_gt_correct = 0.004 # A perfectly performing subject would receive ntrials * pseudo_usd_per_gt_correct
+        usd_per_excess_gt_correct = (ntrials * pseudo_usd_per_gt_correct) / (ntrials - ntrials * minimal_gt_performance_for_bonus + 1)
+
+        super().__init__(
+                trial_pool = trial_pool,
+                continue_perf_criterion=continue_perf_criterion,
+                ntrials=ntrials,
+                name=name,
+                minimal_gt_performance_for_bonus=minimal_gt_performance_for_bonus,
+                usd_per_excess_gt_correct=usd_per_excess_gt_correct,
+                stimulus_duration_msec=200,
+                reward_duration_msec=100,
+                punish_duration_msec=1000,
+                choice_duration_msec=5000,
+                minimal_choice_duration_msec=200,
+                intertrial_delay_duration_msec=100,
+                pre_choice_lockout_delay_duration_msec=0,
+                inter_choice_presentation_delay_msec=0,
+                post_stimulus_delay_duration_msec=200,
+                early_exit_ntrials_criterion = early_exit_ntrials_criterion,
+                early_exit_perf_criterion = early_exit_perf_criterion,
+                query_string='',
+            )
+        return
 
 class MyStandardExperimentalBlock(Block):
 
