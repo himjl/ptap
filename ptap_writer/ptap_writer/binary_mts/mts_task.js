@@ -517,7 +517,7 @@ async function congratulations_screen(size){
     var font_size = (size * 0.04).toString();
     var font = font_size+'px Times New Roman';
 
-    let bonus_usd_earned = Math.round(session_bonus_tracker.bonus_usd_earned*1000) / 1000;
+    let bonus_usd_earned = Math.round(session_bonus_tracker.bonus_usd_earned*100) / 100;
     let gt_nobs_total = session_bonus_tracker.ntrials_total;
     await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
 

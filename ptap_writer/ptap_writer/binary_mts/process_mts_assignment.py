@@ -4,7 +4,6 @@ import xarray as xr
 import turkr.mturk.manage_hit
 import turkr.qualifications.qual_utils as qual_utils
 
-DEFAULT_BONUS_USD_PER_REWARD = 0.0025
 
 QUALIFICATION_IDS = {
     'IS_PREVIOUS_WORKER_TOKEN_QUALIFICATION_TYPEID':'3P3HAQ0W8GNHNPOIEDB8HR4LTP3I0P',
@@ -15,40 +14,6 @@ QUALIFICATION_IDS = {
 
 
 def get_total_bonus(answer:dict):
-    """
-    coords['ntrials_requested'] = stimulus_image_url_suffix_sequence.length;
-    coords['url_prefix'] = image_url_prefix;
-    coords['stimulus_duration_msec'] = stimulus_duration_msec;
-    coords['reward_duration_msec'] = reward_duration_msec;
-    coords['punish_duration_msec'] = punish_duration_msec;
-    coords['choice_duration_msec'] = choice_duration_msec;
-    coords['minimal_choice_duration_msec'] = minimal_choice_duration_msec;
-    coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
-    coords['intertrial_delay_duration_msec'] = intertrial_delay_duration_msec;
-    coords['playspace_size_px'] = size;
-    coords['block_name'] = block_name;
-    coords['minimal_gt_performance_for_bonus'] = minimal_gt_performance_for_bonus;
-    coords['usd_per_gt_correct'] = usd_per_gt_correct;
-    coords['timestamp_session_start'] = performance.timing.navigationStart;
-    coords['image_diameter_pixels'] = diameter_pixels;
-    coords['early_exit_ntrials_criterion'] = early_exit_ntrials_criterion;
-    coords['early_exit_perf_criterion'] = early_exit_perf_criterion;
-    data_vars['choice'] = []; // -1 = timed out, 0 = chose choice0; 1 = chose choice 1
-    data_vars['action'] = []; // -1 = timed out, 0 = left, 1 = right
-    data_vars['stimulus_url_suffix'] = [];
-    data_vars['reinforcement'] = [];
-    data_vars['ground_truth_perf'] = [];
-    data_vars['choice0_url_suffix'] = [];
-    data_vars['choice1_url_suffix'] = [];
-    data_vars['choice0_location'] = []; // 0 = left, 1 = right
-    data_vars['reaction_time_msec'] = [];
-    data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
-    data_vars['rel_timestamp_stimulus_on'] = [];
-    data_vars['rel_timestamp_stimulus_off'] = [];
-    data_vars['rel_timestamp_choices_on'] = [];
-    data_vars['trial_number'] = [];
-    """
-
     total_bonus_usd = 0
     block_seq = answer['data']
     for block in block_seq:
@@ -67,50 +32,8 @@ def get_total_bonus(answer:dict):
     return total_bonus_usd, errors
 
 
-
-def evaluate_if_goofing_behavior(answer:dict):
-    """
-    Ascertains whether the subject "goofed off" on the warmup task, defined as taking 60 trials to complete instead of exiting early from 9/10 rolling performance
-    """
-
-    errors = []
-    if 'data' not in answer:
-        errors.append('Could not find key "data" in answer; found only keys %s' % (str(answer.keys())))
-        return False, errors
-
-    behavioral_data = answer['data']
-    # Validate answer data
-    if not isinstance(behavioral_data, list):
-        errors.append('Expected behavioral data to be a list, but is a %s'%(type(behavioral_data)))
-        return False, errors
-
-    if len(behavioral_data) == 0:
-        errors.append('Did not find any behavioral data')
-        behavioral_data = [{'data_vars':{'perf':[]}}]
-
-    warmup_data = behavioral_data[0]
-    if not isinstance(warmup_data, dict):
-        errors.append('Warmup sequence data was expected to be a dict, but got%s'%(str(type(warmup_data))))
-        perf = []
-
-    if 'perf' not in warmup_data['data_vars']:
-        errors.append('Could not find key "perf" in warmup_data["data_vars"]; found only %s. Defaulting to []' % (str(warmup_data['data_vars'].keys())))
-        perf = []
-    else:
-        perf = warmup_data['data_vars']['perf']
-
-        if not isinstance(perf, list):
-            errors.append('Could not identify a list of performance outcomes; got %s of dtype %s' % (str(perf), type(perf)))
-            perf = []
-    ntrials_to_complete = len(perf)
-
-    if (ntrials_to_complete) >= 60:
-        print('Detected `goof off\' subject' )
-        return True, errors
-
-    return False, errors
-
 def extract_answer(asn):
+
     parse_errors = []
     try:
         answer = asn['Answer']

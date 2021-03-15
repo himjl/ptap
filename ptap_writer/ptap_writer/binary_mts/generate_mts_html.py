@@ -305,13 +305,14 @@ class MyStandardExperimentalBlock(Block):
                  continue_perf_criterion: float,
                  early_exit_perf_criterion:Union[float, type(None)],
                  early_exit_ntrials_criterion: Union[int, type(None)],
-                 minimal_gt_performance_for_bonus:float,
+                 minimal_gt_performance_for_bonus:float, # Should be tuned based on the difficulty of the task
                  ntrials:int,
                  name:str,
                  ):
 
-        pseudo_usd_per_gt_correct = 0.0025 # A perfectly performing subject would receive ntrials * pseudo_usd_per_gt_correct
+        pseudo_usd_per_gt_correct = 0.004 # A perfectly performing subject would receive ntrials * pseudo_usd_per_gt_correct
         usd_per_excess_gt_correct = (ntrials * pseudo_usd_per_gt_correct) / (ntrials - ntrials * minimal_gt_performance_for_bonus + 1)
+
 
         super().__init__(
                 trial_pool = trial_pool,
@@ -324,8 +325,8 @@ class MyStandardExperimentalBlock(Block):
                 reward_duration_msec=200,
                 punish_duration_msec=800,
                 choice_duration_msec=10000,
-                minimal_choice_duration_msec=0,
-                intertrial_delay_duration_msec=1000,
+                minimal_choice_duration_msec=800,
+                intertrial_delay_duration_msec=200,
                 pre_choice_lockout_delay_duration_msec=200,
                 inter_choice_presentation_delay_msec=0,
                 post_stimulus_delay_duration_msec=400,
@@ -333,7 +334,6 @@ class MyStandardExperimentalBlock(Block):
                 early_exit_perf_criterion = early_exit_perf_criterion,
                 query_string='Which is more similar to the first image?',
             )
-
         return
 
 
@@ -362,11 +362,11 @@ class BlueOrangeWarmupBlock(MyStandardExperimentalBlock):
             early_exit_ntrials_criterion = early_exit_ntrials_criterion,
             ntrials=max_trials,
             name='blue_orange_warmup_mts',
-            minimal_gt_performance_for_bonus=1,
+            minimal_gt_performance_for_bonus=0,
         )
 
         self.info['query_string'] = 'Which is more similar to the first image?'
-        self.info['usd_per_gt_correct'] = 0
+        self.info['usd_per_excess_gt_correct'] = 0
 
 
 class Session(object):
@@ -417,7 +417,7 @@ if __name__ == '__main__':
         name='test_orange',
         early_exit_ntrials_criterion=None,
         early_exit_perf_criterion=None,
-        minimal_gt_performance_for_bonus=0.,
+        minimal_gt_performance_for_bonus=0.5,
     )
     session = Session(block_sequence=[block_allway])
     block_allway.info['minimal_choice_duration_msec'] =0
