@@ -516,10 +516,27 @@ class BlueOrangeWarmupBlock(MyStandardExperimentalBlock):
 class Session(object):
     def __init__(self,
                  block_sequence: List[Block],
+                 instructions_string:Union[str, type(None)] = None
                  ):
         assert len(block_sequence) > 0
 
         self.block_sequence = block_sequence
+
+        if instructions_string is not None:
+            assert isinstance(instructions_string, str)
+            self.instructions_string = instructions_string
+        else:
+            self.instructions_string = """  
+    <ul>
+        <li>Please use a computer with <b>Google Chrome</b> or <b>Firefox</b> to work on this HIT.
+        <li>You will be completing several trials. On each trial, you'll be viewing three pictures.
+        <li>To start a trial, press the white button.
+        <li>The first picture will be shown to you very briefly. Then, two other images will pop up.</li>
+        <li><b>Your task</b> is to say which image is <b>more similar</b> to the first image.
+        <li>Consistently making accurate choices will <text style="color:green; font-style:oblique">increase your bonus payout</text>, but random guessing will lead to <text style="color:red; font-style:oblique">no bonus</text>.</li>
+        <li>We may apply a "soft block" (using quals) for workers who choose not to follow these instructions. While this will not be reflected in your account's block rate, you may not be able to gain access to future HITs from our lab.</li>
+        <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive compensation for your time.
+    </ul>"""
 
         return
 
@@ -535,6 +552,9 @@ class Session(object):
         # Load template
         html_string = utils.load_text(TEMPLATE_LOCATION)
         html_string = html_string.replace("__INSERT_POOL_SEQUENCE__", pool_sequence_string)
+
+        # Inject instructions HTML
+        html_string = html_string.replace("__INSERT_INSTRUCTIONS_HTML__", self.instructions_string)
 
         # Load ptap/public/common/*.js files into a string
         javascript_common = utils.make_javascript_common_injection_string()
