@@ -57,6 +57,60 @@ class DeterministicBlock(BlockTemplate):
         return block_string
 
 
+class StratifiedRandomBlock(BlockTemplate):
+
+    def __init__(self,
+                 url_groups_0: list,
+                 url_groups_1: list,
+                 ntrials: int,
+                 replace: bool,
+                 balanced_categories: bool):
+
+        self.url_groups_0 = list(url_groups_0)
+        self.url_groups_1 = list(url_groups_1)
+        self.ntrials = ntrials
+        self.replace = replace
+        self.balanced_categories = balanced_categories
+
+        assert isinstance(replace, bool)
+        assert isinstance(balanced_categories, bool)
+        assert isinstance(ntrials, int)
+        assert np.mod(ntrials, 2) == 0, ntrials
+
+        assert len(url_groups_0) > 0
+        assert len(url_groups_1) > 0
+        assert np.all([isinstance(g, list) for g in url_groups_0])
+        assert np.all([isinstance(g, list) for g in url_groups_1])
+
+        all_urls = []
+        for pool in [url_groups_0, url_groups_1]:
+            for group in pool:
+                for url in group:
+                    assert isinstance(url, str)
+                    all_urls.append(url)
+        ntotal0 = int(np.sum([len(g) for g in self.url_groups_0]))
+        ntotal1 = int(np.sum([len(g) for g in self.url_groups_1]))
+        assert len(all_urls) == (ntotal0 + ntotal1)
+
+        if not replace:
+            if not balanced_categories:
+                # One class might potentially be sampled ntrials times, and if we are not replacing, there must be a sufficient # of urls
+                assert ntotal0 >= self.ntrials
+                assert ntotal1 >= self.ntrials
+            else:
+                assert ntotal0 >= (self.ntrials//2)
+                assert ntotal1 >= (self.ntrials//2)
+
+        super().__init__(all_urls = all_urls)
+        return
+
+    def _js_call_core(self, common_url_prefix):
+        pool_0_url_suffix_groups = [s.split(common_url_prefix)[-1] for group in self.url_groups_0 for s in group]
+        pool_1_url_suffix_groups = [s.split(common_url_prefix)[-1] for group in self.url_groups_1 for s in group]
+
+        block_string = f'SessionRandomization.execute_stratified_sampling({pool_0_url_suffix_groups}, {pool_1_url_suffix_groups}, {self.ntrials}, {bool2jsbool(self.replace)}, {bool2jsbool(self.balanced_categories)})'
+        return block_string
+
 class RandomBlock(BlockTemplate):
     def __init__(self,
                  urls_0_pool: list,

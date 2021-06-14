@@ -87,22 +87,126 @@
                 return {'block_url_suffix_seq':url_suffix_seq, 'block_label_seq':label_seq}
             }
 
-            static instantiate_random_block(
-                pool_0_url_suffixes,
-                pool_1_url_suffixes,
+            static execute_stratified_sampling(
+                pool_0_url_suffix_groups,
+                pool_1_url_suffix_groups,
                 ntrials,
                 replace,
                 balanced_categories,
             ){
                 /*
-                Function which returns a random sequence of suffixes of length ntrials, optionally sampling with replacement and balancing categories.
+                Function which generates and returns an Object:
+                {'block_url_suffix_seq':image_url_suffix_sequence, 'block_label_seq':label_sequence}
 
-                pool_0_url_suffixes: an Array of Strings.
-                pool_1_url_suffixes: an Array of Strings.
-                ntrials: an Integer. number of trials to sample. Assumed to be an even Integer.
-                replace: whether to sample with or without replacement. If replace = false, pool_0_url_suffixes and pool_1_url_suffixes is assumed to be of length ntrials if balanced_categories = false; or ntrials/2 if balanced_categories is true.
-                balanced_categories: whether to ensure pool_0 is represented in equal number to pool_1
+                Input arguments:
+                   pool_0_url_suffix_groups: an Array of Arrays of Strings.
+                   pool_1_url_suffix_groups: an Array of Arrays of Strings.
+                   ntrials: an Integer. number of trials to sample. Assumed to be an even Integer.
+                   replace: whether to sample with or without replacement. If replace = false, pool_0_url_suffixes and pool_1_url_suffixes is assumed to be of length ntrials if balanced_categories = false; or ntrials/2 if balanced_categories is true.
+                   balanced_categories: whether to ensure pool_0 is represented in equal number to pool_1
                 */
+
+                // Sample the order of labels
+                let label_sequence = [];
+                if (balanced_categories === true){
+                    // Equal number of images from each category
+                    label_sequence = new Array(ntrials / 2).fill(0);
+                    label_sequence.push(... new Array(ntrials/2).fill(1));
+                    label_sequence = MathUtils.permute(label_sequence);
+                }
+                else{
+                    // Sample label sequence per the base label probabilities
+
+                    // Get number of stimuli for class 0
+                    let n_class0 = 0;
+                    for (let i_group0 = 0; i_group0 < pool_0_url_suffix_groups.length; i_group0++) {
+                        n_class0 = n_class0 + pool_0_url_suffix_groups[i_group0].length;
+                    }
+
+                    // Get number of stimuli for class 1
+                    let n_class1 = 0;
+                    for (let i_group1 = 0; i_group1 < pool_1_url_suffix_groups.length; i_group1++) {
+                        n_class1 = n_class1 + pool_1_url_suffix_groups[i_group1].length;
+                    }
+
+                    const prob_class1 = n_class1 / (n_class0 + n_class1);
+
+                    label_sequence = [];
+                    for (let i_trial=0; i_trial < ntrials; i_trial++){
+                        let cur_label = Number(Math.random() < prob_class1);
+                        label_sequence.push(cur_label)
+                    }
+                }
+
+                // Populate the suffix sequence
+                let image_url_suffix_sequence = [];
+
+                if (replace === false){
+                    // Images are presented at most once. Of course, if ntrials > ntotalimages, this is not possible, but this code does not check for it and assumes the request is valid.
+                    let pool0 = JSON.parse(JSON.stringify(pool_0_url_suffix_groups));
+                    let pool1 = JSON.parse(JSON.stringify(pool_1_url_suffix_groups));
+                    for (let i_block_trial = 0; i_block_trial < ntrials; i_block_trial++) {
+                        let _cur_label = label_sequence[i_block_trial];
+
+                        let cur_pool;
+                        if (_cur_label === 0) {
+                            cur_pool = pool0;
+                        }
+                        else {
+                            cur_pool  = pool1;
+                        }
+
+                        // Pop a sample current pool
+                        cur_pool = MathUtils.permute(cur_pool) // randomize which group will be sampled on this trial
+
+                        for (let i_group = 0; i_group < cur_pool.length; i_group++){
+                            let cur_group = cur_pool[i_group]
+                            // If this group has remaining samples, push it in
+                            if (cur_group.length > 0){
+                                image_url_suffix_sequence.push(cur_group.shift());
+                                break;
+                            }
+                        }
+                    }
+                }
+                else{
+                    // Sample with replacement
+                    for (let i_block_trial = 0; i_block_trial < ntrials; i_block_trial++) {
+                        let _cur_label = label_sequence[i_block_trial];
+                        if (_cur_label === 0) {
+                            // Attach a sample from class 0
+                            const group_cur = MathUtils.random_choice(pool_0_url_suffix_groups)
+                            image_url_suffix_sequence.push(MathUtils.random_choice(group_cur));
+                        } else {
+                            // Attach a sample from class 1
+                            const group_cur = MathUtils.random_choice(pool_1_url_suffix_groups)
+                            image_url_suffix_sequence.push(MathUtils.random_choice(group_cur));
+                        }
+                    }
+                }
+
+                return {'block_url_suffix_seq':image_url_suffix_sequence, 'block_label_seq':label_sequence}
+
+           }
+
+           static instantiate_random_block(
+               pool_0_url_suffixes,
+               pool_1_url_suffixes,
+               ntrials,
+               replace,
+               balanced_categories,
+           ){
+               /*
+               Function which generates and returns an Object:
+                {'block_url_suffix_seq':image_url_suffix_sequence, 'block_label_seq':label_sequence}
+
+               Input arguments:
+                   pool_0_url_suffixes: an Array of Strings.
+                   pool_1_url_suffixes: an Array of Strings.
+                   ntrials: an Integer. number of trials to sample. Assumed to be an even Integer.
+                   replace: whether to sample with or without replacement. If replace = false, pool_0_url_suffixes and pool_1_url_suffixes is assumed to be of length ntrials if balanced_categories = false; or ntrials/2 if balanced_categories is true.
+                   balanced_categories: whether to ensure pool_0 is represented in equal number to pool_1
+               */
 
                 // Sample the order of labels
                 let label_sequence = [];
@@ -248,8 +352,7 @@
                     main_sequences = MathUtils.permute(main_sequences)
                 }
 
-                let session_sequences = umans to .concat(main_sequences);
-                return session_sequences
+                return warmup_sequences.concat(main_sequences)
             }
         }
 
