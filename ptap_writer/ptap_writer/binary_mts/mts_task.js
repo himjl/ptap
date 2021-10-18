@@ -40,7 +40,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             return_values['data'].push(cur_session_data);
 
             // Check to see if early session end should be triggered (ignore non-reinforced trials, -1)
-            let cur_reinforcement_pattern = cur_session_data['data_vars']['reinforcement']
+            let cur_reinforcement_pattern = cur_session_data['data_vars']['reinforcement'];
             let total_punish = 0;
             let total_reward = 0;
 
@@ -61,20 +61,19 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 let cur_perf_criterion = cur_block['continue_perf_criterion'];
                 if (cur_perf < cur_perf_criterion){
                     // End session early
-                    console.log('Ending session early')
+                    console.log('Ending session early');
                     triggered_early_session_end = true;
                     successful_block = false;
                 }
             }
 
             // Increment bonus earned (for HUD use)
-            console.log(cur_session_data)
             let block_ground_truth_perf_seq = cur_session_data['data_vars']['ground_truth_perf'];
             let block_minimal_gt_performance_for_bonus = cur_session_data['coords']['minimal_gt_performance_for_bonus'];
             let block_usd_per_gt_excess_correct = cur_session_data['coords']['usd_per_excess_gt_correct']
             let perf_on_trials_with_gt = [];
             for (let _i = 0; _i < block_ground_truth_perf_seq.length; _i++){
-                const cur = block_ground_truth_perf_seq[_i]
+                const cur = block_ground_truth_perf_seq[_i];
                 if (cur !== -1){
                     perf_on_trials_with_gt.push(cur);
                 }
@@ -144,12 +143,12 @@ async function run_binary_mts_trials(
     choice1_url_suffix_sequence,  [t]
     rewarded_choice_sequence, [t]. If an entry is -1, no choice is given a reward.
     ground_truth_choice_sequence, [t]. If an entry is -1, the choice does not affect the hidden performance tracker.
-    stimulus_duration_msec, [t]
-    reward_duration_msec, [t]. If an entry is zero, no reward feedback is given.
-    punish_duration_msec, [t]. If an entry is zero, no punish feedback is given.
-    choice_duration_msec, [t]. Max choice time
-    minimal_choice_duration_msec, [t]. Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
-    post_stimulus_delay_duration_msec, [t]. The amount of time before the choices pop up.
+    stimulus_duration_msec,
+    reward_duration_msec, . If zero, no reward feedback is given.
+    punish_duration_msec, . If zero, no punish feedback is given.
+    choice_duration_msec, . Max choice time
+    minimal_choice_duration_msec, . Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
+    post_stimulus_delay_duration_msec, . The amount of time before the choices pop up.
     usd_upon_block_completion, Float
     size, () in pixels
     block_name, String
@@ -244,10 +243,10 @@ async function run_binary_mts_trials(
         let current_choice1_suffix = choice1_url_suffix_sequence[i_image];
 
         let stim_url = image_url_prefix.concat(current_stimulus_suffix);
-        all_urls.push(stim_url)
+        all_urls.push(stim_url);
 
         let c0_url = image_url_prefix.concat(current_choice0_suffix);
-        all_urls.push(c0_url)
+        all_urls.push(c0_url);
 
         let c1_url = image_url_prefix.concat(current_choice1_suffix);
         all_urls.push(c1_url)
@@ -262,8 +261,6 @@ async function run_binary_mts_trials(
     let canvases = await initialize_mts_task_canvases(size);
 
     // Iterate over trials
-    console.log(stimulus_image_url_suffix_sequence.length)
-    console.log(stimulus_image_url_suffix_sequence)
     for (let i_trial = start_trial; i_trial < stimulus_image_url_suffix_sequence.length; i_trial++){
 
         // Buffer stimulus
@@ -278,7 +275,6 @@ async function run_binary_mts_trials(
         // Buffer stimulus image
         let current_stimulus_image = await trial_images.get_by_url(current_stimulus_url);
         await draw_image(canvases['stimulus_canvas'], current_stimulus_image, size/2, size/2, diameter_pixels);
-
 
         // Buffer choice images
         let current_c0_image = await trial_images.get_by_url(c0_url);
@@ -310,6 +306,8 @@ async function run_binary_mts_trials(
             }
             await draw_image(canvases['choice_canvas_frame0'], right_image, choice_right_px, choice_y_px, choice_diameter_px);
         }
+
+
 
         // Buffer second choice frame
         await draw_image(canvases['choice_canvas_frame1'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
@@ -348,6 +346,8 @@ async function run_binary_mts_trials(
         // Run stimulus
         let _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas']];
         let _t_seq = [0, stimulus_duration_msec];
+
+
 
 
         if (post_stimulus_delay_duration_msec > 0){
