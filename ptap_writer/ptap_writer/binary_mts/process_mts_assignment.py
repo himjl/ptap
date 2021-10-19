@@ -37,7 +37,7 @@ def get_total_bonus(answer:dict):
     return total_bonus_usd, errors
 
 
-def extract_answer(asn):
+def _extract_answer(asn):
 
     parse_errors = []
     try:
@@ -81,7 +81,7 @@ def assignment_post_process_function(
         ncompleted = 0
 
     # Extract answer string and convert to JSON
-    answer, parse_errors = extract_answer(asn_json)
+    answer, parse_errors = _extract_answer(asn_json)
     errors.extend(parse_errors)
 
     # Check to see whether to approve or reject the assignment
@@ -120,7 +120,7 @@ def assignment_post_process_function(
 
 def to_dataset(assignment_json:dict):
 
-    answer, errors = extract_answer(assignment_json)
+    answer, errors = _extract_answer(assignment_json)
     answer = answer['data']
 
     # Attach session coords
@@ -191,6 +191,6 @@ def to_dataset(assignment_json:dict):
 if __name__ == '__main__':
     import utilz
     asn_data = utilz.load_json('/home/umjl/PycharmProjects/LeeDiCarlo2020_JNeuro/behavioral_experiments/match_to_sample_2afc/pilot_experiment/data/pilot/assignments/38RHULDV9YPI9S3VF7MBBBSPKERIWR/30BXRYBRP57KZHQ5ZR9R0JNX85HHWC.json')
-    answer, errors = extract_answer(asn_data)
+    answer, errors = _extract_answer(asn_data)
     ds = to_dataset(asn_data)
 
