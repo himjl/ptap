@@ -41,7 +41,7 @@ def generate_binary_mts_task(
         inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec,
         minimal_gt_performance_for_bonus,
-        usd_per_excess_gt_correct,
+        usd_per_gt_correct,
         check_urls = False,
 ):
 
@@ -75,7 +75,7 @@ def generate_binary_mts_task(
         inter_choice_presentation_delay_msec=inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec=pre_choice_lockout_delay_duration_msec,
         minimal_gt_performance_for_bonus=minimal_gt_performance_for_bonus,
-        usd_per_excess_gt_correct=usd_per_excess_gt_correct,
+        usd_per_gt_correct=usd_per_gt_correct,
         block_name=experiment_name,
         query_string='Which is more similar to the first image?',
     )
@@ -97,7 +97,7 @@ def _generate_deterministic_mts_trial_sequence_htmls(
         inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec,
         minimal_gt_performance_for_bonus,
-        usd_per_excess_gt_correct,
+        usd_per_gt_correct,
         block_name,
         query_string,
 ):
@@ -167,10 +167,10 @@ def _generate_deterministic_mts_trial_sequence_htmls(
     early_exit_ntrials_criterion = ntrials
     early_exit_perf_criterion = 1
 
-    max_safety = 0.1
+    max_safety = 0.02
     assert 0 <= minimal_gt_performance_for_bonus < 1
-    assert 0 <= usd_per_excess_gt_correct < max_safety
-    assert isinstance(usd_per_excess_gt_correct, float)
+    assert 0 <= usd_per_gt_correct < max_safety
+    assert isinstance(usd_per_gt_correct, float)
     assert isinstance(block_name, str)
     assert isinstance(early_exit_ntrials_criterion, int)
     assert 0 <= early_exit_perf_criterion <= 1
@@ -195,7 +195,7 @@ def _generate_deterministic_mts_trial_sequence_htmls(
         inter_choice_presentation_delay_msec = inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec = pre_choice_lockout_delay_duration_msec,
         minimal_gt_performance_for_bonus = minimal_gt_performance_for_bonus,
-        usd_per_excess_gt_correct = usd_per_excess_gt_correct,
+        usd_per_gt_correct = usd_per_gt_correct,
         block_name = block_name,
         early_exit_ntrials_criterion = early_exit_ntrials_criterion,
         early_exit_perf_criterion = early_exit_perf_criterion,

@@ -27,7 +27,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['inter_choice_presentation_delay_msec'],
                 cur_block['pre_choice_lockout_delay_duration_msec'],
                 cur_block['minimal_gt_performance_for_bonus'],
-                cur_block['usd_per_excess_gt_correct'],
+                cur_block['usd_per_gt_correct'],
                 cur_block['block_name'],
                 cur_block['early_exit_ntrials_criterion'],
                 cur_block['early_exit_perf_criterion'],
@@ -70,7 +70,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             // Increment bonus earned (for HUD use)
             let block_ground_truth_perf_seq = cur_session_data['data_vars']['ground_truth_perf'];
             let block_minimal_gt_performance_for_bonus = cur_session_data['coords']['minimal_gt_performance_for_bonus'];
-            let block_usd_per_gt_excess_correct = cur_session_data['coords']['usd_per_excess_gt_correct']
+            let block_usd_per_gt_correct = cur_session_data['coords']['usd_per_gt_correct'];
             let perf_on_trials_with_gt = [];
             for (let _i = 0; _i < block_ground_truth_perf_seq.length; _i++){
                 const cur = block_ground_truth_perf_seq[_i];
@@ -83,7 +83,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             let gt_perf = gt_ncorrect / gt_nobs;
             let block_bonus_amount_usd = 0;
             if (gt_perf >= block_minimal_gt_performance_for_bonus){
-                block_bonus_amount_usd = block_usd_per_gt_excess_correct * (gt_ncorrect - gt_nobs * block_minimal_gt_performance_for_bonus + 1)
+                block_bonus_amount_usd = block_usd_per_gt_correct * (gt_ncorrect);
                 block_bonus_amount_usd = Math.max(block_bonus_amount_usd, 0);
             }
             session_bonus_tracker.add_bonus(block_bonus_amount_usd);
@@ -125,7 +125,7 @@ async function run_binary_mts_trials(
     inter_choice_presentation_delay_msec,
     pre_choice_lockout_delay_duration_msec,
     minimal_gt_performance_for_bonus,
-    usd_per_excess_gt_correct,
+    usd_per_gt_correct,
     block_name,
     early_exit_ntrials_criterion,
     early_exit_perf_criterion,
@@ -171,7 +171,7 @@ async function run_binary_mts_trials(
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
     coords['minimal_gt_performance_for_bonus'] = minimal_gt_performance_for_bonus;
-    coords['usd_per_excess_gt_correct'] = usd_per_excess_gt_correct;
+    coords['usd_per_gt_correct'] = usd_per_gt_correct;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
     coords['image_diameter_pixels'] = diameter_pixels;
     coords['early_exit_ntrials_criterion'] = early_exit_ntrials_criterion;
@@ -225,6 +225,7 @@ async function run_binary_mts_trials(
         for (let i_trial = 0; i_trial < start_trial; i_trial++) {
             let cur_perf = cur_subtask_datavars['reinforcement'][i_trial];
 
+            MTS_Session_HUD.increment_ntrials();
             // Increment online performance metrics
             let criterion_is_met = performance_tracker.check_satisfied(cur_perf);
             if (criterion_is_met === true) {
@@ -308,7 +309,6 @@ async function run_binary_mts_trials(
         }
 
 
-
         // Buffer second choice frame
         await draw_image(canvases['choice_canvas_frame1'], current_c0_image, choice_left_px * (1 - choice0_location) + choice_right_px * (choice0_location), choice_y_px, choice_diameter_px);
         await draw_image(canvases['choice_canvas_frame1'], current_c1_image, choice_left_px * (choice0_location) + choice_right_px * (1 - choice0_location), choice_y_px, choice_diameter_px);
@@ -346,8 +346,6 @@ async function run_binary_mts_trials(
         // Run stimulus
         let _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas']];
         let _t_seq = [0, stimulus_duration_msec];
-
-
 
 
         if (post_stimulus_delay_duration_msec > 0){
@@ -407,7 +405,7 @@ async function run_binary_mts_trials(
         if (action !== -1){
             choice = Number(( action || choice0_location ) && !( action && choice0_location ))
         }
-        let reinforcement = -1
+        let reinforcement = -1;
 
         // Timed out, always punish
         if (action === -1){
