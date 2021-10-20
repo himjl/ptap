@@ -27,7 +27,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
                 cur_block['inter_choice_presentation_delay_msec'],
                 cur_block['pre_choice_lockout_delay_duration_msec'],
                 cur_block['minimal_gt_performance_for_bonus'],
-                cur_block['usd_per_gt_correct'],
+                cur_block['pseudo_usd_per_gt_correct'],
                 cur_block['block_name'],
                 cur_block['early_exit_ntrials_criterion'],
                 cur_block['early_exit_perf_criterion'],
@@ -70,7 +70,7 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             // Increment bonus earned (for HUD use)
             let block_ground_truth_perf_seq = cur_session_data['data_vars']['ground_truth_perf'];
             let block_minimal_gt_performance_for_bonus = cur_session_data['coords']['minimal_gt_performance_for_bonus'];
-            let block_usd_per_gt_correct = cur_session_data['coords']['usd_per_gt_correct'];
+            let block_pseudo_usd_per_gt_correct = cur_session_data['coords']['pseudo_usd_per_gt_correct'];
             let perf_on_trials_with_gt = [];
             for (let _i = 0; _i < block_ground_truth_perf_seq.length; _i++){
                 const cur = block_ground_truth_perf_seq[_i];
@@ -83,12 +83,12 @@ async function run_mts_blocks(block_sequence, checkpoint_key_prefix){
             let gt_perf = gt_ncorrect / gt_nobs;
             let block_bonus_amount_usd = 0;
             if (gt_perf >= block_minimal_gt_performance_for_bonus){
-                block_bonus_amount_usd = block_usd_per_gt_correct * (gt_ncorrect);
+
+                block_bonus_amount_usd = block_pseudo_usd_per_gt_correct * (gt_perf - block_minimal_gt_performance_for_bonus) / (1 - block_minimal_gt_performance_for_bonus) * (gt_ncorrect);
                 block_bonus_amount_usd = Math.max(block_bonus_amount_usd, 0);
             }
             session_bonus_tracker.add_bonus(block_bonus_amount_usd);
             session_bonus_tracker.add_block_gt_performance(gt_ncorrect, gt_nobs);
-
         }
 
         let playspace_size_pixels = infer_canvas_size();
@@ -125,7 +125,7 @@ async function run_binary_mts_trials(
     inter_choice_presentation_delay_msec,
     pre_choice_lockout_delay_duration_msec,
     minimal_gt_performance_for_bonus,
-    usd_per_gt_correct,
+    pseudo_usd_per_gt_correct,
     block_name,
     early_exit_ntrials_criterion,
     early_exit_perf_criterion,
@@ -149,7 +149,7 @@ async function run_binary_mts_trials(
     choice_duration_msec, . Max choice time
     minimal_choice_duration_msec, . Imposes a delay until this much time has elapsed. Triggers a GUI element showing the remaining time a choice is made.
     post_stimulus_delay_duration_msec, . The amount of time before the choices pop up.
-    usd_upon_block_completion, Float
+    pseudo_usd_per_gt_correct, Float
     size, () in pixels
     block_name, String
     checkpoint_key: String which is used as a key for LocalStorage
@@ -171,7 +171,7 @@ async function run_binary_mts_trials(
     coords['playspace_size_px'] = size;
     coords['block_name'] = block_name;
     coords['minimal_gt_performance_for_bonus'] = minimal_gt_performance_for_bonus;
-    coords['usd_per_gt_correct'] = usd_per_gt_correct;
+    coords['pseudo_usd_per_gt_correct'] = pseudo_usd_per_gt_correct;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
     coords['image_diameter_pixels'] = diameter_pixels;
     coords['early_exit_ntrials_criterion'] = early_exit_ntrials_criterion;
@@ -440,7 +440,13 @@ async function run_binary_mts_trials(
             await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['punish_canvas'], canvases['blank_canvas']], [0, punish_duration_msec, 0]);
         }
         else if (reinforcement === 1){
-            await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+            if(reward_duration_msec > 0){
+                await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['reward_canvas'], canvases['blank_canvas']], [0, reward_duration_msec, 0]);
+            }
+            else{
+                // No reward duration
+                await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['blank_canvas']], [0, 0]);
+            }
         }
         else {
             await display_canvas_sequence([canvases['choice_canvas_frame2'], canvases['blank_canvas']], [0, 0]);
@@ -474,9 +480,9 @@ async function run_binary_mts_trials(
         LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
 
         // Clear canvas
-        await clear_canvas(canvases['choice_canvas_frame0'])
-        await clear_canvas(canvases['choice_canvas_frame1'])
-        await clear_canvas(canvases['choice_canvas_frame2'])
+        await clear_canvas(canvases['choice_canvas_frame0']);
+        await clear_canvas(canvases['choice_canvas_frame1']);
+        await clear_canvas(canvases['choice_canvas_frame2']);
         console.log(i_trial+1, 'trials completed')
         console.log(session_bonus_tracker)
         // Check if conditions satisfied for an early exit

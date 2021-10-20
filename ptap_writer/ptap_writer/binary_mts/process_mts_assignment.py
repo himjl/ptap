@@ -20,16 +20,17 @@ def get_total_bonus(answer:dict):
         data_vars = block['data_vars']
         coords = block['coords']
         minimal_gt_performance_for_bonus = coords['minimal_gt_performance_for_bonus']
-        usd_per_gt_correct = coords['usd_per_gt_correct']
+        pseudo_usd_per_gt_correct = coords['pseudo_usd_per_gt_correct']
         gt_perf_seq = data_vars['ground_truth_perf']
         gt_perf_seq_has_answer = [v for v in gt_perf_seq if v in [0, 1]]
         gt_nobs = len(gt_perf_seq_has_answer)
         gt_nsuccesses = np.sum(gt_perf_seq_has_answer)
 
+        subject_perf = gt_nsuccesses / gt_nobs
         if gt_nsuccesses / gt_nobs >= minimal_gt_performance_for_bonus:
-            bonus_amount = usd_per_gt_correct * (gt_nsuccesses)
+            bonus_amount = pseudo_usd_per_gt_correct * (gt_nsuccesses) * (subject_perf - minimal_gt_performance_for_bonus) / (1 - minimal_gt_performance_for_bonus)
         else:
-            bonus_amount =0
+            bonus_amount = 0
         #bonus_amount = usd_per_excess_gt_correct * (gt_nsuccesses - gt_nobs * minimal_gt_performance_for_bonus + 1)
         total_bonus_usd+=bonus_amount
 
@@ -193,4 +194,5 @@ if __name__ == '__main__':
     asn_data = utilz.load_json('/home/umjl/PycharmProjects/LeeDiCarlo2020_JNeuro/behavioral_experiments/match_to_sample_2afc/pilot_experiment/data/pilot/assignments/38RHULDV9YPI9S3VF7MBBBSPKERIWR/30BXRYBRP57KZHQ5ZR9R0JNX85HHWC.json')
     answer, errors = _extract_answer(asn_data)
     ds = to_dataset(asn_data)
+
 
