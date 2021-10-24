@@ -253,8 +253,10 @@ async function run_binary_mts_trials(
         all_urls.push(c1_url)
     }
     all_urls = [... new Set(all_urls)];
-    await trial_images.buffer_urls(all_urls);
 
+    document.getElementById('downloading_images_splash').style.visibility = 'visible';
+    await trial_images.buffer_urls(all_urls);
+    document.getElementById('downloading_images_splash').style.visibility = 'hidden';
     // Begin tracking actions
     let action_recorder = new ActionListenerClass(true, true);
 

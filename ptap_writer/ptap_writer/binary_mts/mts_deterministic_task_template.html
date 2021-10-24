@@ -10,6 +10,14 @@
     </p>
 </div>
 
+<div id='downloading_images_splash'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:red; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Downloading images...:
+        <text id="hud_trials_performed">&nbsp&nbsp0</text>
+    </p>
+</div>
+
+
 </body>
 
 
@@ -44,10 +52,6 @@ __INSERT_INSTRUCTIONS_HTML__
         const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
         const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
 
-        // Randomly set conditions for this assignment, and store in local storage
-        const session_parameters_key = assignmentId.concat('_session_parameters');
-        let block_sequence = LocalStorageUtils.retrieve_json_object(session_parameters_key);
-
         /*
                 cur_block['image_url_prefix'],
                 cur_block['stimulus_image_url_suffix_sequence'],
@@ -73,19 +77,9 @@ __INSERT_INSTRUCTIONS_HTML__
          */
 
         let ntotal_trials = 0;
-        if (block_sequence==null || developer_mode === true){
-            // Express the parameters of this session by setting the value of sequences, which is an Array of Objects, in the format given by assemble_trial_sequence.
+        let block_sequence = __INSERT_BLOCK_SEQUENCE_HERE__;
 
-            block_sequence = __INSERT_BLOCK_SEQUENCE_HERE__;
-
-            for (let i_block = 0; i_block < block_sequence.length; i_block++){
-                let cur_ntrials = block_sequence[i_block]['stimulus_image_url_suffix_sequence'].length;
-                ntotal_trials = ntotal_trials + cur_ntrials;
-            }
-
-            LocalStorageUtils.store_object_as_json(session_parameters_key, block_sequence);
-            console.log('Stored session parameters for assignment', assignmentId);
-
+        if (developer_mode === true){
             console.log('Developer mode: purging instructions key');
             LocalStorageUtils.remove_item(assignment_instructions_completed_key);
 
@@ -96,6 +90,7 @@ __INSERT_INSTRUCTIONS_HTML__
                 LocalStorageUtils.remove_item(cur_checkpoint_key);
             }
         }
+
 
         // Session bonus tracker
         class MTS_Session_Bonus_Tracker {
@@ -113,7 +108,6 @@ __INSERT_INSTRUCTIONS_HTML__
                 this.ncorrect_total = this.ncorrect_total + Math.max(0, ncorrect);
                 this.ntrials_total = this.ntrials_total + Math.max(0, ntrials);
             }
-
         }
 
         var session_bonus_tracker = new MTS_Session_Bonus_Tracker();
@@ -130,17 +124,18 @@ __INSERT_INSTRUCTIONS_HTML__
             }
         }
 
-
         (async function () {
             // Run instructions if they have not been clicked through
             const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
             if (completed_instructions == null){
-                await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+                await Promise.race([run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode), timeout(10000)]);
+                document.getElementById('instructions_html').style.visibility = 'hidden';
                 LocalStorageUtils.store_object_as_json(assignment_instructions_completed_key, 1);
             }
             else{
                 console.log('Detected subject already completed instructions; not showing')
             }
+
 
             if (in_preview_mode === false){
                 // Turn on HUD
