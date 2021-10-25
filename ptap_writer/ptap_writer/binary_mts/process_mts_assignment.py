@@ -123,6 +123,8 @@ def to_dataset(assignment_json:dict):
 
     answer, errors = _extract_answer(assignment_json)
     answer = answer['data']
+    assignment_id = assignment_json['AssignmentId']
+    hit_id = assignment_json['HITId']
 
     # Attach session coords
 
@@ -186,6 +188,7 @@ def to_dataset(assignment_json:dict):
     ds_all['block'] = np.arange(len(answer))
     ds_all = ds_all.assign_coords(worker_id = assignment_json['WorkerId'])
     ds_all = ds_all.assign_coords(assignment_id=assignment_json['AssignmentId'])
+    ds_all = ds_all.assign_coords(hit_id=assignment_json['HITId'])
     ds_all = ds_all.assign_coords(timestamp_session_submit=assignment_json['SubmitTime'])
     return ds_all
 

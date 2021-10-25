@@ -210,10 +210,11 @@ async function run_binary_mts_trials(
 
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
-    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
-    if (_loaded_data != null){
-        cur_subtask_datavars = _loaded_data;
-    }
+    //let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
+    //if (_loaded_data != null){
+    //    cur_subtask_datavars = _loaded_data;
+    //}
+    _loaded_data = null;
 
     // If there is savedata, load it, and set the data_vars
     let start_trial = 0;
