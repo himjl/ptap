@@ -1,0 +1,137 @@
+<!doctype html>
+
+<body style="background-color:#7F7F7F">
+
+
+<div id='user_hud'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:gray; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:visible">
+    <p style="margin-right: 5px;margin-left: 5px;">Trials performed:
+        <text id="hud_trials_performed">&nbsp&nbsp0</text>
+    </p>
+</div>
+
+<div id='downloading_images_splash'
+     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:red; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Downloading images...:
+        <text id="hud_trials_performed">&nbsp&nbsp0</text>
+    </p>
+</div>
+
+
+</body>
+
+
+<div id="instructions_html" style="visibility:hidden">
+    <text style="font-weight:bold; font-size:large">Thank you for your interest and contributing to research at at
+        MIT!
+    </text>
+__INSERT_INSTRUCTIONS_HTML__
+    <p>
+        <text style="color:#7A7A7A; font-size:smaller; font-style:italic">If you cannot meet these requirements or if
+            doing so could cause discomfort or injury, do not accept this HIT. If you are uncomfortable during the HIT,
+            please feel free return it.
+            You will not be penalized in any way.
+        </text>
+    </p>
+</div>
+
+<head>
+    <title>DiCarlo Lab - Mechanical Turk</title>
+
+    <script>
+        __INJECT_JAVASCRIPT_HERE__
+    </script>
+
+    <script>
+        // Extract session info
+        const url = window.location.href;
+        let assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);
+        let in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
+        let in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
+        let developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
+
+        /*
+                image_url_prefix,
+                frame_info_sequence, // [{'frame_image_url_suffix_sequence':[], 'frame_image_duration_msec_sequence':[]}]
+                ground_truth_choice_sequence,
+                choice0_url_suffix_sequence,
+                choice1_url_suffix_sequence,
+                rewarded_choice_sequence,
+                reward_duration_msec,
+                punish_duration_msec,
+                choice_duration_msec,
+                minimal_choice_duration_msec,
+                post_stimulus_delay_duration_msec,
+                intertrial_delay_duration_msec,
+                inter_choice_presentation_delay_msec,
+                pre_choice_lockout_delay_duration_msec,
+                minimal_gt_performance_for_bonus,
+                pseudo_usd_per_gt_correct,
+                query_string,
+                size,
+         */
+
+        let ntotal_trials = 0;
+        let session_info = __INSERT_TRIAL_SEQUENCE_HERE__;
+
+        // Session bonus tracker
+        class MTS_Session_Bonus_Tracker {
+            constructor() {
+                this.bonus_usd_earned = 0;
+                this.ncorrect_total = 0;
+                this.ntrials_total = 0;
+            }
+
+            add_bonus(bonus_amount_usd, ){
+                this.bonus_usd_earned = this.bonus_usd_earned + Math.max(0, bonus_amount_usd)
+            }
+
+            add_block_gt_performance(ncorrect, ntrials){
+                this.ncorrect_total = this.ncorrect_total + Math.max(0, ncorrect);
+                this.ntrials_total = this.ntrials_total + Math.max(0, ntrials);
+            }
+        }
+
+        var session_bonus_tracker = new MTS_Session_Bonus_Tracker();
+
+        class MTS_Session_HUD {
+            constructor(){
+            }
+
+            static increment_ntrials(){
+                let hud_trials_performed_element = document.getElementById('hud_trials_performed');
+                const current_trials = parseInt(hud_trials_performed_element.innerText);
+                const incremented_trials = current_trials + 1;
+                hud_trials_performed_element.innerHTML = incremented_trials.toString();
+            }
+        }
+
+        (async function () {
+
+
+            // Run instructions if they have not been clicked through
+            if (developer_mode){
+                in_preview_mode = false;
+            }
+
+            await run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode);
+            document.getElementById('instructions_html').style.visibility = 'hidden';
+
+            if (in_preview_mode === false || developer_mode === true){
+                // Turn on HUD
+                document.getElementById('user_hud').style.visibility = 'visible';
+
+                // Run trials
+                var session_data = await run_same_different_trials(session_info);
+
+                // Submit
+                if (developer_mode === false){
+                    await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);
+                }
+            }
+        }());
+
+    </script>
+</head>
+
+
