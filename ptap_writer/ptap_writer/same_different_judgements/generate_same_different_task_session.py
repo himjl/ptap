@@ -16,9 +16,9 @@ INDENT_CHARACTER = '    '
 INSTRUCTIONS_STRING = """  
     <ul>
         <li>Thank you for accepting this HIT! This is a task which will involve detecting whether two images are the same, or not. 
-        <li>To start a trial, press the white button.
         <li>Two pictures will be shown to you very rapidly (one after the other).</li>
-        <li><b>Your task</b> is to say whether the two pictures are the same, or not.
+        <li><b>Your task</b> is to say whether the two pictures are <text style="color:green; font-style:oblique">EXACTLY</text> the same, or not. 
+        <li>If there is <b>even a tiny change</b>, press "different". Otherwise, press "same". 
         <li>Consistently making accurate choices will <text style="color:green; font-style:oblique">increase your bonus payout</text>, but random guessing will lead to <text style="color:red; font-style:oblique">no bonus</text>.</li>
         <li>We may apply a "soft block" (using quals) for workers who choose not to follow these instructions. While this will not be reflected in your account's block rate, you may not be able to gain access to future HITs from our lab.</li>
         <li>If you encounter a bug (for example, the task freezing), please contact us and let us know. You will receive compensation for your time.

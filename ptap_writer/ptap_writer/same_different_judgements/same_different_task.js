@@ -26,6 +26,7 @@ async function run_same_different_trials(trial_sequence) {
         );
 
         // Increment bonus earned (for HUD use)
+        let cur_session_data = return_values['data'];
         let block_ground_truth_perf_seq = cur_session_data['data_vars']['ground_truth_perf'];
         let block_minimal_gt_performance_for_bonus = cur_session_data['coords']['minimal_gt_performance_for_bonus'];
         let block_pseudo_usd_per_gt_correct = cur_session_data['coords']['pseudo_usd_per_gt_correct'];
@@ -261,7 +262,7 @@ async function execute_sd_trials(
         // Write query string
         if (query_string != null) {
             if (query_string.length > 0) {
-                await write_text(canvases['choice_canvas_frame2'], query_string, size * 0.5, size * 0.5, size * 0.7, 'white')
+                await write_text(canvases['choice_canvas_frame2'], query_string, size * 0.5, choice_y_px, size * 0.7, 'white')
             }
         }
 

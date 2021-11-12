@@ -14,24 +14,27 @@ QUALIFICATION_IDS = {
 }
 
 def get_total_bonus(answer: dict):
+    total_bonus_usd = 0
+    error = ''
+    try:
+        data_vars = answer['data_vars']
+        coords = answer['coords']
+        minimal_gt_performance_for_bonus = coords['minimal_gt_performance_for_bonus']
+        pseudo_usd_per_gt_correct = coords['pseudo_usd_per_gt_correct']
+        gt_perf_seq = data_vars['ground_truth_perf']
+        gt_perf_seq_has_answer = [v for v in gt_perf_seq if v in [0, 1]]
+        gt_nobs = len(gt_perf_seq_has_answer)
+        gt_nsuccesses = np.sum(gt_perf_seq_has_answer)
 
-    data_vars = answer['data_vars']
-    coords = answer['coords']
-    minimal_gt_performance_for_bonus = coords['minimal_gt_performance_for_bonus']
-    pseudo_usd_per_gt_correct = coords['pseudo_usd_per_gt_correct']
-    gt_perf_seq = data_vars['ground_truth_perf']
-    gt_perf_seq_has_answer = [v for v in gt_perf_seq if v in [0, 1]]
-    gt_nobs = len(gt_perf_seq_has_answer)
-    gt_nsuccesses = np.sum(gt_perf_seq_has_answer)
-
-    subject_perf = gt_nsuccesses / gt_nobs
-    if gt_nsuccesses / gt_nobs >= minimal_gt_performance_for_bonus:
-        total_bonus_usd = pseudo_usd_per_gt_correct * (gt_nsuccesses) * (
-                subject_perf - minimal_gt_performance_for_bonus) / (1 - minimal_gt_performance_for_bonus)
-    else:
-        total_bonus_usd = 0
-
-    return total_bonus_usd
+        subject_perf = gt_nsuccesses / gt_nobs
+        if gt_nsuccesses / gt_nobs >= minimal_gt_performance_for_bonus:
+            total_bonus_usd = pseudo_usd_per_gt_correct * (gt_nsuccesses) * (
+                    subject_perf - minimal_gt_performance_for_bonus) / (1 - minimal_gt_performance_for_bonus)
+        else:
+            total_bonus_usd = 0
+    except Exception as e:
+        error = str(e)
+    return total_bonus_usd, error
 
 
 def _extract_answer(asn):
@@ -89,8 +92,8 @@ def assignment_post_process_function(
             pass
 
     # Pay worker if conditions for a bonus are satisfied
-    bonus_usd, bonus_parse_errors = get_total_bonus(answer)
-    errors.extend(bonus_parse_errors)
+    bonus_usd, bonus_parse_error = get_total_bonus(answer)
+    errors.append(bonus_parse_error)
 
     if bonus_usd >= 0.01:
         try:
@@ -120,8 +123,8 @@ def assignment_post_process_function(
 def to_dataset(assignment_json: dict):
     answer, errors = _extract_answer(assignment_json)
 
-    answer, errors = _extract_answer(assignment_json)
-
+    if 'data_vars' not in answer:
+        return None
     # Attach session coords
     data_vars = answer['data_vars']
     coords = answer['coords']
@@ -185,9 +188,9 @@ def to_dataset(assignment_json: dict):
             assert ntrials == len(data_vars[k]), 'Key %s has length %d, but assumed to have length %d' % (
                 k, len(data_vars[k]), ntrials)
         ntrials = len(data_vars[k])
-        data_vars[k] = (['trial_block'], data_vars[k])
+        data_vars[k] = (['trial'], data_vars[k])
 
-    coords['trial_block'] = np.arange(ntrials)
+    coords['trial'] = np.arange(ntrials)
 
     ds = xr.Dataset(data_vars=data_vars, coords=coords, )
     ds = ds.assign_coords(
@@ -196,6 +199,9 @@ def to_dataset(assignment_json: dict):
         hit_id=assignment_json['HITId'],
         timestamp_session_submit=assignment_json['SubmitTime']
     )
+    ds['perf'] = ds['ground_truth_perf']
+    ds = ds.assign_coords(session_duration_sec = (ds.timestamp_start.values.max() - ds.timestamp_start.values.min()))
+
     return ds
 
 if __name__ == '__main__':
