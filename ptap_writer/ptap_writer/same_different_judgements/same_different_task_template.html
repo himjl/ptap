@@ -36,6 +36,11 @@ __INSERT_INSTRUCTIONS_HTML__
 </div>
 
 <head>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+
     <title>DiCarlo Lab - Mechanical Turk</title>
 
     <script>
@@ -43,6 +48,7 @@ __INSERT_INSTRUCTIONS_HTML__
     </script>
 
     <script>
+        // * https://cristian.sulea.net/blog/disable-browser-caching-with-meta-html-tags/
         // Extract session info
         const url = window.location.href;
         let assignmentId = mechanical_turk_util_functions.get_assignmentId_from_url(url);

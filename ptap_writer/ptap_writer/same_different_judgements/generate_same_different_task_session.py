@@ -27,8 +27,8 @@ INSTRUCTIONS_STRING = """
 
 def generate_same_different_task(
         frame_info_sequence, # [{'stimulus_frame_url_sequence':[], 'stimulus_frame_duration_msec_sequence':[]}]
-        ground_truth_is_same_sequence,  # [trials]: -1 (no correct choice), 0, or 1
-        give_reward_sequence,  # [bool]
+        ground_truth_is_same_sequence,  # [trials]: -1 (no correct choice), 0 (they are different), or 1 (they are the same)
+        give_reinforcement_sequence,  # [trials]: bool (whether to provide reinforcement or not)
         reward_duration_msec, # () msec
         punish_duration_msec,
         choice_duration_msec,
@@ -39,42 +39,12 @@ def generate_same_different_task(
         pre_choice_lockout_delay_duration_msec,
         minimal_gt_performance_for_bonus,
         pseudo_usd_per_gt_correct,
-        check_urls = False,
 ):
 
-    is_different_url = 'https://samedifferentbehavior.s3.amazonaws.com/task_assets/is_different_choice_image.png'
-    is_same_url = 'https://samedifferentbehavior.s3.amazonaws.com/task_assets/is_same_choice_image.png'
-
-
-    if check_urls:
-        raise NotImplementedError
-
-    assert len(set(ground_truth_is_same_sequence).difference({-1, 0, 1})) == 0
-
-    rewarded_choice_sequence = []
-
-
-    for i, apply_reward in enumerate(give_reward_sequence):
-        if apply_reward:
-            assert ground_truth_is_same_sequence[i] != -1
-            if ground_truth_is_same_sequence[i] == True:
-                rewarded_choice_sequence.append(0)
-            elif ground_truth_is_same_sequence[i] == False:
-                rewarded_choice_sequence.append(1)
-            else:
-                raise Exception
-        else:
-            rewarded_choice_sequence.append(-1)
-
-    choice0_image_url_sequence = [is_same_url for _ in frame_info_sequence]
-    choice1_image_url_sequence = [is_different_url for _ in frame_info_sequence]
-
     html_string = _generate_same_different_html(
-        frame_info_sequence = frame_info_sequence,
-        ground_truth_is_same_sequence = ground_truth_is_same_sequence,
-        choice0_image_url_sequence =choice0_image_url_sequence,
-        choice1_image_url_sequence = choice1_image_url_sequence,
-        rewarded_choice_sequence=rewarded_choice_sequence,
+        frame_info_sequence=frame_info_sequence,
+        ground_truth_is_same_sequence=ground_truth_is_same_sequence,
+        give_reinforcement_sequence = give_reinforcement_sequence,
         reward_duration_msec=reward_duration_msec,
         punish_duration_msec=punish_duration_msec,
         choice_duration_msec=choice_duration_msec,
@@ -91,9 +61,7 @@ def generate_same_different_task(
 def _generate_same_different_html(
         frame_info_sequence,
         ground_truth_is_same_sequence,
-        choice0_image_url_sequence,
-        choice1_image_url_sequence,
-        rewarded_choice_sequence,
+        give_reinforcement_sequence,
         reward_duration_msec,
         punish_duration_msec,
         choice_duration_msec,
@@ -106,25 +74,37 @@ def _generate_same_different_html(
         pseudo_usd_per_gt_correct,
 ):
     """
-    image_url_prefix,
     frame_info_sequence, // [{'stimulus_frame_url_sequence':[], 'stimulus_frame_duration_msec_sequence':[]}]
-    ground_truth_choice_sequence,
-    choice0_url_suffix_sequence,
-    choice1_url_suffix_sequence,
-    rewarded_choice_sequence,
-    reward_duration_msec,
-    punish_duration_msec,
-    choice_duration_msec,
-    minimal_choice_duration_msec,
-    post_stimulus_delay_duration_msec,
-    intertrial_delay_duration_msec,
-    inter_choice_presentation_delay_msec,
-    pre_choice_lockout_delay_duration_msec,
-    minimal_gt_performance_for_bonus,
-    pseudo_usd_per_gt_correct,
-    query_string,
+    """
+
+    is_different_url = 'https://s3.amazonaws.com/samedifferentbehavior/task_assets/is_different_choice_image.png'
+    is_same_url = 'https://s3.amazonaws.com/samedifferentbehavior/task_assets/is_same_choice_image.png'
 
     """
+    Left choice is always "same"
+    Right choice is always "different"
+    """
+    choice0_image_url_sequence = [is_same_url for _ in frame_info_sequence]
+    choice1_image_url_sequence = [is_different_url for _ in frame_info_sequence]
+
+    assert len(set(ground_truth_is_same_sequence).difference({-1, 0, 1})) == 0
+
+    rewarded_choice_sequence = []
+    ground_truth_correct_choice_sequence = []
+    for i, apply_reward in enumerate(give_reinforcement_sequence):
+        if apply_reward:
+            assert ground_truth_is_same_sequence[i] != -1
+            if ground_truth_is_same_sequence[i] == True:
+                rewarded_choice_sequence.append(0)
+                ground_truth_correct_choice_sequence.append(0)
+            elif ground_truth_is_same_sequence[i] == False:
+                rewarded_choice_sequence.append(1)
+                ground_truth_correct_choice_sequence.append(1)
+            else:
+                raise Exception
+        else:
+            rewarded_choice_sequence.append(-1)
+
     query_string = ''
 
     all_urls = set()
@@ -135,10 +115,10 @@ def _generate_same_different_html(
     for c_url in choice0_image_url_sequence + choice1_image_url_sequence:
         all_urls.add(c_url)
     all_urls = list(all_urls)
+
     image_url_prefix = os.path.commonprefix(all_urls)
 
     frame_info_sequence_suffix_form = []
-    ground_truth_correct_choice_sequence = []
     for i_trial, trial_frame_info in enumerate(frame_info_sequence):
         frame_urls = trial_frame_info['stimulus_frame_url_sequence']
         frame_durations = trial_frame_info['stimulus_frame_duration_msec_sequence']
@@ -152,17 +132,6 @@ def _generate_same_different_html(
             'stimulus_frame_duration_msec_sequence':list(frame_durations),
         }
         frame_info_sequence_suffix_form.append(dict(cur_frame_info_suffix_form))
-
-
-        trial_is_same = ground_truth_is_same_sequence[i_trial]
-        if trial_is_same == -1:
-            ground_truth_correct_choice_sequence.append(-1)
-        elif trial_is_same == True:
-            ground_truth_correct_choice_sequence.append(1)
-        elif trial_is_same == False:
-            ground_truth_correct_choice_sequence.append(0)
-        else:
-            raise Exception
 
     choice0_url_suffix_sequence = [url.split(image_url_prefix)[-1] for url in choice0_image_url_sequence]
     choice1_url_suffix_sequence = [url.split(image_url_prefix)[-1] for url in choice1_image_url_sequence]
