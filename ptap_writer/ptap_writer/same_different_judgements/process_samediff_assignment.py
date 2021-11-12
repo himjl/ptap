@@ -177,7 +177,7 @@ def to_dataset(assignment_json: dict):
     del data_vars['choice0_url_suffix']
     del data_vars['choice1_url_suffix']
 
-    data_vars['stimulus_id'] = stimulus_ids
+    data_vars['sequence_id'] = stimulus_ids
     data_vars['choice0_url'] = choice0_urls
     data_vars['choice1_url'] = choice1_urls
 
