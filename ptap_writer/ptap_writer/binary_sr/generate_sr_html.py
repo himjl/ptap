@@ -35,6 +35,7 @@ class BlockTemplate(object):
         raise NotImplementedError
 
 
+
 class DeterministicBlock(BlockTemplate):
     def __init__(self,
                  url_seq: [str],
@@ -50,51 +51,45 @@ class DeterministicBlock(BlockTemplate):
 
         return
 
-    def _js_call_core(self, common_url_prefix):
-        url_suffix_seq = [s.split(common_url_prefix)[-1] for s in self.url_seq]
 
-        block_string = f'SessionRandomization.instantiate_deterministic_block({url_suffix_seq}, {self.label_seq},)'
-        return block_string
+    def m(
+            self,
+            url_sequence:[str],
+            label_sequence:list,
+    ):
+        """
+            const cur_image_url_prefix = cur_subtask['image_url_prefix'];
+            const cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
+            const cur_label_sequence = cur_subtask['label_seq'];
+            const cur_label_to_action = cur_subtask['label_to_action'];
+            const cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
+            const cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
+            const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
+            const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
+            const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
+            const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
+            const usd_per_reward = cur_subtask['usd_per_reward'];
+            const cur_sequence_name = cur_subtask['sequence_name'];
+            const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
+            const cur_session_end_criteria = cur_subtask['session_end_criteria'];
+        """
+        assert set(label_sequence)  == {-1, 1}
 
 
-class RandomBlock(BlockTemplate):
-    def __init__(self,
-                 urls_0_pool: list,
-                 urls_1_pool: list,
-                 ntrials: int,
-                 replace: bool,
-                 balanced_categories: bool):
-
-        self.urls_0_pool = list(urls_0_pool)
-        self.urls_1_pool = list(urls_1_pool)
-        self.ntrials = ntrials
-        self.replace = replace
-        self.balanced_categories = balanced_categories
-
-        assert isinstance(replace, bool)
-        assert isinstance(balanced_categories, bool)
-        assert isinstance(ntrials, int)
-        assert np.mod(ntrials, 2) == 0, ntrials
-
-        if not replace:
-            if not balanced_categories:
-                # One class might potentially be sampled ntrials times, and if we are not replacing, there must be a sufficient # of urls
-                assert len(self.urls_0_pool) >= self.ntrials
-                assert len(self.urls_1_pool) >= self.ntrials
-            else:
-                assert len(self.urls_0_pool) >= (self.ntrials//2)
-                assert len(self.urls_1_pool) >= (self.ntrials//2)
-
-        super().__init__(all_urls = self.urls_0_pool + self.urls_1_pool)
-        return
-
-    def _js_call_core(self, common_url_prefix):
-        pool_0_url_suffixes = [s.split(common_url_prefix)[-1] for s in self.urls_0_pool]
-        pool_1_url_suffixes = [s.split(common_url_prefix)[-1] for s in self.urls_1_pool]
-
-        block_string = f'SessionRandomization.instantiate_random_block({pool_0_url_suffixes}, {pool_1_url_suffixes}, {self.ntrials}, {bool2jsbool(self.replace)}, {bool2jsbool(self.balanced_categories)})'
-        return block_string
-
+        block_info = dict(
+            image_url_prefix = image_url_prefix,
+            image_url_suffix_seq = image_url_suffix_seq,
+            label_seq = label_seq,
+            stimulus_duration_msec = 200,
+            reward_duration_msec = 50,
+            punish_duration_msec = 800,
+            choice_duration_msec = 10000,
+            post_stimulus_delay_duration_msec = 200,
+            intertrial_delay_period_msec = 50,
+            usd_per_reward = 0.0025,
+            sequence_name = sequence_name,
+        )
+        pass
 
 class Sequence(object):
     def __init__(
@@ -181,29 +176,11 @@ class Sequence(object):
         return trial_sequence_string
 
 
-class RandomlyAssignedSequence(object):
-    def __init__(self,
-                 possible_sequences:[Sequence],
-                 ):
-
-        self.possible_sequences = possible_sequences
-        self.all_urls = [url for seq in possible_sequences for block in seq.block_seq for url in block.all_urls]
-
-    def generate_javascript_string(self):
-        chosen_trial_sequence_string = f'SessionRandomization.choose_trial_sequence([\n'
-        for sequence in self.possible_sequences:
-            chosen_trial_sequence_string+=sequence.generate_javascript_string()
-            chosen_trial_sequence_string+=',\n'
-        chosen_trial_sequence_string+='])'
-
-        return chosen_trial_sequence_string
-
-
 class Session(object):
     def __init__(
             self,
-            warmup_sequences:Union[List[Sequence], List[RandomlyAssignedSequence]],
-            main_sequences:Union[List[Sequence], List[RandomlyAssignedSequence]],
+            warmup_sequences:Union[List[Sequence], ],
+            main_sequences:Union[List[Sequence], ],
             randomize_slot_order:bool,
     ):
         self.warmup_sequences = warmup_sequences
@@ -268,6 +245,12 @@ class URLChecker(object):
 
 
 if __name__ == '__main__':
+
+    blue_go_right = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/blue_choose_right.png'
+    orange_go_left = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orange_choose_left.png'
+    blue_only = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/blue_only.png'
+    orange_only = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orange_only.png'
+
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 

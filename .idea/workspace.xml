@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bcb50c5-127c-43f0-aa63-81915bb6eb76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ptap_writer/.idea/ptap_writer.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/public/.idea/public.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/blue_choose_right.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/blue_only.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/orange_choose_left.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/orange_only.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/probe_trials.ai" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/generate_sr_html.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/generate_sr_html.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task.js" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task_template.html" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task_template.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,11 +45,23 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1639108624264</updated>
-      <workItem from="1639108625471" duration="106000" />
+      <workItem from="1639108625471" duration="1329000" />
     </task>
+    <task id="LOCAL-00001" summary="before refactor">
+      <created>1639108751507</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1639108751507</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="before refactor" />
+    <option name="LAST_COMMIT_MESSAGE" value="before refactor" />
   </component>
 </project>

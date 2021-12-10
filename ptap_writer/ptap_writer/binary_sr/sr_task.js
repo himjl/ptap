@@ -1,7 +1,6 @@
-async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
+async function run_subtasks(subtask_sequence){
     /*
     subtask_sequence: Array of Objects, which detail the subtasks which will be run
-    checkpoint_key: a String which is used for checkpointing behavioral data
 
     This function returns a list of returns from "run_binary_sr_trials". It allows the caller to request that multiple
     subtasks be run back-to-back.
@@ -32,11 +31,8 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
             const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
             const usd_per_reward = cur_subtask['usd_per_reward'];
             const cur_sequence_name = cur_subtask['sequence_name'];
-            const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
-            const cur_session_end_criteria = cur_subtask['session_end_criteria'];
 
             // Load savedata for this subtask
-            const cur_checkpoint_key = checkpoint_key_prefix.concat('_subtask', i_subtask.toString());
 
             var cur_session_data = await run_binary_sr_trials(
                 cur_image_url_prefix,
@@ -52,25 +48,14 @@ async function run_subtasks(subtask_sequence, checkpoint_key_prefix){
                 usd_per_reward,
                 playspace_size_pixels,
                 cur_sequence_name,
-                cur_early_exit_criteria,
-                cur_checkpoint_key,
                 );
 
             // Push data to return values
             return_values['data'].push(cur_session_data);
 
             // Check if the session end criteria was met
-            const cur_subtask_ntrials = cur_session_data['data_vars']['perf'].length;
-            const cur_maxtrials_threshold = cur_session_end_criteria['max_trials_for_continue']
-            if ((cur_subtask_ntrials > cur_maxtrials_threshold)){
-                // Exit the session
-                break
-            }
-
-
             // Run the "end of subtask" splash screen if there are tasks that remain after this one, and the subject has performed trials
-            const performed_trials = cur_session_data['meta']['performed_trials'];
-            if (((i_subtask + 1) < (nsubtasks)) && performed_trials){
+            if ((i_subtask + 1) < (nsubtasks)){
                 await inter_subtask_splash_screen(playspace_size_pixels)
             }
         }
@@ -93,7 +78,6 @@ async function run_binary_sr_trials(
     image_url_prefix,
     image_url_suffix_sequence,
     label_sequence,
-    label_to_action,
     stimulus_duration_msec,
     reward_duration_msec,
     punish_duration_msec,
@@ -103,8 +87,6 @@ async function run_binary_sr_trials(
     usd_per_reward,
     size,
     sequence_name,
-    early_exit_criteria,
-    checkpoint_key,
 ){
 
     /*
@@ -112,7 +94,6 @@ async function run_binary_sr_trials(
 
     image_url_sequence: [t]
     label_sequence: [t]. 0 or 1.
-    label_to_action: '01' (for label=0 to action 0, label=1 to action 1) or '10'
     stimulus_duration_msec: ()
     reward_duration_msec: ()
     punish_duration_msec: ()
@@ -121,8 +102,6 @@ async function run_binary_sr_trials(
     usd_per_reward: ()
     size: () in pixels
     sequence_name: String
-    early_exit_criteria: {'min_trials':Integer, 'min_perf':Float between 0 or 1, 'rolling':Boolean} or {}
-    checkpoint_key: String which is used as a key for LocalStorage
      */
 
     var diameter_pixels = size * 0.25;
@@ -136,7 +115,6 @@ async function run_binary_sr_trials(
     coords['intertrial_delay_period_msec'] = intertrial_delay_period_msec;
     coords['usd_per_reward'] = usd_per_reward;
     coords['playspace_size_px'] = size;
-    coords['label_to_action'] = label_to_action;
     coords['sequence_name'] = sequence_name;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
 
@@ -157,21 +135,10 @@ async function run_binary_sr_trials(
     data_vars['rel_timestamp_choices_on'] = [];
     data_vars['trial_number'] = [];
 
-    var meta = {'performed_trials':false};
-
-    // Instantiate online performance metrics
-    const mintrials_criterion = early_exit_criteria['min_trials'];
-    const minperf_criterion = early_exit_criteria['min_perf'];
-    const rolling = early_exit_criteria['rolling'];
-
-    let performance_tracker = new PerformanceBuffer(mintrials_criterion, minperf_criterion, rolling);
 
     // Resume task if there is checkpoint data
     let cur_subtask_datavars = {};
-    let _loaded_data = LocalStorageUtils.retrieve_json_object(checkpoint_key);
-    if (_loaded_data != null){
-        cur_subtask_datavars = _loaded_data;
-    }
+
 
     // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
     let start_trial = 0;
@@ -205,7 +172,7 @@ async function run_binary_sr_trials(
     }
 
     // Pre-buffer images
-    var trial_images = new ImageBufferClass;
+    let trial_images = new ImageBufferClass;
     let all_urls = [];
 
     for (let i_image = start_trial; i_image < image_url_suffix_sequence.length; i_image++){
@@ -217,26 +184,35 @@ async function run_binary_sr_trials(
     await trial_images.buffer_urls(all_urls);
 
 
+
     // Begin tracking actions
     var action_recorder = new ActionListenerClass(false, true);
 
-    // Iterate over trials
+    // Initialize canvases
     var canvases = await initialize_sr_task_canvases(size);
+    let reward_url = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/feedback_is_correct_image.png'
+    let punish_url = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/feedback_is_incorrect_image.png'
+    await trial_images.buffer_urls([reward_url, punish_url]);
+    let reward_image = await trial_images.get_by_url(reward_url);
+    let punish_image = await trial_images.get_by_url(punish_url);
+    await draw_image(canvases['reward_canvas'], reward_image, size/2, size/2, diameter_pixels);
+    await draw_image(canvases['punish_canvas'], punish_image, size/2, size/2, diameter_pixels);
 
+    // Iterate over trials
     for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
         // Buffer stimulus
         let current_suffix = image_url_suffix_sequence[i_trial];
         let current_url = image_url_prefix.concat(current_suffix);
-        var current_image = await trial_images.get_by_url(current_url);
+        let current_image = await trial_images.get_by_url(current_url);
         await draw_image(canvases['stimulus_canvas'], current_image, size/2, size/2, diameter_pixels);
 
         // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
-        var fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
+        let fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
         // Run stimulus
-        var _stimulus_seq = undefined;
-        var _t_seq = undefined;
+        let _stimulus_seq = undefined;
+        let _t_seq = undefined;
         if (post_stimulus_delay_duration_msec > 0){
             // Insert delay before showing choices
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['blank_canvas'], canvases['choice_canvas']];
@@ -247,31 +223,27 @@ async function run_binary_sr_trials(
             _stimulus_seq = [canvases['fixation_canvas'], canvases['stimulus_canvas'], canvases['choice_canvas']];
             _t_seq = [0, stimulus_duration_msec, 0]
         }
-        var timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
+        let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
 
         // Show choices and wait for response
-        var choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
-        var reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
+        let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
+        let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
 
         // Evaluate choice
-        var perf = undefined;
+        let perf = undefined;
 
         // Get correct action
-        var cur_label = label_sequence[i_trial];
+        let cur_label = label_sequence[i_trial];
 
         let correct_action;
-        if (label_to_action === '01'){
-            correct_action = cur_label;
-        }
-        else if (label_to_action === '10'){
-            correct_action = 1 - cur_label;
+        if (cur_label === 1){
+            correct_action = 1;
         }
         else{
-            correct_action = cur_label;
+            correct_action = 0;
         }
-
         // Evaluate subject action
-        var action = choice_outcome['actionIndex'];
+        let action = choice_outcome['actionIndex'];
         if (action === -1){
             // Timed out
             perf = 0
@@ -294,7 +266,6 @@ async function run_binary_sr_trials(
         // Intertrial await
         await timeout(intertrial_delay_period_msec)
 
-
         // Record outcomes
         data_vars['perf'].push(perf);
         data_vars['action'].push(action);
@@ -306,11 +277,6 @@ async function run_binary_sr_trials(
         data_vars['rel_timestamp_stimulus_off'].push(Math.round(timestamp_stimulus[2]));
         data_vars['rel_timestamp_choices_on'].push(Math.round(timestamp_stimulus[timestamp_stimulus.length-1]));
         data_vars['trial_number'].push(i_trial);
-        meta['performed_trials'] = true;
-
-        // Checkpoint data vars to local storage
-        LocalStorageUtils.store_object_as_json(checkpoint_key, data_vars);
-
 
         // Callback
         if (usd_per_reward > 0){
@@ -318,15 +284,6 @@ async function run_binary_sr_trials(
         }
         progressbar_callback();
 
-        // Check if conditions satisfied for an early exit
-        let criterion_is_met = performance_tracker.check_satisfied(perf);
-        if(criterion_is_met === true){
-            // Fill up the progressbar
-            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - i_trial); i_rest++){
-                progressbar_callback()
-            }
-            break;
-        }
     }
 
     // Delete canvases
@@ -340,7 +297,7 @@ async function run_binary_sr_trials(
     // Remove event listeners from window
     action_recorder.close_listeners();
     delete trial_images.cache_dict;
-    return {'coords':coords, 'data_vars':data_vars, 'meta':meta}
+    return {'coords':coords, 'data_vars':data_vars}
 }
 
 
@@ -482,6 +439,8 @@ async function initialize_sr_task_canvases(size){
 
     // Create reward canvas (green square)
     canvases['reward_canvas'] = create_canvas('reward_canvas', width, height);
+
+    /*
     await draw_rectangle(
         canvases['reward_canvas'],
         width * 0.5,
@@ -490,9 +449,11 @@ async function initialize_sr_task_canvases(size){
         height * 1/3,
         "#00cc00",
         0.5);
-
+    */
     // Create punish canvas (black square)
     canvases['punish_canvas'] = create_canvas('punish_canvas', width, height);
+
+    /*
     await draw_rectangle(
         canvases['punish_canvas'],
         width * 0.5,
@@ -501,6 +462,7 @@ async function initialize_sr_task_canvases(size){
         height * 1/3,
         "black",
         0.8);
+    */
 
     // Create choice canvas
     canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
