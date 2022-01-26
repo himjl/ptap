@@ -16,65 +16,37 @@ QUALIFICATION_IDS = {
 def _get_bonus_amount_for_sequence(sequence_data:dict):
     errors = []
 
-    # Infer USD per reward
-    if 'coords' not in sequence_data:
-        errors.append('Could not find key "coords" in behavioral_data; found only %s'%(str(sequence_data.keys())))
-        usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
-    else:
-        if 'usd_per_reward' not in sequence_data['coords']:
-            errors.append('Could not find key "usd_per_reward" in behavioral_data; found only %s. Defaulting to %f' % (str(sequence_data['coords'].keys()), DEFAULT_BONUS_USD_PER_REWARD))
-            usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
-        else:
-            usd_per_reward = sequence_data['coords']['usd_per_reward']
-            if isinstance(usd_per_reward, int):
-                usd_per_reward = float(usd_per_reward)
+    """
+    cur_subtask['max_bonus_usd'],
+    cur_subtask['min_performance_for_bonus'],
+    """
+    coords = sequence_data['coords']
+    max_bonus_usd = coords['max_bonus_usd']
+    min_performance_for_bonus = coords['min_performance_for_bonus']
 
-            if not isinstance(usd_per_reward, (int, float)):
-                errors.append('Could not identify a float usd_per_reward; got %s of dtype %s'%(str(usd_per_reward), type(usd_per_reward)))
-                usd_per_reward = DEFAULT_BONUS_USD_PER_REWARD
+    data_vars = sequence_data['data_vars']
+    perf_seq = data_vars['perf']
 
-    # Infer number of corrects
-    if 'data_vars' not in sequence_data:
-        errors.append('Could not find key "data_vars" in behavioral_data; found only %s' % (str(sequence_data.keys())))
-    else:
-        if 'perf' not in sequence_data['data_vars']:
-            errors.append('Could not find key "perf" in behavioral_data["data_vars"]; found only %s. Defaulting to []' % (str(sequence_data['data_vars'].keys())))
-            perf = []
-        else:
-            perf = sequence_data['data_vars']['perf']
 
-            if not isinstance(perf, list):
-                errors.append('Could not identify a list of performance outcomes; got %s of dtype %s' % (str(perf), type(perf)))
-                perf = []
+    average_perf = np.mean(perf_seq)
 
-    # Get bonus
-    bonus = np.sum(perf) * usd_per_reward
-    return bonus, errors
+    bonus_amount_usd = max_bonus_usd / (1 - min_performance_for_bonus) * (average_perf - min_performance_for_bonus)
+    bonus_amount_usd = np.max(bonus_amount_usd, 0)
+
+    return bonus_amount_usd
 
 
 def get_total_bonus(answer:dict):
 
-    errors = []
-    if 'data' not in answer:
-        errors.append('Could not find key "data" in answer; found only keys %s' % (str(answer.keys())))
-        return 0, errors
-
     behavioral_data = answer['data']
-    # Validate answer data
-    if not isinstance(behavioral_data, list):
-        errors.append('Expected behavioral data to be a list, but is a %s'%(type(behavioral_data)))
-        return 0, errors
 
     total_usd_reward = 0
     for i_sequence, sequence_data in enumerate(behavioral_data):
-        if not isinstance(sequence_data, dict):
-            errors.append('Sequence %d was expected to be a dict, but got%s'%(i_sequence, str(type(sequence_data))))
 
-        cur_bonus, parse_errors = _get_bonus_amount_for_sequence(sequence_data=sequence_data)
-        errors.extend(parse_errors)
+        cur_bonus = _get_bonus_amount_for_sequence(sequence_data=sequence_data)
         total_usd_reward += (cur_bonus)
 
-    return total_usd_reward, errors
+    return total_usd_reward
 
 def evaluate_warmup_behavior(answer:dict):
     """
@@ -171,21 +143,8 @@ def assignment_post_process_function(
     answer, parse_errors = extract_answer(asn)
     errors.extend(parse_errors)
 
-    # Grant a failure qualification to those who goofed off on the diamond task
-    if sandbox:
-        warmup_failure_id = QUALIFICATION_IDS['sandboxLOW_WARMUP_TASK']
-    else:
-        warmup_failure_id = QUALIFICATION_IDS['LOW_WARMUP_TASK']
-    goofed_off, warmup_parser_errors = evaluate_warmup_behavior(answer = answer)
-    errors.extend(warmup_parser_errors)
-
-    if goofed_off:
-        turkr.mturk.manage_hit.grant_qualification(qualification_type_id=warmup_failure_id, worker_id=worker_id, client=client)
-        print('(workerId:%s, assignmentId:%s): Granted "goofed off" qualification' % (worker_id, assignment_id))
-
     # Attempt to extract bonus amount.
-    bonus_usd, bonus_parse_errors = get_total_bonus(answer)
-    errors.extend(bonus_parse_errors)
+    bonus_usd = get_total_bonus(answer)
 
     # Pay worker if a bonus was earned
     if bonus_usd > 0:
@@ -232,11 +191,12 @@ def to_dataset(assignment_json:dict):
         del data_vars['rel_timestamp_choices_on']
 
         # Unpack URLs
-        stimulus_url_prefix = coords['stimulus_url_prefix']
-        stimulus_urls = [stimulus_url_prefix + suffix for suffix in data_vars['stimulus_url_suffix']]
-        del coords['stimulus_url_prefix']
-        del data_vars['stimulus_url_suffix']
-        data_vars['stimulus_url'] = stimulus_urls
+        if 'stimulus_url_prefix' in coords:
+            stimulus_url_prefix = coords['stimulus_url_prefix']
+            stimulus_urls = [stimulus_url_prefix + suffix for suffix in data_vars['stimulus_url_suffix']]
+            del coords['stimulus_url_prefix']
+            del data_vars['stimulus_url_suffix']
+            data_vars['stimulus_url'] = stimulus_urls
 
         # Attach trial coordinate
         ntrials = None
@@ -259,4 +219,10 @@ def to_dataset(assignment_json:dict):
     ds_all = ds_all.assign_coords(worker_id = assignment_json['WorkerId'])
     ds_all = ds_all.assign_coords(assignment_id=assignment_json['AssignmentId'])
     ds_all = ds_all.assign_coords(timestamp_session_submit=assignment_json['SubmitTime'])
+
+    session_duration_sec = (ds_all.timestamp_start.max() - ds_all.timestamp_start.min())
+    ds_all = ds_all.assign_coords(session_duration_sec = session_duration_sec)
+
+    ds_all = ds_all.rename({'trial_sequence':'trial'})
+
     return ds_all

@@ -17,219 +17,6 @@ assert os.path.exists(TASK_LOCATION), 'Could not find task at %s' % (TASK_LOCATI
 bool2jsbool = lambda b: 'true' if b else 'false'
 
 
-class BlockTemplate(object):
-    def __init__(self, all_urls):
-        self.all_urls = all_urls
-        return
-
-    def js_call(self, common_url_prefix):
-        """
-        Returns a string which, when evaluated in JavaScript, returns a
-        """
-
-        call_string = self._js_call_core(common_url_prefix)
-        assert isinstance(call_string, str)
-        return call_string
-
-    def _js_call_core(self, common_url_prefix):
-        raise NotImplementedError
-
-
-
-class DeterministicBlock(BlockTemplate):
-    def __init__(self,
-                 url_seq: [str],
-                 label_seq: [int]
-                 ):
-        super().__init__(all_urls = url_seq)
-        self.url_seq = list(url_seq)
-        self.label_seq = list(label_seq)
-
-        labelset = set(label_seq)
-        assert len({0, 1}.intersection(labelset)) == len(labelset), labelset
-        assert len(self.url_seq) == len(self.label_seq), (len(self.url_seq), len(self.label_seq))
-
-        return
-
-
-    def m(
-            self,
-            url_sequence:[str],
-            label_sequence:list,
-    ):
-        """
-            const cur_image_url_prefix = cur_subtask['image_url_prefix'];
-            const cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
-            const cur_label_sequence = cur_subtask['label_seq'];
-            const cur_label_to_action = cur_subtask['label_to_action'];
-            const cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
-            const cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
-            const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
-            const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
-            const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
-            const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
-            const usd_per_reward = cur_subtask['usd_per_reward'];
-            const cur_sequence_name = cur_subtask['sequence_name'];
-            const cur_early_exit_criteria = cur_subtask['early_exit_criteria'];
-            const cur_session_end_criteria = cur_subtask['session_end_criteria'];
-        """
-        assert set(label_sequence)  == {-1, 1}
-
-
-        block_info = dict(
-            image_url_prefix = image_url_prefix,
-            image_url_suffix_seq = image_url_suffix_seq,
-            label_seq = label_seq,
-            stimulus_duration_msec = 200,
-            reward_duration_msec = 50,
-            punish_duration_msec = 800,
-            choice_duration_msec = 10000,
-            post_stimulus_delay_duration_msec = 200,
-            intertrial_delay_period_msec = 50,
-            usd_per_reward = 0.0025,
-            sequence_name = sequence_name,
-        )
-        pass
-
-class Sequence(object):
-    def __init__(
-            self,
-            block_seq:[BlockTemplate],
-            name:str,
-            usd_per_reward:float,
-            shuffle_label_mapping:bool,
-            min_trials_criterion=None,
-            min_perf_criterion=None,
-            rolling_criterion=None,
-            max_trials_for_continue=None,
-                 ):
-        """
-        max_trials_for_continue: If the subject exceeds this number, end the session
-        """
-        assert isinstance(name, str)
-        assert isinstance(shuffle_label_mapping, bool)
-        assert isinstance(usd_per_reward, (int, float))
-        assert 0 <= usd_per_reward < 0.1, f'Specified bonus of ${usd_per_reward} per reward; are you sure?'
-
-        if (min_trials_criterion is not None) or (min_perf_criterion is not None) or (rolling_criterion is not None):
-
-            assert isinstance(min_trials_criterion, int)
-            assert min_trials_criterion > 0
-            assert isinstance(min_perf_criterion, (float, int))
-            assert 0 <= min_perf_criterion <= 1
-            assert isinstance(rolling_criterion, bool)
-        else:
-            min_trials_criterion = 'undefined'
-            min_perf_criterion = 'undefined'
-            rolling_criterion = False
-        self.usd_per_reward = usd_per_reward
-        self.min_trials_criterion = min_trials_criterion
-        self.min_perf_criterion = min_perf_criterion
-        self.rolling_criterion = rolling_criterion
-
-        if (max_trials_for_continue is not None):
-            assert isinstance(max_trials_for_continue, int)
-            assert max_trials_for_continue > 1
-        else:
-            max_trials_for_continue = 'undefined'
-
-        self.max_trials_for_continue = max_trials_for_continue
-
-        self.block_seq = block_seq
-        self.shuffle_label_mapping = shuffle_label_mapping
-        self.name = name
-        self.all_urls = [url for block in block_seq for url in block.all_urls]
-        return
-
-    def generate_javascript_string(self):
-
-        # Get common prefix
-        all_urls = []
-        for block in self.block_seq:
-            all_urls.extend(block.all_urls)
-        all_urls = list(set(all_urls))
-
-        common_url_prefix = os.path.commonprefix(all_urls)
-
-        # Assemble a string which evaluates to a JavaScript Array
-        block_sequence_string = '['
-        for block in self.block_seq:
-            js_string = block.js_call(common_url_prefix)
-            block_sequence_string+=js_string
-            block_sequence_string+=','
-        block_sequence_string+=']'
-        trial_sequence_string = f'SessionRandomization.assemble_trial_sequence('
-        trial_sequence_string+=f'{block_sequence_string},'
-        """
-        max_trials_for_continue,
-                min_perf_for_continue,
-                """
-        trial_sequence_string+=f'"{common_url_prefix}", ' \
-                               f'{bool2jsbool(self.shuffle_label_mapping)}, ' \
-                               f'"{self.name}", ' \
-                               f'{self.usd_per_reward},' \
-                               f'{self.min_trials_criterion},' \
-                               f'{self.min_perf_criterion},' \
-                               f'{bool2jsbool(self.rolling_criterion)},' \
-                               f'{self.max_trials_for_continue}'
-        trial_sequence_string+=')'
-        return trial_sequence_string
-
-
-class Session(object):
-    def __init__(
-            self,
-            warmup_sequences:Union[List[Sequence], ],
-            main_sequences:Union[List[Sequence], ],
-            randomize_slot_order:bool,
-    ):
-        self.warmup_sequences = warmup_sequences
-        self.main_sequences = main_sequences
-        self.randomize_slot_order = randomize_slot_order
-        return
-
-    def generate_javascript_string(self):
-        warmup_sequences_string = '['
-        for warmup_seq in self.warmup_sequences:
-            warmup_sequences_string+=warmup_seq.generate_javascript_string()
-            warmup_sequences_string+=','
-        warmup_sequences_string+=']'
-
-        main_sequences_string = '['
-        for main_seq in self.main_sequences:
-            main_sequences_string += main_seq.generate_javascript_string()
-            main_sequences_string += ','
-        main_sequences_string += ']'
-
-        session_sequence_string = f'SessionRandomization.generate_session({warmup_sequences_string}, {main_sequences_string}, {bool2jsbool(self.randomize_slot_order)})'
-        return session_sequence_string
-
-    def write_html(self, check_urls=True, url_checker = None):
-        # Performs checks on validity
-        if check_urls:
-            if url_checker is None:
-                url_checker = URLChecker()
-            all_urls = [url for seq in (self.warmup_sequences + self.main_sequences) for url in seq.all_urls]
-            url_checker.check(all_urls)
-
-        # Load template
-        html_string = utils.load_text(TEMPLATE_LOCATION)
-
-        # Inject subtask pool
-        html_string = html_string.replace('__INSERT_SESSION_SEQUENCES_HERE__', self.generate_javascript_string())
-
-        # Load ptap/public/common/*.js files into a string
-        javascript_common = utils.make_javascript_common_injection_string()
-
-        # Load the task definition into a string
-        javascript_task = utils.load_text(TASK_LOCATION)
-
-        # Join the strings
-        javascript_injection = '\n\n\n\n'.join([javascript_common, javascript_task])
-        html_string = html_string.replace('__INJECT_JAVASCRIPT_HERE__', javascript_injection)
-        return html_string
-
-
 class URLChecker(object):
 
     def __init__(self):
@@ -244,6 +31,184 @@ class URLChecker(object):
             self.urls_checked_cache[url] = utils.check_url_has_image(url)
 
 
+def generate_block_info(
+        urls: [str],
+        labels: list,
+        sequence_name: str,
+        min_performance_for_bonus,
+        max_bonus_usd,
+        randomly_flip_labels:bool,
+        randomly_sample_trials:bool,
+        replace:bool,
+        ntrials:int = None,
+        catch_trial_info: dict = None,
+):
+    if np.mean(labels) != 0:
+        print('Imbalanced labels', labels)
+
+    if ntrials is None:
+        ntrials = len(urls)
+
+    assert ntrials > 0
+
+    if catch_trial_info is None:
+        """
+        'catch_trial_info':{
+            25:{
+                'image_url':'test',
+                'label':1,
+                'flip_label_with_main_trials':false,
+            },
+        }
+        """
+
+        catch_trial_info = {}
+    else:
+        probe_trial_positions = list(catch_trial_info.keys())
+        for k in probe_trial_positions:
+            assert isinstance(k, int)
+            info = catch_trial_info[k]
+            assert 'image_url' in info
+            assert 'label' in info
+            assert 'flip_label_with_main_trials' in info
+            assert info['label'] in {-1, 1}
+            assert isinstance(info['image_url'], str)
+            assert isinstance(info['flip_label_with_main_trials'], bool)
+
+        assert np.max(probe_trial_positions) <= ntrials, probe_trial_positions
+        assert 0 <= np.min(probe_trial_positions), probe_trial_positions
+
+    assert set(labels) == {-1, 1}
+    assert len(urls) == len(labels)
+
+    SAFETY_MAX_USD_PER_TRIAL = 0.1
+    usd_per_trial = max_bonus_usd / len(urls)
+    if usd_per_trial > SAFETY_MAX_USD_PER_TRIAL:
+        raise Exception('Are you sure? %0.2f bonus USD per trial'%(usd_per_trial))
+
+    block_info = dict(
+        randomly_flip_labels=randomly_flip_labels,
+        randomly_sample_trials=randomly_sample_trials,
+        image_urls=urls,
+        labels=labels,
+        replace=replace,
+        ntrials=ntrials,
+        catch_trial_info=catch_trial_info,
+        stimulus_duration_msec=200,
+        reward_duration_msec=50,
+        punish_duration_msec=500,
+        choice_duration_msec=10000,
+        post_stimulus_delay_duration_msec=50,
+        intertrial_delay_period_msec=50,
+        max_bonus_usd=max_bonus_usd,
+        min_performance_for_bonus=min_performance_for_bonus,
+        sequence_name=sequence_name,
+    )
+    return block_info
+
+from typing import Dict
+def convert_object_to_javascript_string(object:Union[List, Dict]):
+    bool2jsbool = lambda b:'true' if b else 'false'
+
+    INDENT_CHARACTER = '    '
+
+    if isinstance(object, list):
+        javascript_expression = '[\n'
+        for cur_val in object:
+            if isinstance(cur_val, str):
+                val = f'"{cur_val}"'
+            elif isinstance(cur_val, bool):
+                val = bool2jsbool(cur_val)
+            elif isinstance(cur_val, (list, dict)):
+                val = convert_object_to_javascript_string(cur_val)
+            else:
+                val = str(cur_val)
+
+            javascript_expression += f'{INDENT_CHARACTER}{val},\n'
+        javascript_expression += ']'
+    elif isinstance(object, dict):
+        javascript_expression = '{\n'
+        for k in object:
+            cur_val = object[k]
+            if isinstance(cur_val, str):
+                val = f'"{cur_val}"'
+            elif isinstance(cur_val, bool):
+                val = bool2jsbool(cur_val)
+            elif isinstance(cur_val, (list, dict)):
+                val = convert_object_to_javascript_string(cur_val)
+            else:
+                val = str(cur_val)
+
+
+            if isinstance(k, str):
+                key_string = f'\"{k}\"'
+            else:
+                key_string = str(k)
+            javascript_expression+= f'{key_string}:{val},\n'
+        javascript_expression += '}'
+    else:
+        raise Exception(str(object))
+
+    return javascript_expression
+
+def write_html(block_sequence, url_checker:URLChecker = None):
+    # Performs checks on validity
+
+    if url_checker is not None:
+        all_urls = []
+        for block in block_sequence:
+            cur_urls = [block['image_url_prefix'] + u for u in block['image_url_suffix_seq']]
+            all_urls.extend(cur_urls)
+        url_checker.check(all_urls)
+
+    javascript_block_sequence = convert_object_to_javascript_string(block_sequence)
+    if False:
+
+        bool2jsbool = lambda b:'true' if b else 'false'
+
+        INDENT_CHARACTER = '    '
+
+        javascript_block_sequence = '[\n'
+
+        for block_info in block_sequence:
+            javascript_expression = 3 * INDENT_CHARACTER + '{\n'
+            for k in block_info:
+                cur_val = block_info[k]
+                if isinstance(cur_val, str):
+                    val = f'"{cur_val}"'
+                elif isinstance(cur_val, bool):
+                    val = bool2jsbool(cur_val)
+                elif isinstance(cur_val, tuple):
+                    tup = cur_val
+                    assert len(tup) == 2
+                    assert tup[0] == 'raw'
+                    val = cur_val
+                else:
+                    val = cur_val
+                javascript_expression+=(4 * INDENT_CHARACTER + f'"{k}":{val},\n')
+            javascript_expression +=3 * INDENT_CHARACTER + '},\n'
+            javascript_block_sequence+=javascript_expression
+
+        javascript_block_sequence += '\n]'
+
+    # Load template
+    html_string = utils.load_text(TEMPLATE_LOCATION)
+
+    # Inject block sequence
+    html_string = html_string.replace('__INSERT_BLOCK_INFO_SEQUENCE_HERE__', javascript_block_sequence)
+
+    # Load ptap/public/common/*.js files into a string
+    javascript_common = utils.make_javascript_common_injection_string()
+
+    # Load the task definition into a string
+    javascript_task = utils.load_text(TASK_LOCATION)
+
+    # Join the strings
+    javascript_injection = '\n\n\n\n'.join([javascript_common, javascript_task])
+    html_string = html_string.replace('__INJECT_JAVASCRIPT_HERE__', javascript_injection)
+    return html_string
+
+
 if __name__ == '__main__':
 
     blue_go_right = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/blue_choose_right.png'
@@ -254,11 +219,39 @@ if __name__ == '__main__':
     blue = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/bluediamond.png'
     orange = 'https://milresources.s3.amazonaws.com/Images/AbstractShapes/orangediamond.png'
 
-    warmup_sequences = []
-    main_sequences = [
-        Sequence(block_seq = [RandomBlock(urls_0_pool=[blue], urls_1_pool=[orange], ntrials = 50, replace = True, balanced_categories=False, )],
-                               name = 'test_seq', shuffle_label_mapping=True, min_trials_criterion=5, min_perf_criterion=1, rolling_criterion=True)]
+    block_info = generate_block_info(
+            urls= [blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left, ],
+            labels= [1, -1,1, -1,1, -1,1, -1,1, -1, ],
+            sequence_name = 'blue_orange_test',
+            min_performance_for_bonus=0.5,
+            max_bonus_usd = 0.01,
+            randomly_flip_labels=True,
+            randomly_sample_trials=False,
+            replace=False,
+            catch_trial_info=None,
+            ntrials = None,
+        )
 
-    sess = Session(warmup_sequences=warmup_sequences, main_sequences=main_sequences, randomize_slot_order=True)
-    html_string = sess.write_html(check_urls=True)
+    block_info = generate_block_info(
+            urls= [blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left, blue_go_right, orange_go_left],
+            labels= [1, -1,1, -1,1, -1,1, -1,1, -1, ],
+            sequence_name = 'blue_orange_test',
+            min_performance_for_bonus=0.5,
+            max_bonus_usd = 0.01,
+            randomly_flip_labels=False,
+            randomly_sample_trials=True,
+            replace=False,
+            catch_trial_info=None,
+            ntrials = 10,
+        )
+
+
+    block_sequence = [block_info]
+
+    print(convert_object_to_javascript_string(block_info))
+
+
+    html_string = write_html(
+        block_sequence = block_sequence,
+    )
     utils.save_text(string=html_string, fpath = './orange_blue_example.html')

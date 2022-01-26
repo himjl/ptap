@@ -2,15 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bcb50c5-127c-43f0-aa63-81915bb6eb76" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/assets/blue_choose_right.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/blue_only.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/orange_choose_left.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/orange_only.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/assets/probe_trials.ai" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptap_writer/.idea/ptap_writer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/.idea/ptap_writer.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/generate_sr_html.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/generate_sr_html.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/process_sr_assignment.py" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/process_sr_assignment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task.js" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task_template.html" beforeDir="false" afterPath="$PROJECT_DIR$/ptap_writer/ptap_writer/binary_sr/sr_task_template.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/common/canvas.js" beforeDir="false" afterPath="$PROJECT_DIR$/public/common/canvas.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +32,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.language" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -45,7 +43,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1639108624264</updated>
-      <workItem from="1639108625471" duration="1329000" />
+      <workItem from="1639108625471" duration="16290000" />
     </task>
     <task id="LOCAL-00001" summary="before refactor">
       <created>1639108751507</created>
@@ -54,7 +52,14 @@
       <option name="project" value="LOCAL" />
       <updated>1639108751507</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="simplifying sr">
+      <created>1639158564422</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1639158564422</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -62,6 +67,11 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="before refactor" />
-    <option name="LAST_COMMIT_MESSAGE" value="before refactor" />
+    <MESSAGE value="simplifying sr" />
+    <option name="LAST_COMMIT_MESSAGE" value="simplifying sr" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

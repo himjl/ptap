@@ -113,7 +113,7 @@ async function draw_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel
         context.fillText(text, xcentroid_pixel, ycentroid_pixel);
     }
 
-    // So further calls to this canvas context are not necessarily alpha'd out.
+    // So further calls to this canvas context are not alpha'd out.
     context.globalAlpha = 1
 }
 
@@ -229,11 +229,11 @@ function display_canvas_sequence(canvas_sequence, t_durations) {
     }).then();
 
     const nframes = canvas_sequence.length;
-    var frame_timestamps = [];
-    var i_canvas_next = 0;
-    var on_first_call = true;
-    var timestamp_draw = undefined;
-    var epsilon = (1/60 * 1000) * 0.4; // If a frame has been reported to be shown for at least (trequested - epsilon), go to the next frame. The alternative is that the frame is shown for longer than requested (trequested + frame_period).
+    let frame_timestamps = [];
+    let i_canvas_next = 0;
+    let on_first_call = true;
+    let timestamp_draw = undefined;
+    let epsilon = (1/60 * 1000) * 0.4; // If a frame has been reported to be shown for at least (trequested - epsilon), go to the next frame. The alternative is that the frame is shown for longer than requested (trequested + frame_period).
 
     function check_frame(timestamp) {
         /*

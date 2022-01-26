@@ -11,56 +11,57 @@ async function run_subtasks(subtask_sequence){
     that have been completed so far. It also attaches the error message which was associated with the error.
      */
 
-    var nsubtasks = subtask_sequence.length;
-    var return_values = {'data':[]};
-
+    const nsubtasks = subtask_sequence.length;
+    let return_values = {'data':[]};
 
     try {
+
+        let bonus_usd_earned = 0;
         for (let i_subtask = 0; i_subtask < nsubtasks; i_subtask++) {
-            const playspace_size_pixels = infer_canvas_size();
-            const cur_subtask = subtask_sequence[i_subtask];
-            const cur_image_url_prefix = cur_subtask['image_url_prefix'];
-            const cur_image_url_suffix_sequence = cur_subtask['image_url_suffix_seq'];
-            const cur_label_sequence = cur_subtask['label_seq'];
-            const cur_label_to_action = cur_subtask['label_to_action'];
-            const cur_stimulus_duration_msec = cur_subtask['stimulus_duration_msec'];
-            const cur_reward_duration_msec = cur_subtask['reward_duration_msec'];
-            const cur_punish_duration_msec = cur_subtask['punish_duration_msec'];
-            const cur_choice_duration_msec = cur_subtask['choice_duration_msec'];
-            const cur_post_stimulus_delay_duration_msec = cur_subtask['post_stimulus_delay_duration_msec'];
-            const cur_intertrial_delay_period_msec = cur_subtask['intertrial_delay_period_msec']
-            const usd_per_reward = cur_subtask['usd_per_reward'];
-            const cur_sequence_name = cur_subtask['sequence_name'];
+            let cur_subtask = subtask_sequence[i_subtask];
 
             // Load savedata for this subtask
-
-            var cur_session_data = await run_binary_sr_trials(
-                cur_image_url_prefix,
-                cur_image_url_suffix_sequence,
-                cur_label_sequence,
-                cur_label_to_action,
-                cur_stimulus_duration_msec,
-                cur_reward_duration_msec,
-                cur_punish_duration_msec,
-                cur_choice_duration_msec,
-                cur_post_stimulus_delay_duration_msec,
-                cur_intertrial_delay_period_msec,
-                usd_per_reward,
-                playspace_size_pixels,
-                cur_sequence_name,
+            let cur_session_data = await run_binary_sr_trials(
+                cur_subtask['image_url_seq'],
+                cur_subtask['label_seq'],
+                cur_subtask['stimulus_duration_msec'],
+                cur_subtask['reward_duration_msec'],
+                cur_subtask['punish_duration_msec'],
+                cur_subtask['choice_duration_msec'],
+                cur_subtask['post_stimulus_delay_duration_msec'],
+                cur_subtask['intertrial_delay_period_msec'],
+                cur_subtask['max_bonus_usd'],
+                cur_subtask['min_performance_for_bonus'],
+                cur_subtask['sequence_name'],
                 );
+
+            // Update bonus earned
+            let perf_seq = cur_session_data['data_vars']['perf'];
+            let max_bonus_usd = Math.max(cur_subtask['max_bonus_usd'], 0);
+            let min_performance_for_bonus = Math.max(cur_subtask['min_performance_for_bonus'], 0);
+            let nrewards = MathUtils.sum(perf_seq);
+            let ntrials = perf_seq.length;
+            let perf_subtask = nrewards / ntrials
+            let bonus_usd_earned_subtask = (max_bonus_usd / (1-min_performance_for_bonus)) * (perf_subtask - min_performance_for_bonus)
+            bonus_usd_earned_subtask = Math.max(bonus_usd_earned_subtask, 0)
+
+
+            if (!(isNaN(bonus_usd_earned_subtask))){
+                bonus_usd_earned = bonus_usd_earned + bonus_usd_earned_subtask
+            }
 
             // Push data to return values
             return_values['data'].push(cur_session_data);
 
-            // Check if the session end criteria was met
             // Run the "end of subtask" splash screen if there are tasks that remain after this one, and the subject has performed trials
             if ((i_subtask + 1) < (nsubtasks)){
+                let playspace_size_pixels = infer_canvas_size();
                 await inter_subtask_splash_screen(playspace_size_pixels)
             }
         }
 
-        await provide_session_end(return_values['data'])
+        console.log(bonus_usd_earned)
+        await provide_session_end(return_values['data'], bonus_usd_earned)
     }
 
     catch(error){
@@ -72,11 +73,8 @@ async function run_subtasks(subtask_sequence){
 }
 
 
-
-
 async function run_binary_sr_trials(
-    image_url_prefix,
-    image_url_suffix_sequence,
+    image_url_sequence,
     label_sequence,
     stimulus_duration_msec,
     reward_duration_msec,
@@ -84,16 +82,16 @@ async function run_binary_sr_trials(
     choice_duration_msec,
     post_stimulus_delay_duration_msec,
     intertrial_delay_period_msec,
-    usd_per_reward,
-    size,
+    max_bonus_usd,
+    min_performance_for_bonus,
     sequence_name,
 ){
-
+    let size = infer_canvas_size();
     /*
     Core function for getting behavioral data on a binary-SR task from a human subject.
 
     image_url_sequence: [t]
-    label_sequence: [t]. 0 or 1.
+    label_sequence: [t]. -1 or 1.
     stimulus_duration_msec: ()
     reward_duration_msec: ()
     punish_duration_msec: ()
@@ -104,16 +102,16 @@ async function run_binary_sr_trials(
     sequence_name: String
      */
 
-    var diameter_pixels = size * 0.25;
-
-    var coords = {};
-    coords['stimulus_url_prefix'] = image_url_prefix;
+    let diameter_pixels = size * 0.25;
+    console.log(stimulus_duration_msec)
+    let coords = {};
     coords['stimulus_duration_msec'] = stimulus_duration_msec;
     coords['reward_duration_msec'] = reward_duration_msec;
     coords['punish_duration_msec'] = punish_duration_msec;
     coords['post_stimulus_delay_duration_msec'] = post_stimulus_delay_duration_msec;
     coords['intertrial_delay_period_msec'] = intertrial_delay_period_msec;
-    coords['usd_per_reward'] = usd_per_reward;
+    coords['max_bonus_usd'] = max_bonus_usd;
+    coords['min_performance_for_bonus'] = min_performance_for_bonus;
     coords['playspace_size_px'] = size;
     coords['sequence_name'] = sequence_name;
     coords['timestamp_session_start'] = performance.timing.navigationStart;
@@ -123,11 +121,11 @@ async function run_binary_sr_trials(
     coords['screen_width_px'] = wcur;
     coords['device_pixel_ratio'] = window.devicePixelRatio || 1;
 
-    var data_vars = {};
+    let data_vars = {};
     data_vars['perf'] = [];
     data_vars['action'] = [];
-    data_vars['stimulus_url_suffix'] = [];
     data_vars['label'] = [];
+    data_vars['stimulus_url'] = [];
     data_vars['reaction_time_msec'] = [];
     data_vars['rel_timestamp_start'] = []; // The time the subject engaged the fixation button; is relative to the start time of calling this function
     data_vars['rel_timestamp_stimulus_on'] = [];
@@ -136,54 +134,11 @@ async function run_binary_sr_trials(
     data_vars['trial_number'] = [];
 
 
-    // Resume task if there is checkpoint data
-    let cur_subtask_datavars = {};
-
-
     // If there is savedata, load it, reflect savedata in HUD, and set the data_vars
-    let start_trial = 0;
-    let early_exit_satisfied = false;
-    if (cur_subtask_datavars['perf'] != null) {
-        start_trial = cur_subtask_datavars['perf'].length;
-        for (let i_trial = 0; i_trial < start_trial; i_trial++){
-            let cur_perf = cur_subtask_datavars['perf'][i_trial];
-
-            // Increment online performance metrics
-            let criterion_is_met = performance_tracker.check_satisfied(cur_perf);
-            if (criterion_is_met === true){
-                early_exit_satisfied = true;
-            }
-
-            // Increment progressbar
-            progressbar_callback();
-
-            // Update HUD
-            update_hud(cur_perf, usd_per_reward)
-        }
-        data_vars = cur_subtask_datavars;
-
-        if (early_exit_satisfied === true){
-            // Fill up the progressbar
-            for (let i_rest = 0; i_rest < (image_url_suffix_sequence.length - start_trial); i_rest++){
-                progressbar_callback()
-            }
-            start_trial = image_url_suffix_sequence.length;
-        }
-    }
-
     // Pre-buffer images
     let trial_images = new ImageBufferClass;
-    let all_urls = [];
-
-    for (let i_image = start_trial; i_image < image_url_suffix_sequence.length; i_image++){
-        let current_suffix = image_url_suffix_sequence[i_image];
-        let current_url = image_url_prefix.concat(current_suffix);
-        all_urls.push(current_url)
-    }
-    all_urls = [... new Set(all_urls)];
+    let all_urls = [... new Set(image_url_sequence)];
     await trial_images.buffer_urls(all_urls);
-
-
 
     // Begin tracking actions
     var action_recorder = new ActionListenerClass(false, true);
@@ -198,18 +153,19 @@ async function run_binary_sr_trials(
     await draw_image(canvases['reward_canvas'], reward_image, size/2, size/2, diameter_pixels);
     await draw_image(canvases['punish_canvas'], punish_image, size/2, size/2, diameter_pixels);
 
+
     // Iterate over trials
-    for (let i_trial = start_trial; i_trial < image_url_suffix_sequence.length; i_trial++){
+    for (let i_trial = 0; i_trial < image_url_sequence.length; i_trial++){
+
         // Buffer stimulus
-        let current_suffix = image_url_suffix_sequence[i_trial];
-        let current_url = image_url_prefix.concat(current_suffix);
+        let current_url = image_url_sequence[i_trial];
         let current_image = await trial_images.get_by_url(current_url);
         await draw_image(canvases['stimulus_canvas'], current_image, size/2, size/2, diameter_pixels);
 
         // Run trial initiation
         await display_canvas_sequence([canvases['blank_canvas'], canvases['fixation_canvas']], [0, 0]);
-        let fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
 
+        let fixation_outcome = await action_recorder.Promise_get_subject_keypress_response({' ':-1});
         // Run stimulus
         let _stimulus_seq = undefined;
         let _t_seq = undefined;
@@ -224,7 +180,6 @@ async function run_binary_sr_trials(
             _t_seq = [0, stimulus_duration_msec, 0]
         }
         let timestamp_stimulus = await display_canvas_sequence(_stimulus_seq, _t_seq);
-
         // Show choices and wait for response
         let choice_outcome = await action_recorder.Promise_get_subject_keypress_response({'f':0, 'j':1}, choice_duration_msec);
         let reaction_time_msec = choice_outcome['t'] - timestamp_stimulus[timestamp_stimulus.length-1];
@@ -269,7 +224,7 @@ async function run_binary_sr_trials(
         // Record outcomes
         data_vars['perf'].push(perf);
         data_vars['action'].push(action);
-        data_vars['stimulus_url_suffix'].push(current_suffix);
+        data_vars['stimulus_url'].push(current_url);
         data_vars['label'].push(cur_label);
         data_vars['reaction_time_msec'].push(Math.round(reaction_time_msec));
         data_vars['rel_timestamp_start'].push(Math.round(fixation_outcome['t'])); // The time the subject engaged the fixation button; is relative to the start time of calling this function
@@ -279,11 +234,8 @@ async function run_binary_sr_trials(
         data_vars['trial_number'].push(i_trial);
 
         // Callback
-        if (usd_per_reward > 0){
-            await update_hud(perf, usd_per_reward);
-        }
+        await update_hud(perf);
         progressbar_callback();
-
     }
 
     // Delete canvases
@@ -301,36 +253,20 @@ async function run_binary_sr_trials(
 }
 
 
-async function update_hud(perf, usd_per_reward){
+async function update_hud(perf){
     /*
     A function which is called at the end of every trial.
     It displays the subject's performance, remaining trials, and amount earned.
      */
-    var hud_current_trial_count = document.getElementById('hud_total_trials');
+    let hud_current_trial_count = document.getElementById('hud_total_trials');
     const current_trial_count = parseInt(hud_current_trial_count.innerText);
     hud_current_trial_count.innerHTML = (current_trial_count+1).toString();
 
-    var hud_current_rewards = document.getElementById('hud_total_rewards');
+    let hud_current_rewards = document.getElementById('hud_total_rewards');
     const current_rewards = parseInt(hud_current_rewards.innerText);
     hud_current_rewards.innerHTML = (current_rewards + perf).toString();
 
-    let current_performance = 0;
-    if (current_trial_count > 0){
-        current_performance = current_rewards / current_trial_count;
-    }
-
-    let next_performance = (current_performance * current_trial_count + perf) / (current_trial_count + 1);
-
-    let hud_current_performance = document.getElementById('hud_current_performance');
-    next_performance = Math.round(next_performance * 100).toString();
-    if (next_performance.length === 1){
-        next_performance = '&nbsp&nbsp'.concat(next_performance);
-    }
-    else if(next_performance.length === 2){
-        next_performance = '&nbsp'.concat(next_performance);
-    }
-    hud_current_performance.innerHTML = next_performance;
-
+    /*
     var hud_current_bonus = document.getElementById('hud_current_bonus');
     let next_bonus = (current_rewards+perf) * (usd_per_reward) * 100;
     next_bonus = (next_bonus).toPrecision(2).toString();
@@ -338,45 +274,62 @@ async function update_hud(perf, usd_per_reward){
         next_bonus = next_bonus.concat('.0');
     }
     hud_current_bonus.innerHTML = next_bonus;
+     */
 }
 
 
-async function provide_session_end(session_data){
-    var perf_per_subtask = [];
+
+async function provide_session_end(session_data, bonus_usd_earned){
+    let nsuccesses = 0;
+    let ntrials = 0;
     for (let i_subtask = 0; i_subtask < session_data.length; i_subtask++){
         let cur_data = session_data[i_subtask];
-        perf_per_subtask.push(MathUtils.mean(cur_data['data_vars']['perf']));
+        nsuccesses = nsuccesses + MathUtils.sum(cur_data['data_vars']['perf']);
+        ntrials = ntrials + cur_data['data_vars']['perf'].length;
     }
-    var grand_mean = MathUtils.mean(perf_per_subtask);
-    var playspace_size_pixels = infer_canvas_size();
-    await congratulations_screen(playspace_size_pixels, grand_mean)
+
+    await congratulations_screen(nsuccesses, ntrials, bonus_usd_earned)
 }
 
-async function congratulations_screen(size, mean_perf){
+
+async function congratulations_screen(nsuccesses, ntrials, bonus_usd_earned){
     /*
     Creates and displays a div informing the subject they are finished with the HIT, and they can press "space" to submit.
+    Also informs them of their bonus
     size: () of canvas, in units of pixels
     mean_perf: (), from [0, 1]
      */
-
-    let mean_perf_percentage = Math.round(mean_perf * 100);
-
+    let size = infer_canvas_size();
     var splash1_canvas = create_canvas('splash1_canvas', size, size);
-    var font_size = (size * 0.05).toString();
+    var font_size = (size * 0.04).toString();
     var font = font_size+'px Times New Roman';
 
-    var total_pbar_width = 0.6;
-    var filled_pbar_width = total_pbar_width * (mean_perf);
+    bonus_usd_earned = Math.round(bonus_usd_earned*100) / 100;
+
     await draw_text(splash1_canvas, 'Thank you for your work!', font, 'white', size/2, size * 0.3, 'center');
-    await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * total_pbar_width, size * 0.15, '#DCDCDC', 1);
-    await draw_rectangle(splash1_canvas, size*(1 - total_pbar_width)/2 + size*(filled_pbar_width/2), size * 0.5, size * filled_pbar_width, size * 0.15, '#66ff33', 0.8);
-    await draw_text(splash1_canvas, 'Score: '+mean_perf_percentage.toString()+'%', font, 'white', size/2, size * 0.5, 'center');
+
+    if (ntrials > 0){
+
+        let total_pbar_width = 0.6;
+        //let mean_perf = gt_ncorrect_total / gt_nobs_total;
+        //let filled_pbar_width = Math.max(0, total_pbar_width * (2 * mean_perf - 1));
+
+        await draw_rectangle(splash1_canvas, size*0.5, size * 0.5, size * total_pbar_width, size * 0.15, '#DCDCDC', 1);
+        //await draw_rectangle(splash1_canvas, size*(1 - total_pbar_width)/2 + size*(filled_pbar_width/2), size * 0.5, size * filled_pbar_width, size * 0.15, '#66ff33', 0.8);
+        if (bonus_usd_earned > 0.0){
+            await draw_text(splash1_canvas, 'Bonus earned: $'+bonus_usd_earned.toString()+'', font, 'black', size/2, size * 0.5, 'center');
+        }
+        else{
+            await draw_text(splash1_canvas, 'No bonus', font, 'white', size/2, size * 0.5, 'center');
+        }
+    }
+
+    await timeout(2000);
     await draw_text(splash1_canvas, 'Press space to submit.', font, '#66ff33', size/2, size * 0.65, 'center');
 
     await display_canvas_sequence([splash1_canvas], [0]);
     var action_recorder = new ActionListenerClass(false, true);
 
-    await timeout(500);
     await action_recorder.Promise_get_subject_keypress_response({' ': 0}, 10000);
     splash1_canvas.remove()
 }
@@ -417,7 +370,7 @@ async function inter_subtask_splash_screen(size){
 
     set_canvas_level(splash1_canvas, 100);
     await display_canvas_sequence([splash1_canvas, splash2_canvas], [timeout_msec, 0]);
-    var action_recorder = new ActionListenerClass(false, true);
+    let action_recorder = new ActionListenerClass(false, true);
     await action_recorder.Promise_get_subject_keypress_response({'b': 0});
 
     splash1_canvas.remove();
@@ -425,15 +378,46 @@ async function inter_subtask_splash_screen(size){
 }
 
 
+async function draw_sr_dot_with_text(canvas, text, xcentroid_pixel, ycentroid_pixel, diameter_pixel, fontsize_pixel, dot_color, alpha, ) {
+    var context = canvas.getContext('2d');
+
+    // Apply alpha to the dot
+    if (alpha !== undefined) {
+        // https://stackoverflow.com/questions/10487882/html5-change-opacity-of-a-draw-rectangle/17459193
+        context.globalAlpha = alpha
+    }
+
+    context.beginPath();
+    context.arc(xcentroid_pixel, ycentroid_pixel, diameter_pixel / 2, 0 * Math.PI, 2 * Math.PI);
+    context.fillStyle = dot_color;
+    context.fill();
+
+    var nLetters = text.length;
+    if (nLetters > 0){
+        var letterSize = fontsize_pixel; // Math.min((diameter_pixel*2) / (nLetters + 0.6), 40);
+        context.font = letterSize.toString() + "px Arial";
+        context.fillStyle = "gray";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(text, xcentroid_pixel, ycentroid_pixel);
+    }
+
+    // So further calls to this canvas context are not alpha'd out.
+    context.globalAlpha = 1
+}
+
 async function initialize_sr_task_canvases(size){
-    var width = size;
-    var height = size;
-    var canvases = {};
+    let width = size;
+    let height = size;
+    let canvases = {};
 
     // Create fixation canvas
     canvases['fixation_canvas'] = create_canvas('fixation_canvas', width, height);
-    await draw_dot_with_text(canvases['fixation_canvas'], 'Press space', width*0.5, height*0.75, size * 0.15, "white", 1);
-    await draw_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(10, size * 0.01), "black", 1);
+    let fontsize_fixation = size * 0.02
+    let fixation_text = 'spacebar'
+
+    await draw_sr_dot_with_text(canvases['fixation_canvas'], fixation_text, width*0.5, height*0.8, size * 0.1, fontsize_fixation, "white", 1);
+    await draw_sr_dot_with_text(canvases['fixation_canvas'], '', width*0.5, height*0.5, Math.max(1, size * 0.01), 0, "black", 1);
     // Create stimulus canvas
     canvases['stimulus_canvas'] = create_canvas('stimulus_canvas', width, height);
 
@@ -465,9 +449,10 @@ async function initialize_sr_task_canvases(size){
     */
 
     // Create choice canvas
+    let fontsize_choice = fontsize_fixation; //size * 0.01
     canvases['choice_canvas'] = create_canvas('choice_canvas', width, height);
-    await draw_dot_with_text(canvases['choice_canvas'], 'F', width*0.25, height*0.75, size * 0.1, "white", 1);
-    await draw_dot_with_text(canvases['choice_canvas'], 'J', width*0.75, height*0.75, size * 0.1, "white", 1);
+    await draw_sr_dot_with_text(canvases['choice_canvas'], 'F', width*0.3, height*0.8, size * 0.1, fontsize_choice, "white", 1);
+    await draw_sr_dot_with_text(canvases['choice_canvas'], 'J', width*0.7, height*0.8, size * 0.1, fontsize_choice, "white", 1);
     canvases['blank_canvas'] = create_canvas('blank_canvas', width, height);
 
     return canvases
