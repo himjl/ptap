@@ -26,7 +26,7 @@ INSTRUCTIONS_STRING = """
 
 def generate_binary_mts_task(
         experiment_name,
-        give_reward_sequence, # bool
+        give_feedback_sequence, # bool
         stimulus_image_url_sequence,
         choice0_image_url_sequence,
         choice1_image_url_sequence,
@@ -40,8 +40,8 @@ def generate_binary_mts_task(
         intertrial_delay_duration_msec,
         inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec,
-        minimal_gt_performance_for_bonus,
-        pseudo_usd_per_gt_correct,
+        min_gt_performance_for_bonus,
+        max_bonus_usd,
         check_urls = False,
 ):
 
@@ -51,19 +51,12 @@ def generate_binary_mts_task(
     assert len(set(i_correct_choice_sequence).difference({-1, 0, 1})) == 0
     assert isinstance(experiment_name, str)
 
-    rewarded_choice_sequence = []
-    for i, apply_reward in enumerate(give_reward_sequence):
-        if apply_reward:
-            assert i_correct_choice_sequence[i] != -1
-            rewarded_choice_sequence.append(i_correct_choice_sequence[i])
-        else:
-            rewarded_choice_sequence.append(-1)
 
     html_string = _generate_deterministic_mts_trial_sequence_htmls(
         stimulus_image_url_sequence=stimulus_image_url_sequence,
         choice0_url_sequence=choice0_image_url_sequence,
         choice1_url_sequence=choice1_image_url_sequence,
-        rewarded_choice_sequence=rewarded_choice_sequence,
+        give_feedback_sequence=give_feedback_sequence,
         ground_truth_choice_sequence=i_correct_choice_sequence,
         stimulus_duration_msec=stimulus_duration_msec,
         reward_duration_msec=reward_duration_msec,
@@ -74,8 +67,8 @@ def generate_binary_mts_task(
         intertrial_delay_duration_msec=intertrial_delay_duration_msec,
         inter_choice_presentation_delay_msec=inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec=pre_choice_lockout_delay_duration_msec,
-        minimal_gt_performance_for_bonus=minimal_gt_performance_for_bonus,
-        pseudo_usd_per_gt_correct=pseudo_usd_per_gt_correct,
+        min_gt_performance_for_bonus=min_gt_performance_for_bonus,
+        max_bonus_usd=max_bonus_usd,
         block_name=experiment_name,
         query_string='Which is more similar to the first image?',
     )
@@ -85,7 +78,7 @@ def _generate_deterministic_mts_trial_sequence_htmls(
         stimulus_image_url_sequence,
         choice0_url_sequence,
         choice1_url_sequence,
-        rewarded_choice_sequence,
+        give_feedback_sequence,
         ground_truth_choice_sequence,
         stimulus_duration_msec,
         reward_duration_msec,
@@ -96,19 +89,12 @@ def _generate_deterministic_mts_trial_sequence_htmls(
         intertrial_delay_duration_msec,
         inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec,
-        minimal_gt_performance_for_bonus,
-        pseudo_usd_per_gt_correct,
+        min_gt_performance_for_bonus,
+        max_bonus_usd,
         block_name,
         query_string,
 ):
 
-    all_urls = stimulus_image_url_sequence + choice0_url_sequence + choice1_url_sequence
-
-    image_url_prefix = os.path.commonprefix(all_urls)
-
-    stimulus_image_url_suffix_sequence = [url.split(image_url_prefix)[-1] for url in stimulus_image_url_sequence]
-    choice0_url_suffix_sequence = [url.split(image_url_prefix)[-1] for url in choice0_url_sequence]
-    choice1_url_suffix_sequence = [url.split(image_url_prefix)[-1] for url in choice1_url_sequence]
 
     """
     Core function for getting behavioral data on a series of 2AFC trials from a human subject.
@@ -133,12 +119,11 @@ def _generate_deterministic_mts_trial_sequence_htmls(
     Returns {'coords':coords, 'data_vars':data_vars, 'meta':meta}
 
     """
-    assert isinstance(image_url_prefix, str)
     sequence_vars = [
-        stimulus_image_url_suffix_sequence,
-        choice0_url_suffix_sequence,
-        choice1_url_suffix_sequence,
-        rewarded_choice_sequence,
+        stimulus_image_url_sequence,
+        choice0_url_sequence,
+        choice1_url_sequence,
+        give_feedback_sequence,
         ground_truth_choice_sequence,
     ]
 
@@ -164,26 +149,21 @@ def _generate_deterministic_mts_trial_sequence_htmls(
     for scalar in positive_msec_scalars:
         assert scalar >= 0
 
-    early_exit_ntrials_criterion = ntrials
-    early_exit_perf_criterion = 1
 
-    max_safety = 0.02
-    assert 0 <= minimal_gt_performance_for_bonus < 1
-    assert 0 <= pseudo_usd_per_gt_correct < max_safety
-    assert isinstance(pseudo_usd_per_gt_correct, float)
+    max_safety = 0.8
+    assert 0 <= min_gt_performance_for_bonus < 1
+    assert 0 <= max_bonus_usd < max_safety, max_bonus_usd
+    assert isinstance(max_bonus_usd, float)
     assert isinstance(block_name, str)
-    assert isinstance(early_exit_ntrials_criterion, int)
-    assert 0 <= early_exit_perf_criterion <= 1
     assert isinstance(block_name, str)
     assert isinstance(query_string, str)
 
 
     block_info = dict(
-        image_url_prefix = image_url_prefix,
-        stimulus_image_url_suffix_sequence = stimulus_image_url_suffix_sequence,
-        choice0_url_suffix_sequence = choice0_url_suffix_sequence,
-        choice1_url_suffix_sequence = choice1_url_suffix_sequence,
-        rewarded_choice_sequence = rewarded_choice_sequence,
+        stimulus_url_sequence = stimulus_image_url_sequence,
+        choice0_url_sequence = choice0_url_sequence,
+        choice1_url_sequence = choice1_url_sequence,
+        give_feedback_sequence = [bool2jsbool(v) for v in give_feedback_sequence],
         ground_truth_choice_sequence = ground_truth_choice_sequence,
         stimulus_duration_msec = stimulus_duration_msec,
         reward_duration_msec = reward_duration_msec,
@@ -194,11 +174,9 @@ def _generate_deterministic_mts_trial_sequence_htmls(
         intertrial_delay_duration_msec = intertrial_delay_duration_msec,
         inter_choice_presentation_delay_msec = inter_choice_presentation_delay_msec,
         pre_choice_lockout_delay_duration_msec = pre_choice_lockout_delay_duration_msec,
-        minimal_gt_performance_for_bonus = minimal_gt_performance_for_bonus,
-        pseudo_usd_per_gt_correct = pseudo_usd_per_gt_correct,
+        min_gt_performance_for_bonus = min_gt_performance_for_bonus,
+        max_bonus_usd = max_bonus_usd,
         block_name = block_name,
-        early_exit_ntrials_criterion = early_exit_ntrials_criterion,
-        early_exit_perf_criterion = early_exit_perf_criterion,
         query_string = query_string,
     )
 

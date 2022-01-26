@@ -11,10 +11,8 @@
 </div>
 
 <div id='downloading_images_splash'
-     style="color:rgba(226,226,226,0.58); font-size:14px; text-align:right; border-width:2px; float:right; background-color:red; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
-    <p style="margin-right: 5px;margin-left: 5px;">Downloading images...:
-        <text id="hud_trials_performed">&nbsp&nbsp0</text>
-    </p>
+     style="color:rgb(0,0,0); font-size:14px; text-align:right; border-width:2px; float:right; background-color:#3b62c6; border-style:solid; border-radius:10px; width:auto; opacity:0.8; visibility:hidden">
+    <p style="margin-right: 5px;margin-left: 5px;">Downloading images...</p>
 </div>
 
 
@@ -49,8 +47,6 @@ __INSERT_INSTRUCTIONS_HTML__
         let in_preview_mode = mechanical_turk_util_functions.detect_previewer(url);
         let in_sandbox = mechanical_turk_util_functions.detect_sandbox(url);
         const developer_mode = mechanical_turk_util_functions.detect_developer_mode(url);
-        const assignment_instructions_completed_key = assignmentId.concat('_instructions_done');
-        const checkpoint_key_prefix = assignmentId.concat('_checkpointed_data');
 
         /*
                 cur_block['image_url_prefix'],
@@ -71,25 +67,11 @@ __INSERT_INSTRUCTIONS_HTML__
                 cur_block['minimal_gt_performance_for_bonus'],
                 cur_block['pseudo_usd_per_gt_correct'], # (computed at perfect performance levels)
                 cur_block['block_name'],
-                cur_block['early_exit_ntrials_criterion'],
-                cur_block['early_exit_perf_criterion'],
                 cur_block['query_string'],
          */
 
         let ntotal_trials = 0;
         let block_sequence = __INSERT_BLOCK_SEQUENCE_HERE__;
-
-        if (developer_mode === true){
-            console.log('Developer mode: purging instructions key');
-            LocalStorageUtils.remove_item(assignment_instructions_completed_key);
-
-            // Purge existing checkpoints
-            console.log('Developer mode: purging checkpoints');
-            for (let i_subtask = 0; i_subtask < block_sequence.length; i_subtask++) {
-                const cur_checkpoint_key = checkpoint_key_prefix.concat('_block', i_subtask.toString());
-                LocalStorageUtils.remove_item(cur_checkpoint_key);
-            }
-        }
 
 
         // Session bonus tracker
@@ -126,15 +108,9 @@ __INSERT_INSTRUCTIONS_HTML__
 
         (async function () {
             // Run instructions if they have not been clicked through
-            const completed_instructions = LocalStorageUtils.retrieve_json_object(assignment_instructions_completed_key);
-            if (completed_instructions == null){
-                await Promise.race([run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode), timeout(10000)]);
-                document.getElementById('instructions_html').style.visibility = 'hidden';
-                LocalStorageUtils.store_object_as_json(assignment_instructions_completed_key, 1);
-            }
-            else{
-                console.log('Detected subject already completed instructions; not showing')
-            }
+
+            await Promise.race([run_instructions(document.getElementById('instructions_html').innerHTML, in_preview_mode), timeout(10000)]);
+            document.getElementById('instructions_html').style.visibility = 'hidden';
 
 
             if (in_preview_mode === false){
@@ -142,7 +118,7 @@ __INSERT_INSTRUCTIONS_HTML__
                 document.getElementById('user_hud').style.visibility = 'visible';
 
                 // Run trials
-                var session_data = await run_mts_blocks(block_sequence, checkpoint_key_prefix);
+                var session_data = await run_mts_blocks(block_sequence);
 
                 // Submit
                 await mechanical_turk_util_functions.submit_data(assignmentId, in_sandbox, session_data);

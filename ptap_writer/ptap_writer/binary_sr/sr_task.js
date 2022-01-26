@@ -40,7 +40,12 @@ async function run_subtasks(subtask_sequence){
             let max_bonus_usd = Math.max(cur_subtask['max_bonus_usd'], 0);
             let min_performance_for_bonus = Math.max(cur_subtask['min_performance_for_bonus'], 0);
             let nrewards = MathUtils.sum(perf_seq);
-            let ntrials = perf_seq.length;
+            let ntrials = 0;
+            for (let i_trial= 0; i_trial < perf_seq.length; i_trial++){
+                if (perf_seq[i_trial] !== -1){
+                    ntrials = ntrials + 1
+                }
+            }
             let perf_subtask = nrewards / ntrials
             let bonus_usd_earned_subtask = (max_bonus_usd / (1-min_performance_for_bonus)) * (perf_subtask - min_performance_for_bonus)
             bonus_usd_earned_subtask = Math.max(bonus_usd_earned_subtask, 0)
